@@ -12,14 +12,14 @@
  v2.087l3.26,3.586c0.193,0.212,0.464,0.327,0.74,0.327c0.121,0,0.243-0.022,0.36-0.067c0.386-0.149,0.64-0.52,0.64-0.933v-10h1.07
  c3.27,0,5.93-2.66,5.93-5.929V8.465C60,5.195,57.34,2.535,54.072,2.535z"/>
  `
- 
- const svgVideos = `<path d="M298,33c0-13.255-10.745-24-24-24H24C10.745,9,0,19.745,0,33v232c0,13.255,10.745,24,24,24h250c13.255,0,24-10.745,24-24V33
+
+const svgVideos = `<path d="M298,33c0-13.255-10.745-24-24-24H24C10.745,9,0,19.745,0,33v232c0,13.255,10.745,24,24,24h250c13.255,0,24-10.745,24-24V33
  z M91,39h43v34H91V39z M61,259H30v-34h31V259z M61,73H30V39h31V73z M134,259H91v-34h43V259z M123,176.708v-55.417
  c0-8.25,5.868-11.302,12.77-6.783l40.237,26.272c6.902,4.519,6.958,11.914,0.056,16.434l-40.321,26.277
  C128.84,188.011,123,184.958,123,176.708z M207,259h-43v-34h43V259z M207,73h-43V39h43V73z M268,259h-31v-34h31V259z M268,73h-31V39
  h31V73z"/>`
- 
- const svgInfo = `<path style="fill:#030104;" d="M11.812,0C5.289,0,0,5.289,0,11.812s5.289,11.813,11.812,11.813s11.813-5.29,11.813-11.813
+
+const svgInfo = `<path d="M11.812,0C5.289,0,0,5.289,0,11.812s5.289,11.813,11.812,11.813s11.813-5.29,11.813-11.813
  S18.335,0,11.812,0z M14.271,18.307c-0.608,0.24-1.092,0.422-1.455,0.548c-0.362,0.126-0.783,0.189-1.262,0.189
  c-0.736,0-1.309-0.18-1.717-0.539s-0.611-0.814-0.611-1.367c0-0.215,0.015-0.435,0.045-0.659c0.031-0.224,0.08-0.476,0.147-0.759
  l0.761-2.688c0.067-0.258,0.125-0.503,0.171-0.731c0.046-0.23,0.068-0.441,0.068-0.633c0-0.342-0.071-0.582-0.212-0.717
@@ -32,7 +32,7 @@
  c0-0.465,0.18-0.865,0.533-1.196c0.356-0.332,0.784-0.497,1.28-0.497c0.497,0,0.923,0.165,1.275,0.497
  c0.353,0.331,0.53,0.731,0.53,1.196C14.667,6.703,14.49,7.101,14.137,7.429z"/>`
 
- const svgPlayList=`
+const svgPlayList = `
  <rect x="0" y="64" width="256" height="42.667"/>
  <rect x="0" y="149.333" width="256" height="42.667"/>
  <rect x="0" y="234.667" width="170.667" height="42.667"/>
@@ -40,248 +40,263 @@
      298.667,277.333 298.667,362.667 341.333,362.667 341.333,277.333 426.667,277.333 426.667,234.667"/>
      `
 
- 
- const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
- 
- let settings = {
-     toggleSettings: {
-         lightsOff: 1,
-         tabs: 1,
-         tInfo: 1,
-         tComments: 1,
-         tVideos: 1,
-         volumeControl: 1
-     },
-     defaultTab: "videos"
- };
- 
- function isVideoPlaying(video){
+
+
+const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
+
+let settings = {
+    toggleSettings: {
+        lightsOff: 1,
+        tabs: 1,
+        tInfo: 1,
+        tComments: 1,
+        tVideos: 1,
+        volumeControl: 1
+    },
+    defaultTab: "videos"
+};
+
+function isVideoPlaying(video) {
     return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
 }
 
 
- 
- let lastScrollAt= 0 ;
-function makeBodyScroll(){
+
+let lastScrollAt = 0;
+
+function makeBodyScroll() {
 
     // avoid over triggering scroll event
-    if(+new Date - lastScrollAt<10) return;
-    lastScrollAt=+new Date;
+    if (+new Date - lastScrollAt < 10) return;
+    lastScrollAt = +new Date;
 
-//required for youtube content display
-        window.dispatchEvent(new Event("scroll"));
-    
+    //required for youtube content display
+    window.dispatchEvent(new Event("scroll"));
+
 }
 
- 
- let mtoNav=null;
 
-let mtf_checkDescriptionLoaded=null
-let mtf_related=null;
-let mtf_checkPlayList=null;
-let mtf_checkCommentsLoaded=null;
+let mtoIgnoreTo = 0
+let mtoNav = null;
+
+let mtf_checkDescriptionLoaded = null
+let mtf_related = null;
+let mtf_checkPlayList = null;
+let mtf_checkCommentsLoaded = null;
+
+let mtf_playerListQ = null
+var stComments_last = null
+let mtf_liveChatBtnQ = null;
 
 
- function AddTabPanel() {
- 
-     if (window.location.href.indexOf("www.youtube.com/watch?v=") < 0) return;
- 
- 
-     let ts = settings.toggleSettings;
- 
-     if (!ts.tabs) return;
- 
-     const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>Videos</span>`
-     const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>Info</span>`
-     const sTabBtnPlayList = `${svgElm(16,16,426.667,426.667,svgPlayList)}<span>Playlist</span>`
- 
-     const str1 = `
+function AddTabPanel() {
+
+    if (window.location.href.indexOf("www.youtube.com/watch?v=") < 0) return;
+
+
+    let ts = settings.toggleSettings;
+
+    if (!ts.tabs) return;
+
+    const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>Videos</span>`
+    const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>Info</span>`
+    const sTabBtnPlayList = `${svgElm(16,16,426.667,426.667,svgPlayList)}<span>Playlist</span>`
+
+    const str1 = `
      <paper-ripple class="style-scope yt-icon-button">
          <div id="background" class="style-scope paper-ripple" style="opacity:0;"></div>
          <div id="waves" class="style-scope paper-ripple"></div>
      </paper-ripple>
      `;
- 
- 
- 
-     const str_tabs = [
-         ts.tInfo ? `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}</a>` : '',
-         `<a id="tab-btn2" userscript-tab-content="#tab-live" class="hide"><span class="red dot"></span> Chat${str1}</a>`,
-         ts.tComments ? `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn"><span id="tab3-txt-loader">Loading..</span>${str1}</a>` : '',
-         ts.tVideos ? `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="active tab-btn">${sTabBtnVideos}${str1}</a>` : '',
-         `<a id="tab-btn5" userscript-tab-content="#tab-list" class="hide">${sTabBtnPlayList}${str1}</a>`
-     ].join('')
- 
-     var addHTML = `
+
+
+
+    const str_tabs = [
+        ts.tInfo ? `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}</a>` : '',
+        `<a id="tab-btn2" userscript-tab-content="#tab-live" class="tab-btn hide">Chat${str1}</a>`,
+        ts.tComments ? `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn"><span id="tab3-txt-loader">Loading..</span>${str1}</a>` : '',
+        ts.tVideos ? `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="active tab-btn">${sTabBtnVideos}${str1}</a>` : '',
+        `<a id="tab-btn5" userscript-tab-content="#tab-list">${sTabBtnPlayList}${str1}</a>`
+    ].join('')
+
+    var addHTML = `
      <div id="right-tabs">
          <header>
              <div id="material-tabs">
                  ${str_tabs}
              </div>
          </header>
-         <div class="tab-content">
-             <div id="tab-info" class="tab-content-cld hideOnRight"></div>
+         <div class="tab-content" userscript-scrollbar-render>
+             <div id="tab-info" class="tab-content-cld"></div>
              <div id="tab-live" class="tab-content-cld hideOnRight"></div>
-             <div id="tab-comments" class="tab-content-cld hideOnRight"></div>
-             <div id="tab-videos" class="tab-content-cld hideOnRight"></div>
-             <div id="tab-list" class="tab-content-cld hideOnRight"></div>
+             <div id="tab-comments" class="tab-content-cld"></div>
+             <div id="tab-videos" class="tab-content-cld"></div>
+             <div id="tab-list" class="tab-content-cld"></div>
          </div>
      </div>
      `;
- 
- 
-     $("span#tab3-txt-loader").text("Loading..");
-     $("ytd-watch-flexy").removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed")
-
-     remove_DisablePauseVideo();
-
-     let elm1 = document.querySelector("ytd-watch-metadata ~ #info")
-     let elm2 = document.querySelector('ytd-comments#comments')
 
 
-     if (elm1 && elm2) {
+    $("span#tab3-txt-loader").text("Loading..");
+    $("ytd-watch-flexy").removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed")
+
+    remove_DisablePauseVideo();
+
+    let elm1 = document.querySelector("ytd-watch-metadata ~ #info")
+    let elm2 = document.querySelector('ytd-comments#comments')
+
+
+    if (elm1 && elm2) {
 
         add_DisablePauseVideo();
         $(elm2).addClass('userscript-hide-comments')
         insertBefore(elm2, elm1)
 
-     }
+    }
 
 
 
-     var stComments_last=null
+
+    function stChatButton() {
 
 
-     function stChatButton(){
+        let button = mtf_liveChatBtnQ
 
-
-        let button = document.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button')
-
-        if(!button || !button.parentNode) return;
+        if (!button || !button.parentNode) return;
 
 
         button.parentNode.insertBefore(button, button.parentNode.firstChild)
-        
+
         const collapsedObserver = new MutationObserver((mutations, observer) => {
- 
+
             for (const mutation of mutations) {
- 
+
                 console.log('ytd-live-chat-frame#chat: attribute[collapsed] changed', mutation)
             }
- 
+
             sVisiblity()
- 
- 
+
+
         })
         collapsedObserver.observe(document.querySelector('ytd-live-chat-frame#chat'), {
             attributes: true,
             attributeFilter: ['collapsed'],
             attributeOldValue: true
         })
-        console.log(1213, document.querySelector('ytd-live-chat-frame#chat'))
- 
- 
- 
+        //console.log(1213, document.querySelector('ytd-live-chat-frame#chat'))
+
+
+
         function sVisiblity() {
- 
- 
+
+
             const chatBlock = document.querySelector('ytd-live-chat-frame#chat')
             const cssElm = document.querySelector('ytd-watch-flexy')
-            if(chatBlock){
-               cssElm.setAttribute('userscript-chatblock','')
-               if (chatBlock.hasAttribute('collapsed')) {
- 
-                   cssElm.setAttribute('userscript-chat-collapsed', '');
-               } else {
- 
-                   cssElm.removeAttribute('userscript-chat-collapsed');
-               }
- 
-            }else{
-                
-               cssElm.removeAttribute('userscript-chatblock')
+            if (chatBlock) {
+                cssElm.setAttribute('userscript-chatblock', '')
+                if (chatBlock.hasAttribute('collapsed')) {
+
+                    cssElm.setAttribute('userscript-chat-collapsed', '');
+                } else {
+
+                    cssElm.removeAttribute('userscript-chat-collapsed');
+                }
+
+            } else {
+
+                cssElm.removeAttribute('userscript-chatblock')
             }
- 
-            console.log(1218, cssElm.hasAttribute('userscript-chatblock'), cssElm.hasAttribute('userscript-chat-collapsed'))
+
+            //console.log(1218, cssElm.hasAttribute('userscript-chatblock'), cssElm.hasAttribute('userscript-chat-collapsed'))
             if (!cssElm.hasAttribute('userscript-chat-collapsed') && cssElm.hasAttribute('userscript-chatblock')) {
                 switchTabActivity(null)
             } else {
-                switchTabActivity_lastTab = switchTabActivity_lastTab || document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]`)
-                if (switchTabActivity_lastTab) {
-                    switchTabActivity(switchTabActivity_lastTab)
+
+                let z;
+
+                z = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}}"]`) || document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]`)
+
+                if (z) {
+                    switchTabActivity_lastTab = z.getAttribute('userscript-tab-content')
+                    switchTabActivity(z)
+
+
+
                 }
+
             }
- 
+
         }
- 
+
         sVisiblity()
 
-     }
+    }
 
-     chatToggleToTop_lastButton= null
+    mtf_liveChatBtnQ = null
 
-     if(mtoNav){
+    if (mtoNav) {
         mtoNav.takeRecords();
         mtoNav.disconnect();
-        mtoNav=null;
-        mtf_checkDescriptionLoaded=null
-        mtf_related=null;
-        mtf_checkPlayList=null;
-        mtf_checkCommentsLoaded=null;
-     }
-     var wwx=0; var lastRelocate= 0
+        mtoNav = null;
+        mtf_checkDescriptionLoaded = null
+        mtf_related = null;
+        mtf_checkPlayList = null;
+        mtf_checkCommentsLoaded = null;
+        mtf_playerListQ = null
+        stComments_last = null
+        mtoIgnoreTo = 0;
+    }
+    var wwx = 0;
+    var lastRelocate = 0
 
 
-     function mtf_commentRelocate(){
+    function mtf_commentRelocate() {
 
         let elm1, elm2;
 
-        if(+new Date - lastRelocate>350){
+        if (+new Date - lastRelocate > 350) {
 
-            if ((elm1=document.querySelector("ytd-watch-metadata ~ #info")) && (elm2 = document.querySelector('ytd-watch-metadata ~ #info ~ ytd-comments#comments'))) {
-                lastRelocate=+new Date;
-                window.requestAnimationFrame(()=>{
+            if ((elm1 = document.querySelector("ytd-watch-metadata ~ #info")) && (elm2 = document.querySelector('ytd-watch-metadata ~ #info ~ ytd-comments#comments'))) {
+                lastRelocate = +new Date;
+                window.requestAnimationFrame(() => {
                     add_DisablePauseVideo();
                     $(elm2).addClass('userscript-hide-comments')
                     insertBefore(elm2, elm1)
-                        
-                    elm1=null;
-                    elm2=null;
+
+                    elm1 = null;
+                    elm2 = null;
                 })
-                
+
             }
         }
-     }
+    }
 
-     function mtf_commentRendering(){
+    function mtf_commentRendering() {
 
         var elmComments = document.querySelector('ytd-comments#comments');
-        var elmHeader=document.querySelector("ytd-comments#comments ytd-comments-header-renderer");
-        var stComments_current = (elmComments?1:0)+(elmHeader?2:0)+( document.querySelectorAll('#tab-comments, [userscript-tab-content="#tab-comments"]').length==2?4:0 )
-        if(stComments_current!==stComments_last){
+        var elmHeader = document.querySelector("ytd-comments#comments ytd-comments-header-renderer");
+        var stComments_current = (elmComments ? 1 : 0) + (elmHeader ? 2 : 0) + (document.querySelectorAll('#tab-comments, [userscript-tab-content="#tab-comments"]').length == 2 ? 4 : 0)
+        if (stComments_current !== stComments_last) {
 
-            stComments_last=stComments_current;
+            stComments_last = stComments_current;
 
-            window.requestAnimationFrame(()=>{
+            window.requestAnimationFrame(() => {
 
-                if(stComments_current==1+4){
+                if (stComments_current == 1 + 4) {
 
-                    if($('[userscript-tab-content="#tab-comments"].active')){
-                        let activeLink = document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')?null:$('[userscript-tab-content="#tab-videos"]')[0]
-                        switchTabActivity(activeLink)
-                    }
+                    var isActiveBefore = $('[userscript-tab-content="#tab-comments"]').is('.active')
+
                     $('[userscript-tab-content="#tab-comments"]').addClass("hide");
-
-                }else if(stComments_current==1+2+4){
-
-                    if($('[userscript-tab-content="#tab-comments"].active')){
-                        let activeLink = document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')?null:$('[userscript-tab-content="#tab-videos"]')[0]
-                        switchTabActivity(activeLink)
+                    if (isActiveBefore) {
+                        setDefaultActiveTab();
                     }
+
+
+                } else if (stComments_current == 1 + 2 + 4) {
 
                     $('[userscript-tab-content="#tab-comments"]').removeClass("hide");
 
-                    if($("ytd-comments#comments").is('.userscript-hide-comments')){
+                    if ($("ytd-comments#comments").is('.userscript-hide-comments')) {
                         $("ytd-comments#comments").appendTo("#tab-comments");
                         checkCommentsLoaded();
                         $("ytd-comments#comments").removeClass('userscript-hide-comments')
@@ -293,346 +308,436 @@ let mtf_checkCommentsLoaded=null;
             })
 
         }
-     }
+    }
 
 
-     function mtf_liveChatBtn(){
+    function mtf_liveChatBtnF() {
 
         let button = document.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button')
-        
-           if(button && chatToggleToTop_lastButton!==button ){
-               chatToggleToTop_lastButton=button        
-               requestAnimationFrame( stChatButton)
-           }
 
-
-
-     }
-
-
-     mtoNav=new MutationObserver((mutations, observer)=>{
-
-
-        let ch=false;
-        for(const mutation of mutations){
-            for(const addedNode of mutation.addedNodes) if(addedNode.nodeType===1) ch=true;
-            for(const removedNode of mutation.removedNodes) if(removedNode.nodeType===1) ch=true;
+        if (button && mtf_liveChatBtnQ !== button) {
+            mtf_liveChatBtnQ = button
+            requestAnimationFrame(stChatButton)
         }
-        if(!ch)return;
+
+
+
+    }
+
+    function mtf_fixInfo() {
+
+        const content = document.querySelector('#meta-contents ytd-expander>#content, #tab-info ytd-expander>#content')
+        if (!content) return;
+        const expander = content.parentNode;
+
+        if (expander.hasAttribute('collapsed')) {
+
+            expander.removeAttribute('collapsed')
+
+        }
+
+        let btn1 = expander.querySelector('tp-yt-paper-button#less:not([hidden])');
+        let btn2 = expander.querySelector('tp-yt-paper-button#more:not([hidden])');
+
+        if (btn1) btn1.setAttribute('hidden', '')
+        if (btn2) btn2.setAttribute('hidden', '')
+
+
+
+    }
+
+
+    let mtoNav_delayedC = 0;
+
+
+    let mtoNav_delayedF = () => {
+        mtoNav_delayedC = 0;
+
 
         //console.log(999,++wwx)
 
         mtf_commentRelocate();
-        mtf_liveChatBtn();
+        mtf_liveChatBtnF();
         mtf_commentRendering();
+        mtf_fixInfo();
 
 
-           if(mtf_checkDescriptionLoaded && mtf_checkDescriptionLoaded()===false) mtf_checkDescriptionLoaded=null
-           if(mtf_related && mtf_related()===false)mtf_related=null;
-           if(mtf_checkPlayList && mtf_checkPlayList()===false) mtf_checkPlayList=null;
-           if(mtf_checkCommentsLoaded&&mtf_checkCommentsLoaded()===false) mtf_checkCommentsLoaded=null;
-        
+        if (mtf_checkDescriptionLoaded && mtf_checkDescriptionLoaded() === false) mtf_checkDescriptionLoaded = null
+        if (mtf_related && mtf_related() === false) mtf_related = null;
+        mtf_checkPlayList()
+        if (mtf_checkCommentsLoaded && mtf_checkCommentsLoaded() === false) mtf_checkCommentsLoaded = null;
 
-     });
-     mtoNav.observe(document.querySelector('ytd-watch-flexy'), {subtree:true, childList:true})
+    }
 
+    mtoNav = new MutationObserver((mutations, observer) => {
 
+        if (mtoIgnoreTo > +new Date) return;
 
-     if(document.querySelector("#right-tabs")){
-        runAfterTabAppended();
-     }else{
-     let watchAt = +new Date;
-     
-     mtf_related=() => {
-        let keepTrace = true;
-        if ($("#related").length && !$("#right-tabs").length) {
-            $(addHTML).prependTo("#related");
-            runAfterTabAppended();
-            keepTrace = false;
-        } else if (new Date - watchAt > 1000) {
-            keepTrace = false;
+        let ch = false;
+        for (const mutation of mutations) {
+            for (const addedNode of mutation.addedNodes)
+                if (addedNode.nodeType === 1) ch = true;
+            for (const removedNode of mutation.removedNodes)
+                if (removedNode.nodeType === 1) ch = true;
         }
-        return keepTrace;
-    }
-    if(mtf_related && mtf_related()===false)mtf_related=null;
+        if (!ch) return;
+
+        if (mtoNav_delayedC) return;
+        mtoNav_delayedC = window.requestAnimationFrame(mtoNav_delayedF)
+
+    });
+    mtoNav.observe(document.querySelector('ytd-watch-flexy'), {
+        subtree: true,
+        childList: true
+    })
+
+
+
+    if (document.querySelector("#right-tabs")) {
+        runAfterTabAppended();
+    } else {
+        let watchAt = +new Date;
+
+        mtf_related = () => {
+            let keepTrace = true;
+            if ($("#related").length && !$("#right-tabs").length) {
+                $(addHTML).prependTo("#related");
+                runAfterTabAppended();
+                keepTrace = false;
+            } else if (new Date - watchAt > 1000) {
+                keepTrace = false;
+            }
+            return keepTrace;
+        }
+        if (mtf_related && mtf_related() === false) mtf_related = null;
 
     }
- 
- 
- }
- 
- function setDefaultActiveTab() {
-     var $tabBtnDefaultTab = document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]`);
-     const jElm = $tabBtnDefaultTab || t || $("a[userscript-tab-content]")[0] || null;
-     if (jElm) {
-         jElm.click();
-     }
- }
- 
- function insertBefore(elm, p) {
- 
-     if (elm && p && p.parentNode)
-         p.parentNode.insertBefore(elm, p)
- 
- }
- 
- function hDisablePauseVideo(evt){
-
-        //evt.preventDefault();
-        //evt.stopPropagation();
-        //evt.stopImmediatePropagation()
-        this.play();
-
- }
 
 
- function add_DisablePauseVideo(){
+}
+
+function setDefaultActiveTab() {
+    const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.hide)`) ||
+        document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]:not(.hide)`) ||
+        document.querySelector("a[userscript-tab-content]:not(.hide)") ||
+        null;
+    switchTabActivity(jElm)
+}
+
+function insertBefore(elm, p) {
+
+    if (elm && p && p.parentNode)
+        p.parentNode.insertBefore(elm, p)
+
+}
+
+function hDisablePauseVideo(evt) {
+
+    //evt.preventDefault();
+    //evt.stopPropagation();
+    //evt.stopImmediatePropagation()
+    this.play();
+
+}
+
+
+function add_DisablePauseVideo() {
 
     const video = document.querySelector('.ytd-player video')
-    if(video && isVideoPlaying(video)) video.addEventListener('pause',hDisablePauseVideo,{once:true, capture:true, passive:false})
+    if (video && isVideoPlaying(video)) video.addEventListener('pause', hDisablePauseVideo, {
+        once: true,
+        capture: true,
+        passive: false
+    })
 
- }
+}
 
- function remove_DisablePauseVideo(){
+function remove_DisablePauseVideo() {
     const video = document.querySelector('.ytd-player video')
-    if(video) video.removeEventListener('pause',hDisablePauseVideo,{once:true, capture:true, passive:false})
+    if (video) video.removeEventListener('pause', hDisablePauseVideo, {
+        once: true,
+        capture: true,
+        passive: false
+    })
 
 }
 
 
 
 
- function addControlElement(){
-     
-$('<userscript-control-element></userscript-control-element>').prependTo('ytd-comments#comments')
- }
+function addControlElement() {
 
- let loadComments_cid1=0;
- function loadComments(){
+    $('<userscript-control-element></userscript-control-element>').prependTo('ytd-comments#comments')
+}
 
-    
+let loadComments_cid1 = 0;
 
- }
+function loadComments() {
 
- function runAfterTabAppended() {
-    $("#tab-comments").addClass('hideOnRight');
-    $('[userscript-tab-content="#tab-comments"]').addClass("hide");
-     setDefaultActiveTab();
-     if (settings.toggleSettings.tVideos) {
-         $("ytd-watch-next-secondary-results-renderer").appendTo("#tab-videos");
-     }
-     if (settings.toggleSettings.tComments) {
+
+
+}
+
+function runAfterTabAppended() {
+
+    $('.tab-content').attr('standardized-themed-scrollbar', '').attr('scrollbar-rework', '').attr('scrollbar-color', '')
+
+    //$("#tab-comments").addClass('hideOnRight');
+    //$('[userscript-tab-content="#tab-comments"]').addClass("hide");
+    setDefaultActiveTab();
+    if (settings.toggleSettings.tVideos) {
+        $("ytd-watch-next-secondary-results-renderer").appendTo("#tab-videos");
+    }
+    if (settings.toggleSettings.tComments) {
         loadComments();
-     }
-     if (settings.toggleSettings.tInfo) {
-         checkDescriptionLoaded();
-     }
-     tabsUiScript();
-     checkPlayList();
+    }
+    if (settings.toggleSettings.tInfo) {
+        checkDescriptionLoaded();
+    }
+    tabsUiScript();
+    checkPlayList();
     // chatToggleToTop()
- 
- 
- 
-     $(".tab-content").scroll(makeBodyScroll);
- 
- }
- 
-let chatToggleToTop_lastButton = null;
 
 
 
- function checkDescriptionLoaded() {
-     let watchAt = +new Date;
-     console.log(113);
-     mtf_checkDescriptionLoaded=() => {
-        console.log(114);
-         let keepTrace = true;
-         const expander = document.querySelector("#meta-contents ytd-expander");
-         console.log(117,expander?expander.textContent:null)
-         if (expander && (expander.textContent || new Date - watchAt > 11270)) {
-            console.log(115, expander?expander.textContent:null);
-             keepTrace = false;
- 
-             if (expander) {
-                 $(expander).appendTo("#tab-info")
- 
-                 $(expander).removeAttr('collapsed');
-                 $(expander.querySelector('tp-yt-paper-button#less')).attr('hidden', '')
-                 $(expander.querySelector('tp-yt-paper-button#more')).attr('hidden', '')
- 
- 
-                 let bgColor = getComputedStyle(document.documentElement).backgroundColor;
-                 if (/rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)/.test(bgColor)) bgColor = null;
-                 if (bgColor) $('#meta')[0].style.setProperty('--userscript-meta-background-color', bgColor)
-             }
- 
-         }
-         return keepTrace;
-     }
-     
-     if(mtf_checkDescriptionLoaded()===false) mtf_checkDescriptionLoaded=null
- }
- 
- function checkCommentsLoaded() {
-     console.log(3434)
-     let $span = $("span#tab3-txt-loader")
-     if (!$span[0]) return;
-     //$span[0].textContent = ("Loading..");
- 
-     function updateCommentCount(s) {
+    $(".tab-content").scroll(makeBodyScroll);
+
+}
+
+
+
+function checkDescriptionLoaded() {
+    let watchAt = +new Date;
+    //console.log(113);
+    mtf_checkDescriptionLoaded = () => {
+        //console.log(114);
+        let keepTrace = true;
+        const expander = document.querySelector("#meta-contents ytd-expander");
+        //console.log(117,expander?expander.textContent:null)
+        if (expander && (expander.textContent || new Date - watchAt > 11270)) {
+            //console.log(115, expander?expander.textContent:null);
+            keepTrace = false;
+
+            if (expander) {
+                $(expander).appendTo("#tab-info")
+
+            }
+
+        }
+        return keepTrace;
+    }
+
+    if (mtf_checkDescriptionLoaded() === false) mtf_checkDescriptionLoaded = null
+}
+
+function checkCommentsLoaded() {
+    //console.log(3434)
+    let $span = $("span#tab3-txt-loader")
+    if (!$span[0]) return;
+    //$span[0].textContent = ("Loading..");
+
+    function updateCommentCount(s) {
         remove_DisablePauseVideo()
         $span[0].innerHTML = `${svgElm(16,16,60,60,svgComments)}<span>${s}</span>`;
-     }
- 
-     let watchAt = +new Date;
+        makeBodyScroll(); // force display content 
+    }
 
-     mtf_checkCommentsLoaded= () => {
- 
-         let keepTrace = true;
- 
-         const commentRenderer = document.querySelector("#count.ytd-comments-header-renderer");
-         if (commentRenderer) {
- 
-             console.log('k060', +new Date)
-             let r = '0';
-             let txt = commentRenderer.textContent
-             if (typeof txt == 'string') {
-                 let m = txt.match(/[\d\,\s]+/)
-                 if (m) r = m[0].trim()
-             }
-             if (updateCommentCount) {
-                 updateCommentCount(r)
-                 updateCommentCount = null
-             }
-             keepTrace = false;
-         } else if (new Date - watchAt > 4000) {
-             if (updateCommentCount) {
-                 updateCommentCount('0')
-                 updateCommentCount = null
-             }
-             keepTrace = false;
-         }
-         return keepTrace
- 
- 
-     }
-     if(mtf_checkCommentsLoaded&&mtf_checkCommentsLoaded()===false) mtf_checkCommentsLoaded=null;
- }
- 
- 
- function checkPlayList() {
-     var elmSelector = "#secondary #playlist";
-     $('[userscript-tab-content="#tab-list"]').addClass("hide");
-     if ($(elmSelector).length) {
-         $(elmSelector).appendTo("#secondary-inner");
-     }
- 
-     let watchAt = +new Date;
+    let watchAt = +new Date;
 
-     console.log(177)
+    mtf_checkCommentsLoaded = () => {
 
-     mtf_checkPlayList=() => {
- 
         let keepTrace = true;
 
-        //console.log(178, !!document.querySelector(elmSelector + " #container"),!$(elmSelector).is(":hidden"))
-        if (document.querySelector(elmSelector + " #container")){
-           keepTrace = false;
-           window.requestAnimationFrame(()=>{
+        const commentRenderer = document.querySelector("#count.ytd-comments-header-renderer");
+        if (commentRenderer) {
 
-
-               if(!$(elmSelector).is(":hidden")){
-
-                   $(elmSelector).appendTo("#tab-list");
-                   const tab5 = document.querySelector('[userscript-tab-content="#tab-list"]');
-                   if (tab5) {
-                       $(tab5).removeClass("hide");
-                       tab5.click();
-                   }
-                   $('ytd-playlist-panel-renderer>#container>#items').scroll(makeBodyScroll);
-
-               }
-
-           })
-
-
-        } else if (new Date - watchAt > 20000) {
+            //console.log('k060', +new Date)
+            let r = '0';
+            let txt = commentRenderer.textContent
+            if (typeof txt == 'string') {
+                let m = txt.match(/[\d\,\s]+/)
+                if (m) r = m[0].trim()
+            }
+            if (updateCommentCount) {
+                updateCommentCount(r)
+                updateCommentCount = null
+            }
+            keepTrace = false;
+        } else if (new Date - watchAt > 4000) {
+            if (updateCommentCount) {
+                updateCommentCount('0')
+                updateCommentCount = null
+            }
             keepTrace = false;
         }
-
         return keepTrace
 
 
     }
+    if (mtf_checkCommentsLoaded && mtf_checkCommentsLoaded() === false) mtf_checkCommentsLoaded = null;
+}
 
-    if(mtf_checkPlayList && mtf_checkPlayList()===false) mtf_checkPlayList=null;
- 
- 
- 
- }
- 
- let switchTabActivity_lastTab = null
- 
- function switchTabActivity(activeLink) {
+function checkPlayList() {
+    var elmSelector = "#secondary #playlist";
+    var isActiveBefore = $('[userscript-tab-content="#tab-list"]').is('.active')
 
-    console.log(1219,'hello', activeLink?activeLink.getAttribute('userscript-tab-content'):null)
- 
-     const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
- 
-     for (const link of links) {
-         let content = $(link.getAttribute('userscript-tab-content'))[0];
-         if (link && content) {
-             if (link !== activeLink) {
-                 $(link).removeClass("active");
-                 $(content).addClass("hideOnRight");
-             } else {
-                 $(link).addClass("active");
-                 $(content).removeClass("hideOnRight");
-                 content.focus();
-             }
-         }
-     }
- 
- 
- }
- 
- let tabsUiScript_setclick=false;
- function tabsUiScript() {
- 
-     const materialTab = document.querySelector("#material-tabs")
-     if (!materialTab) return;
+    //$('[userscript-tab-content="#tab-list"]').addClass("hide");
+    // if(isActiveBefore){
+    //   setDefaultActiveTab();
+    //}
 
-     
-    let noActiveTab = !!document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')
-  
-     
-     const activeLink = materialTab.querySelector('a[userscript-tab-content].active') || document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]`);
-     if(activeLink) switchTabActivity(noActiveTab?null:activeLink)
+    let watchAt = +new Date;
 
-     if(!tabsUiScript_setclick){
-        tabsUiScript_setclick=true;
-        $(materialTab).on("click", "a", function(evt) {
-    
-            if (!this.hasAttribute('userscript-tab-content')) return;
-    
-    
-            let button = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button')
-            if (button) {
-                button.querySelector('ytd-toggle-button-renderer').click();
+    //console.log(177)
+
+    mtf_checkPlayList = () => {
+
+        let ple1 = document.querySelector("#secondary>ytd-playlist-panel-renderer#playlist, #secondary-inner>ytd-playlist-panel-renderer#playlist");
+        let ple2 = document.querySelector("#tab-list ytd-playlist-panel-renderer#playlist");
+        let ple3 = document.querySelector('ytd-playlist-panel-renderer>#container>#items>ytd-playlist-panel-video-renderer')
+
+        let mtf_playerListR = (ple1 ? 1 : 0) + (ple2 ? 2 : 0) + (ple3 ? 4 : 0);
+        if (mtf_playerListR !== mtf_playerListQ) {
+
+            mtf_playerListQ = mtf_playerListR
+
+
+            window.requestAnimationFrame(() => {
+
+                if (mtf_playerListQ & 4) {
+
+                    //if(!$(elmSelector).is(":hidden")){
+
+                    if (mtf_playerListQ & 1) $(ple1).appendTo("#tab-list");
+                    const tab5 = document.querySelector('[userscript-tab-content="#tab-list"]');
+                    if (tab5) {
+                        $(tab5).removeClass("hide");
+                        //tab5.click();
+                    }
+                    $('ytd-playlist-panel-renderer>#container>#items').scroll(makeBodyScroll);
+
+                    //}
+                } else {
+
+                    var isActiveBefore = $('[userscript-tab-content="#tab-list"]').is('.active')
+
+                    $('[userscript-tab-content="#tab-list"]').addClass("hide");
+                    if (isActiveBefore) {
+                        setDefaultActiveTab();
+                    }
+
+
+
+                }
+
+            })
+
+
+        }
+
+
+    }
+
+    mtf_checkPlayList()
+
+
+
+}
+
+let switchTabActivity_lastTab = null
+
+function switchTabActivity(activeLink) {
+
+
+    if (activeLink && activeLink.hasAttribute('hide')) return;
+    //console.log(1219,'hello', activeLink?activeLink.getAttribute('userscript-tab-content'):null)
+
+    const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
+
+    for (const link of links) {
+        let content = document.querySelector(link.getAttribute('userscript-tab-content'));
+        if (link && content) {
+            if (link !== activeLink) {
+                $(link).removeClass("active");
+                $(content).addClass("hideOnRight");
+            } else {
+                $(link).addClass("active");
+                $(content).removeClass("hideOnRight");
+                window.requestAnimationFrame(() => content.focus())
             }
-            switchTabActivity_lastTab = this;
-    
-            switchTabActivity(this)
+        }
+    }
+
+
+}
+
+let tabsUiScript_setclick = false;
+
+function tabsUiScript() {
+
+    const materialTab = document.querySelector("#material-tabs")
+    if (!materialTab) return;
+
+
+    let noActiveTab = !!document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')
+
+
+    const activeLink = materialTab.querySelector('a[userscript-tab-content].active') || document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]`);
+    if (activeLink) switchTabActivity(noActiveTab ? null : activeLink)
+
+    if (!tabsUiScript_setclick) {
+        tabsUiScript_setclick = true;
+        $(materialTab).on("click", "a", function(evt) {
+
+
+            if (!this.hasAttribute('userscript-tab-content')) return;
+
+
+            window.requestAnimationFrame(() => {
+
+
+
+                Promise.resolve().then(() => {
+
+
+                    let button = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button')
+                    return button
+
+                }).then(button => {
+
+                    mtoIgnoreTo = +new Date + 300;
+
+                    if (button) {
+                        button.querySelector('ytd-toggle-button-renderer').click();
+                    }
+
+
+                }).then(() => {
+
+                    setTimeout(() => {
+                        switchTabActivity_lastTab = this.getAttribute('userscript-tab-content');
+
+                        switchTabActivity(this)
+                    }, 100);
+
+                    mtoIgnoreTo = 0;
+
+
+                })
+
+
+            })
+
             evt.preventDefault();
         });
 
     }
- 
- 
- 
- }
- 
- 
- // ---------------------------------------------------------------------------------------------
- 
- window.addEventListener("yt-navigate-finish", AddTabPanel)
+
+
+
+}
+
+
+// ---------------------------------------------------------------------------------------------
+
+window.addEventListener("yt-navigate-finish", AddTabPanel)
