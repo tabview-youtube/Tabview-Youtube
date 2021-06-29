@@ -1,0 +1,17 @@
+{
+   "content_scripts": [ {
+      "css": [ "css/style_content.css" ],
+      "js": [ "js/jquery-3.6.0.slim.min.js", "js/content.js" ],
+      "matches": [ "https://www.youtube.com/*" ],
+      "run_at": "document_start"
+   } ],
+   "description": "Float the comments on the right hand side",
+   "icons": {
+      "128": "images/icon128p.png"
+   },
+   "manifest_version": 2,
+   "name": "TabView YouTube",
+   "permissions": [ "https://www.youtube.com/*" ],
+   "version": "0.1.0",
+   "web_accessible_resources": [ "images/*.png" ]
+}
