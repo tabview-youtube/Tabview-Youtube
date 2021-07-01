@@ -2,37 +2,20 @@
 
 ytd-watch-flexy{
 
-
+/* custom size for meta-contents */
     --meta-contents-default-height-outer:30px;
     --meta-contents-padding-vertical:4px;
     --meta-contents-default-height-inner:calc(var(--meta-contents-default-height-outer) - var(--meta-contents-padding-vertical) * 2);
 
-
-
+/* recalculation of right-tab height */
     --userscript-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
-
     --userscript-below-height: calc(100vh - var(--userscript-top-bar-height) - var(--ytd-watch-flexy-panel-max-height) );
-
-
- /*
-    --userscript-below-zoom: calc( var(--userscript-below-height) / var(--ytd-watch-flexy-space-below-player) );
-*/
-
-    
     --userscript-h1:calc(var(--ytd-watch-flexy-panel-max-height) + var(--userscript-below-height));
-    --userscript-h-tab-btn:46px;    
-    --userscript-ytd-margin-6x:10px;
-    /*
-    --ytd-margin-6x:var(--userscript-ytd-margin-6x) !important;
-    */
+    --userscript-h-tab-btn:46px;
     --userscript-h2:calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
     --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
-}
-/*
-#primary #info{
-    zoom: calc(var(--userscript-below-zoom))
-}*/
 
+}
 
 ytd-watch-flexy #right-tabs{
     display:block;
@@ -54,83 +37,150 @@ ytd-watch-flexy:not([theater]) #info #info-contents #container h1.title{
 /* meta */
 
 
-ytd-watch-flexy:not([theater]) #meta{
+ytd-watch-flexy #meta{
     position:relative;
-    height:var(--meta-contents-default-height-outer);
+}
+/*
+ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner{
+padding-bottom:  calc(var(--meta-contents-default-height-outer)); / css fix coressponding to #meta /
 }
 
-ytd-watch-flexy:not([theater]) #meta ytd-expander{
+/ fix overflow issue due to #meta sizing /
+ytd-watch-flexy[flexy][is-two-columns_] #primary #meta{
+    height:0;
+    top:  calc(var(--meta-contents-default-height-outer));
+}
+*/
+
+
+ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner #info{
+padding-bottom: calc(var(--meta-contents-default-height-outer));
+    border: 0;
+    outline: 0;
+}
+ytd-watch-flexy[flexy][is-two-columns_] #primary #meta{
+    height:0;
+    top:  calc(-1 * var(--meta-contents-default-height-outer) + 4px);
+}
+ytd-watch-flexy[flexy] #primary #meta #meta-contents{
+box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
+ 
+}
+ytd-watch-flexy[flexy] #primary #meta #meta-contents:not(:hover){
+    height: calc(var(--meta-contents-default-height-outer));
+
+    overflow: hidden;
+
+}
+
+
+
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #meta{
+    height:calc( var(--yt-link-line-height, 1.6rem) + var(--meta-contents-padding-vertical) * 2);
+}
+
+ytd-watch-flexy #meta ytd-expander{
     display:none;
 }
-ytd-watch-flexy:not([theater]) #meta-contents{
+
+ytd-watch-flexy #meta-contents{
     position:absolute;
     bottom:0;
     width:100%;
+    box-sizing: border-box;
     border:1px solid transparent;
     border-color: var(--ytd-searchbox-legacy-button-focus-color);
-    --userscript-meta-contents-boundary: 2px;
-    padding: 0 var(--userscript-meta-contents-boundary);
-    margin-left: calc(-1 * var(--userscript-meta-contents-boundary));
     color:var(--yt-spec-text-primary);
     text-transform: var(--yt-button-text-transform, inherit);
     background-color:var(--yt-spec-general-background-b);
     opacity:1; 
 }
 
-ytd-watch-flexy:not([theater]) #meta-contents:hover ytd-video-secondary-info-renderer{
+ytd-watch-flexy #meta-contents:hover ytd-video-secondary-info-renderer{
     padding:0 24px;
 }
-ytd-watch-flexy:not([theater]) #meta-contents:hover{
-    box-shadow:0 2px 4px 0 rgba(0,0,0,.22) 
-}
-ytd-watch-flexy:not([theater]) #meta-contents ytd-video-secondary-info-renderer{
+ytd-watch-flexy #meta-contents ytd-video-secondary-info-renderer{
     border-bottom:0;
     padding:4px 4px;
     margin:0;
 }
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover){
+ytd-watch-flexy #meta-contents:not(:hover){
     height: auto;
-    padding:var(--meta-contents-padding-vertical);   
-    transform-origin: 50% 100%;
-    transform: scale(0.9) translateY(6px);
+    padding:0;
 }
 
-ytd-watch-flexy:not([theater]) #columns{
+ytd-watch-flexy #meta-contents:not(:hover) #top-row{
+    padding:var(--meta-contents-padding-vertical); 
+}
+
+ytd-watch-flexy #columns{
     padding-bottom:6px;
 }
 
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover) *{
-    padding:0;margin:0;
+ytd-watch-flexy #meta-contents:not(:hover) *{
+    padding:0;margin:0;vertical-align: middle;
 } 
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover) yt-img-shadow#avatar{
+
+
+ytd-watch-flexy #meta-contents:not(:hover)  #top-row ytd-video-owner-renderer>*{
+    align-self: center;
+}
+
+ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar{
     height: calc(var(--meta-contents-default-height-inner));
     width: calc(var(--meta-contents-default-height-inner));
     margin:0px 8px;
+    vertical-align: middle;
+} 
+ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar img{
+    height: calc(var(--meta-contents-default-height-inner));
+    width: calc(var(--meta-contents-default-height-inner));
+} 
+ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
+    opacity:0;
+}   
+#columns>yt-img-shadow, #columns>img{
+    position:absolute;
+    z-index:-9999;
 }
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover) #owner-sub-count{
+
+ytd-watch-flexy #meta-contents yt-img-shadow#avatar[loaded]{
+box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
+}
+
+
+ytd-watch-flexy #meta-contents:not(:hover) #owner-sub-count{
     display:none;
 }
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover) tp-yt-paper-button{
 
-
+/* show button with smaller size (non-hover meta-content) -> (badge icon) */
+ytd-watch-flexy #meta-contents:not(:hover) tp-yt-paper-button{
     height: calc( var(--meta-contents-default-height-inner) );
-    width: calc( 71.95px / 38.4px * var(--meta-contents-default-height-inner) );
     margin:0px 8px;
-    
+    padding: 10px 0;
+    zoom:0.9;
+}
+/* margin for (non-hover meta-content) -> (badge icon) */
+ytd-watch-flexy #meta-contents:not(:hover) ytd-badge-supported-renderer{
+    margin:0px 8px;
+}
+/* just ensure nowrap for (non-hover meta-content)'s flex layout */
+ytd-watch-flexy #meta-contents:not(:hover) #top-row{
+    flex-wrap: nowrap;
+}
+/* vertical center for (non-hover meta-content)'s (button text) */
+ytd-watch-flexy #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
+    line-height: 100%;
+}
+
+
+
+ytd-watch-flexy #meta-contents:not(:hover) #top-row{
+    zoom:0.95;
 } 
-ytd-watch-flexy:not([theater]) #meta-contents:not(:hover) ytd-badge-supported-renderer{
-
-    margin:0px 8px;
-
-}
 
 
 
-
-
-#right-tabs header{
-    position:relative 
-}
 body ytd-live-chat-frame.ytd-watch-flexy#chat{
     margin-bottom: 8px;
 }
@@ -139,8 +189,15 @@ body ytd-live-chat-frame.ytd-watch-flexy#chat{
     display:flex;
     padding:0;
     border-bottom:1px solid #e0e0e0;
-    box-shadow:0 2px 4px 0 rgba(0,0,0,.22) 
+    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
 }
+
+/* give background color; otherwise it will be transparent in dark mode, single column*/
+ytd-watch-flexy #right-tabs #material-tabs{
+    background:var(--yt-spec-general-background-a);
+}
+
+
 #right-tabs #material-tabs>a[userscript-tab-content]{
     flex:1;
     position:relative;
@@ -160,7 +217,16 @@ body ytd-live-chat-frame.ytd-watch-flexy#chat{
     background-color: var(--ytd-searchbox-legacy-button-color);
     text-transform: var(--yt-button-text-transform, inherit);
     user-select: none !important;
+
+    overflow: hidden;
+    white-space: nowrap;
+/*text-overflow: ellipsis;*/
+text-overflow: clip;
+
 }
+
+
+
 #right-tabs #material-tabs>a[userscript-tab-content] svg{
     height:18px;
     padding-right:4px;
@@ -194,57 +260,71 @@ body ytd-live-chat-frame.ytd-watch-flexy#chat{
     user-select: none !important;
 }
 
-#right-tabs #material-tabs a[userscript-tab-content].hide{
+#right-tabs #material-tabs a[userscript-tab-content].tab-btn-hidden{
     display:none;
 }
 
-#right-tabs #material-tabs a[userscript-tab-content].hide paper-ripple{
+#right-tabs #material-tabs a[userscript-tab-content].tab-btn-hidden paper-ripple{
     display:none;
 }
 
-
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].hide, 
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].hide:hover{
+/* show the loading comment tab in grey color */
+ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
     display:inline-block;
     color: var(--yt-spec-icon-disabled);
     pointer-events: none;
 }
 
 
+
+
 @keyframes changeLetter {
     0% {
         content: "Loading";
+        opacity:1.0;
     }
     33%{
 
         content: "Loading.";
+        opacity:0.8;
     }
     66%{
 
         content: "Loading..";
+        opacity:1.0;
     }
     100% {
       content: "Loading...";
+      opacity:0.9;
     }
   }
 
 
 
-span#tab3-txt-loader:empty::after{
-    animation: changeLetter 3s linear infinite alternate;
+
+.tab-btn span#tab3-txt-loader:empty::after{
     display: inline-block;
     width: 4em;
     text-align:left;
-    content: " ";
     font-size: inherit;
     color: currentColor;
     transform: scaleX(0.8);
 }
 
+.tab-btn.tab-btn-hidden span#tab3-txt-loader:empty::after{
+    animation: changeLetter 300ms linear infinite alternate;
+    content: " ";
+    opacity: 1;
+}
+
+.tab-btn:not(.tab-btn-hidden) span#tab3-txt-loader:empty::after{
+    content: "Fetching";
+}
 
 #right-tabs>.tab-content{
     padding:0;
-    box-shadow:0 2px 4px 0 rgba(0,0,0,.22);
+    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
     box-sizing: border-box;
     display:block;
     --yt-spec-brand-background-primary:var(--yt-spec-general-background-a);
@@ -288,6 +368,10 @@ span#tab3-txt-loader:empty::after{
     .tab-content-cld #contents, .tab-content-cld #sections, .tab-content-cld #items{
         content-visibility: auto;
     }
+/*
+    .tab-content-cld ytd-comment-replies-renderer #contents{
+        content-visibility: visible;
+    }*/
 
     .tab-content-cld ytd-comment-renderer, .tab-content-cld ytd-compact-video-renderer{
         content-visibility: visible;
@@ -313,13 +397,26 @@ span#tab3-txt-loader:empty::after{
 
 }
 
-#right-tabs .tab-content-cld.hideOnRight:not([lazy-loading]){
+@supports (contain-intrinsic-size: var(--userscript-base-height)){
+    /* make "visible scrollable area" fit (i.e. smaller) for {#continuations} to retrieve proper amount of comments */
+
+    .tab-content-cld #contents, .tab-content-cld #sections, .tab-content-cld #items{
+        contain-intrinsic-size: var(--userscript-base-height); /* fix the height to base height */
+    }
+    .tab-content-cld ytd-comment-replies-renderer #contents{
+        contain-intrinsic-size: auto; /* the size of reply of reply */ 
+    }
+
+}
+
+
+#right-tabs .tab-content-cld.tab-content-hidden:not([lazy-loading]){
     display:none;
     visibility:collapse;
 }
 
 /* force the content INSIDE the page displayable content area for rendering */
-#right-tabs .tab-content .tab-content-cld.hideOnRight[lazy-loading]{
+#right-tabs .tab-content .tab-content-cld.tab-content-hidden[lazy-loading]{
     position: absolute;
     z-index:-99999;
     
@@ -343,7 +440,7 @@ span#tab3-txt-loader:empty::after{
     user-select: none;
 }
 
-#right-tabs .tab-content .tab-content-cld.hideOnRight[lazy-loading]>ytd-comments#comments{
+#right-tabs .tab-content .tab-content-cld.tab-content-hidden[lazy-loading]>ytd-comments#comments{
 
     max-height:none;
     min-height:0;
@@ -391,23 +488,39 @@ body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:no
     height: var(--ytd-watch-flexy-chat-max-height2);
     min-height: 10px;
 }
-ytd-watch-flexy[userscript-chatblock][userscript-chat-collapsed]{
+ytd-watch-flexy[is-two-columns_][userscript-chatblock][userscript-chat-collapsed]{
     --userscript-available-height: calc(var(--userscript-base-height) - 42px);
     --userscript-min-height: var(--userscript-available-height);
 }
-ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]){
+ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]){
     --userscript-available-height: 46px;
     --userscript-min-height: 0;
     --userscript-chatroom-height: calc(var(--userscript-base-height) - 6px);
 }
-ytd-watch-flexy:not([userscript-chatblock]):not([userscript-chat-collapsed]){
+ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-chat-collapsed]){
     --userscript-available-height: var(--userscript-base-height);
     --userscript-min-height: var(--userscript-available-height);
 }
-ytd-watch-flexy ytd-playlist-panel-renderer[js-panel-height_] #container.ytd-playlist-panel-renderer{
+
+
+ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([is-two-columns_]) #right-tabs{
+    min-height:0; /* avoid page scroll when display of tab-content changed */
+}
+
+ytd-watch-flexy:not([is-two-columns_]) #right-tabs{
+    min-height:calc(100vh - var(--ytd-watch-flexy-masthead-height, 0px)); /* avoid page scroll when display of tab-content changed */
+}
+
+ytd-watch-flexy:not([is-two-columns_]){
+    --userscript-chatroom-height: calc(100vh - var(--ytd-watch-flexy-masthead-height, 0px) - var(--ytd-watch-flexy-space-below-player, 0px) - 46px - var(--ytd-margin-6x));
+}
+
+
+ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer[js-panel-height_] #container.ytd-playlist-panel-renderer{
     min-height: 0;
     max-height: var(--userscript-available-height);
 }
+
 
 body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
 
@@ -430,19 +543,41 @@ body ytd-video-primary-info-renderer{
 
 
 /* left side - like menu smaller */
+
+#primary #info ytd-menu-renderer yt-icon-button.ytd-toggle-button-renderer {
+    line-height: 1;
+    padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
+    width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
+    height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
+}
+
+#primary #info ytd-menu-renderer yt-icon-button.ytd-button-renderer {
+    line-height: 1;
+    padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
+    width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
+    height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
+}
+
+#primary #info ytd-menu-renderer #button.ytd-menu-renderer {
+    width: calc(0.75 * var(--paper-icon-button_-_width, var(--yt-icon-width)));
+    height: calc(0.75 * var(--paper-icon-button_-_height, var(--yt-icon-height)));
+}
+
+
 body #menu-container ytd-menu-renderer{
     margin-top:-10px;
-    zoom:0.85;
-    
+    /*margin-top:-10px;
+    zoom:0.85;*/
 }
 
 #primary #info{
-    zoom:0.96;
+    /*zoom:0.96;*/
 }
-
+#primary #info ytd-menu-renderer a{
+    white-space: nowrap;
+}
 #primary #info ytd-menu-renderer yt-icon-button{
-
-    zoom:0.9;
+    /*zoom:0.9;*/
 }
 
 /* smaller text in tab Info */
@@ -455,6 +590,10 @@ body #menu-container ytd-menu-renderer{
     zoom: 0.95;
 }
 
+/* smaller text for tab Videos */
+#right-tabs .tab-content .tab-content-cld#tab-videos #ytd-userscript-watch-next-videos {
+    zoom:0.94;
+}
 
 #right-tabs>.tab-content #tab-comments>#comments ytd-comments-header-renderer{
     padding:0;margin-top:0;margin-left:0;margin-right:0;
@@ -476,12 +615,6 @@ body #menu-container ytd-menu-renderer{
     letter-spacing: var(--ytd-user-comment_-_letter-spacing);
 }
 
-#right-tabs .tab-content .tab-content-cld#tab-videos #ytd-userscript-watch-next-videos {
-
-/* smaller text for tab Videos */
-    zoom:0.94;
-
-}
 
 
 
@@ -560,7 +693,7 @@ box-sizing: border-box;
     min-height: calc(1 * var(--ytd-subheadline-one-line-ellipsis_-_max-height));
     max-height:none;
     padding:10px 16px;
-    box-shadow:0 2px 4px 0 rgba(0,0,0,.22);
+    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
 }
 
 
@@ -572,7 +705,7 @@ box-sizing: border-box;
 }
         
 #tab-list ytd-playlist-panel-renderer#playlist #container>.header{
-    background-color: var(--ytd-searchbox-legacy-button-focus-color);
+    background-color: var(--yt-spec-general-background-b);
     
 }
 
@@ -583,3 +716,167 @@ box-sizing: border-box;
 
 
 /* hide playlist border & toggle button */
+
+
+/* hide videos list & play list before script loading */
+#related>ytd-watch-next-secondary-results-renderer, 
+#related> #related-skeleton,
+*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist{
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    max-height: 40px;
+    overflow:hidden;
+    margin-top:-40px;
+}
+#primary #meta-contents ytd-expander{
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    max-height: 40px;
+    overflow:hidden;
+    margin-top:-40px;
+}
+#primary ytd-comments#comments{
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+}
+
+
+
+
+/* responsive to non-column flexy */
+ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy{
+    flex-direction: column; /* from (flex-direction: column;) | overriding {#columns.ytd-watch-flexy} */
+    --ytd-watch-flexy-sidebar-width: 
+}
+ytd-watch-flexy:not([is-two-columns_]) #columns #secondary.ytd-watch-flexy{
+    display:block; /* from (display: inline-block;) | overiding {ytd-watch-flexy:not([is-two-columns_]) #secondary.ytd-watch-flexy} */
+}
+
+/* hide original right tabs {#related} */
+/* Youtube coding - under resizing window - relocate it between {#primary} and {#secondary} */
+#related{
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+    max-height: 40px;
+    overflow:hidden;
+    margin-top:-40px;
+}
+
+/* css fix for responsive two columns flex , width */
+
+ytd-watch-flexy[flexy]:not([is-two-columns_])  #secondary.ytd-watch-flexy {
+    min-width: var(--ytd-watch-flexy-min-player-width);
+    width: auto;
+}
+ytd-watch-flexy[flexy][is-two-columns_]  #secondary.ytd-watch-flexy {
+    width: var(--ytd-watch-flexy-sidebar-width);
+    min-width: var(--ytd-watch-flexy-sidebar-min-width);
+}
+
+ytd-watch-flexy[theater][is-two-columns_] #secondary.ytd-watch-flexy { 
+    margin-top: calc(var(--ytd-margin-6x) * 0.5);
+    padding-bottom: 0;
+}
+
+
+
+/* css fix for responsive two columns flex , align {#secondary} style like {#primary} */
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #secondary.ytd-watch-flexy {
+    margin-left: var(--ytd-margin-6x);
+    padding-right: var(--ytd-margin-6x);
+}
+
+html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #secondary.ytd-watch-flexy{
+    margin-top:0;
+    margin-bottom:0;
+    padding-top: calc(var(--ytd-margin-6x) * 0.5);
+    padding-bottom: calc(var(--ytd-margin-6x) * 0.5);
+}
+
+
+html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy{
+    margin-top:0;
+    margin-bottom:0;
+    padding-top: calc(var(--ytd-margin-6x) * 0.5);
+    padding-bottom: 0;
+
+}
+
+
+
+html ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([fullscreen]):not([is-two-columns_]) #secondary.ytd-watch-flexy{
+
+    padding-top: calc(var(--ytd-margin-6x) * 0.25);
+    padding-bottom: calc(var(--ytd-margin-6x) * 0.25);
+
+}
+
+/*
+ytd-watch-flexy[theater]{
+    --ytd-watch-flexy-sidebar-width: calc(402px * 0.66);
+    --ytd-watch-flexy-sidebar-min-width: calc(300px * 0.66);
+}*/
+
+ytd-watch-flexy[theater] #info #info-contents .title{
+
+    font-size:var(--ytd-user-comment_-_font-size);
+}
+
+/* reference dimension */
+/*
+ytd-watch-flexy {
+    --ytd-watch-flexy-sidebar-width: 402px;
+    --ytd-watch-flexy-sidebar-min-width: 300px;
+    --ytd-watch-flexy-masthead-height: 56px;
+    min-width: 0;
+}
+ytd-watch-flexy[flexy] {
+    --ytd-watch-flexy-width-ratio: 16;
+    --ytd-watch-flexy-height-ratio: 9;
+    --ytd-watch-flexy-space-below-player: 136px;
+    --ytd-watch-flexy-non-player-height: calc( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) );
+    --ytd-watch-flexy-non-player-width: calc( var(--ytd-watch-flexy-sidebar-width) + (3 * var(--ytd-margin-6x)) );
+    --ytd-watch-flexy-min-player-height: 240px;
+    --ytd-watch-flexy-min-player-width: calc( var(--ytd-watch-flexy-min-player-height) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+    --ytd-watch-flexy-max-player-height: calc( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) );
+    --ytd-watch-flexy-max-player-width: calc( ( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) ) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+}
+*/
+
+
+#right-tabs>header{
+    position:relative;
+    box-sizing:border-box;
+}
+
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header{
+    z-index: 99999;
+    position: fixed;
+    top: var(--ytd-watch-flexy-masthead-height);
+    width: var(--userscript-sticky-width, 100%);
+}
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+    padding-top: var(--userscript-sticky);
+}
+ytd-watch-flexy #primary #info:not(:last-child){
+margin-bottom: 6px;
+}
+
+  
+
+/* bug in blink, occupacy the space without scroll */
+
+html body::-webkit-scrollbar {
+
+    width:0 !important;
+}
+
+/*  overflow fix*/
+
+ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[slot="dropdown-content"]{
+    overflow:hidden;
+}
