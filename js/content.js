@@ -1,7 +1,11 @@
+
 /**
  * SVG resources:
  * <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
  */
+
+const scriptVersionForExternal = '2021/07/03';
+
  const svgComments = `
  <path d="M40.068,13.465L5.93,13.535c-3.27,0-5.93,2.66-5.93,5.93v21.141c0,3.27,2.66,5.929,5.93,5.929H12v10
  c0,0.413,0.254,0.784,0.64,0.933c0.117,0.045,0.239,0.067,0.36,0.067c0.276,0,0.547-0.115,0.74-0.327l9.704-10.675l16.626-0.068
@@ -42,6 +46,8 @@ const svgPlayList = `
 
 
 
+
+
 const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
 
 let settings = {
@@ -65,6 +71,12 @@ let clickInterval=clickInterval1;
 
 function isVideoPlaying(video) {
     return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
+}
+
+function setAttr(elm, attrName, b){
+
+    if(!elm)return;
+    if(b) elm.setAttribute(attrName,''); else elm.removeAttribute(attrName);
 }
 
 function hideTabBtn($tabBtn){
@@ -104,6 +116,11 @@ function ytBtnCancelTheater(){
     }
 }
 
+function ytBtnExpandChat(){
+    
+    let button = document.querySelector('ytd-live-chat-frame#chat[collapsed]>.ytd-live-chat-frame#show-hide-button')
+    if (button) button.querySelector('ytd-toggle-button-renderer').click();
+}
 function ytBtnCollapseChat(){
     
     let button = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button')
@@ -119,7 +136,8 @@ function fixDisplayForTheaterModeChanged(){
 
     }else if( !isTheater() && !isChatExpand() && !isAnyActiveTab()){
 
-        setToActiveTab();
+        console.log('a112', lastShowTab)
+        if(lastShowTab=='#chatroom') ytBtnExpandChat(); else setToActiveTab();
 
     }else if( !isWideScreenWithTwoColumns() && !isChatExpand() && !isAnyActiveTab() ){
         
@@ -130,7 +148,6 @@ function fixDisplayForTheaterModeChanged(){
 
 function hackImgShadow(imgShadow){
     // add to #columns and add back after loaded
-
     let img = imgShadow.querySelector('img')
     if(!img)return;
 
@@ -139,9 +156,9 @@ function hackImgShadow(imgShadow){
     p.replaceChild(z, imgShadow)
     $(imgShadow).prependTo('#columns'); // refer to css hack
 
-    function onload(){
-        img.removeEventListener('load',onload,false)
-        if(p&&imgShadow&&z) p.replaceChild(imgShadow, z)
+    function onload(evt){
+        if(evt) this.removeEventListener('load',onload,false)
+        p.replaceChild(imgShadow, z)
         p=null;
         z=null;
         imgShadow=null;
@@ -149,7 +166,6 @@ function hackImgShadow(imgShadow){
 
     if (img.complete) onload();
     else img.addEventListener('load',onload,false)
-
 }
 
 
@@ -162,9 +178,12 @@ Q.$callOnceAsync=async function(key){
 function chatFrameElement(cssSelector){
     let iframe = document.querySelector('iframe#chatframe');
     if(!iframe) return null;
+    let cDoc = iframe.contentDocument;
+    if(!cDoc) return null;
+    if(cDoc.readyState  != 'complete') return null; //we must wait for its completion
     let elm = null;
     try{
-        elm = iframe.contentDocument.querySelector(cssSelector)
+        elm = cDoc.querySelector(cssSelector)
     }catch(e){
         console.log('iframe error', e)
     }
@@ -172,17 +191,209 @@ function chatFrameElement(cssSelector){
 }
 
 
+function fixRelated(){
+    
+    if(!document.querySelector("#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer[data-dom-changed-by-tabview-youtube]")){
+
+
+
+        let relatedVideos = document.querySelector("#related>ytd-watch-next-secondary-results-renderer");
+        if(relatedVideos){
+
+            $('[placeholder-videos]').removeAttr('placeholder-videos')
+            $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue')
+
+            let $parentNode= $(relatedVideos.parentNode).appendTo(document.querySelector("#tab-videos"))
+            $(relatedVideos).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
+
+            $parentNode.attr('placeholder-for-youtube-play-next-queue','').attr('placeholder-videos','')
+
+            $('[placeholder-videos]').scroll(makeBodyScrollByEvt);
+
+        }
+
+        
+    }
+}
+
+function extractTextContent(elm){
+    return elm.textContent.replace(/\s+/g,'').replace(/[^\da-zA-Z\u4E00-\u9FFF\u00C0-\u00FF\u00C0-\u02AF\u1E00-\u1EFF\u0590-\u05FF\u0400-\u052F\u0E00-\u0E7F\u0600-\u06FF\u0750-\u077F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\u3040-\u30FF\u31F0-\u31FF]/g,'')
+}
+
 function mtf_fixTabsAtTheEnd(){
     // if window resize, youtube coding will relocate the element
     // for example, chatroom move before #right-tabs
     // causing difference apperance after resize of window
 
 
+    fixRelated();
+
     let nonLastRightTabs = document.querySelector('#secondary #right-tabs:not(:last-child)')
 
     if(nonLastRightTabs){
         nonLastRightTabs.parentNode.appendChild(nonLastRightTabs)
     }
+
+    let chatroom = document.querySelector('#primary ytd-live-chat-frame#chat');
+    if(chatroom){
+        let right_tabs = document.querySelector('#secondary #right-tabs:last-child')
+        if(right_tabs){
+
+
+            right_tabs.parentNode.insertBefore(chatroom, right_tabs)
+
+        }
+        
+    }
+
+
+
+    const autocomplete=document.querySelector('body>.autocomplete-suggestions:not([position-fixed-by-tabview-youtube]):not(:empty)')
+    if(autocomplete){
+        const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
+
+        if(searchBox){
+
+
+            autocomplete.setAttribute('position-fixed-by-tabview-youtube','');
+
+
+
+            if(!searchBox.hasAttribute('is-set-click-to-toggle')){
+                searchBox.setAttribute('is-set-click-to-toggle','')
+                searchBox.addEventListener('click',function(){
+
+                    setTimeout(function(){
+                    let elm=document.querySelector('.autocomplete-suggestions[position-fixed-by-tabview-youtube]:not(:empty)')
+
+                    $(elm).toggle()
+                    //if(elm.style.display=='none') elm.style.display=''; else elm.style.display='none';
+                },100);
+
+                })
+            }
+
+
+            let aaa=searchBox.nextSibling;
+            if(aaa && aaa.nodeName=="BFJQ"){
+            }else if(aaa && aaa.nodeName!="BFJQ"){
+
+                $(aaa=document.createElement("BFJQ")).insertAfter(searchBox);
+                
+                
+            }else{
+
+                $(aaa=document.createElement("BFJQ")).prependTo(searchBox.parentNode);
+                
+
+
+            }
+            $(autocomplete).prependTo(aaa);
+
+
+            aaa.style.setProperty('--sb-margin-bottom',getComputedStyle(searchBox).marginBottom)
+            aaa.style.setProperty('--height',searchBox.offsetHeight + 'px')
+
+            /*
+            setInterval(function(){               
+
+                autocomplete.style.setProperty('--ac-left',autocomplete.getBoundingClientRect().left + 'px')
+                autocomplete.style.setProperty('--ac-top',autocomplete.getBoundingClientRect().top + 'px')
+                autocomplete.style.setProperty('--sb-left',aaa.getBoundingClientRect().left + 'px')
+                autocomplete.style.setProperty('--sb-top',aaa.getBoundingClientRect().top + 'px')
+
+            },270)*/
+
+        }
+
+    }
+
+
+    let zCache=document.querySelector('[placeholder-for-youtube-play-next-queue] #items ytd-compact-video-renderer:last-of-type')
+    if(cachedLastVideo && zCache && cachedLastVideo!==zCache){
+
+  //      let cachedLastVideoStr = cachedLastVideo.__userscript_prev_textcontent__;
+   //     cachedLastVideo=zCache
+//        cachedLastVideo.
+ /*       $0.textContent.replace(/\s+/g,'').replace(/[^\da-zA-Z\u4E00-\u9FFF]/g,'')*/
+
+
+ const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
+
+        if(!cachedLastVideo.parentNode/* || cachedLastVideoStr !== cachedLastVideo.*/){
+            //removed
+            fromSearch=true;
+
+            requestAnimationFrame(function(){
+
+                $('[placeholder-for-youtube-play-next-queue]')[0].scrollTop=0;
+                const searchBox=document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
+                if(searchBox) searchBox.blur();
+
+            });
+        }else if(searchBox && !zCache.__clone_last_results__){
+
+            let p=zCache.parentNode;
+            //update from youtube loading
+            setTimeout(function(){
+
+
+                if(p&& p.parentNode) zCache.__clone_last_results__=$(p).clone();
+
+                //$()
+                //$('ytd-watch-next-secondary-results-renderer')
+
+            },800)
+
+        }
+        cachedLastVideo=zCache
+
+
+        setTimeout(function(){
+            const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
+            let zCache=document.querySelector('[placeholder-for-youtube-play-next-queue] ytd-watch-next-secondary-results-renderer #items>ytd-compact-video-renderer:last-of-type')
+
+            let items = document.querySelector('[placeholder-for-youtube-play-next-queue] ytd-watch-next-secondary-results-renderer #items');
+            
+            if(searchBox && $(searchBox).is(":visible") && (searchBox.value||"").length===0  && items.__clone_last_results__ && fromSearch ){
+
+
+                if(items.__clone_last_results__){
+
+
+                    for(const s of items.querySelectorAll('ytd-compact-video-renderer')){
+                        try{
+                        items.removeChild(s);
+                        }catch(e){}
+                    }
+/*
+                    let texts=[];
+
+                    for(const s of items.querySelectorAll('[placeholder-for-youtube-play-next-queue] ytd-item-section-renderer ytd-compact-video-renderer')){
+                        texts.push(extractTextContent(s))
+                    }*/
+
+                    for(const s of items.__clone_last_results__.querySelectorAll('ytd-compact-video-renderer')){
+   /*                     const text = extractTextContent(s)
+                        if(texts.indexOf(text)>0)continue;
+    */                    $(items).append(s)
+                    }
+
+                    fromSearch=false;
+
+                }
+
+
+            }
+        },300)
+
+    }else if(!cachedLastVideo && zCache && cachedLastVideo!==zCache){
+        
+        cachedLastVideo=zCache
+        
+
+    }
+
 
 }
 
@@ -224,7 +435,10 @@ function mtf_ChatExist(){
                 s |= elmCont.querySelector('yt-timed-continuation')?1:0;
                 s |= elmCont.querySelector('yt-live-chat-replay-continuation, yt-player-seek-continuation')?2:0;
                 //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
-                if(s==1) cssElm.setAttribute('userscript-chatblock', 'chat-live')
+                if(s==1) {
+                    cssElm.setAttribute('userscript-chatblock', 'chat-live')
+                    requestingComments=null;
+                }
                 if(s==2) cssElm.setAttribute('userscript-chatblock', 'chat-playback')
                 //if(s==5) cssElm.setAttribute('userscript-chatblock', 'chat-live-paid')
 
@@ -275,14 +489,16 @@ function makeBodyScroll() {
 
 
 }
+
+let requestingComments = null
+function scrollForComments_TF(){
+    let comments = requestingComments;
+    if ( comments && comments.hasAttribute('hidden')) makeBodyScroll();
+}
 function scrollForComments() {
-    let comments = document.querySelector('ytd-comments#comments');
-    function f() {
-        if (comments.hasAttribute('hidden')) makeBodyScroll();
-    }
-    setTimeout(f, 80);
-    setTimeout(f, 240);
-    setTimeout(f, 870);
+    setTimeout(scrollForComments_TF, 80);
+    setTimeout(scrollForComments_TF, 240);
+    setTimeout(scrollForComments_TF, 870);
 }
 
 
@@ -301,7 +517,7 @@ function initObserver(){
     // continuous check for element relocation
     function mtf_append_comments() {
         let comments = document.querySelector('#primary ytd-watch-metadata ~ #info ~ ytd-comments#comments');
-        if (comments) $(comments).appendTo('#tab-comments')
+        if (comments) $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
     }
 
     // continuous check for element relocation
@@ -322,6 +538,8 @@ function initObserver(){
                 'ytd-userscript-playlist',  
                 document.querySelector("#tab-list")
             );
+            $(ple1).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
+
         }
     }
 
@@ -334,21 +552,21 @@ function initObserver(){
         if (content) {
             const expander = content.parentNode;
 
-            if (expander.hasAttribute('collapsed')) expander.removeAttribute('collapsed');
+            if (expander.hasAttribute('collapsed')) setAttr(expander,'collapsed',false);
 
             let btn1 = expander.querySelector('tp-yt-paper-button#less:not([hidden])');
             let btn2 = expander.querySelector('tp-yt-paper-button#more:not([hidden])');
 
-            if (btn1) btn1.setAttribute('hidden', '');
-            if (btn2) btn2.setAttribute('hidden', '');
+            if (btn1) setAttr(btn1,'hidden',false);
+            if (btn2) setAttr(btn2,'hidden',false);
 
         }
 
         // just in case the playlist is collapsed
         const playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
         if(playlist){
-            if(playlist.hasAttribute('collapsed')) playlist.removeAttribute('collapsed');
-            if(playlist.hasAttribute('collapsible')) playlist.removeAttribute('collapsible');
+            if(playlist.hasAttribute('collapsed')) setAttr(playlist,'collapsed',false);
+            if(playlist.hasAttribute('collapsible')) setAttr(playlist,'collapsible',false);
         }        
 
 
@@ -365,8 +583,11 @@ function initObserver(){
         Q.addP = 0;
         Q.removeP = 0;
 
-        let promisesForAddition=addP > 0?[
+        
+
+        let promisesForAddition=!scriptEnable?[]:addP > 0?[
             Q.$callOnceAsync('mtf_advancedComments'),
+            Q.$callOnceAsync('mtf_infoSectionHeight'),
             Q.$callOnceAsync('mtf_checkDescriptionLoaded'),
             Q.$callOnceAsync('mtf_checkPlayList'),
             Q.$callOnceAsync('mtf_fetchCommentsAvailable'),
@@ -395,7 +616,7 @@ function initObserver(){
         
 
 
-        let promisesForEveryMutation=[
+        let promisesForEveryMutation=!scriptEnable?[]:[
             (async () => {
                 mtf_fix_details();
             })(),
@@ -462,8 +683,28 @@ function initObserver(){
     })();
 }
 
-function resetAtNav() {
+let displayedPlaylist=null
+let scrollingVideosList=null
 
+let scriptEnable =false;
+let lastShowTab = null;
+
+
+let cachedLastVideo=null;
+let fromSearch=false;
+function resetBeforeNav() {
+    fromSearch=true;
+    cachedLastVideo=null;
+    lastShowTab=null;
+    displayedPlaylist=null
+    scrollingVideosList=null
+    scriptEnable =false;
+
+
+    clearMutationObserver(mtoVs,'mtoVisibility_Playlist')
+    clearMutationObserver(mtoVs,'mtoVisibility_Comments')
+    clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
+    clearMutationObserver(mtoVs,'mtoFlexyAttr')
 
     if (mtoNav) {
         mtoNav.takeRecords();
@@ -484,6 +725,12 @@ function resetAtNav() {
     mtoInterval = mtoInterval1;
     clickInterval = clickInterval1;
 
+}
+
+function resetAtNav() {
+
+    scriptEnable =true;
+
     $("ytd-watch-flexy").removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed");
     $('#tab-comments').attr('lazy-loading', '');
     $('span#tab3-txt-loader').text('');
@@ -492,12 +739,36 @@ function resetAtNav() {
     var prevCommentsHeader = document.querySelector('ytd-comments#comments ytd-comments-header-renderer');
     if (prevCommentsHeader) prevCommentsHeader.parentNode.removeChild(prevCommentsHeader);
 
+    var prevCommentsMsg= document.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer:only-child');
+    if (prevCommentsMsg) prevCommentsMsg.parentNode.removeChild(prevCommentsMsg);
+
     //force to [hidden]
     var prevComemnts = document.querySelector('ytd-comments#comments'); 
     if (prevComemnts) {
-        document.querySelector('ytd-comments#comments').setAttribute('hidden', '');
-        scrollForComments();
+        setAttr(prevComemnts, 'hidden', true);
+        requestingComments = prevComemnts;
+        //scrollForComments();
     }
+
+    
+    //playlist bug
+    /*
+    var prevPlaylist = document.querySelector('ytd-watch-flexy #columns ytd-playlist-panel-renderer#playlist')
+    var secondInner = document.querySelector('ytd-watch-flexy #secondary>#secondary-inner');
+    if (prevPlaylist && secondInner){
+
+
+        prevPlaylist.removeAttribute('hidden')
+        secondInner.appendChild(prevPlaylist)
+
+    }
+
+    var prevRelated = document.querySelector('ytd-watch-flexy #columns #related')
+    if (prevRelated && secondInner){
+
+        secondInner.appendChild(prevRelated)
+    }*/
+    
 
 
 }
@@ -551,8 +822,8 @@ function getTabsHTML(){
 
 function onNavigationEnd() {
 
-    if (window.location.href.indexOf("www.youtube.com/watch?v=") < 0) return;
-
+    resetBeforeNav();
+    if(!/https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&)*v=[\w\-\_]+/.test(window.location.href))return;
     resetAtNav();
 
 
@@ -562,7 +833,7 @@ function onNavigationEnd() {
         let targetElm = document.querySelector("ytd-watch-flexy #secondary>#secondary-inner")||document.querySelector("ytd-watch-flexy #secondary")||document.querySelector("ytd-watch-flexy #columns");
         if(!targetElm) throw 'Userscript: Two Column flexy layout not found'; // not flexy layout
         promise=promise.then(()=>{
-            $(getTabsHTML()).appendTo(targetElm);
+            $(getTabsHTML()).appendTo(targetElm).attr('data-dom-created-by-tabview-youtube',scriptVersionForExternal);
             targetElm=null;
         })
     }
@@ -599,14 +870,10 @@ function runAfterTabAppended() {
 
     // append the next videos 
     // it exists as "related" is already here
-    let relatedVideos = document.querySelector("#related>ytd-watch-next-secondary-results-renderer");
-    if(relatedVideos){
-        appendWithWrapper(
-            relatedVideos,
-            'ytd-userscript-watch-next-videos',  
-            document.querySelector("#tab-videos")
-        );
-    }
+
+    fixRelated();
+
+
 
     prepareTabBtn();
 
@@ -615,7 +882,7 @@ function runAfterTabAppended() {
     Q.mtf_checkDescriptionLoaded = () => {
         const expander = document.querySelector("#meta-contents ytd-expander");
         if (!expander) return true;
-        $(expander).appendTo("#tab-info")
+        $(expander).appendTo("#tab-info").attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
 
         const avatar = document.querySelector('ytd-watch-flexy #meta-contents yt-img-shadow#avatar');
         if(avatar) hackImgShadow(avatar)
@@ -627,35 +894,57 @@ function runAfterTabAppended() {
     Q.mtf_advancedComments = () => {
         const continuations = document.querySelector("ytd-comments#comments #continuations");
         if (!continuations) return true;
+        requestingComments = document.querySelector('ytd-comments#comments');
         scrollForComments();
         return false;
     }
     Q.$callOnceAsync('mtf_advancedComments')
 
+/*
+    Q.mtf_infoSectionHeight=()=>{
+        const infoSection = document.querySelector("#primary #player ~ #info>#info-contents");
+        if (!infoSection) return true;
+        if(mtoVs.rsoInfoSection) {
+            mtoVs.rsoInfoSection.disconnect();
+            mtoVs.rsoInfoSection=null;
+        }
+        mtoVs.rsoInfoSection=new ResizeObserver(()=>{
+            const cssElm = document.querySelector('ytd-watch-flexy')
+            if(!cssElm)return;
+            cssElm.style.setProperty('--userscript-info-section-height', infoSection.offsetHeight);
+        });
+        return false;
+    }
+    Q.$callOnceAsync('mtf_infoSectionHeight')*/
 
 
 
     // make window scroll event from playlist scrolling
     // i guess it shall be not neccessary, just in case
-    Q.mtf_checkPlayList = () => {
+    /*Q.mtf_checkPlayList = () => {
         const items= document.querySelector('ytd-playlist-panel-renderer>#container>#items');
         if(!items) return true;
         $(items).scroll(makeBodyScrollByEvt);
         return false;
     }
-    Q.$callOnceAsync('mtf_checkPlayList')
+    Q.$callOnceAsync('mtf_checkPlayList')*/
 
 
     // use video player's element to detect the live-chat situation (no commenting section)
     // this would be very useful if the live chat is collapsed, i.e. iframe has no indication on the where it is live or replay
+    
+    Q.mtf_forceCheckLiveVideo_tf =()=>{
+        const cssElm = document.querySelector('ytd-watch-flexy')
+        if(!cssElm) return;
+        if($('#ytd-player .ytp-time-display').is('.ytp-live')) {
+            cssElm.setAttribute('userscript-chatblock', 'chat-live')
+            requestingComments=null;
+        }
+    }
     Q.mtf_forceCheckLiveVideo = () => {
         const playerLabel = document.querySelector('#ytd-player .ytp-time-display') && document.querySelector('ytd-live-chat-frame#chat')
         if (!playerLabel) return true;
-        setTimeout(function(){
-            const cssElm = document.querySelector('ytd-watch-flexy')
-            if(!cssElm) return;
-            if($('#ytd-player .ytp-time-display').is('.ytp-live')) cssElm.setAttribute('userscript-chatblock', 'chat-live')
-        },170)
+        setTimeout(Q.mtf_forceCheckLiveVideo_tf,170)
         return false;
     }
     Q.$callOnceAsync('mtf_forceCheckLiveVideo')
@@ -678,11 +967,15 @@ async function asyncFetchCommentsAvailable() {
 
     makeBodyScroll();
 
+    let fetchedOnce = false
     Q.mtf_fetchCommentsAvailable = () => {
+
+        if(!scriptEnable)return;
 
         let messageElm, messageStr;
         const commentRenderer = document.querySelector("ytd-comments#comments #count.ytd-comments-header-renderer");
         if (commentRenderer) {
+            fetchedOnce=true;
             let r = '0';
             let txt = commentRenderer.textContent
             if (typeof txt == 'string') {
@@ -693,18 +986,22 @@ async function asyncFetchCommentsAvailable() {
             $('#tab-comments[lazy-loading]').removeAttr('lazy-loading')
             mtoInterval=mtoInterval2;
             clickInterval=clickInterval2;
-        }else if((messageElm = document.querySelector("ytd-comments#comments #contents>*:only-child"))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
-            const mainMsg= messageElm.querySelector('#message, #submessage')
-            if(mainMsg && mainMsg.textContent){
-                for(const msg of mainMsg.querySelectorAll('*:not(:empty)')){
-                    if(msg.childElementCount===0 && msg.textContent) {
-                        messageStr=msg.textContent.trim()
-                        break
-                    }
-                } 
-            }
-            span.textContent = messageStr;
-            $('#tab-comments[lazy-loading]').removeAttr('lazy-loading')
+        }else if((messageElm = document.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer:only-child'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
+            // it is possible to get the message before the header generation.
+            setTimeout(function(){
+                if(fetchedOnce)return;
+                const mainMsg= messageElm.querySelector('#message, #submessage')
+                if(mainMsg && mainMsg.textContent){
+                    for(const msg of mainMsg.querySelectorAll('*:not(:empty)')){
+                        if(msg.childElementCount===0 && msg.textContent) {
+                            messageStr=msg.textContent.trim()
+                            break
+                        }
+                    } 
+                }
+                span.textContent = messageStr;
+                $('#tab-comments[lazy-loading]').removeAttr('lazy-loading')
+            },240);
         }
         return true;
     
@@ -721,20 +1018,19 @@ function createAttributeObservants() {
 
 
     // Attr Mutation Observer - #playlist - hidden
-    if(mtoVs.mtoVisibility_Playlist) {
-        mtoVs.mtoVisibility_Playlist.takeRecords();
-        mtoVs.mtoVisibility_Playlist.disconnect();
-        mtoVs.mtoVisibility_Playlist=null;
-    }
+    clearMutationObserver(mtoVs,'mtoVisibility_Playlist')
     // Attr Mutation Observer callback - #playlist - hidden
     let mtf_attrPlaylist=(mutations, observer)=>{
         var playlist=document.querySelector('ytd-playlist-panel-renderer#playlist')
         const $tabBtn = $('[userscript-tab-content="#tab-list"]');
+        //console.log(3712,$tabBtn)
         //console.log('attr playlist changed')
         if( $tabBtn.is('.tab-btn-hidden') && !playlist.hasAttribute('hidden') ){
+            //console.log(3713)
             //console.log('attr playlist changed - no hide')
             $tabBtn.removeClass("tab-btn-hidden");
         }else if( !$tabBtn.is('.tab-btn-hidden') && playlist.hasAttribute('hidden') ){
+            //console.log(3714)
             //console.log('attr playlist changed - add hide')
             hideTabBtn($tabBtn);
         }
@@ -744,15 +1040,17 @@ function createAttributeObservants() {
     Q.mtf_initalAttr_playlist=()=>{
         var playlist=document.querySelector('ytd-playlist-panel-renderer#playlist')
         if(!playlist) return true;
-        mtoVs.mtoVisibility_Playlist=new MutationObserver(mtf_attrPlaylist)
+        initMutationObserver(mtoVs,'mtoVisibility_Playlist', mtf_attrPlaylist)
         mtoVs.mtoVisibility_Playlist.observe(playlist, {          
             attributes: true,
             attributeFilter: ['hidden'],
             attributeOldValue: true
         })
+        //console.log(3711)
         mtf_attrPlaylist()
         return false;
     }
+    //console.log(3710)
     Q.$callOnceAsync('mtf_initalAttr_playlist')
 
 
@@ -760,11 +1058,8 @@ function createAttributeObservants() {
 
 
     // Attr Mutation Observer - ytd-comments#comments - hidden
-    if(mtoVs.mtoVisibility_Comments) {
-        mtoVs.mtoVisibility_Comments.takeRecords();
-        mtoVs.mtoVisibility_Comments.disconnect();
-        mtoVs.mtoVisibility_Comments=null;
-    }
+    
+    clearMutationObserver(mtoVs,'mtoVisibility_Comments')
     // Attr Mutation Observer callback - ytd-comments#comments - hidden
     let mtf_attrComments=(mutations, observer)=>{
         var comments=document.querySelector('ytd-comments#comments')
@@ -777,7 +1072,10 @@ function createAttributeObservants() {
             asyncFetchCommentsAvailable();
         }else if( !$tabBtn.is('.tab-btn-hidden') && comments.hasAttribute('hidden') ){
             //console.log('attr comments changed - add hide')
-            if(!document.querySelector('[userscript-chatblock="chat-live"]')) $('#tab-comments').attr('lazy-loading','')
+            if(!document.querySelector('[userscript-chatblock="chat-live"]')){
+                requestingComments=comments
+                $('#tab-comments').attr('lazy-loading','')
+            } 
             $('span#tab3-txt-loader').text('');
             hideTabBtn($tabBtn);
         }        
@@ -787,13 +1085,14 @@ function createAttributeObservants() {
     Q.mtf_initalAttr_comments=()=>{
         var comments=document.querySelector('ytd-comments#comments')
         if(!comments) return true;
-        mtoVs.mtoVisibility_Comments=new MutationObserver(mtf_attrComments)
+        initMutationObserver(mtoVs,'mtoVisibility_Comments',mtf_attrComments)
         mtoVs.mtoVisibility_Comments.observe(comments, {          
             attributes: true,
             attributeFilter: ['hidden'],
             attributeOldValue: true
         })
         mtf_attrComments()
+        requestingComments = document.querySelector('ytd-comments#comments');
         scrollForComments()
         return false;
     }
@@ -802,13 +1101,38 @@ function createAttributeObservants() {
 }
 
 
+function isEmptyBody(){
+    //only deal with loaded document without body
+    //other situation, case by case
+
+    let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
+
+    if(!iframe) return false; //iframe must be there
+
+    if(iframe.readyState  != 'complete') return false; //we must wait for its completion
+
+    let doc = null;
+    try{
+
+        doc=iframe.contentDocument
+
+    }catch(e){}
+
+    if(!doc) return false; //might be not loaded yet
+
+    if(doc.body && doc.body.childElementCount===0){
+        //empty body
+
+        return true;
+    }
+
+
+}
+
 function checkChatStatus(){
     
-    if(mtoVs.mtoVisibility_Chatroom) {
-        mtoVs.mtoVisibility_Chatroom.takeRecords();
-        mtoVs.mtoVisibility_Chatroom.disconnect();
-        mtoVs.mtoVisibility_Chatroom=null;
-    }
+    
+    clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
 
     let cid_chatFrameCheck=0;
 
@@ -817,36 +1141,59 @@ function checkChatStatus(){
         const chatBlock = document.querySelector('ytd-live-chat-frame#chat')
         const cssElm = document.querySelector('ytd-watch-flexy')
         
-        if(!cssElm.hasAttribute('userscript-chatblock')) cssElm.setAttribute('userscript-chatblock', '');
-        if (chatBlock.hasAttribute('collapsed')) {
-            cssElm.setAttribute('userscript-chat-collapsed', '');
-        } else {
-            cssElm.removeAttribute('userscript-chat-collapsed');
-        }
+        if(!cssElm.hasAttribute('userscript-chatblock')) setAttr(cssElm, 'userscript-chatblock', true);
+        setAttr(cssElm,'userscript-chat-collapsed',!!chatBlock.hasAttribute('collapsed'));
 
+        if(cssElm.hasAttribute('userscript-chatblock')&&!chatBlock.hasAttribute('collapsed')) lastShowTab='#chatroom'
 
-        if(!cid_chatFrameCheck){
+        if( chatBlock && cssElm && cssElm.hasAttribute('userscript-chatblock') && !chatBlock.hasAttribute('collapsed') && !cid_chatFrameCheck){
             let dd=+new Date;
             cid_chatFrameCheck=setInterval(()=>{
                 // mutation on iframe window would not trigger the observer
                 // just check the first few seconds for this purpose.
-                if(+new Date - dd>6750) {
-                    return (cid_chatFrameCheck=clearInterval(cid_chatFrameCheck));
-                }
-                var chatFrameChecking=!!chatFrameElement('yt-live-chat-renderer #continuations')
-                if(chatFrameChecking) {
+                let chatFrameChecking, iframe;
+                if(+new Date - dd>6750){
+                    //
+                }else if( isEmptyBody() ){
+
+                    // bug. youtube iframe loaded with nothing
+
+                    let button = document.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button ytd-toggle-button-renderer')
+                    if (button) {
+                        setTimeout(function(){
+                            if(button && button.parentNode && isChatExpand()){
+                                button.click();
+                                setTimeout(function(){
+                                    if(button && button.parentNode && !isChatExpand()) button.click();
+                                    button=null;
+                                },80)
+                            }else{
+                                button=null;
+                            }
+                        },20)
+                    } 
+
+                
+                }else if(chatFrameChecking=!!chatFrameElement('yt-live-chat-renderer #continuations')){
                     mtf_ChatExist();
-                    return (cid_chatFrameCheck=clearInterval(cid_chatFrameCheck));
+                    $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded','')
+                }else{
+                    return;
                 }
+                return (cid_chatFrameCheck=clearInterval(cid_chatFrameCheck));
             },270)
+        }else if(chatBlock){
+            chatBlock.removeAttribute('yt-userscript-iframe-loaded')
+
         }
+
 
     }
 
     Q.mtf_checkStatus_chatroom=()=>{
         var chatroom=document.querySelector('ytd-live-chat-frame#chat')
         if(!chatroom) return true;
-        mtoVs.mtoVisibility_Chatroom=new MutationObserver(mtf_attrChatroom)
+        initMutationObserver(mtoVs,'mtoVisibility_Chatroom',mtf_attrChatroom)
         mtoVs.mtoVisibility_Chatroom.observe(chatroom, {          
             attributes: true,
             attributeFilter: ['collapsed'],
@@ -861,11 +1208,7 @@ function checkChatStatus(){
 
 
 
-    if(mtoVs.mtoFlexyAttr) {
-        mtoVs.mtoFlexyAttr.takeRecords();
-        mtoVs.mtoFlexyAttr.disconnect();
-        mtoVs.mtoFlexyAttr=null;
-    }
+    clearMutationObserver(mtoVs,'mtoFlexyAttr')
 
 
     let mtf_attrFlexy=(mutations, observer)=>{
@@ -897,32 +1240,34 @@ function checkChatStatus(){
         }
     
 
-        if(theaterStatusChanged || initalTriggering){
-
-            requestAnimationFrame(fixDisplayForTheaterModeChanged)
-        }
+        if(theaterStatusChanged || chatBlockStatusChanged || twoColStatusChanged || initalTriggering  ){
 
 
-        if((chatBlockStatusChanged && !theaterStatusChanged) || initalTriggering){
-            //chatroom is shown or hidden
+            if(twoColStatusChanged || initalTriggering){
 
-            let isOpenChatFrame =  !cssElm.hasAttribute('userscript-chat-collapsed') && cssElm.hasAttribute('userscript-chatblock') 
-            
-            window.requestAnimationFrame(()=>{
-                if (isOpenChatFrame && !isTheater()) {
-                    switchTabActivity(null)
-                } else if(!isOpenChatFrame && !isTheater()){
-                    setToActiveTab();
-                } else if(isTheater() && isWideScreenWithTwoColumns() && isOpenChatFrame && isWideScreenWithTwoColumns()){
-                    ytBtnCancelTheater();
-                }
-            })
-        }
+                fixDisplayForTheaterModeChanged();
 
-        if((twoColStatusChanged && !theaterStatusChanged) || initalTriggering){
+            }else if(theaterStatusChanged){
 
+                isChatExpandBeforeTheaterChange = isChatExpand()
+                requestAnimationFrame(fixDisplayForTheaterModeChanged)
+            }else if(chatBlockStatusChanged){
+                //chatroom is shown or hidden
 
-            fixDisplayForTheaterModeChanged();
+                let isOpenChatFrame =  !cssElm.hasAttribute('userscript-chat-collapsed') && cssElm.hasAttribute('userscript-chatblock') 
+                
+
+                new Promise(requestAnimationFrame).then(() => {
+                    if (isOpenChatFrame && !isTheater() && isWideScreenWithTwoColumns()) {
+                        switchTabActivity(null)
+                    } else if(!isOpenChatFrame && !isTheater() && isWideScreenWithTwoColumns()){
+                        setToActiveTab();
+                    } else if(isTheater() && isWideScreenWithTwoColumns() && isOpenChatFrame && isWideScreenWithTwoColumns()){
+                        ytBtnCancelTheater();
+                    }
+                })
+
+            }
 
             
 
@@ -939,13 +1284,20 @@ function checkChatStatus(){
     Q.mtf_checkFlexy=()=>{
         var flexy=document.querySelector('ytd-watch-flexy')
         if(!flexy) return true;
-        mtoVs.mtoFlexyAttr=new MutationObserver(mtf_attrFlexy)
+        initMutationObserver(mtoVs,'mtoFlexyAttr',mtf_attrFlexy)
         mtoVs.mtoFlexyAttr.observe(flexy, {          
             attributes: true,
             attributeFilter: ['userscript-chat-collapsed','userscript-chatblock','theater','is-two-columns_'],
             attributeOldValue: true
         })
         mtf_attrFlexy()
+
+
+        let columns = document.querySelector('ytd-page-manager#page-manager #columns')
+        if(columns){
+            setAttr(columns, 'userscript-scrollbar-render', true);
+        }
+
         return false;
     }
     Q.$callOnceAsync('mtf_checkFlexy')
@@ -968,6 +1320,24 @@ function switchTabActivity(activeLink) {
 
     const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
 
+
+
+    function runAtEnd(){
+
+        if(activeLink) lastShowTab=activeLink.getAttribute('userscript-tab-content')
+
+
+        //override the default youtube coding event prevention
+
+        //let elm=$('ytd-watch-flexy:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0];
+        let elm=$('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0];
+        displayedPlaylist=elm;
+        if(!!displayedPlaylist) $('ytd-watch-flexy').attr('userscript-auto-scroll-playlist',''); else $('ytd-watch-flexy').removeAttr('userscript-auto-scroll-playlist');
+        
+        scrollingVideosList=$('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]')[0]
+        
+    }
+
     for (const link of links) {
         let content = document.querySelector(link.getAttribute('userscript-tab-content'));
         if (link && content) {
@@ -977,9 +1347,18 @@ function switchTabActivity(activeLink) {
             } else {
                 $(link).addClass("active");
                 $(content).removeClass("tab-content-hidden");
-                window.requestAnimationFrame(() => content.focus())
+                window.requestAnimationFrame(() => {
+                 
+                    content.focus()
+
+                    runAtEnd()
+                })
             }
         }
+    }
+
+    if(!activeLink){
+        runAtEnd();
     }
 
 
@@ -1016,23 +1395,39 @@ function prepareTabBtn() {
 
                 switchTabActivity(null);
 
+
+/*
+                setTimeout(()=>{
+                        window.scrollTo(0, 0);
+                       
+                },60)*/
+
+
+
             }else{
 
-                window.requestAnimationFrame(() => {
+                new Promise(requestAnimationFrame).then(() => {
+                    if(isChatExpand() && isWideScreenWithTwoColumns()) ytBtnCollapseChat();
+                    else if(isWideScreenWithTwoColumns() && isTheater() ) ytBtnCancelTheater();
+                }).then(() => {
+                    setTimeout(()=>{
+                        switchTabActivity(this)
+                        
+                        //setTimeout(makeBodyScroll,20);
 
-                    Promise.resolve().then(() => {
-                        if(isChatExpand()) ytBtnCollapseChat();
-                        else if(isWideScreenWithTwoColumns() && isTheater() ) ytBtnCancelTheater();
-                    }).then(() => {
-                        setTimeout(() => {
-                            switchTabActivity(this)
-                            setTimeout(() => {
-                                makeBodyScroll();
-                            },20);
-                        }, clickInterval);
-                    })
 
+                        setTimeout(()=>{
+                            let rightTabs=document.querySelector('#right-tabs');
+                            if(!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop>0 && $(this).is('.active')){
+
+                                window.scrollTo(0, rightTabs.offsetTop);
+                               
+                            }
+                        },60)
+
+                    }, clickInterval);
                 })
+
             }
 
             
@@ -1046,89 +1441,338 @@ function prepareTabBtn() {
 
 
 // ---------------------------------------------------------------------------------------------
-
 window.addEventListener("yt-navigate-finish", onNavigationEnd)
 
-var lastC=0, lastD=0, lastF=0;
+const singleColumnScrolling = (function() {
+    var lastD = 0,
+        lastF = 0;
 
-function singleColumnScrolling(){
-    let pageY=pageYOffset;
-    if(pageY<10 && lastD===0 && !lastF)return;
+    return function() {
+        let pageY = pageYOffset;
+        if (pageY < 10 && lastD === 0 && !lastF) return;
+
+        let targetElm, header, navElm;
+
+        Promise.resolve().then(() => {
+
+            targetElm = document.querySelector("#right-tabs");
+            if (!targetElm) return;
+            header = targetElm.querySelector("header");
+            if (!header) return;
+            navElm = document.querySelector('#masthead-container, #masthead')
+            if (!navElm) return;
+            navHeight = navElm ? navElm.offsetHeight : 0
+
+            let elmY = targetElm.offsetTop
+
+            let xyz = [elmY + navHeight, pageY, elmY - navHeight]
+
+            let xyStatus = 0
+            if (xyz[1] < xyz[2] && xyz[2] < xyz[0]) {
+                // 1
+                xyStatus = 1
+            }
+
+            if (xyz[0] > xyz[1] && xyz[1] > xyz[2]) {
+
+                //2
+                xyStatus = 2
+
+            }
+
+            if (xyz[2] < xyz[0] && xyz[0] < xyz[1]) {
+                // 3
+
+                xyStatus = 3
 
 
-    
-    let targetElm = document.querySelector("#right-tabs");
-    if(!targetElm) return;
-    let header = targetElm.querySelector("header");
-    if(!header) return;
-    let navElm = document.querySelector('#masthead-container, #masthead')
-    if(!navElm) return;
-    let navHeight = navElm?navElm.offsetHeight:0
+            }
 
-    let elmY=targetElm.offsetTop
+            return xyStatus;
 
-    let xyz=[elmY+navHeight, pageY, elmY-navHeight]
+        }).then((xyStatus) => {
 
-let xyStatus = 0
-if(xyz[1]<xyz[2] && xyz[2]<xyz[0]){
-    // 1
-    xyStatus=1
+            if ((xyStatus == 2 || xyStatus == 3) && (lastD === 0 || lastF)) {
+                lastD = 1;
+                let {
+                    offsetHeight
+                } = header
+                let {
+                    offsetWidth
+                } = targetElm
+
+                targetElm.style.setProperty("--userscript-sticky-width", offsetWidth + 'px')
+                targetElm.style.setProperty("--userscript-sticky", offsetHeight + 'px')
+                
+                setAttr(targetElm, 'userscript-sticky', true);
+
+            } else if ((xyStatus == 1) && (lastD === 1 || lastF)) {
+                lastD = 0;
+
+                setAttr(targetElm, 'userscript-sticky', false);
+            }
+
+
+            targetElm = null;
+            header = null;
+            navElm = null;
+
+        })
+
     }
+})();
 
-if(xyz[0]>xyz[1]&& xyz[1]>xyz[2]){
-
-    //2
-    xyStatus=2
-
-}
-
-if(xyz[2]<xyz[0] && xyz[0]<xyz[1]){
-    // 3
-
-    xyStatus=3
-
-    
-    }
-
-    if((xyStatus==2||xyStatus==3)&& (lastD===0 || lastF)){
-        lastD=1;
-        let {offsetHeight}= header
-        let {offsetWidth}=targetElm
-
-        targetElm.style.setProperty("--userscript-sticky-width", offsetWidth+'px')
-        targetElm.style.setProperty("--userscript-sticky", offsetHeight+'px')
-        targetElm.setAttribute("userscript-sticky","")
-        
-    }else if( (xyStatus==1)&&(lastD===1 || lastF)){
-        lastD=0;
-
-            targetElm.removeAttribute("userscript-sticky")
-    }
-
-}
-
-window.addEventListener("scroll",function(){
+window.addEventListener("scroll", function() {
+    if(!scriptEnable)return;
     singleColumnScrolling()
-},{capture:false, passive:true})
+}, {
+    capture: false,
+    passive: true
+})
 
-var lastTheatreStatus=0
-window.addEventListener('resize',function(){
+var lastTheatreStatus = 0
+window.addEventListener('resize', function() {
+    if(!scriptEnable)return;
 
-
-
-
-    requestAnimationFrame(()=>{   
-        lastF=1;
+    requestAnimationFrame(() => {
+        lastF = 1;
         singleColumnScrolling()
-        lastF=0;
+        lastF = 0;
     })
 
+}, {
+    capture: false,
+    passive: true
+})
+
+window.addEventListener('beforeunload', function() {
+    if(!scriptEnable)return;
+    console.log('beforeunload')
+    resetBeforeNav();
+    let video=document.querySelector('video');
+    if(video && !video.paused) video.pause(); 
+}, {capture: true})
+
+window.addEventListener('hashchange', function() { 
+    if(!scriptEnable)return;
+    console.log('hashchange')
+    resetBeforeNav();
+  }, {capture: true})
+  
+  window.addEventListener('popstate', function() { 
+    if(!scriptEnable)return;
+    console.log('popstate')
+    resetBeforeNav();
+  }, {capture: true})
 
 
-    //setTimeout(singleColumnScrolling,40)
-    //setTimeout(singleColumnScrolling,80)
-    //setTimeout(singleColumnScrolling,120)
-    //setTimeout(singleColumnScrolling,270)
+function clearMutationObserver(o, key){
+    if(o[key]) {
+        o[key].takeRecords();
+        o[key].disconnect();
+        o[key]=null;
+    }
+}
+
+function initMutationObserver(o, key, callback){
 
 
-},{capture:false, passive:true})
+    clearMutationObserver(o,key)
+    o[key]=new MutationObserver(callback)
+
+
+
+}
+/*
+
+async function resizer(){
+
+let full=true;
+    (async ()=>{
+        const primaryPlayer=$('ytd-watch-flexy #primary-inner>#player')[0]
+        cssElm.style.setProperty('--userscript-resizing-primary-player-height', primaryPlayer?primaryPlayer.offsetHeight:'')
+        if(!primaryPlayer)full=false;
+})();
+
+
+(async ()=>{
+        const primaryInner=$('ytd-watch-flexy #primary-inner')[0]
+        cssElm.style.setProperty('--userscript-resizing-primary-inner-height', primaryInner?primaryInner.offsetHeight:'')
+        if(!primaryInner)full=false;
+    })();
+        
+(async ()=>{
+        const infoContents=$('ytd-watch-flexy #primary-inner>#info>#info-contents')[0]
+        cssElm.style.setProperty('--userscript-resizing-primary-info-height', infoContents?infoContents.offsetHeight:'')
+        if(!infoContents)full=false;
+    })();
+
+    
+(async ()=>{
+        const metaContents=$('ytd-watch-flexy #primary-inner>#meta>#meta-contents')[0]
+        cssElm.style.setProperty('--userscript-resizing-primary-meta-height', metaContents?metaContents.offsetHeight:'')
+        if(!metaContents)full=false;
+    })();
+
+    
+(async ()=>{
+    const secondaryInner=$('ytd-watch-flexy #secondary-inner')[0]
+    cssElm.style.setProperty('--userscript-resizing-secondary-inner-height', secondaryInner?secondaryInner.offsetHeight:'')
+    if(!secondaryInner)full=false;
+})();
+
+}
+
+
+window.addEventListener('resize',function(){
+    const cssElm=document.querySelector('ytd-watch-flexy');
+    if(cssElm){
+
+
+    }
+    
+    
+
+   
+
+}) */
+
+document.addEventListener('wheel',function(evt){
+    
+    if(!scriptEnable)return;
+    if(displayedPlaylist && displayedPlaylist.contains(evt.target)){
+      evt.stopPropagation(); evt.stopImmediatePropagation()
+    }
+},{capture:true,passive:true});
+
+
+function setVideosTwoColumns(flag, bool){
+
+//two columns to one column
+
+/*
+    [placeholder-videos] ytd-watch-next-secondary-results-renderer.style-scope.ytd-watch-flexy
+
+    is-two-columns =""  => no is-two-columns
+    
+    
+    
+    [placeholder-videos] tp-yt-paper-spinner#spinner.style-scope.ytd-continuation-item-renderer
+    
+    no hidden => hidden =""
+    
+    
+    [placeholder-videos] div#button.style-scope.ytd-continuation-item-renderer
+    
+    
+    hidden ="" => no hidden
+    
+
+    */
+
+    let cssSelector1='[placeholder-videos] ytd-watch-next-secondary-results-renderer.style-scope.ytd-watch-flexy'
+
+    let cssSelector2='[placeholder-videos] tp-yt-paper-spinner#spinner.style-scope.ytd-continuation-item-renderer'
+
+    let cssSelector3='[placeholder-videos] div#button.style-scope.ytd-continuation-item-renderer'
+
+    let res={}
+    if(flag&1){
+
+        res.m1=$(cssSelector1)[0]
+    if(bool) $(res.m1).attr('is-two-columns',''); else $(res.m1).removeAttr('is-two-columns')
+    }
+
+    if(flag&2){
+        res.m2=$(cssSelector2)[0]
+    if(bool) $(res.m2).removeAttr('hidden'); else $(res.m2).attr('hidden','')
+    }
+
+    if(flag&4){
+        res.m3=$(cssSelector3)[0]
+    if(bool) $(res.m3).attr('hidden',''); else $(res.m3).removeAttr('hidden');
+    }
+
+
+    return res
+    
+    
+    
+
+
+}
+/*
+document.addEventListener('column1',function(evt){
+
+    console.log(evt)
+    document.aab=setVideosTwoColumns(1|2|4, false);
+})
+document.addEventListener('column2',function(evt){
+
+    console.log(evt)
+    document.aab=setVideosTwoColumns(1|2|4, true);
+})
+*/
+
+let lastScrollFetch=0;
+function isScrolledToEnd(){
+    return (window.innerHeight + window.pageYOffset) >= document.scrollingElement.scrollHeight - 2;
+}
+let lastOffsetTop = 0;
+window.addEventListener('scroll',function(evt){
+
+    //console.log(evt.target)
+
+    if(!scriptEnable)return;
+
+
+    if( !scrollingVideosList ) return;
+
+
+
+    let visibleHeight = document.scrollingElement.clientHeight;
+    let totalHeight = document.scrollingElement.scrollHeight;
+
+    if(totalHeight<visibleHeight*1.5)return; // filter out two column view;
+
+    let z=window.pageYOffset+visibleHeight;
+    let h=totalHeight - 40;
+    
+    let h_advanced= h - ((visibleHeight>5*40)?visibleHeight*0.5:0);
+
+
+
+    if(z>h_advanced && !isWideScreenWithTwoColumns() ){
+
+        if(new Date -  lastScrollFetch<500) return; //prevent continuous calling
+
+        lastScrollFetch=+new Date;
+    
+        let res= setVideosTwoColumns(2|4, true)
+        if(res.m3 && res.m2){
+
+            //wait for DOM change, just in case
+            requestAnimationFrame(()=>{
+                let {offsetTop}=res.m2  // as visiblity of m2 & m3 switched.
+
+                if(offsetTop-lastOffsetTop<40) return; // in case bug, or repeating calling.  // the next button shall below the this button 
+                lastOffsetTop= offsetTop
+
+                res.m2.parentNode.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
+         
+                res= null
+            }) 
+
+        }else{
+            
+            res= null
+        }
+
+
+    }
+
+
+
+
+},{passive:true})
+

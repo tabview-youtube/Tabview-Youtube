@@ -4,8 +4,10 @@ ytd-watch-flexy{
 
 /* custom size for meta-contents */
     --meta-contents-default-height-outer:30px;
+    --userscript-meta-default-outline-thickness:1px;
     --meta-contents-padding-vertical:4px;
     --meta-contents-default-height-inner:calc(var(--meta-contents-default-height-outer) - var(--meta-contents-padding-vertical) * 2);
+    --meta-contents-default-height-outer-plus-outline:calc(var(--meta-contents-default-height-outer) + var(--userscript-meta-default-outline-thickness) * 2);
 
 /* recalculation of right-tab height */
     --userscript-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
@@ -15,6 +17,13 @@ ytd-watch-flexy{
     --userscript-h2:calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
     --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
 
+/*
+
+    --userscript-two-columns-player-height: calc( 0.5 * (var(--ytd-watch-flexy-max-player-width) + var(--ytd-watch-flexy-min-player-width)) * var(--ytd-watch-flexy-height-ratio) / var(--ytd-watch-flexy-width-ratio));
+
+    --userscript-column-height: calc(var(--userscript-base-height) + 46px);
+    --userscript-primary-offset: calc(var(--userscript-column-height) - )
+*/
 }
 
 ytd-watch-flexy #right-tabs{
@@ -27,63 +36,82 @@ body ytd-sentiment-bar-renderer{
 
 
 
-/* info */
+
+
+
+ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents{
+    margin-left: calc(5% + var(--userscript-meta-default-outline-thickness));
+    margin-right: calc(5% + var(--userscript-meta-default-outline-thickness));
+    width: calc(90% - var(--userscript-meta-default-outline-thickness) * 2);
+
+    --box-shadow-thickness-1: var(--userscript-meta-default-outline-thickness);
+    --box-shadow-thickness-2: var(--box-shadow-thickness-1) var(--box-shadow-thickness-1);
+    box-shadow:0 0 var(--box-shadow-thickness-2) var(--ytd-searchbox-border-color, rgba(0,0,0,0.22));
+
+}
  
-ytd-watch-flexy:not([theater]) #info #info-contents #container h1.title{
-    height:calc(2 * var(--yt-navbar-title-line-height, 2.4rem));
+
+ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents{
+    --border-radius-2: var(--border-radius-1) var(--border-radius-1);
 }
 
+ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:not(:hover){
+    --border-radius-1: 8px;
+}
+ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:hover{
+    --border-radius-1: 24px;
+}
+ytd-watch-flexy[flexy][is-two-columns_] #primary #player ~ #meta #meta-contents{
+    border-radius: var(--border-radius-2) 0 0;
+}
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta #meta-contents{
+    border-radius: var(--border-radius-2) var(--border-radius-2);
+}
+ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:not(:hover){
+    height: calc(var(--meta-contents-default-height-outer)); 
+    overflow: hidden;
+}
 
-/* meta */
-
-
-ytd-watch-flexy #meta{
+ytd-watch-flexy[flexy] #primary #player ~ #meta{
     position:relative;
-}
-/*
-ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner{
-padding-bottom:  calc(var(--meta-contents-default-height-outer)); / css fix coressponding to #meta /
+    height: calc(var(--meta-contents-default-height-outer)); 
+    min-height: calc(var(--meta-contents-default-height-outer));  /* under flex */
 }
 
-/ fix overflow issue due to #meta sizing /
-ytd-watch-flexy[flexy][is-two-columns_] #primary #meta{
-    height:0;
-    top:  calc(var(--meta-contents-default-height-outer));
+
+/* for single column only. just try to see the effect */
+/* image cannot be shown */
+/*
+html ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta{
+    position: relative;
+    height: auto;
+    overflow:auto;
+}
+
+html ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta #meta-contents{
+    position: relative;
+    height: auto;
+    overflow:auto;
 }
 */
+/* for single column only. just try to see the effect */
 
 
-ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner #info{
-padding-bottom: calc(var(--meta-contents-default-height-outer));
+
+ytd-watch-flexy[flexy] #primary #primary-inner #player ~ #info{
+    padding-bottom: calc( 4px );
     border: 0;
     outline: 0;
 }
-ytd-watch-flexy[flexy][is-two-columns_] #primary #meta{
-    height:0;
-    top:  calc(-1 * var(--meta-contents-default-height-outer) + 4px);
-}
-ytd-watch-flexy[flexy] #primary #meta #meta-contents{
-box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
- 
-}
-ytd-watch-flexy[flexy] #primary #meta #meta-contents:not(:hover){
-    height: calc(var(--meta-contents-default-height-outer));
-
-    overflow: hidden;
-
-}
+    
 
 
-
-ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #meta{
-    height:calc( var(--yt-link-line-height, 1.6rem) + var(--meta-contents-padding-vertical) * 2);
-}
 
 ytd-watch-flexy #meta ytd-expander{
     display:none;
 }
 
-ytd-watch-flexy #meta-contents{
+ytd-watch-flexy #player ~ #meta #meta-contents{
     position:absolute;
     bottom:0;
     width:100%;
@@ -96,25 +124,25 @@ ytd-watch-flexy #meta-contents{
     opacity:1; 
 }
 
-ytd-watch-flexy #meta-contents:hover ytd-video-secondary-info-renderer{
+ytd-watch-flexy #player ~ #meta #meta-contents:hover ytd-video-secondary-info-renderer{
     padding:0 24px;
 }
-ytd-watch-flexy #meta-contents ytd-video-secondary-info-renderer{
+ytd-watch-flexy #player ~ #meta #meta-contents ytd-video-secondary-info-renderer{
     border-bottom:0;
-    padding:4px 4px;
+    padding:0;
     margin:0;
 }
-ytd-watch-flexy #meta-contents:not(:hover){
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover){
     height: auto;
     padding:0;
 }
 
-ytd-watch-flexy #meta-contents:not(:hover) #top-row{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row{
     padding:var(--meta-contents-padding-vertical); 
 }
 
 ytd-watch-flexy #columns{
-    padding-bottom:6px;
+    /*padding-bottom:6px;*/  /*previous trick to make the scroll bar disappear. now dont need it? */
 }
 
 ytd-watch-flexy #meta-contents:not(:hover) *{
@@ -140,14 +168,14 @@ ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
     opacity:0;
 }   
 #columns>yt-img-shadow, #columns>img{
-    position:absolute;
-    z-index:-9999;
+    position: absolute;
+    z-index:-1;
+    visibility:collapse;
 }
 
 ytd-watch-flexy #meta-contents yt-img-shadow#avatar[loaded]{
 box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
 }
-
 
 ytd-watch-flexy #meta-contents:not(:hover) #owner-sub-count{
     display:none;
@@ -184,19 +212,28 @@ ytd-watch-flexy #meta-contents:not(:hover) #top-row{
 body ytd-live-chat-frame.ytd-watch-flexy#chat{
     margin-bottom: 8px;
 }
+
 #right-tabs #material-tabs{
     position:relative;
     display:flex;
-    padding:0;
-    border-bottom:1px solid #e0e0e0;
-    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
+    padding:0; 
+    outline: 1px solid var(--userscript-border-color);
 }
+
+#right-tabs{
+    --userscript-border-color: var(--yt-spec-10-percent-layer);
+}
+ 
+
+#right-tabs>.tab-content{
+    outline: 1px solid var(--userscript-border-color);
+}
+
 
 /* give background color; otherwise it will be transparent in dark mode, single column*/
 ytd-watch-flexy #right-tabs #material-tabs{
     background:var(--yt-spec-general-background-a);
 }
-
 
 #right-tabs #material-tabs>a[userscript-tab-content]{
     flex:1;
@@ -276,32 +313,50 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
     pointer-events: none;
 }
 
+  /* Demo: https://jsfiddle.net/9ehxr23g/ */
 
-
-
-@keyframes changeLetter {
+@keyframes animatedLoading {
     0% {
-        content: "Loading";
-        opacity:1.0;
+        content: "⚫⚪⚪⚪⚪";
+        font-family: sans-serif;
     }
-    33%{
-
-        content: "Loading.";
-        opacity:0.8;
+    25% {
+        content: "⚪⚫⚪⚪⚪";
+        font-family: sans-serif;
     }
-    66%{
+    50% {
+        content: "⚪⚪⚫⚪⚪";
+        font-family: sans-serif;
+    }
+    75%{
 
-        content: "Loading..";
-        opacity:1.0;
+        content: "⚪⚪⚪⚫⚪";
+        font-family: sans-serif;
+    }
+    100%{
+        content: "⚪⚪⚪⚪⚫";
+        font-family: sans-serif;
+    }
+    
+}
+
+@keyframes animatedFetching {
+    0% {
+        content: "⚪⚪⚪⚪⚪";
+        font-family: sans-serif;
     }
     100% {
-      content: "Loading...";
-      opacity:0.9;
+        content: "⚫⚫⚫⚫⚫";
+        font-family: sans-serif;
     }
-  }
+}
+  
+  /* Demo: https://jsfiddle.net/9ehxr23g/ */
 
 
 
+
+ 
 
 .tab-btn span#tab3-txt-loader:empty::after{
     display: inline-block;
@@ -313,18 +368,23 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
 }
 
 .tab-btn.tab-btn-hidden span#tab3-txt-loader:empty::after{
-    animation: changeLetter 300ms linear infinite alternate;
+    animation: animatedLoading 300ms linear infinite alternate;
     content: " ";
-    opacity: 1;
 }
 
 .tab-btn:not(.tab-btn-hidden) span#tab3-txt-loader:empty::after{
-    content: "Fetching";
+    animation: animatedFetching 80ms linear infinite alternate;
+    content: " ";
+}
+
+
+#right-tabs .tab-content-cld{
+/*    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));*/
+
 }
 
 #right-tabs>.tab-content{
     padding:0;
-    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
     box-sizing: border-box;
     display:block;
     --yt-spec-brand-background-primary:var(--yt-spec-general-background-a);
@@ -337,7 +397,8 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
     overflow: auto;
     min-height: var(--userscript-min-height);
     max-height: var(--userscript-available-height);
-    padding:16px;
+    --tab-content-padding:16px;
+    padding:var(--tab-content-padding);
 }
 
 /* too many space at the right */
@@ -417,15 +478,22 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
 
 /* force the content INSIDE the page displayable content area for rendering */
 #right-tabs .tab-content .tab-content-cld.tab-content-hidden[lazy-loading]{
-    position: absolute;
-    z-index:-99999;
+    position: fixed;
+    z-index:-1;
+    visibility:collapse;
     
+    --width: var(--ytd-watch-flexy-sidebar-min-width, 300px);
+    --height-1: var(--ytd-watch-flexy-min-player-height, 480px);
 
-    width: var(--ytd-watch-flexy-sidebar-min-width, 300px);
-    height: var(--ytd-watch-flexy-min-player-height, 480px);
+    --height-2: var(--userscript-available-height, var(--height-1));
 
-    left:calc(95vw - var(--ytd-watch-flexy-sidebar-min-width, 300px));
-    top: calc(50vh - 0.5 * var(--ytd-watch-flexy-min-player-height, 480px));
+    --height: var(--height-2);
+
+    width: var(--width);
+    height: var(--height);
+
+    left:calc(95vw - var(--width));
+    top: calc(50vh - 0.5 * var(--height));
     
     /*
     left:10vw;
@@ -480,6 +548,7 @@ paper-spinner.yt-next-continuation{
 ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child{
     border-bottom: 1px solid var(--yt-spec-10-percent-layer);
     box-sizing: border-box;
+    border-bottom-color: var(--yt-spec-general-background-a); /* css fix to background loading */
 }
 body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy, 
 body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy, 
@@ -506,15 +575,33 @@ ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-cha
 ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([is-two-columns_]) #right-tabs{
     min-height:0; /* avoid page scroll when display of tab-content changed */
 }
-
+/*
 ytd-watch-flexy:not([is-two-columns_]) #right-tabs{
-    min-height:calc(100vh - var(--ytd-watch-flexy-masthead-height, 0px)); /* avoid page scroll when display of tab-content changed */
+    min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 1) - var(--userscript-sticky));
+}*/
+
+html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content>.tab-content-cld:not(.tab-content-hidden){
+    min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 46px - var(--ytd-margin-6x) * 0.5);
+}
+
+ytd-watch-flexy:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+    min-height: 0px;
 }
 
 ytd-watch-flexy:not([is-two-columns_]){
-    --userscript-chatroom-height: calc(100vh - var(--ytd-watch-flexy-masthead-height, 0px) - var(--ytd-watch-flexy-space-below-player, 0px) - 46px - var(--ytd-margin-6x));
+
+    --userscript-chatroom-height:var(--ytd-watch-flexy-chat-max-height);
 }
 
+ytd-watch-flexy:not([is-two-columns_]) #primary ytd-live-chat-frame#chat{
+    position: absolute;
+    z-index:-1;
+    visibility:collapse;
+}
+
+ytd-watch-flexy:not([is-two-columns_]) #secondary ytd-live-chat-frame#chat{
+    margin-top:0;
+}
 
 ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer[js-panel-height_] #container.ytd-playlist-panel-renderer{
     min-height: 0;
@@ -544,21 +631,21 @@ body ytd-video-primary-info-renderer{
 
 /* left side - like menu smaller */
 
-#primary #info ytd-menu-renderer yt-icon-button.ytd-toggle-button-renderer {
+#primary #player ~ #info ytd-menu-renderer yt-icon-button.ytd-toggle-button-renderer {
     line-height: 1;
     padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
     width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
     height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
 }
 
-#primary #info ytd-menu-renderer yt-icon-button.ytd-button-renderer {
+#primary #player ~ #info ytd-menu-renderer yt-icon-button.ytd-button-renderer {
     line-height: 1;
     padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
     width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
     height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
 }
 
-#primary #info ytd-menu-renderer #button.ytd-menu-renderer {
+#primary #player ~ #info ytd-menu-renderer #button.ytd-menu-renderer {
     width: calc(0.75 * var(--paper-icon-button_-_width, var(--yt-icon-width)));
     height: calc(0.75 * var(--paper-icon-button_-_height, var(--yt-icon-height)));
 }
@@ -570,13 +657,13 @@ body #menu-container ytd-menu-renderer{
     zoom:0.85;*/
 }
 
-#primary #info{
+#primary #player ~ #info{
     /*zoom:0.96;*/
 }
-#primary #info ytd-menu-renderer a{
+#primary #player ~ #info ytd-menu-renderer a{
     white-space: nowrap;
 }
-#primary #info ytd-menu-renderer yt-icon-button{
+#primary #player ~ #info ytd-menu-renderer yt-icon-button{
     /*zoom:0.9;*/
 }
 
@@ -591,7 +678,7 @@ body #menu-container ytd-menu-renderer{
 }
 
 /* smaller text for tab Videos */
-#right-tabs .tab-content .tab-content-cld#tab-videos #ytd-userscript-watch-next-videos {
+#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos] {
     zoom:0.94;
 }
 
@@ -618,6 +705,11 @@ body #menu-container ytd-menu-renderer{
 
 
 
+ 
+
+
+
+
 /* align scrollbar style */
 [userscript-scrollbar-render]::-webkit-scrollbar {
     width: 16px;
@@ -630,12 +722,37 @@ body #menu-container ytd-menu-renderer{
     background-color: var(--yt-spec-text-secondary);
 }
 /* Colorize the scroll bar (chrome, safari, edge) */
-[standardized-themed-scrollbar]::-webkit-scrollbar-thumb, [standardized-themed-scrollbar] ::-webkit-scrollbar-thumb{
+[userscript-scrollbar-render]::-webkit-scrollbar-thumb, [userscript-scrollbar-render]::-webkit-scrollbar-thumb{
     background-color: var(--paper-checkbox-unchecked-color) !important;
 }
-[standardized-themed-scrollbar]::-webkit-scrollbar-thumb:hover, [standardized-themed-scrollbar] ::-webkit-scrollbar-thumb:hover{
+[userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover{
     background-color:var(--paper-checkbox-checked-color) !important;
 }
+
+
+
+
+/* align scrollbar style */
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar {
+    width: 16px;
+}
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb {
+    height: 56px;
+    border-radius: 8px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+    background-color: var(--yt-spec-text-secondary);
+}
+/* Colorize the scroll bar (chrome, safari, edge) */
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb{
+    background-color: var(--paper-checkbox-unchecked-color) !important;
+}
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover{
+    background-color:var(--paper-checkbox-checked-color) !important;
+}
+
+
+
 
 #right-tabs{ 
     padding:0;
@@ -684,16 +801,17 @@ body #menu-container ytd-menu-renderer{
 #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #publisher-container, #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #playlist-actions{
     display:block;
 }
- 
-#tab-list ytd-playlist-panel-renderer#playlist #container>.header{
+
+#tab-list ytd-playlist-panel-renderer#playlist #container > .header{
 box-sizing: border-box;
     position: absolute;
     width: 100%;
-    z-index: 9;
+    z-index: 1;
     min-height: calc(1 * var(--ytd-subheadline-one-line-ellipsis_-_max-height));
     max-height:none;
     padding:10px 16px;
     box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
+    margin-top:1px; /* as tab use outline 1px */
 }
 
 
@@ -719,11 +837,14 @@ box-sizing: border-box;
 
 
 /* hide videos list & play list before script loading */
-#related>ytd-watch-next-secondary-results-renderer, 
-#related> #related-skeleton,
-*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist{
+#related:not(:only-child)>ytd-watch-next-secondary-results-renderer,
+[placeholder-videos]:not(:only-child)>ytd-watch-next-secondary-results-renderer,
+#related:not([placeholder-videos])>ytd-watch-next-secondary-results-renderer, 
+#related > #related-skeleton, #related > #player-ads,
+*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist{
     position: absolute;
     z-index: -1;
+    visibility:collapse;
     pointer-events: none;
     max-height: 40px;
     overflow:hidden;
@@ -732,6 +853,7 @@ box-sizing: border-box;
 #primary #meta-contents ytd-expander{
     position: absolute;
     z-index: -1;
+    visibility:collapse;
     pointer-events: none;
     max-height: 40px;
     overflow:hidden;
@@ -740,6 +862,7 @@ box-sizing: border-box;
 #primary ytd-comments#comments{
     position: absolute;
     z-index: -1;
+    visibility:collapse;
     pointer-events: none;
 }
 
@@ -757,9 +880,10 @@ ytd-watch-flexy:not([is-two-columns_]) #columns #secondary.ytd-watch-flexy{
 
 /* hide original right tabs {#related} */
 /* Youtube coding - under resizing window - relocate it between {#primary} and {#secondary} */
-#related{
+#related:not([placeholder-videos]){
     position: absolute;
     z-index: -1;
+    visibility:collapse;
     pointer-events: none;
     max-height: 40px;
     overflow:hidden;
@@ -797,6 +921,17 @@ html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #secondary.ytd-wat
     padding-bottom: calc(var(--ytd-margin-6x) * 0.5);
 }
 
+/*
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>.tab-content{
+    max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 0.5) - var(--userscript-sticky));
+}*/
+
+html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #ytd-userscript-playlist #container{
+
+    max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 1) - var(--userscript-sticky));
+}
+
+
 
 html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy{
     margin-top:0;
@@ -808,12 +943,13 @@ html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch
 
 
 
+/*
 html ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([fullscreen]):not([is-two-columns_]) #secondary.ytd-watch-flexy{
 
     padding-top: calc(var(--ytd-margin-6x) * 0.25);
     padding-bottom: calc(var(--ytd-margin-6x) * 0.25);
 
-}
+}*/
 
 /*
 ytd-watch-flexy[theater]{
@@ -821,8 +957,8 @@ ytd-watch-flexy[theater]{
     --ytd-watch-flexy-sidebar-min-width: calc(300px * 0.66);
 }*/
 
-ytd-watch-flexy[theater] #info #info-contents .title{
-
+/* two column mainly;  theater view make font smaller */
+ytd-watch-flexy[theater] #player ~ #info #info-contents .title{
     font-size:var(--ytd-user-comment_-_font-size);
 }
 
@@ -847,36 +983,331 @@ ytd-watch-flexy[flexy] {
 }
 */
 
+/* <<< sticky right-tabs header --- */
 
-#right-tabs>header{
-    position:relative;
-    box-sizing:border-box;
-}
+    /* keep the single column view css as simple as possible */
+    /* use js coding to make it like sticky */
+    /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
+    #right-tabs>header{
+        position:relative;
+        box-sizing:border-box;
+    }
+    ytd-watch-flexy[flexy] #right-tabs>header{
+        background-color:var(--yt-spec-general-background-a);
+    }
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header{
+        z-index: 2;
+        position: fixed;
+        top: var(--ytd-watch-flexy-masthead-height);
+        width: var(--userscript-sticky-width, 100%);
+    }
 
-ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header{
-    z-index: 99999;
-    position: fixed;
-    top: var(--ytd-watch-flexy-masthead-height);
-    width: var(--userscript-sticky-width, 100%);
-}
-ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
-    padding-top: var(--userscript-sticky);
-}
-ytd-watch-flexy #primary #info:not(:last-child){
-margin-bottom: 6px;
-}
+    @supports (top: var(--ytd-watch-flexy-masthead-height-xs-x)){
+        
+    }
 
-  
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+        padding-top: var(--userscript-sticky);
+    }
 
-/* bug in blink, occupacy the space without scroll */
 
-html body::-webkit-scrollbar {
+    
 
-    width:0 !important;
-}
+/* --- sticky right-tabs header >>> */
 
-/*  overflow fix*/
+/* << whole page scroll bar (original-type) */
 
+    /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
+    /* siginificant empty at the right side (vertical bar) in the dark mode */
+    html body {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    html body::-webkit-scrollbar {
+        display: none; /* Blink and Webkit */
+    }
+
+/* whole page scroll bar (original-type) >> */
+
+/*  overflow fix */
 ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[slot="dropdown-content"]{
     overflow:hidden;
+}
+
+
+/* <<< page height setting - two-column-normal ---  */
+
+    /* two column height = 100vh */
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #columns.ytd-watch-flexy {
+        margin-bottom: 0;
+        /* max-height: none; */
+        height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
+        padding-bottom: 0;
+        overflow: auto;
+    } 
+
+    /* it is possible that #info is too height, make it overflow:auto with no scroll-bar */
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
+        overflow: auto;
+        max-height: 100%;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner::-webkit-scrollbar {
+        display: none; /* Blink and Webkit */
+    }
+
+    /* video player sticky at the top */
+
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#player:first-child {
+        top: 0;
+        position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
+    }
+
+
+/* --- page height setting - two-column-normal >>>  */
+
+
+
+/* <<< page height setting - two-column-theater ---  */
+
+
+    /* theater mode: the player is extracted from two column view */
+    /* only set padding & margin */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
+        margin-bottom: 0;
+        padding-bottom: 0; 
+    } 
+
+    /* theater mode same mechanism */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]){
+        height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
+        overflow:auto;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])::-webkit-scrollbar {
+        display: none;
+    }
+    /* video player sticky at the top */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])>#player-theater-container {
+        top: 0;
+        position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
+    }
+
+
+/* --- page height setting - two-column-theater >>>  */
+
+
+ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
+    margin-bottom: 0;
+    padding-bottom: 0; 
+} 
+
+
+/* (--- chatroom loading --- */
+
+    ytd-live-chat-frame#chat:not([yt-userscript-iframe-loaded]):not([collapsed])::before{
+        position: absolute;
+        content: "Loading...";
+        z-index: 0;
+        display: block;
+        height: 100%;
+        color: var(--yt-spec-text-primary);
+        background-color: var(--ytd-searchbox-legacy-button-hover-border-color);
+        width: 100%;
+        text-align: center;
+        /* line-height: 300px; */
+        line-height: var(--userscript-chatroom-height);
+        animation: animatedLoading 300ms linear infinite alternate;
+    }
+
+
+    ytd-live-chat-frame#chat:not([collapsed]){
+        position: relative; 
+    }
+
+    ytd-live-chat-frame#chat:not([collapsed]) > * {
+        z-index: 1;
+        position: inherit;
+    }
+
+
+/* --- chatroom loading ---) */
+
+
+/* flexbox */
+ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#info{
+    flex: 1;
+}
+/* flexbox */
+
+/* flexbox */
+/*
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) #primary-inner{
+
+    display: flex;
+    /* position: relative; *|/
+    flex-direction: column;
+    /* height: 110px; *|/
+
+    /* ytd-watch-flexy[theater] #player-theater-container.ytd-watch-flexy, ytd-watch-flexy[fullscreen] #player-theater-container.ytd-watch-flexy *|/
+    --player-h: calc((9 / 16) * 100vw);
+    --player-maxh: calc(100vh - 169px);
+    --player-minh: 480px;
+    --h1: max(var(--player-h),var(--player-minh));
+    --h2: min(var(--h1),var(--player-maxh));
+    
+    height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--h2) );
+
+
+    display: flex;
+    flex-flow: column; 
+}
+*/
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]){
+    display: flex;    
+    flex-direction: column;
+}
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
+    flex:1;
+}
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner{
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}
+
+
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner>#info{
+    flex: 1;
+}
+
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
+    overflow:auto;
+
+}
+
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
+    overflow:auto;
+    
+}
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#secondary{
+    overflow:hidden;
+    
+}
+ 
+
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary::-webkit-scrollbar {
+        display: none;
+    }
+
+    
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
+    width:100%; /* otherwise, width > 100%, right-tabs go outside screen */
+    
+}
+
+
+/* flexbox */
+
+
+
+ytd-watch-flexy[userscript-auto-scroll-playlist]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer>#container{
+    max-height: none;
+}
+
+
+
+
+ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos{
+
+    flex-direction: row;
+    display: flex;
+    padding: 0;
+
+}
+ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]{
+    --tab-content-padding-2:var(--tab-content-padding);
+    
+}
+/*
+ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]::before{
+
+    content:' ';
+    background:red;
+    width: 100%;
+    height: 16px; /*var(--tab-content-padding);*|/
+    display:block;
+    position:absolute;
+    top: 0;
+    left:0;
+    z-index:3000;
+    pointer-events: all;
+
+
+}
+
+
+ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]::before:hover{
+
+
+    background:blue;
+    cursor:pointer;
+
+}*/
+
+
+ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search{
+    position:sticky;
+    /*top:0;*/
+    top: calc( -1 * var(--tab-content-padding, 0px)) ;
+    z-index:2;
+}
+
+ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos>[placeholder-videos]{
+    overflow: auto;
+    padding:var(--tab-content-padding, 0px);
+    padding-right: 4px;
+}
+
+
+body>.autocomplete-suggestions:not([position-fixed-by-tabview-youtube]){
+    z-index:-1;
+    visibility:collapse;
+}
+
+.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
+    position:absolute !important;
+    /*display:block !important;*/
+    left:auto !important;
+    top:auto !important;
+    margin:0 !important;
+    z-index:2 !important; 
+    margin-top:-1px !important;
+}
+
+BFJQ{
+    position:sticky;
+    top: calc( var(--height, auto) + -1 * var(--tab-content-padding, 0px)) ;
+    overflow:visible;
+    display: block;
+
+    left:auto;
+    width:80%;
+
+    z-index:2;
+    margin-top: calc( -1 * ( var(--sb-margin-bottom) ) );
+    margin-bottom: calc( 1 * ( var(--sb-margin-bottom) ) );
+    
+    
 }
