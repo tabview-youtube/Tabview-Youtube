@@ -403,7 +403,7 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
 
 /* too many space at the right */
 #right-tabs .tab-content .tab-content-cld#tab-comments,
-#right-tabs .tab-content .tab-content-cld#tab-videos
+#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos]
 {
     padding-right: 4px;
 }
@@ -470,56 +470,30 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
 
 }
 
+#right-tabs .tab-content{
 
-#right-tabs .tab-content-cld.tab-content-hidden:not([lazy-loading]){
-    display:none;
-    visibility:collapse;
+    position: relative;
+    top:0;
+    display:flex;
+    flex-direction: row;
+
+
 }
 
-/* force the content INSIDE the page displayable content area for rendering */
-#right-tabs .tab-content .tab-content-cld.tab-content-hidden[lazy-loading]{
-    position: fixed;
+
+#right-tabs .tab-content .tab-content-cld.tab-content-hidden{
+    /*display:none;*/
+    position: absolute;
     z-index:-1;
     visibility:collapse;
-    
-    --width: var(--ytd-watch-flexy-sidebar-min-width, 300px);
-    --height-1: var(--ytd-watch-flexy-min-player-height, 480px);
-
-    --height-2: var(--userscript-available-height, var(--height-1));
-
-    --height: var(--height-2);
-
-    width: var(--width);
-    height: var(--height);
-
-    left:calc(95vw - var(--width));
-    top: calc(50vh - 0.5 * var(--height));
-    
-    /*
-    left:10vw;
-    top:10vh;
-    width:80vw;
-    height:80vh;*/
-    max-height:none;
-    min-height:0;
-    max-width: none;
-    min-width: 0;
     pointer-events: none;
     user-select: none;
-}
-
-#right-tabs .tab-content .tab-content-cld.tab-content-hidden[lazy-loading]>ytd-comments#comments{
-
-    max-height:none;
-    min-height:0;
-    max-width: none;
-    min-width: 0;
-
-    height:100%;
+    max-height:100%;
+    height:auto;
     width:100%;
-    display:block;
-    position:relative;
+    min-height: 0;
 }
+
 
 
 
@@ -678,7 +652,7 @@ body #menu-container ytd-menu-renderer{
 }
 
 /* smaller text for tab Videos */
-#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos] {
+#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos] ytd-compact-video-renderer .details>.metadata.style-scope.ytd-compact-video-renderer {
     zoom:0.94;
 }
 
@@ -1281,22 +1255,16 @@ ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos>[placeholder-videos]
 }
 
 
-body>.autocomplete-suggestions:not([position-fixed-by-tabview-youtube]){
-    z-index:-1;
-    visibility:collapse;
-}
+/*
+autocomplete-positioner>.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
 
-.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
-    position:absolute !important;
-    /*display:block !important;*/
-    left:auto !important;
-    top:auto !important;
     margin:0 !important;
     z-index:2 !important; 
     margin-top:-1px !important;
 }
 
-BFJQ{
+autocomplete-positioner{
+
     position:sticky;
     top: calc( var(--height, auto) + -1 * var(--tab-content-padding, 0px)) ;
     overflow:visible;
@@ -1306,8 +1274,40 @@ BFJQ{
     width:80%;
 
     z-index:2;
+    
+    
+}*/
+
+autocomplete-positioner>.autocomplete-suggestions{
+    position:absolute !important;
+    left:auto !important;
+    top:auto !important;
+    width:100% !important;
+    margin:0 !important;   
+    z-index:99999; 
+}
+
+autocomplete-positioner{
+    overflow:visible;
+    display: block;
+    position:relative;
+    height:0;
+    width:100%;
     margin-top: calc( -1 * ( var(--sb-margin-bottom) ) );
     margin-bottom: calc( 1 * ( var(--sb-margin-bottom) ) );
+    z-index:99999; 
+}
+
+
+autocomplete-positioner[position-fixed-by-tabview-youtube]{
     
-    
+    position:sticky;
+    top: calc( var(--height, auto) + -1 * var(--tab-content-padding, 0px)) ;
+    z-index:2 !important; 
+
+}
+autocomplete-positioner[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
+    z-index:2 !important; 
+    margin-top:0px !important;
+
 }

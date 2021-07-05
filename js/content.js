@@ -45,6 +45,19 @@ const svgPlayList = `
      `
 
 
+     const prettyElm = function(elm) {
+        if (!elm || !elm.nodeName) return null;
+        const eId = elm.id || null;
+        const eClsName = elm.className || null;
+        return [elm.nodeName.toLowerCase(), typeof eId == 'string' ? "#" + eId : '', typeof eClsName == 'string' ? '.' + eClsName.replace(/\s+/g, '.') : ''].join('').trim();
+    }
+    function addScript(scriptText) {
+        const scriptNode = document.createElement('script');
+        scriptNode.type = 'text/javascript';
+        scriptNode.textContent = scriptText;
+        document.documentElement.appendChild(scriptNode);
+        return scriptNode;
+    }
 
 
 
@@ -220,6 +233,73 @@ function extractTextContent(elm){
     return elm.textContent.replace(/\s+/g,'').replace(/[^\da-zA-Z\u4E00-\u9FFF\u00C0-\u00FF\u00C0-\u02AF\u1E00-\u1EFF\u0590-\u05FF\u0400-\u052F\u0E00-\u0E7F\u0600-\u06FF\u0750-\u077F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\u3040-\u30FF\u31F0-\u31FF]/g,'')
 }
 
+function mtf_fixAutoCompletePosition(elmAutoComplete){
+
+var www=function(){
+
+    for(const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')){
+
+
+        let sc = s.sc;
+        if(sc instanceof HTMLElement){
+
+            let id=+new Date;
+            s.setAttribute('data-autocomplete-results-id',id)
+            sc.setAttribute('data-autocomplete-input-id', id)
+            /*
+            s._sc=new WeakRef(sc);
+            s.sc=null;
+            delete s.sc;
+            Object.defineProperty(s,'sc',{
+                get: function() { return s._sc.deref()||null; },  
+                enumerable: true,
+                configurable: true
+            })*/
+            sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'))
+
+
+
+
+        }
+
+    }
+
+};
+
+
+elmAutoComplete.addEventListener('autocomplete-sc-exist',function(){
+
+    let autoComplete = this;
+    let domId= autoComplete.getAttribute('data-autocomplete-input-id')
+    let searchBox = autoComplete.ownerDocument.querySelector(`[data-autocomplete-results-id="${domId}"]`)
+
+
+    if(!domId || !searchBox) return;
+
+    let aaa=searchBox.nextSibling;
+    if(aaa && aaa.nodeName.toLowerCase()=="autocomplete-positioner"){
+    }else if(aaa && aaa.nodeName.toLowerCase()!="autocomplete-positioner"){
+        $(aaa=document.createElement("autocomplete-positioner")).insertAfter(searchBox);
+    }else{
+        $(aaa=document.createElement("autocomplete-positioner")).prependTo(searchBox.parentNode);
+    }
+    $(autoComplete).prependTo(aaa);
+
+
+
+
+    aaa.style.setProperty('--sb-margin-bottom',getComputedStyle(searchBox).marginBottom)
+    aaa.style.setProperty('--height',searchBox.offsetHeight + 'px')
+
+
+})
+
+addScript(`!!(${www+''})()`)
+
+
+
+}
+
 function mtf_fixTabsAtTheEnd(){
     // if window resize, youtube coding will relocate the element
     // for example, chatroom move before #right-tabs
@@ -247,152 +327,91 @@ function mtf_fixTabsAtTheEnd(){
     }
 
 
+    const autocomplete=document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
 
-    const autocomplete=document.querySelector('body>.autocomplete-suggestions:not([position-fixed-by-tabview-youtube]):not(:empty)')
     if(autocomplete){
         const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
 
+
         if(searchBox){
 
-
+            
+            autocomplete.parentNode.setAttribute('position-fixed-by-tabview-youtube','');
             autocomplete.setAttribute('position-fixed-by-tabview-youtube','');
-
-
+            autocomplete.setAttribute('userscript-scrollbar-render','')
 
             if(!searchBox.hasAttribute('is-set-click-to-toggle')){
                 searchBox.setAttribute('is-set-click-to-toggle','')
                 searchBox.addEventListener('click',function(){
 
                     setTimeout(function(){
-                    let elm=document.querySelector('.autocomplete-suggestions[position-fixed-by-tabview-youtube]:not(:empty)')
+                    
 
-                    $(elm).toggle()
-                    //if(elm.style.display=='none') elm.style.display=''; else elm.style.display='none';
-                },100);
+                        let autocomplete_results_container = document.querySelector('.autocomplete-suggestions[position-fixed-by-tabview-youtube]:not(:empty)');
+                        let autocomplete_results_count = autocomplete_results_container?autocomplete_results_container.querySelectorAll('div.autocomplete-suggestion:not(:empty)').length:0
+                        if( autocomplete_results_count>0 ){
+
+                            let elmVisible=$(autocomplete_results_container).is(':visible')
+
+                            if(elmVisible) $(autocomplete_results_container).hide(); else  $(autocomplete_results_container).show();
+
+                        }
+
+                },20);
 
                 })
             }
 
 
-            let aaa=searchBox.nextSibling;
-            if(aaa && aaa.nodeName=="BFJQ"){
-            }else if(aaa && aaa.nodeName!="BFJQ"){
-
-                $(aaa=document.createElement("BFJQ")).insertAfter(searchBox);
-                
-                
-            }else{
-
-                $(aaa=document.createElement("BFJQ")).prependTo(searchBox.parentNode);
-                
-
-
-            }
-            $(autocomplete).prependTo(aaa);
-
-
-            aaa.style.setProperty('--sb-margin-bottom',getComputedStyle(searchBox).marginBottom)
-            aaa.style.setProperty('--height',searchBox.offsetHeight + 'px')
-
-            /*
-            setInterval(function(){               
-
-                autocomplete.style.setProperty('--ac-left',autocomplete.getBoundingClientRect().left + 'px')
-                autocomplete.style.setProperty('--ac-top',autocomplete.getBoundingClientRect().top + 'px')
-                autocomplete.style.setProperty('--sb-left',aaa.getBoundingClientRect().left + 'px')
-                autocomplete.style.setProperty('--sb-top',aaa.getBoundingClientRect().top + 'px')
-
-            },270)*/
 
         }
 
     }
 
 
-    let zCache=document.querySelector('[placeholder-for-youtube-play-next-queue] #items ytd-compact-video-renderer:last-of-type')
+
+
+
+    
+    let zCache=document.querySelector('[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
+    let cachedLastVideo=_cachedLastVideo?_cachedLastVideo.deref():null;
     if(cachedLastVideo && zCache && cachedLastVideo!==zCache){
-
-  //      let cachedLastVideoStr = cachedLastVideo.__userscript_prev_textcontent__;
-   //     cachedLastVideo=zCache
-//        cachedLastVideo.
- /*       $0.textContent.replace(/\s+/g,'').replace(/[^\da-zA-Z\u4E00-\u9FFF]/g,'')*/
-
-
- const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
-
-        if(!cachedLastVideo.parentNode/* || cachedLastVideoStr !== cachedLastVideo.*/){
+         
+        if(!cachedLastVideo.parentNode){
             //removed
-            fromSearch=true;
-
+ 
             requestAnimationFrame(function(){
 
-                $('[placeholder-for-youtube-play-next-queue]')[0].scrollTop=0;
+                let renderer = document.querySelector('[placeholder-videos] ytd-watch-next-secondary-results-renderer');
+
                 const searchBox=document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
                 if(searchBox) searchBox.blur();
 
-            });
-        }else if(searchBox && !zCache.__clone_last_results__){
-
-            let p=zCache.parentNode;
-            //update from youtube loading
-            setTimeout(function(){
-
-
-                if(p&& p.parentNode) zCache.__clone_last_results__=$(p).clone();
-
-                //$()
-                //$('ytd-watch-next-secondary-results-renderer')
-
-            },800)
-
-        }
-        cachedLastVideo=zCache
-
-
-        setTimeout(function(){
-            const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
-            let zCache=document.querySelector('[placeholder-for-youtube-play-next-queue] ytd-watch-next-secondary-results-renderer #items>ytd-compact-video-renderer:last-of-type')
-
-            let items = document.querySelector('[placeholder-for-youtube-play-next-queue] ytd-watch-next-secondary-results-renderer #items');
-            
-            if(searchBox && $(searchBox).is(":visible") && (searchBox.value||"").length===0  && items.__clone_last_results__ && fromSearch ){
-
-
-                if(items.__clone_last_results__){
-
-
-                    for(const s of items.querySelectorAll('ytd-compact-video-renderer')){
-                        try{
-                        items.removeChild(s);
-                        }catch(e){}
+                if(renderer){
+                    let scrollParent = renderer.parentNode;
+                    if(scrollParent.scrollHeight>scrollParent.offsetHeight){
+                        //setInterval(function(){
+                        let targetTop = renderer.offsetTop;
+                        if(searchBox && searchBox.parentNode==scrollParent ) targetTop-=searchBox.offsetHeight
+                        scrollParent.scrollTop= targetTop - scrollParent.firstChild.offsetTop;
+                        //},100)
                     }
-/*
-                    let texts=[];
-
-                    for(const s of items.querySelectorAll('[placeholder-for-youtube-play-next-queue] ytd-item-section-renderer ytd-compact-video-renderer')){
-                        texts.push(extractTextContent(s))
-                    }*/
-
-                    for(const s of items.__clone_last_results__.querySelectorAll('ytd-compact-video-renderer')){
-   /*                     const text = extractTextContent(s)
-                        if(texts.indexOf(text)>0)continue;
-    */                    $(items).append(s)
-                    }
-
-                    fromSearch=false;
-
                 }
 
-
-            }
-        },300)
-
+                
+ 
+            });
+        }
+        _cachedLastVideo=new WeakRef(zCache)
+ 
     }else if(!cachedLastVideo && zCache && cachedLastVideo!==zCache){
         
-        cachedLastVideo=zCache
+        _cachedLastVideo=new WeakRef(zCache)
         
-
+ 
     }
+
+
 
 
 }
@@ -504,6 +523,7 @@ function scrollForComments() {
 
 
 let mtoNav = null;
+let mtoBody = null;
 
 
 const mtoVs={}
@@ -681,6 +701,34 @@ function initObserver(){
         if(mtoNav_requestNo==1) mtoNav_delayedF();
 
     })();
+
+
+    if(mtoBody){
+    mtoBody = null;
+    }
+
+    function mtoBodyF(mutations, observer){
+
+
+        for (const mutation of mutations) {
+            for (const addedNode of mutation.addedNodes)
+                if (addedNode.nodeType === 1) {
+                    if(addedNode.nodeName=="DIV" && addedNode.className.indexOf('autocomplete-suggestions')>=0){
+                        mtf_fixAutoCompletePosition(addedNode)
+                    }
+                }
+        }
+
+
+
+    }
+
+    mtoBody = new MutationObserver(mtoBodyF);
+    mtoBody.observe(document.querySelector('body'), {
+        childList: true
+    })
+
+
 }
 
 let displayedPlaylist=null
@@ -690,11 +738,11 @@ let scriptEnable =false;
 let lastShowTab = null;
 
 
-let cachedLastVideo=null;
+let _cachedLastVideo=null;
 let fromSearch=false;
 function resetBeforeNav() {
     fromSearch=true;
-    cachedLastVideo=null;
+    _cachedLastVideo=null;
     lastShowTab=null;
     displayedPlaylist=null
     scrollingVideosList=null
@@ -706,6 +754,11 @@ function resetBeforeNav() {
     clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
     clearMutationObserver(mtoVs,'mtoFlexyAttr')
 
+    if (mtoBody) {
+        mtoBody.takeRecords();
+        mtoBody.disconnect();
+        mtoBody = null;
+    }
     if (mtoNav) {
         mtoNav.takeRecords();
         mtoNav.disconnect();
@@ -1413,7 +1466,7 @@ function prepareTabBtn() {
                     setTimeout(()=>{
                         switchTabActivity(this)
                         
-                        //setTimeout(makeBodyScroll,20);
+                        setTimeout(makeBodyScroll,20); // this is to make the image render
 
 
                         setTimeout(()=>{
