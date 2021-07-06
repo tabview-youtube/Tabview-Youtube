@@ -1,5 +1,40 @@
 
 
+/* reference dimension */
+/*
+ytd-watch-flexy {
+    --ytd-watch-flexy-sidebar-width: 402px;
+    --ytd-watch-flexy-sidebar-min-width: 300px;
+    --ytd-watch-flexy-masthead-height: 56px;
+    min-width: 0;
+}
+ytd-watch-flexy[flexy] {
+    --ytd-watch-flexy-width-ratio: 16;
+    --ytd-watch-flexy-height-ratio: 9;
+    --ytd-watch-flexy-space-below-player: 136px;
+    --ytd-watch-flexy-non-player-height: calc( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) );
+    --ytd-watch-flexy-non-player-width: calc( var(--ytd-watch-flexy-sidebar-width) + (3 * var(--ytd-margin-6x)) );
+    --ytd-watch-flexy-min-player-height: 240px;
+    --ytd-watch-flexy-min-player-width: calc( var(--ytd-watch-flexy-min-player-height) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+    --ytd-watch-flexy-max-player-height: calc( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) );
+    --ytd-watch-flexy-max-player-width: calc( ( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) ) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ytd-watch-flexy{
 
 /* custom size for meta-contents */
@@ -17,17 +52,210 @@ ytd-watch-flexy{
     --userscript-h2:calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
     --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
 
-/*
-
-    --userscript-two-columns-player-height: calc( 0.5 * (var(--ytd-watch-flexy-max-player-width) + var(--ytd-watch-flexy-min-player-width)) * var(--ytd-watch-flexy-height-ratio) / var(--ytd-watch-flexy-width-ratio));
-
-    --userscript-column-height: calc(var(--userscript-base-height) + 46px);
-    --userscript-primary-offset: calc(var(--userscript-column-height) - )
-*/
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Animations */
+
+
+/* Demo: https://jsfiddle.net/9ehxr23g/ */
+
+@keyframes animatedLoading {
+    0% {
+        content: "⚫⚪⚪⚪⚪";
+        font-family: sans-serif;
+    }
+    25% {
+        content: "⚪⚫⚪⚪⚪";
+        font-family: sans-serif;
+    }
+    50% {
+        content: "⚪⚪⚫⚪⚪";
+        font-family: sans-serif;
+    }
+    75%{
+
+        content: "⚪⚪⚪⚫⚪";
+        font-family: sans-serif;
+    }
+    100%{
+        content: "⚪⚪⚪⚪⚫";
+        font-family: sans-serif;
+    }
+}
+
+@keyframes animatedFetching {
+    0% {
+        content: "⚪⚪⚪⚪⚪";
+        font-family: sans-serif;
+    }
+    100% {
+        content: "⚫⚫⚫⚫⚫";
+        font-family: sans-serif;
+    }
+}
+  
+/* Demo: https://jsfiddle.net/9ehxr23g/ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* align scrollbar style */
+[userscript-scrollbar-render]::-webkit-scrollbar {
+    width: 16px;
+}
+[userscript-scrollbar-render]::-webkit-scrollbar-thumb {
+    height: 56px;
+    border-radius: 8px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+    background-color: var(--yt-spec-text-secondary);
+}
+/* Colorize the scroll bar (chrome, safari, edge) */
+[userscript-scrollbar-render]::-webkit-scrollbar-thumb, [userscript-scrollbar-render]::-webkit-scrollbar-thumb{
+    background-color: var(--paper-checkbox-unchecked-color) !important;
+}
+[userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover{
+    background-color:var(--paper-checkbox-checked-color) !important;
+}
+
+
+
+
+/* align scrollbar style */
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar {
+    width: 16px;
+}
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb {
+    height: 56px;
+    border-radius: 8px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+    background-color: var(--yt-spec-text-secondary);
+}
+/* Colorize the scroll bar (chrome, safari, edge) */
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb{
+    background-color: var(--paper-checkbox-unchecked-color) !important;
+}
+[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover{
+    background-color:var(--paper-checkbox-checked-color) !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Global */
+
+
+#columns>yt-img-shadow, #columns>img{
+    position: absolute;
+    z-index:-1;
+    visibility:collapse;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ytd-watch-flexy #right-tabs{
     display:block;
+    padding:0;
+    margin:0;
 }
 body ytd-sentiment-bar-renderer{
     padding-top:2px;
@@ -79,35 +307,9 @@ ytd-watch-flexy[flexy] #primary #player ~ #meta{
 }
 
 
-/* for single column only. just try to see the effect */
-/* image cannot be shown */
-/*
-html ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta{
-    position: relative;
-    height: auto;
-    overflow:auto;
-}
+/* ytd-watch-flexy #player ~ #meta */
 
-html ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta #meta-contents{
-    position: relative;
-    height: auto;
-    overflow:auto;
-}
-*/
-/* for single column only. just try to see the effect */
-
-
-
-ytd-watch-flexy[flexy] #primary #primary-inner #player ~ #info{
-    padding-bottom: calc( 4px );
-    border: 0;
-    outline: 0;
-}
-    
-
-
-
-ytd-watch-flexy #meta ytd-expander{
+ytd-watch-flexy #player ~ #meta ytd-expander{
     display:none;
 }
 
@@ -137,76 +339,66 @@ ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover){
     padding:0;
 }
 
-ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row{
-    padding:var(--meta-contents-padding-vertical); 
-}
-
-ytd-watch-flexy #columns{
-    /*padding-bottom:6px;*/  /*previous trick to make the scroll bar disappear. now dont need it? */
-}
-
-ytd-watch-flexy #meta-contents:not(:hover) *{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) *{
     padding:0;margin:0;vertical-align: middle;
-} 
+}
 
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row{
+    padding:var(--meta-contents-padding-vertical);  
+    
+    /* just ensure nowrap for (non-hover meta-content)'s flex layout */
+    flex-wrap: nowrap;
+    zoom:0.95;
+}
 
-ytd-watch-flexy #meta-contents:not(:hover)  #top-row ytd-video-owner-renderer>*{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer>*{
     align-self: center;
 }
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-icon-button#button{
+    --yt-button-icon-size: var(--meta-contents-default-height-inner);
+}
 
-ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar{
     height: calc(var(--meta-contents-default-height-inner));
     width: calc(var(--meta-contents-default-height-inner));
     margin:0px 8px;
     vertical-align: middle;
-} 
-ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar img{
-    height: calc(var(--meta-contents-default-height-inner));
-    width: calc(var(--meta-contents-default-height-inner));
-} 
-ytd-watch-flexy #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
-    opacity:0;
-}   
-#columns>yt-img-shadow, #columns>img{
-    position: absolute;
-    z-index:-1;
-    visibility:collapse;
+}
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) ytd-subscribe-button-renderer{
+    align-items: center;
 }
 
-ytd-watch-flexy #meta-contents yt-img-shadow#avatar[loaded]{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
+    opacity:0;
+}
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar img{
+    height: calc(var(--meta-contents-default-height-inner));
+    width: calc(var(--meta-contents-default-height-inner));
+}
+
+ytd-watch-flexy #player ~ #meta #meta-contents yt-img-shadow#avatar[loaded]{
 box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
 }
 
-ytd-watch-flexy #meta-contents:not(:hover) #owner-sub-count{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #owner-sub-count{
     display:none;
 }
 
 /* show button with smaller size (non-hover meta-content) -> (badge icon) */
-ytd-watch-flexy #meta-contents:not(:hover) tp-yt-paper-button{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) tp-yt-paper-button{
     height: calc( var(--meta-contents-default-height-inner) );
     margin:0px 8px;
     padding: 10px 0;
     zoom:0.9;
 }
 /* margin for (non-hover meta-content) -> (badge icon) */
-ytd-watch-flexy #meta-contents:not(:hover) ytd-badge-supported-renderer{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) ytd-badge-supported-renderer{
     margin:0px 8px;
 }
-/* just ensure nowrap for (non-hover meta-content)'s flex layout */
-ytd-watch-flexy #meta-contents:not(:hover) #top-row{
-    flex-wrap: nowrap;
-}
 /* vertical center for (non-hover meta-content)'s (button text) */
-ytd-watch-flexy #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
+ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
     line-height: 100%;
 }
-
-
-
-ytd-watch-flexy #meta-contents:not(:hover) #top-row{
-    zoom:0.95;
-} 
-
 
 
 body ytd-live-chat-frame.ytd-watch-flexy#chat{
@@ -231,11 +423,11 @@ body ytd-live-chat-frame.ytd-watch-flexy#chat{
 
 
 /* give background color; otherwise it will be transparent in dark mode, single column*/
-ytd-watch-flexy #right-tabs #material-tabs{
+ytd-watch-flexy #right-tabs .tab-btn{
     background:var(--yt-spec-general-background-a);
 }
 
-#right-tabs #material-tabs>a[userscript-tab-content]{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]{
     flex:1;
     position:relative;
     display:inline-block;
@@ -257,14 +449,15 @@ ytd-watch-flexy #right-tabs #material-tabs{
 
     overflow: hidden;
     white-space: nowrap;
-/*text-overflow: ellipsis;*/
-text-overflow: clip;
+    /*text-overflow: ellipsis;*/
+    text-overflow: clip;
 
 }
 
 
+/* .tab-btn[userscript-tab-content] */
 
-#right-tabs #material-tabs>a[userscript-tab-content] svg{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] svg{
     height:18px;
     padding-right:4px;
     vertical-align:bottom;
@@ -274,7 +467,7 @@ text-overflow: clip;
     fill: var(--iron-icon-fill-color, currentcolor);
     stroke: var(--iron-icon-stroke-color, none);
 }
-#right-tabs #material-tabs>a[userscript-tab-content].active{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active{
     font-weight:500;
     outline:0;
     color:var(--yt-spec-text-primary);
@@ -282,83 +475,43 @@ text-overflow: clip;
     border-bottom:4px #ff4533 solid;
     border-bottom-color:var(--yt-brand-light-red);
 }
-#right-tabs #material-tabs>a[userscript-tab-content].active svg{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active svg{
     opacity:.9 
 }
-#right-tabs #material-tabs>a[userscript-tab-content]:not(.active):hover{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover{
     background-color:var(--ytd-searchbox-legacy-button-hover-color);
     color:var(--yt-spec-text-primary);
 }
-#right-tabs #material-tabs>a[userscript-tab-content]:not(.active):hover svg{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover svg{
     opacity:.9 
 }
 
-#right-tabs #material-tabs a[userscript-tab-content]{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]{
     user-select: none !important;
 }
 
-#right-tabs #material-tabs a[userscript-tab-content].tab-btn-hidden{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden{
     display:none;
 }
 
-#right-tabs #material-tabs a[userscript-tab-content].tab-btn-hidden paper-ripple{
+ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden paper-ripple{
     display:none;
 }
 
 /* show the loading comment tab in grey color */
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-tabs a[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
+ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
     display:inline-block;
     color: var(--yt-spec-icon-disabled);
     pointer-events: none;
 }
-
-  /* Demo: https://jsfiddle.net/9ehxr23g/ */
-
-@keyframes animatedLoading {
-    0% {
-        content: "⚫⚪⚪⚪⚪";
-        font-family: sans-serif;
-    }
-    25% {
-        content: "⚪⚫⚪⚪⚪";
-        font-family: sans-serif;
-    }
-    50% {
-        content: "⚪⚪⚫⚪⚪";
-        font-family: sans-serif;
-    }
-    75%{
-
-        content: "⚪⚪⚪⚫⚪";
-        font-family: sans-serif;
-    }
-    100%{
-        content: "⚪⚪⚪⚪⚫";
-        font-family: sans-serif;
-    }
-    
-}
-
-@keyframes animatedFetching {
-    0% {
-        content: "⚪⚪⚪⚪⚪";
-        font-family: sans-serif;
-    }
-    100% {
-        content: "⚫⚫⚫⚫⚫";
-        font-family: sans-serif;
-    }
-}
-  
-  /* Demo: https://jsfiddle.net/9ehxr23g/ */
 
 
 
 
  
 
-.tab-btn span#tab3-txt-loader:empty::after{
+ytd-watch-flexy #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
     display: inline-block;
     width: 4em;
     text-align:left;
@@ -367,56 +520,65 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
     transform: scaleX(0.8);
 }
 
-.tab-btn.tab-btn-hidden span#tab3-txt-loader:empty::after{
+ytd-watch-flexy #right-tabs .tab-btn.tab-btn-hidden span#tab3-txt-loader:empty::after{
     animation: animatedLoading 300ms linear infinite alternate;
     content: " ";
 }
 
-.tab-btn:not(.tab-btn-hidden) span#tab3-txt-loader:empty::after{
+ytd-watch-flexy #right-tabs .tab-btn:not(.tab-btn-hidden) span#tab3-txt-loader:empty::after{
     animation: animatedFetching 80ms linear infinite alternate;
     content: " ";
 }
 
-
-#right-tabs .tab-content-cld{
-/*    box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));*/
-
-}
-
-#right-tabs>.tab-content{
+ytd-watch-flexy #right-tabs .tab-content{
     padding:0;
     box-sizing: border-box;
     display:block;
     --yt-spec-brand-background-primary:var(--yt-spec-general-background-a);
 }
-#right-tabs .tab-content .tab-content-cld{
+
+ytd-watch-flexy #right-tabs .tab-content-cld{
     box-sizing: border-box;
     position:relative;
     display:block;
     max-width: 100%;
     overflow: auto;
-    min-height: var(--userscript-min-height);
-    max-height: var(--userscript-available-height);
     --tab-content-padding:16px;
     padding:var(--tab-content-padding);
 }
 
+
+ytd-watch-flexy #right-tabs .tab-content-cld#tab-list{
+    --tab-content-padding:0px;
+}
+
+ytd-watch-flexy #right-tabs .tab-content-cld#tab-videos [placeholder-videos]{
+    --tab-content-padding: 8px;
+}
+
+
+
+
+ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld:not(.tab-content-hidden){
+    min-height: var(--userscript-min-height);
+    max-height: var(--userscript-available-height);
+}
+ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld.tab-content-hidden{
+    min-height: var(--userscript-tab-content-height);
+    max-height: var(--userscript-tab-content-height);
+}
+
+
+
 /* too many space at the right */
-#right-tabs .tab-content .tab-content-cld#tab-comments,
-#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos]
+ytd-watch-flexy #tab-comments,
+ytd-watch-flexy #tab-videos [placeholder-videos]
 {
     padding-right: 4px;
 }
 
-/* playlist container double scrolling */
-#right-tabs .tab-content .tab-content-cld#tab-list{
-
-    padding:0;
-    overflow:hidden;
-}
-
 /* fix the rendering block overflow x problem */
-#right-tabs .tab-content .tab-content-cld#tab-videos ytd-compact-video-renderer yt-interaction.extended{
+ytd-watch-flexy #tab-videos ytd-compact-video-renderer yt-interaction.extended{
     max-width: 100%;
 }
 
@@ -429,33 +591,6 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
     .tab-content-cld #contents, .tab-content-cld #sections, .tab-content-cld #items{
         content-visibility: auto;
     }
-/*
-    .tab-content-cld ytd-comment-replies-renderer #contents{
-        content-visibility: visible;
-    }*/
-
-    .tab-content-cld ytd-comment-renderer, .tab-content-cld ytd-compact-video-renderer{
-        content-visibility: visible;
-    }
-
-    .tab-content-cld #continuations{
-        content-visibility: visible;
-    }
-
-    .tab-content-cld ytd-popup-container, 
-    .tab-content-cld tp-yt-iron-dropdown, 
-    .tab-content-cld #contentWrapper, 
-    .tab-content-cld ytd-menu-popup-renderer{
-        content-visibility: visible;
-
-
-    }
-
-    ytd-live-chat-frame#chat, ytd-live-chat-frame#chat iframe{
-        
-        content-visibility: visible;
-    }
-
 }
 
 @supports (contain-intrinsic-size: var(--userscript-base-height)){
@@ -481,32 +616,28 @@ ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs #material-ta
 }
 
 
-#right-tabs .tab-content .tab-content-cld.tab-content-hidden{
+#right-tabs .tab-content-cld.tab-content-hidden{
     /*display:none;*/
     position: absolute;
     z-index:-1;
     visibility:collapse;
     pointer-events: none;
     user-select: none;
-    max-height:100%;
-    height:auto;
+    height:100%;
     width:100%;
     min-height: 0;
+    top:0;
 }
 
 
 
 
-#right-tabs .tab-content #tab-info #content{
+#right-tabs #tab-info #content{
     max-height:100% 
 }
 #right-tabs .nav-link{
     font-size:1.6em 
 }
-/*
-#right-tabs ytd-comments{
-    width:100%!important 
-}*/
 @media only screen and (max-width:520px){
     #right-tabs .nav-tabs#material-tabs>li>a{
         font-size:11px 
@@ -532,16 +663,19 @@ body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:no
     min-height: 10px;
 }
 ytd-watch-flexy[is-two-columns_][userscript-chatblock][userscript-chat-collapsed]{
-    --userscript-available-height: calc(var(--userscript-base-height) - 42px);
+    --userscript-tab-content-height: calc(var(--userscript-base-height) - 42px);
+    --userscript-available-height: var(--userscript-tab-content-height);
     --userscript-min-height: var(--userscript-available-height);
 }
 ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]){
+    --userscript-tab-content-height: calc(var(--userscript-base-height) - 42px);
     --userscript-available-height: 46px;
     --userscript-min-height: 0;
     --userscript-chatroom-height: calc(var(--userscript-base-height) - 6px);
 }
 ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-chat-collapsed]){
-    --userscript-available-height: var(--userscript-base-height);
+    --userscript-tab-content-height: calc(var(--userscript-base-height));
+    --userscript-available-height: var(--userscript-tab-content-height);
     --userscript-min-height: var(--userscript-available-height);
 }
 
@@ -549,10 +683,6 @@ ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-cha
 ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([is-two-columns_]) #right-tabs{
     min-height:0; /* avoid page scroll when display of tab-content changed */
 }
-/*
-ytd-watch-flexy:not([is-two-columns_]) #right-tabs{
-    min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 1) - var(--userscript-sticky));
-}*/
 
 html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content>.tab-content-cld:not(.tab-content-hidden){
     min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 46px - var(--ytd-margin-6x) * 0.5);
@@ -623,53 +753,233 @@ body ytd-video-primary-info-renderer{
     width: calc(0.75 * var(--paper-icon-button_-_width, var(--yt-icon-width)));
     height: calc(0.75 * var(--paper-icon-button_-_height, var(--yt-icon-height)));
 }
-
-
-body #menu-container ytd-menu-renderer{
-    margin-top:-10px;
-    /*margin-top:-10px;
-    zoom:0.85;*/
+ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]):not([theater]) #right-tabs .tab-content .tab-content-cld.tab-content-hidden{
+    margin-top:calc( -1 * var(--userscript-base-height));
 }
 
-#primary #player ~ #info{
-    /*zoom:0.96;*/
+
+ytd-watch-flexy:not([is-two-columns_])[userscript-chatblock]:not([userscript-chat-collapsed]):not([theater]) #right-tabs .tab-content .tab-content-cld.tab-content-hidden{
+    margin-top:calc( -1 * var(--userscript-base-height));
 }
-#primary #player ~ #info ytd-menu-renderer a{
+
+
+
+
+
+
+
+
+
+
+
+
+/* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents */
+
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info {
+    display:flex;
+    flex-direction: column;
+}
+
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info{
+    padding-bottom: 6px;
+    border: 0;
+    outline: 0;
+}
+    
+ytd-watch-flexy:not([is-two-columns_]) #primary #player ~ #info ytd-menu-renderer a{
     white-space: nowrap;
 }
-#primary #player ~ #info ytd-menu-renderer yt-icon-button{
-    /*zoom:0.9;*/
+
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer{
+    border:0;
 }
 
-/* smaller text in tab Info */
-#right-tabs>.tab-content #tab-info>ytd-expander{
-    zoom: 0.95;
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container{
+padding:0;margin:0;
+margin-left: 60px;
 }
 
-/* smaller text in tab Comments */
-#right-tabs>.tab-content #tab-comments>#comments #main.ytd-comment-renderer{
-    zoom: 0.95;
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container > #menu{
+    padding:0;margin:0;
+    position:static;
 }
 
-/* smaller text for tab Videos */
-#right-tabs .tab-content .tab-content-cld#tab-videos [placeholder-videos] ytd-compact-video-renderer .details>.metadata.style-scope.ytd-compact-video-renderer {
-    zoom:0.94;
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container > #menu > ytd-menu-renderer{
+    padding:0;margin:0;
+    height:var(--ytd-user-comment_-_line-height);
+    align-items: center;
 }
 
-#right-tabs>.tab-content #tab-comments>#comments ytd-comments-header-renderer{
-    padding:0;margin-top:0;margin-left:0;margin-right:0;
-/*    margin-bottom:var(--ytd-comment-thread-margin-bottom, 16px);*/
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container >#info >#info-text{
+    max-height:none;
 }
 
-#right-tabs>.tab-content #tab-info ytd-expander{
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents, 
+#player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+    flex-grow: 1;
+}
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents, 
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer, 
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+    display:flex;
+    height:100%;
+    flex-direction: column;
+}
+
+ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container > .title.ytd-video-primary-info-renderer{
+    flex-grow:1;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents */
+
+
+
+
+/* ytd-watch-flexy[is-two-columns_] #player ~ #info */
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info {
+    display:flex;
+    flex-direction: column;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info{
+    padding-bottom: 6px;
+    border: 0;
+    outline: 0;
+}
+
+ytd-watch-flexy[is-two-columns_] #primary #player ~ #info ytd-menu-renderer a{
+    white-space: nowrap;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer{
+    border:0;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container{
+padding:0;margin:0;
+margin-left: 60px;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container > #menu{
+    padding:0;margin:0;
+    position:static;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container > #menu > ytd-menu-renderer{
+    padding:0;margin:0;
+    height:var(--ytd-user-comment_-_line-height);
+    align-items: center;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container >#info >#info-text{
+    max-height:none;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents, 
+#player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+    flex-grow: 1;
+}
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents, 
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer, 
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+    display:flex;
+    height:100%;
+    flex-direction: column;
+}
+
+ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container > .title.ytd-video-primary-info-renderer{
+    flex-grow:1;
+}
+
+
+
+
+
+
+
+
+
+/* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer  */
+
+
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer,
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer #button.ytd-menu-renderer{
+    --yt-icon-button-icon-width:16px;
+    --yt-icon-button-icon-height:16px;
+    --paper-icon-button_-_width:16px;
+    --paper-icon-button_-height:16px;
+}
+
+/* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata  */
+
+
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata{
+    height: 100%;
+}
+
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata > a{
+    height: 100%;
+    display:flex;
+    flex-direction: column;
+}
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata{
+    flex-grow: 1;
+    display:flex;
+    flex-direction: row;
+}
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata .badge{
+    box-sizing: border-box;
+    margin: 2px 2px;
+    width: 100%;
+    text-align: center;
+}
+
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata >ytd-video-meta-block{
+    flex-grow:1;
+    overflow:hidden;
+}
+
+ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata ytd-badge-supported-renderer{
+    flex-direction: column;
+    white-space: nowrap;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* #tab-info ytd-expander */
+
+#tab-info ytd-expander{
     /* space fix for tab INFO */
     padding:0;
     margin:0;
+    zoom: 0.95; /* smaller text in tab Info */
 }
 
-#right-tabs>.tab-content #tab-info ytd-expander, #right-tabs>.tab-content #tab-info ytd-expander .content.ytd-metadata-row-header-renderer, #right-tabs>.tab-content #tab-info ytd-expander #title.ytd-metadata-row-renderer, #right-tabs>.tab-content #tab-info ytd-expander .ytd-metadata-row-renderer, #right-tabs>.tab-content #tab-info ytd-expander ytd-metadata-row-renderer {
-    
-/* smaller text for tab INFO */
+#tab-info ytd-expander, 
+#tab-info ytd-expander .content.ytd-metadata-row-header-renderer, 
+#tab-info ytd-expander #title.ytd-metadata-row-renderer, 
+#tab-info ytd-expander .ytd-metadata-row-renderer, 
+#tab-info ytd-expander ytd-metadata-row-renderer {
+    /* smaller text for tab INFO */
     font-size: var(--ytd-user-comment_-_font-size);
     font-weight: var(--ytd-user-comment_-_font-weight);
     line-height: var(--ytd-user-comment_-_line-height);
@@ -679,72 +989,42 @@ body #menu-container ytd-menu-renderer{
 
 
 
+
+/* smaller text in tab Comments */
+#tab-comments > #comments #main.ytd-comment-renderer{
+    zoom: 0.95;
+}
+
+#tab-comments ytd-comments-header-renderer{
+    padding:0;margin-top:0;margin-left:0;margin-right:0;
+}
+
  
 
-
-
-
-/* align scrollbar style */
-[userscript-scrollbar-render]::-webkit-scrollbar {
-    width: 16px;
-}
-[userscript-scrollbar-render]::-webkit-scrollbar-thumb {
-    height: 56px;
-    border-radius: 8px;
-    border: 4px solid transparent;
-    background-clip: content-box;
-    background-color: var(--yt-spec-text-secondary);
-}
-/* Colorize the scroll bar (chrome, safari, edge) */
-[userscript-scrollbar-render]::-webkit-scrollbar-thumb, [userscript-scrollbar-render]::-webkit-scrollbar-thumb{
-    background-color: var(--paper-checkbox-unchecked-color) !important;
-}
-[userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover{
-    background-color:var(--paper-checkbox-checked-color) !important;
+/* smaller text for tab Videos */
+#tab-videos [placeholder-videos] ytd-compact-video-renderer .details > .metadata.style-scope.ytd-compact-video-renderer {
+    zoom:0.94;
 }
 
 
 
 
-/* align scrollbar style */
-[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar {
-    width: 16px;
-}
-[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb {
-    height: 56px;
-    border-radius: 8px;
-    border: 4px solid transparent;
-    background-clip: content-box;
-    background-color: var(--yt-spec-text-secondary);
-}
-/* Colorize the scroll bar (chrome, safari, edge) */
-[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb{
-    background-color: var(--paper-checkbox-unchecked-color) !important;
-}
-[userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover, [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover{
-    background-color:var(--paper-checkbox-checked-color) !important;
-}
 
 
 
 
-#right-tabs{ 
-    padding:0;
-    margin:0;
-}
 
 
-#tab-list ytd-playlist-panel-renderer>#container.ytd-playlist-panel-renderer{
-    /* hide playlist default border */
-    border:0;
-}
+
+
 
 #tab-list ytd-playlist-panel-renderer#playlist yt-icon-button#expand-button{
     /* hide expand button */
     display:none;
 }
 
-#tab-list ytd-playlist-panel-renderer#playlist #header-description, #tab-list ytd-playlist-panel-renderer#playlist  #header-description yt-formatted-string[class]{
+#tab-list ytd-playlist-panel-renderer#playlist #header-description, 
+#tab-list ytd-playlist-panel-renderer#playlist #header-description yt-formatted-string[class]{
 
 /* fix playlist title */
 
@@ -757,8 +1037,8 @@ body #menu-container ytd-menu-renderer{
     
 }
 
-
-#tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #header-description, #tab-list ytd-playlist-panel-renderer#playlist  #header-contents:hover #header-description yt-formatted-string[class]{
+#tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #header-description, 
+#tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #header-description yt-formatted-string[class]{
     height: auto;
     max-height:none;
     white-space: normal;
@@ -771,13 +1051,21 @@ body #menu-container ytd-menu-renderer{
     display:none;
 }
 
-
 #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #publisher-container, #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #playlist-actions{
     display:block;
 }
 
+
+
+
+/* #tab-list ytd-playlist-panel-renderer#playlist #container */
+
+#tab-list ytd-playlist-panel-renderer#playlist #container{
+    border:0; /* hide playlist default border */
+}
+
 #tab-list ytd-playlist-panel-renderer#playlist #container > .header{
-box-sizing: border-box;
+    box-sizing: border-box;
     position: absolute;
     width: 100%;
     z-index: 1;
@@ -786,34 +1074,40 @@ box-sizing: border-box;
     padding:10px 16px;
     box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
     margin-top:1px; /* as tab use outline 1px */
+    background-color: var(--yt-spec-general-background-b);
 }
 
+#tab-list ytd-playlist-panel-renderer#playlist #container > .header yt-icon-button{
+    background-color: var(--yt-spec-badge-chip-background);
+}
 
-
-/* ytd-playlist-panel-renderer */
-
-#tab-list ytd-playlist-panel-renderer#playlist #container>.header+ #items{
+#tab-list ytd-playlist-panel-renderer#playlist #container > .header + #items{
     margin-top:calc(1 * var(--ytd-subheadline-one-line-ellipsis_-_max-height) + 32px);  
 }
         
-#tab-list ytd-playlist-panel-renderer#playlist #container>.header{
-    background-color: var(--yt-spec-general-background-b);
-    
-}
-
-#tab-list ytd-playlist-panel-renderer#playlist #container>.header yt-icon-button{
-    background-color: var(--yt-spec-badge-chip-background);
-}
 
 
 
 /* hide playlist border & toggle button */
 
 
+
+
+/* hide original right tabs {#related} */
+/* Youtube coding - under resizing window - relocate it between {#primary} and {#secondary} */
+#related:not([placeholder-videos]){
+    position: absolute;
+    z-index: -1;
+    visibility:collapse;
+    pointer-events: none;
+    max-height: 40px;
+    overflow:hidden;
+    margin-top:-40px;
+}
+
+
 /* hide videos list & play list before script loading */
-#related:not(:only-child)>ytd-watch-next-secondary-results-renderer,
-[placeholder-videos]:not(:only-child)>ytd-watch-next-secondary-results-renderer,
-#related:not([placeholder-videos])>ytd-watch-next-secondary-results-renderer, 
+*:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer, 
 #related > #related-skeleton, #related > #player-ads,
 *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist{
     position: absolute;
@@ -846,31 +1140,19 @@ box-sizing: border-box;
 /* responsive to non-column flexy */
 ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy{
     flex-direction: column; /* from (flex-direction: column;) | overriding {#columns.ytd-watch-flexy} */
-    --ytd-watch-flexy-sidebar-width: 
 }
 ytd-watch-flexy:not([is-two-columns_]) #columns #secondary.ytd-watch-flexy{
     display:block; /* from (display: inline-block;) | overiding {ytd-watch-flexy:not([is-two-columns_]) #secondary.ytd-watch-flexy} */
 }
 
-/* hide original right tabs {#related} */
-/* Youtube coding - under resizing window - relocate it between {#primary} and {#secondary} */
-#related:not([placeholder-videos]){
-    position: absolute;
-    z-index: -1;
-    visibility:collapse;
-    pointer-events: none;
-    max-height: 40px;
-    overflow:hidden;
-    margin-top:-40px;
-}
 
 /* css fix for responsive two columns flex , width */
 
-ytd-watch-flexy[flexy]:not([is-two-columns_])  #secondary.ytd-watch-flexy {
+ytd-watch-flexy[flexy]:not([is-two-columns_]) #secondary.ytd-watch-flexy {
     min-width: var(--ytd-watch-flexy-min-player-width);
     width: auto;
 }
-ytd-watch-flexy[flexy][is-two-columns_]  #secondary.ytd-watch-flexy {
+ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy {
     width: var(--ytd-watch-flexy-sidebar-width);
     min-width: var(--ytd-watch-flexy-sidebar-min-width);
 }
@@ -895,67 +1177,23 @@ html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #secondary.ytd-wat
     padding-bottom: calc(var(--ytd-margin-6x) * 0.5);
 }
 
-/*
-ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>.tab-content{
-    max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 0.5) - var(--userscript-sticky));
-}*/
-
 html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #ytd-userscript-playlist #container{
-
     max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - calc(var(--ytd-margin-6x) * 1) - var(--userscript-sticky));
 }
-
-
 
 html ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy{
     margin-top:0;
     margin-bottom:0;
     padding-top: calc(var(--ytd-margin-6x) * 0.5);
     padding-bottom: 0;
-
 }
 
-
-
-/*
-html ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([fullscreen]):not([is-two-columns_]) #secondary.ytd-watch-flexy{
-
-    padding-top: calc(var(--ytd-margin-6x) * 0.25);
-    padding-bottom: calc(var(--ytd-margin-6x) * 0.25);
-
-}*/
-
-/*
-ytd-watch-flexy[theater]{
-    --ytd-watch-flexy-sidebar-width: calc(402px * 0.66);
-    --ytd-watch-flexy-sidebar-min-width: calc(300px * 0.66);
-}*/
 
 /* two column mainly;  theater view make font smaller */
 ytd-watch-flexy[theater] #player ~ #info #info-contents .title{
     font-size:var(--ytd-user-comment_-_font-size);
 }
 
-/* reference dimension */
-/*
-ytd-watch-flexy {
-    --ytd-watch-flexy-sidebar-width: 402px;
-    --ytd-watch-flexy-sidebar-min-width: 300px;
-    --ytd-watch-flexy-masthead-height: 56px;
-    min-width: 0;
-}
-ytd-watch-flexy[flexy] {
-    --ytd-watch-flexy-width-ratio: 16;
-    --ytd-watch-flexy-height-ratio: 9;
-    --ytd-watch-flexy-space-below-player: 136px;
-    --ytd-watch-flexy-non-player-height: calc( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) );
-    --ytd-watch-flexy-non-player-width: calc( var(--ytd-watch-flexy-sidebar-width) + (3 * var(--ytd-margin-6x)) );
-    --ytd-watch-flexy-min-player-height: 240px;
-    --ytd-watch-flexy-min-player-width: calc( var(--ytd-watch-flexy-min-player-height) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
-    --ytd-watch-flexy-max-player-height: calc( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) );
-    --ytd-watch-flexy-max-player-width: calc( ( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) ) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
-}
-*/
 
 /* <<< sticky right-tabs header --- */
 
@@ -1018,7 +1256,7 @@ ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[
         height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
         padding-bottom: 0;
         overflow: auto;
-    } 
+    }
 
     /* it is possible that #info is too height, make it overflow:auto with no scroll-bar */
     ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
@@ -1051,7 +1289,7 @@ ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[
     ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
         margin-bottom: 0;
         padding-bottom: 0; 
-    } 
+    }
 
     /* theater mode same mechanism */
     ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]){
@@ -1076,41 +1314,65 @@ ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[
 ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
     margin-bottom: 0;
     padding-bottom: 0; 
-} 
+}
 
 
-/* (--- chatroom loading --- */
-
-    ytd-live-chat-frame#chat:not([yt-userscript-iframe-loaded]):not([collapsed])::before{
-        position: absolute;
-        content: "Loading...";
-        z-index: 0;
-        display: block;
-        height: 100%;
-        color: var(--yt-spec-text-primary);
-        background-color: var(--ytd-searchbox-legacy-button-hover-border-color);
-        width: 100%;
-        text-align: center;
-        /* line-height: 300px; */
-        line-height: var(--userscript-chatroom-height);
-        animation: animatedLoading 300ms linear infinite alternate;
-    }
 
 
-    ytd-live-chat-frame#chat:not([collapsed]){
-        position: relative; 
-    }
-
-    ytd-live-chat-frame#chat:not([collapsed]) > * {
-        z-index: 1;
-        position: inherit;
-    }
 
 
-/* --- chatroom loading ---) */
 
 
-/* flexbox */
+
+
+
+
+
+
+/* ytd-live-chat-frame#chat:not([collapsed]) */
+
+ytd-live-chat-frame#chat:not([collapsed]):not([yt-userscript-iframe-loaded])::before{
+    position: absolute;
+    content: "Loading...";
+    z-index: 0;
+    display: block;
+    height: 100%;
+    color: var(--yt-spec-text-primary);
+    background-color: var(--ytd-searchbox-legacy-button-hover-border-color);
+    width: 100%;
+    text-align: center;
+    /* line-height: 300px; */
+    line-height: var(--userscript-chatroom-height);
+    animation: animatedLoading 300ms linear infinite alternate;
+}
+
+
+ytd-live-chat-frame#chat:not([collapsed]){
+    position: relative; 
+}
+
+ytd-live-chat-frame#chat:not([collapsed]) > * {
+    z-index: 1;
+    position: inherit;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* flexbox | ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) | #primary-inner | #info */
+
 ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
     display: flex;
     flex-flow: column;
@@ -1119,77 +1381,69 @@ ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner
 ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#info{
     flex: 1;
 }
-/* flexbox */
-
-/* flexbox */
-/*
-ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) #primary-inner{
-
-    display: flex;
-    /* position: relative; *|/
-    flex-direction: column;
-    /* height: 110px; *|/
-
-    /* ytd-watch-flexy[theater] #player-theater-container.ytd-watch-flexy, ytd-watch-flexy[fullscreen] #player-theater-container.ytd-watch-flexy *|/
-    --player-h: calc((9 / 16) * 100vw);
-    --player-maxh: calc(100vh - 169px);
-    --player-minh: 480px;
-    --h1: max(var(--player-h),var(--player-minh));
-    --h2: min(var(--h1),var(--player-maxh));
-    
-    height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--h2) );
 
 
-    display: flex;
-    flex-flow: column; 
-}
-*/
+
+
+
+
+
+
+
+
+
+
+
+/* flexbox | ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) | #columns | #primary-inner | #info */
+
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]){
     display: flex;    
     flex-direction: column;
 }
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
     flex:1;
+    overflow:auto;
+}
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
+    overflow:auto;
 }
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner{
     display: flex;
     flex-flow: column;
     height: 100%;
 }
-
-
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner>#info{
     flex: 1;
 }
-
-ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
-    overflow:auto;
-
-}
-
-ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
-    overflow:auto;
-    
-}
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#secondary{
     overflow:hidden;
-    
 }
- 
+
+
+
 
 ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-    }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary::-webkit-scrollbar {
-        display: none;
-    }
-
-    
-ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
-    width:100%; /* otherwise, width > 100%, right-tabs go outside screen */
-    
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
+ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary::-webkit-scrollbar {
+    display: none;
+}
+
+
+
+
+     
+
+
+
+
+
+
+
+
+
+
 
 
 /* flexbox */
@@ -1204,79 +1458,39 @@ ytd-watch-flexy[userscript-auto-scroll-playlist]:not([is-two-columns_]) #tab-lis
 
 
 ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos{
-
     flex-direction: row;
     display: flex;
     padding: 0;
-
 }
-ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]{
-    --tab-content-padding-2:var(--tab-content-padding);
-    
-}
-/*
-ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]::before{
-
-    content:' ';
-    background:red;
-    width: 100%;
-    height: 16px; /*var(--tab-content-padding);*|/
-    display:block;
-    position:absolute;
-    top: 0;
-    left:0;
-    z-index:3000;
-    pointer-events: all;
-
-
-}
-
-
-ytd-watch-flexy[is-two-columns_]:not([theater]) #right-tabs .tab-content .tab-content-cld [placeholder-for-youtube-play-next-queue]::before:hover{
-
-
-    background:blue;
-    cursor:pointer;
-
-}*/
 
 
 ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search{
-    position:sticky;
-    /*top:0;*/
+    position:sticky; 
     top: calc( -1 * var(--tab-content-padding, 0px)) ;
     z-index:2;
 }
 
-ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos>[placeholder-videos]{
+ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos [placeholder-videos]{
     overflow: auto;
     padding:var(--tab-content-padding, 0px);
     padding-right: 4px;
 }
 
 
-/*
-autocomplete-positioner>.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
 
-    margin:0 !important;
-    z-index:2 !important; 
-    margin-top:-1px !important;
-}
 
-autocomplete-positioner{
 
-    position:sticky;
-    top: calc( var(--height, auto) + -1 * var(--tab-content-padding, 0px)) ;
-    overflow:visible;
-    display: block;
 
-    left:auto;
-    width:80%;
 
-    z-index:2;
-    
-    
-}*/
+
+
+
+
+
+
+
+
+/* autocomplete */
 
 autocomplete-positioner>.autocomplete-suggestions{
     position:absolute !important;
@@ -1284,7 +1498,7 @@ autocomplete-positioner>.autocomplete-suggestions{
     top:auto !important;
     width:100% !important;
     margin:0 !important;   
-    z-index:99999; 
+    z-index:99; 
 }
 
 autocomplete-positioner{
@@ -1295,19 +1509,102 @@ autocomplete-positioner{
     width:100%;
     margin-top: calc( -1 * ( var(--sb-margin-bottom) ) );
     margin-bottom: calc( 1 * ( var(--sb-margin-bottom) ) );
-    z-index:99999; 
+    z-index:99; 
 }
 
+
+
+
+
+
+
+/* autocomplete | position-fixed-by-tabview-youtube */
 
 autocomplete-positioner[position-fixed-by-tabview-youtube]{
-    
     position:sticky;
     top: calc( var(--height, auto) + -1 * var(--tab-content-padding, 0px)) ;
-    z-index:2 !important; 
-
+    z-index:2; 
 }
 autocomplete-positioner[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
-    z-index:2 !important; 
-    margin-top:0px !important;
+    z-index:2; 
+}
+
+
+
+
+
+
+
+/* ytd-watch-flexy:not([is-two-columns_]) #columns */
+
+
+ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy{
+    overflow:auto;
+}
+
+
+ytd-watch-flexy:not([is-two-columns_]) #columns{
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+ytd-watch-flexy:not([is-two-columns_]) #columns::-webkit-scrollbar {
+    display: none;
+}
+
+
+
+
+
+
+
+
+
+
+/* plugin - #youtube-play-next-queue-renderer */
+
+#youtube-play-next-queue-renderer .queue-button{
+    height:auto;
+    zoom:0.8;    
+}
+
+#youtube-play-next-queue-renderer .queue-button.queue-play-now, 
+#youtube-play-next-queue-renderer .queue-button.queue-play-next, 
+#youtube-play-next-queue-renderer .queue-button.queue-remove{
+    margin: 2px !important;
+}
+
+#youtube-play-next-queue-renderer ytd-badge-supported-renderer {
+    align-self: flex-end;
+}
+
+
+
+
+/* align scrollbar style */
+#youtube-play-next-queue-renderer::-webkit-scrollbar {
+    width: 16px;
+}
+#youtube-play-next-queue-renderer::-webkit-scrollbar-thumb {
+    height: 56px;
+    border-radius: 8px;
+    border: 4px solid transparent;
+    background-clip: content-box;
+    background-color: var(--yt-spec-text-secondary);
+}
+/* Colorize the scroll bar (chrome, safari, edge) */
+#youtube-play-next-queue-renderer::-webkit-scrollbar-thumb, #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb{
+    background-color: var(--paper-checkbox-unchecked-color) !important;
+}
+#youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover, #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover{
+    background-color:var(--paper-checkbox-checked-color) !important;
+}
+#youtube-play-next-queue-renderer::-webkit-scrollbar-corner {
+    background-color:transparent;
+}
+
+
+ytd-watch-flexy[flexy][is-two-columns_][theater] #primary.ytd-watch-flexy{
+
+    --ytd-watch-flexy-min-player-width: 0;
 
 }
