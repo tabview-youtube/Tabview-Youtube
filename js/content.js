@@ -592,6 +592,7 @@ function mtf_fixTabsAtTheEnd(){
 
                     if(cid_searchbox_keyup)return;
                     cid_searchbox_keyup=setTimeout(()=>{
+                        cid_searchbox_keyup=0;
                         
                         const autocomplete=document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${ this.getAttribute('data-autocomplete-results-id') }"]`)
 
