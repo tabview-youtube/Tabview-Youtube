@@ -452,8 +452,8 @@ var injectionScript_fixAutoComplete=function(){
         if(sc instanceof HTMLElement){
 
             let id=+new Date;
-            s.setAttribute('data-autocomplete-results-id',id)
-            sc.setAttribute('data-autocomplete-input-id', id)
+            s.setAttribute('data-autocomplete-results-id',id);
+            sc.setAttribute('data-autocomplete-input-id', id);
             
             if(window.WeakRef){
                 s._sc=new WeakRef(sc);
@@ -465,9 +465,15 @@ var injectionScript_fixAutoComplete=function(){
                     configurable: true
                 })
             }
-            sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'))
 
+            if(sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC =='function'){
 
+                window.removeEventListener('resize', s.updateSC);
+                s.updateSC=function(){};
+
+            }
+
+            sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
 
 
         }
@@ -506,6 +512,7 @@ function handlerAutoCompleteExist(){
 
 }
 
+elmAutoComplete.setAttribute('autocomplete-disable-updatesc','')
 elmAutoComplete.addEventListener('autocomplete-sc-exist',handlerAutoCompleteExist, false)
 
 addScript(`!!(${injectionScript_fixAutoComplete+''})()`)
