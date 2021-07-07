@@ -1621,4 +1621,6 @@ ytd-watch-flexy[flexy][is-two-columns_][theater] #primary.ytd-watch-flexy{
 
 ytd-watch-flexy[flexy]:not([is-two-columns_]) #player ~ #info ytd-video-primary-info-renderer #info{
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
+
