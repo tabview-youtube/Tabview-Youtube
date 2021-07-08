@@ -47,7 +47,19 @@ const svgPlayList = `
 class WeakRefer{
 
     
-    constructor(obj){
+    constructor(){
+
+        this.clear();
+
+    }
+
+    deref(){
+
+        return (this._obj1?this._obj1.deref():this._obj2)||null
+
+    }
+
+    set(obj){
 
         if(obj){
             if(window.WeakRef) this._obj1= new WeakRef(obj);
@@ -56,9 +68,10 @@ class WeakRefer{
 
     }
 
-    deref(){
+    clear(){
 
-        return (this._obj1?this._obj1.deref():this._obj2)||null
+        this._obj1=null;
+        this._obj2=null;
 
     }
 
@@ -154,7 +167,7 @@ function layoutStatusChanged(old_layoutStatus, new_layoutStatus){
         //console.log(7012)
         ytBtnSetTheater();
 
-    }else if( (((changes & LAYOUT_CHATROOM_COLLASPED ) && new_isExpandedChat) ||((changes & LAYOUT_TAB_EXPANDED ) && new_isTabExpanded)) && !(changes & LAYOUT_THEATER) && !(changes & LAYOUT_TWO_COLUMNS) && new_isTheater && new_isTwoColumns ){
+    }else if( (((changes & LAYOUT_CHATROOM_COLLASPED ) && new_isExpandedChat) ||((changes & LAYOUT_TAB_EXPANDED ) && new_isTabExpanded)) && !(changes & LAYOUT_THEATER) && !(changes & LAYOUT_FULLSCREEN) && !(changes & LAYOUT_TWO_COLUMNS) && new_isTheater && new_isTwoColumns ){
 
         //console.log(7013)
         ytBtnCancelTheater();
@@ -310,6 +323,13 @@ function isTheater(){
     return (cssElm && cssElm.hasAttribute('theater'))
 }
 
+function isFullScreen(){
+    
+    const cssElm=ytdFlexy.deref();
+    return (cssElm && cssElm.hasAttribute('fullscreen'))
+
+}
+
 function isChatExpand(){
     const cssElm=ytdFlexy.deref();
     return cssElm && cssElm.hasAttribute('userscript-chatblock') && !cssElm.hasAttribute('userscript-chat-collapsed')
@@ -410,29 +430,88 @@ function chatFrameElement(cssSelector){
 
 
 
-function fixRelated(){
-    
-    if(!document.querySelector("#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer[data-dom-changed-by-tabview-youtube]")){
+function fixTabs(){
+
+    let queryElement=document.querySelector('*:not(#tab-videos)>#related:not([non-placeholder-videos])>ytd-watch-next-secondary-results-renderer')
+
+    let isRelocated = !!queryElement;
 
 
 
-        let relatedVideos = document.querySelector("#related>ytd-watch-next-secondary-results-renderer");
-        if(relatedVideos){
-
-            $('[placeholder-videos]').removeAttr('placeholder-videos')
-            $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue')
-
-            let $parentNode= $(relatedVideos.parentNode).appendTo(document.querySelector("#tab-videos"))
-            $(relatedVideos).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
-
-            $parentNode.attr('placeholder-for-youtube-play-next-queue','').attr('placeholder-videos','')
-
-            $('[placeholder-videos]').scroll(makeBodyScrollByEvt);
-
-        }
+    if(isRelocated){
 
         
+        let relocatedRelated = queryElement.parentNode;
+
+
+        let right_tabs = document.querySelector('#right-tabs');
+        let tab_videos = right_tabs.querySelector("#tab-videos");
+
+        if(!right_tabs || !tab_videos) return;
+
+        for(const s of relocatedRelated.querySelectorAll('#related')){
+            s.setAttribute('non-placeholder-videos','')
+        }
+
+        /*
+        let pElm = relocatedRelated.parentNode;
+        let target_container = null;
+
+        while(pElm && pElm.nodeType===1){
+            if(pElm.id && /\b(primary|secondary)\b/.test(pElm.id)){
+                target_container=pElm;
+                break;
+            }
+            pElm=pElm.parentNode;
+        } 
+
+        pElm=null;
+        */
+
+        let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner, ytd-watch-flexy[is-two-columns_] #secondary-inner')
+
+        if(target_container) target_container.append(right_tabs) // last-child
+
+
+        let videos_related = relocatedRelated;
+        $('[placeholder-videos]').removeAttr('placeholder-videos');
+        $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue');
+
+        tab_videos.appendChild(videos_related);
+        let videos_results_renderer = relocatedRelated.querySelector("ytd-watch-next-secondary-results-renderer");
+        if(videos_results_renderer) $(videos_results_renderer).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal);
+        $(videos_related).attr('placeholder-for-youtube-play-next-queue','').attr('placeholder-videos','')
+
+        $('[placeholder-videos]').scroll(makeBodyScrollByEvt);
+
+
     }
+
+
+    
+    if(chatBlockRelocateEnable){
+                
+        let chatroom=null;
+        if(chatroom=document.querySelector('ytd-live-chat-frame#chat:not(:nth-last-child(2))')){
+
+            if(document.querySelector('.YouTubeLiveFilledUpView')){
+                chatBlockRelocateEnable=false;
+            }else{
+
+
+                if(!document.querySelector('ytd-live-chat-frame#chat + #right-tabs')){
+
+                    $(chatroom).insertBefore('#right-tabs')
+
+
+                }
+            }
+
+
+        }
+    }
+
+
 }
 
 function extractTextContent(elm){
@@ -528,26 +607,7 @@ function mtf_fixTabsAtTheEnd(){
     // causing difference apperance after resize of window
 
 
-    fixRelated();
-    
-
-    let nonLastRightTabs = document.querySelector('#secondary #right-tabs:not(:last-child)')
-
-    if(nonLastRightTabs){
-        nonLastRightTabs.parentNode.appendChild(nonLastRightTabs)
-    }
-
-    let chatroom = document.querySelector('#primary ytd-live-chat-frame#chat');
-    if(chatroom){
-        let right_tabs = document.querySelector('#secondary #right-tabs:last-child')
-        if(right_tabs){
-
-
-            right_tabs.parentNode.insertBefore(chatroom, right_tabs)
-
-        }
-        
-    }
+    fixTabs();
 
 
     const autocomplete=document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
@@ -627,8 +687,8 @@ function mtf_fixTabsAtTheEnd(){
 
     
     let currentLastVideo=document.querySelector('[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
-    let prevLastVideo=_cachedLastVideo?_cachedLastVideo.deref():null;
-    _cachedLastVideo = new WeakRefer(currentLastVideo);
+    let prevLastVideo=_cachedLastVideo.deref();
+    _cachedLastVideo.set(currentLastVideo);
     
     if(prevLastVideo && currentLastVideo && prevLastVideo!==currentLastVideo){
 
@@ -857,12 +917,35 @@ function initObserver(){
     function mtf_append_playlist(){
         let ple1 = document.querySelector("*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist");
         if(ple1){
+            let ct = +new Date;
+            let truePlaylist=null;
+            let truePlaylist_items = document.querySelector('ytd-playlist-panel-renderer#playlist #items:not(:empty)');
+            if(truePlaylist_items){
+
+                let pElm  = truePlaylist_items.parentNode;
+                while(pElm && pElm.nodeType===1){
+                    if(pElm.id=='playlist'){
+                        pElm.setAttribute('tabview-true-playlist',ct)
+                        truePlaylist=pElm;
+                        break;
+                    }
+                    pElm=pElm.parentNode;
+                }
+
+            }
+
+            if(!truePlaylist) truePlaylist = ple1;
+
+            for(const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`))
+            s.parentNode.removeChild(s);
+
             appendWithWrapper(
-                ple1,
+                truePlaylist,
                 'ytd-userscript-playlist',  
                 document.querySelector("#tab-list")
             );
-            $(ple1).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
+            $(truePlaylist).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
+            setDisplayedPlaylist();
 
         }
     }
@@ -872,26 +955,37 @@ function initObserver(){
     // fired at begining, and keep for in case any change
     function mtf_fix_details() {
 
-        const content = document.querySelector('#meta-contents ytd-expander>#content, #tab-info ytd-expander>#content')
-        if (content) {
-            const expander = content.parentNode;
+        if(no_fix_contents_until<+new Date){
+            const content = document.querySelector('#meta-contents ytd-expander>#content, #tab-info ytd-expander>#content')
+            if (content) {
+                no_fix_contents_until= +new Date +3000;
+                setTimeout(function(){
+                    const expander = content.parentNode;
 
-            if (expander.hasAttribute('collapsed')) setAttr(expander,'collapsed',false);
+                    if (expander.hasAttribute('collapsed')) setAttr(expander,'collapsed',false);
+                    expander.style.setProperty('--ytd-expander-collapsed-height','');
 
-            let btn1 = expander.querySelector('tp-yt-paper-button#less:not([hidden])');
-            let btn2 = expander.querySelector('tp-yt-paper-button#more:not([hidden])');
+                    let btn1 = expander.querySelector('tp-yt-paper-button#less:not([hidden])');
+                    let btn2 = expander.querySelector('tp-yt-paper-button#more:not([hidden])');
 
-            if (btn1) setAttr(btn1,'hidden',false);
-            if (btn2) setAttr(btn2,'hidden',false);
+                    if (btn1) setAttr(btn1,'hidden',true);
+                    if (btn2) setAttr(btn2,'hidden',true);
+                },40);
 
+            }
         }
 
-        // just in case the playlist is collapsed
-        const playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-        if(playlist){
-            if(playlist.hasAttribute('collapsed')) setAttr(playlist,'collapsed',false);
-            if(playlist.hasAttribute('collapsible')) setAttr(playlist,'collapsible',false);
-        }        
+        if(no_fix_playlist_until<+new Date){
+            // just in case the playlist is collapsed
+            const playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
+            if(playlist){
+                no_fix_playlist_until= +new Date +3000;
+                setTimeout(function(){
+                    if(playlist.hasAttribute('collapsed')) setAttr(playlist,'collapsed',false);
+                    if(playlist.hasAttribute('collapsible')) setAttr(playlist,'collapsible',false);
+                },40)
+            }        
+        }
 
 
     }
@@ -1035,24 +1129,28 @@ function initObserver(){
 
 }
 
-let displayedPlaylist=null
-let scrollingVideosList=null
+const displayedPlaylist=new WeakRefer();
+const scrollingVideosList=new WeakRefer();
 
 let scriptEnable =false;
 let lastShowTab = null;
 
 
-let _cachedLastVideo=null;
+let _cachedLastVideo=new WeakRefer();
 let videoListBeforeSearch=null;
+let no_fix_contents_until = 0;
+let no_fix_playlist_until = 0;
+let chatBlockRelocateEnable =true;
 function resetBeforeNav() {
     videoListBeforeSearch=null;
-    _cachedLastVideo=null;
+    _cachedLastVideo.clear();
     lastShowTab=null;
-    displayedPlaylist=null
-    scrollingVideosList=null
+    displayedPlaylist.clear();
+    scrollingVideosList.clear();
     scriptEnable =false;
+    ytdFlexy.clear();
     $ws.layoutStatus=null;
-
+    chatBlockRelocateEnable=true;
 
     clearMutationObserver(mtoVs,'mtoVisibility_Playlist')
     clearMutationObserver(mtoVs,'mtoVisibility_Comments')
@@ -1085,12 +1183,15 @@ function resetBeforeNav() {
 
 }
 
-let ytdFlexy=null;
+let ytdFlexy=new WeakRefer();
 function resetAtNav() {
 
     scriptEnable =true;
 
-    ytdFlexy = new WeakRefer(document.querySelector('ytd-watch-flexy'))
+    no_fix_contents_until = 0;
+    no_fix_playlist_until = 0;
+
+    ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
     $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed");
     $('#tab-comments').attr('lazy-loading', '');
@@ -1168,19 +1269,24 @@ function onNavigationEnd() {
     if(!/https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&)*v=[\w\-\_]+/.test(window.location.href))return;
     resetAtNav();
 
-
-    let promise = Promise.resolve();
-
-    if (!document.querySelector("#right-tabs")) {
-        let targetElm = ytdFlexy.deref().querySelector("#secondary>#secondary-inner")||ytdFlexy.deref().querySelector("#secondary")||ytdFlexy.deref().querySelector("#columns");
-        if(!targetElm) throw 'Userscript: Two Column flexy layout not found'; // not flexy layout
-        promise=promise.then(()=>{
-            $(getTabsHTML()).appendTo(targetElm).attr('data-dom-created-by-tabview-youtube',scriptVersionForExternal);
-            targetElm=null;
-        })
+    let findCount=10;
+    function findRelated(){
+        let related = ytdFlexy.deref().querySelector("#related");
+        if(related) return foundRelated(related);
+        if(--findCount) return setTimeout(findRelated,100);
+        throw 'Please report the userscript is not able to use.'
     }
+    findRelated();
 
-    promise.then(runAfterTabAppended).then(initObserver)
+    function foundRelated(related){
+        let promise = Promise.resolve();
+        if (!document.querySelector("#right-tabs")) {
+            promise=promise.then(()=>{
+                $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube',scriptVersionForExternal);
+            })
+        }
+        promise.then(runAfterTabAppended).then(initObserver)
+    }
 
 }
 
@@ -1207,13 +1313,16 @@ function appendWithWrapper(elm, wrapperId, toParent){
 
 function runAfterTabAppended() {
 
+    document.documentElement.setAttribute('plugin-tabview-youtube','')
+
+    fixTabs();
+
     // just switch to the default tab
     setToActiveTab();
 
     // append the next videos 
     // it exists as "related" is already here
 
-    fixRelated();
 
 
 
@@ -1698,6 +1807,15 @@ function checkChatStatus(){
 
 let switchTabActivity_lastTab = null
 
+function setDisplayedPlaylist(){
+    //override the default youtube coding event prevention
+    displayedPlaylist.set($('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0] || null);
+    if(!!displayedPlaylist.deref()) $(ytdFlexy.deref()).attr('userscript-auto-scroll-playlist',''); 
+    else $(ytdFlexy.deref()).removeAttr('userscript-auto-scroll-playlist');
+
+
+}
+
 function switchTabActivity(activeLink) {
 
 
@@ -1713,19 +1831,20 @@ function switchTabActivity(activeLink) {
 
         if(activeLink) lastShowTab=activeLink.getAttribute('userscript-tab-content')
 
+        displayedPlaylist.clear();
+        scrollingVideosList.clear();
 
-        //override the default youtube coding event prevention
-
-        //let elm=$('ytd-watch-flexy:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0];
-        let elm=$('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0];
-        displayedPlaylist=elm;
-        if(!!displayedPlaylist) $(ytdFlexy.deref()).attr('userscript-auto-scroll-playlist',''); else $(ytdFlexy.deref()).removeAttr('userscript-auto-scroll-playlist');
-        
-        scrollingVideosList=$('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]')[0]
-
+        if(activeLink && lastShowTab == '#tab-list'){
+            setDisplayedPlaylist();
+        }else if(activeLink && lastShowTab == '#tab-videos'){
+            scrollingVideosList.set(document.querySelector('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]'));
+        }
+     
         ytdFlexy.deref().setAttribute('tabview-selection',activeLink?lastShowTab:'')
         
     }
+
+    displayedPlaylist.clear();
 
     for (const link of links) {
         let content = document.querySelector(link.getAttribute('userscript-tab-content'));
@@ -1794,7 +1913,7 @@ function prepareTabBtn() {
 
                     new Promise(requestAnimationFrame).then(() => {
                         if(isChatExpand() && isWideScreenWithTwoColumns()) ytBtnCollapseChat();
-                        else if(isWideScreenWithTwoColumns() && isTheater() ) ytBtnCancelTheater();
+                        else if(isWideScreenWithTwoColumns() && isTheater() && !isFullScreen() ) ytBtnCancelTheater();
                     }).then(() => {
                         setTimeout(()=>{
                             switchTabActivity(this)
@@ -1806,7 +1925,9 @@ function prepareTabBtn() {
                                 let rightTabs=document.querySelector('#right-tabs');
                                 if(!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop>0 && $(this).is('.active')){
 
-                                    window.scrollTo(0, rightTabs.offsetTop);
+                                    let tabButtonBar = document.querySelector('#material-tabs');
+                                    let tabButtonBarHeight = tabButtonBar?tabButtonBar.offsetHeight:0;
+                                    window.scrollTo(0, rightTabs.offsetTop-tabButtonBarHeight);
                                 
                                 }
                                 
@@ -1977,7 +2098,8 @@ function initMutationObserver(o, key, callback){
 document.addEventListener('wheel',function(evt){
     
     if(!scriptEnable)return;
-    if(displayedPlaylist && displayedPlaylist.contains(evt.target)){
+    const displayedPlaylist_element = displayedPlaylist.deref();
+    if(displayedPlaylist_element && displayedPlaylist_element.contains(evt.target)){
       evt.stopPropagation(); evt.stopImmediatePropagation()
     }
 },{capture:true,passive:true});
@@ -2063,7 +2185,7 @@ window.addEventListener('scroll',function(evt){
     if(!scriptEnable)return;
 
 
-    if( !scrollingVideosList ) return;
+    if( !scrollingVideosList.deref() ) return;
     if( videoListBeforeSearch ) return;
 
 
