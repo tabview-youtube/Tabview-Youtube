@@ -556,8 +556,8 @@ ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden pape
 }
 
 /* show the loading comment tab in grey color */
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-ytd-watch-flexy:not([userscript-chatblock="chat-live"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
+ytd-watch-flexy:not([comments-disabled]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+ytd-watch-flexy:not([comments-disabled]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
     display:inline-block;
     color: var(--yt-spec-icon-disabled);
     pointer-events: none;
@@ -833,7 +833,8 @@ body ytd-video-primary-info-renderer{
 ytd-watch-flexy[tabview-selection=""][is-two-columns_][userscript-chatblock][userscript-chat-collapsed][theater] #right-tabs .tab-content,
 ytd-watch-flexy[tabview-selection=""][is-two-columns_]:not([userscript-chatblock])[theater] #right-tabs .tab-content,
 ytd-watch-flexy[tabview-selection=""][is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]):not([theater]) #right-tabs .tab-content,
-ytd-watch-flexy[tabview-selection=""]:not([is-two-columns_]) #right-tabs .tab-content{
+ytd-watch-flexy[tabview-selection=""]:not([is-two-columns_]) #right-tabs .tab-content,
+ytd-watch-flexy[tabview-selection^="#tab-"]:not([is-two-columns_]) #right-tabs .tab-content .tab-content-cld.tab-content-hidden{
     position: absolute;
     z-index:-1;
     visibility:collapse;

@@ -111,8 +111,8 @@ function layoutStatusChanged(old_layoutStatus, new_layoutStatus){
 
     //console.log(1060,changes)
 
-    const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED)  && (new_layoutStatus & LAYOUT_CHATROOM)
-    const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED)  && (new_layoutStatus & LAYOUT_CHATROOM)
+    const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
+    const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
 
     const new_isTwoColumns = new_layoutStatus & LAYOUT_TWO_COLUMNS;
     const new_isTheater = new_layoutStatus & LAYOUT_THEATER;
@@ -156,49 +156,67 @@ function layoutStatusChanged(old_layoutStatus, new_layoutStatus){
 
     //console.log(7001)
 
- 
-    if(  (changes & LAYOUT_CHATROOM_COLLASPED) && new_isExpandedChat  && !new_isTheater && new_isTwoColumns && new_isTabExpanded ){
+
+    let chat_collasped_changed=!!(changes & LAYOUT_CHATROOM_COLLASPED)
+    let tab_expanded_changed=!!(changes & LAYOUT_TAB_EXPANDED)
+    let theater_mode_changed=!!(changes & LAYOUT_THEATER)
+    let column_mode_changed=!!(changes & LAYOUT_TWO_COLUMNS)
+    let fullscreen_mode_changed=!!(changes & LAYOUT_FULLSCREEN)
+
+    if(new_isExpandedChat || new_isTabExpanded){
+        toCheckCollasped=true;
+    }
+
+    if (new_isTwoColumns && !new_isTheater && new_isTabExpanded && chat_collasped_changed && new_isExpandedChat) {
 
         //console.log(7011)
         switchTabActivity(null);
-
-    } else if( ((changes & LAYOUT_CHATROOM_COLLASPED)||(changes & LAYOUT_TAB_EXPANDED)) && new_isTwoColumns && !new_isTheater && new_isCollaspedChat && !new_isTabExpanded ){
-
-        //console.log(7012)
-        ytBtnSetTheater();
-
-    }else if( (((changes & LAYOUT_CHATROOM_COLLASPED ) && new_isExpandedChat) ||((changes & LAYOUT_TAB_EXPANDED ) && new_isTabExpanded)) && !(changes & LAYOUT_THEATER) && !(changes & LAYOUT_FULLSCREEN) && !(changes & LAYOUT_TWO_COLUMNS) && new_isTheater && new_isTwoColumns ){
-
-        //console.log(7013)
-        ytBtnCancelTheater();
-
     
-    }else if(  (changes & LAYOUT_THEATER || changes & LAYOUT_TWO_COLUMNS) && !new_isTheater && new_isTwoColumns  && !new_isExpandedChat && !new_isTabExpanded){ 
-        
-        //console.log(7014)
-        showTabOrChat();
-
-    }else if( (changes & LAYOUT_TWO_COLUMNS) && new_isTwoColumns && !new_isTheater && new_isExpandedChat && new_isTabExpanded ){
-
+    } else if (new_isTwoColumns && !new_isTheater && new_isTabExpanded && column_mode_changed && new_isExpandedChat) {
+    
         //console.log(7015)
         showTabOrChat();
-
-
-    }else if(  !(changes & LAYOUT_THEATER) && (changes & LAYOUT_TWO_COLUMNS) && new_isTwoColumns && new_isTheater  &&  (new_isTabExpanded || new_isExpandedChat)   ){
-
+    
+    
+    } else if (new_isTwoColumns && !new_isTheater && !new_isTabExpanded && chat_collasped_changed && new_isCollaspedChat) {
+    
+        if ((new_layoutStatus & LAYOUT_CHATROOM) && !isFullScreen() && toCheckCollasped) {
+            if (lastAction && lastAction.action == '#chatroom' && new Date - lastAction.time < 400) {
+                ytBtnSetTheater();
+            }
+        }
+    
+    } else if (new_isTwoColumns && !new_isTheater && !new_isTabExpanded && tab_expanded_changed && new_isCollaspedChat) {
+    
+    
+    } else if (new_isTwoColumns && !new_isTheater && !new_isTabExpanded && (theater_mode_changed || column_mode_changed) && !new_isExpandedChat) {
+    
+        //console.log(7014)
+        showTabOrChat();
+    
+    } else if (new_isTwoColumns && new_isTheater && !theater_mode_changed && column_mode_changed && (new_isTabExpanded || new_isExpandedChat)) {
+    
         //console.log(7016)
-
+    
         hideTabAndChat()
-
-
-    }else if(  new_isTwoColumns && new_isTheater  &&  (new_isTabExpanded || new_isExpandedChat)   ){
-
+    
+    
+    } else if (new_isTwoColumns && new_isTheater && !theater_mode_changed && !column_mode_changed &&
+        ((chat_collasped_changed && new_isExpandedChat) || (tab_expanded_changed && new_isTabExpanded)) &&
+        !fullscreen_mode_changed) {
+    
+        //console.log(7013)
+        ytBtnCancelTheater();
+    
+    
+    } else if (new_isTwoColumns && new_isTheater && (new_isTabExpanded || new_isExpandedChat)) {
+    
         //console.log(7017)
         hideTabAndChat()
-
-
-    }else{
-        
+    
+    
+    } else {
+    
         //console.log(7018)
     }
     
@@ -485,30 +503,32 @@ function fixTabs(){
         $('[placeholder-videos]').scroll(makeBodyScrollByEvt);
 
 
+
+
     }
 
 
     
-    if(chatBlockRelocateEnable){
                 
-        let chatroom=null;
-        if(chatroom=document.querySelector('ytd-live-chat-frame#chat:not(:nth-last-child(2))')){
+    let chatroom=null;
+    if(chatroom=document.querySelector('*:not(tabview-youtube-positioner[location="before|#chat"])+ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')){
 
-            if(document.querySelector('.YouTubeLiveFilledUpView')){
-                chatBlockRelocateEnable=false;
-            }else{
-
-
-                if(!document.querySelector('ytd-live-chat-frame#chat + #right-tabs')){
-
-                    $(chatroom).insertBefore('#right-tabs')
+        let prevPos = document.querySelector('tabview-youtube-positioner[location="before|#chat"]');
+        if(prevPos) prevPos.remove();
 
 
-                }
-            }
+        if(document.querySelector('.YouTubeLiveFilledUpView')){
+            // no relocation
+        }else{
 
+            $(chatroom).insertBefore('#right-tabs')
 
         }
+
+        
+        $(document.createElement('tabview-youtube-positioner')).attr('location','before|#chat').insertBefore(chatroom)
+
+
     }
 
 
@@ -627,6 +647,7 @@ function mtf_fixTabsAtTheEnd(){
             if(!searchBox.hasAttribute('is-set-click-to-toggle')){
                 searchBox.setAttribute('is-set-click-to-toggle','')
                 searchBox.addEventListener('click',function(){
+
 
                     setTimeout(()=>{
                         const autocomplete=document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${ this.getAttribute('data-autocomplete-results-id') }"]`)
@@ -820,6 +841,7 @@ function mtf_ChatExist(){
                 //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
                 if(s==1) {
                     cssElm.setAttribute('userscript-chatblock', 'chat-live')
+                    //disableComments_LiveChat();
                     requestingComments=null;
                 }
                 if(s==2) cssElm.setAttribute('userscript-chatblock', 'chat-playback')
@@ -939,11 +961,8 @@ function initObserver(){
             for(const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`))
             s.parentNode.removeChild(s);
 
-            appendWithWrapper(
-                truePlaylist,
-                'ytd-userscript-playlist',  
-                document.querySelector("#tab-list")
-            );
+            let $wrapper = getWrapper('ytd-userscript-playlist')
+            $wrapper.append(truePlaylist).appendTo(document.querySelector("#tab-list"));
             $(truePlaylist).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
             setDisplayedPlaylist();
 
@@ -1140,9 +1159,10 @@ let _cachedLastVideo=new WeakRefer();
 let videoListBeforeSearch=null;
 let no_fix_contents_until = 0;
 let no_fix_playlist_until = 0;
-let chatBlockRelocateEnable =true;
+let toCheckCollasped = false;
 function resetBeforeNav() {
     videoListBeforeSearch=null;
+    toCheckCollasped=false;
     _cachedLastVideo.clear();
     lastShowTab=null;
     displayedPlaylist.clear();
@@ -1150,7 +1170,6 @@ function resetBeforeNav() {
     scriptEnable =false;
     ytdFlexy.clear();
     $ws.layoutStatus=null;
-    chatBlockRelocateEnable=true;
 
     clearMutationObserver(mtoVs,'mtoVisibility_Playlist')
     clearMutationObserver(mtoVs,'mtoVisibility_Comments')
@@ -1184,17 +1203,19 @@ function resetBeforeNav() {
 }
 
 let ytdFlexy=new WeakRefer();
+let cid_disableComments=0;
+let lastAction = {action:null, time:0};
 function resetAtNav() {
 
     scriptEnable =true;
 
     no_fix_contents_until = 0;
     no_fix_playlist_until = 0;
+    if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
 
     ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
-    $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed");
-    $('#tab-comments').attr('lazy-loading', '');
+    $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed").removeAttr('comments-disabled');
     $('span#tab3-txt-loader').text('');
 
     //removed any cache of #comments header (i.e. count message)
@@ -1211,6 +1232,7 @@ function resetAtNav() {
         requestingComments = prevComemnts;
         //scrollForComments();
     }
+
 
     
 
@@ -1297,6 +1319,7 @@ function setToActiveTab() {
         document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
         null;
     switchTabActivity(jElm);
+    return !!jElm;
 }
 
 function insertBefore(elm, p) {
@@ -1304,11 +1327,10 @@ function insertBefore(elm, p) {
         p.parentNode.insertBefore(elm, p);
 }
 
-function appendWithWrapper(elm, wrapperId, toParent){
-    if(!toParent||!elm)return;
+function getWrapper(wrapperId){
     let $wrapper = $(`#${wrapperId}`);
     if(!$wrapper[0]) $wrapper=$(`<div id="${wrapperId}"></div>`)
-    $wrapper.append(elm).appendTo(toParent);
+    return $wrapper;
 }
 
 function runAfterTabAppended() {
@@ -1360,6 +1382,7 @@ function runAfterTabAppended() {
         if(!cssElm) return;
         if($('#ytd-player .ytp-time-display').is('.ytp-live')) {
             cssElm.setAttribute('userscript-chatblock', 'chat-live')
+            //disableComments_LiveChat();
             requestingComments=null;
         }
     }
@@ -1388,7 +1411,6 @@ async function asyncFetchCommentsAvailable() {
     if (!span) return;
 
     makeBodyScroll();
-
     let fetchedOnce = false
     Q.mtf_fetchCommentsAvailable = () => {
 
@@ -1402,13 +1424,20 @@ async function asyncFetchCommentsAvailable() {
             let txt = commentRenderer.textContent
             if (typeof txt == 'string') {
                 let m = txt.match(/[\d\,\s]+/)
-                if (m) r = m[0].trim()
+                if (m) {
+                    r = m[0].trim()
+
+                    //keep reading comments after changing videos
+                    requestAnimationFrame(()=>{
+                        if( switchTabActivity_lastTab =='#tab-comments' && (ytdFlexy.deref().getAttribute('tabview-selection')+'').indexOf('#tab-')===0) setToActiveTab();
+                    })
+                }
             }
             span.textContent = r;
-            $('#tab-comments[lazy-loading]').removeAttr('lazy-loading')
             mtoInterval=mtoInterval2;
             clickInterval=clickInterval2;
         }else if((messageElm = document.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer:only-child'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
+            
             // it is possible to get the message before the header generation.
             setTimeout(function(){
                 if(fetchedOnce)return;
@@ -1422,7 +1451,6 @@ async function asyncFetchCommentsAvailable() {
                     } 
                 }
                 span.textContent = messageStr;
-                $('#tab-comments[lazy-loading]').removeAttr('lazy-loading')
             },240);
         }
         return true;
@@ -1434,7 +1462,32 @@ async function asyncFetchCommentsAvailable() {
 }
 
 
+function disableComments_LiveChat(){
 
+    let cssElm=ytdFlexy.deref();
+    if(!cssElm)return;
+    cssElm.setAttribute('comments-disabled','');
+    Q.mtf_fetchCommentsAvailable = null;   
+
+}
+
+function disableComments_General(){
+
+    cid_disableComments=0;
+
+
+    let comments = document.querySelector('ytd-comments#comments')
+
+    if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))){
+
+        ytdFlexy.deref().setAttribute('comments-disabled','');
+        Q.mtf_fetchCommentsAvailable = null;
+
+    }
+
+    
+
+}
 
 function createAttributeObservants() {
 
@@ -1488,18 +1541,20 @@ function createAttributeObservants() {
         const $tabBtn = $('[userscript-tab-content="#tab-comments"]');
         if(!comments || !$tabBtn[0])return;
         //console.log('attr comments changed')
-        if( $tabBtn.is('.tab-btn-hidden') && !comments.hasAttribute('hidden') ){
+        if( !comments.hasAttribute('hidden') ){
             //console.log('attr comments changed - no hide')
-            $tabBtn.removeClass("tab-btn-hidden");
+
+            if($tabBtn.is('.tab-btn-hidden')) $tabBtn.removeClass("tab-btn-hidden");
+            ytdFlexy.deref().removeAttribute('comments-disabled')
             asyncFetchCommentsAvailable();
-        }else if( !$tabBtn.is('.tab-btn-hidden') && comments.hasAttribute('hidden') ){
+        }else if( comments.hasAttribute('hidden') ){
+            if(!$tabBtn.is('.tab-btn-hidden')) hideTabBtn($tabBtn);
             //console.log('attr comments changed - add hide')
             if(!document.querySelector('[userscript-chatblock="chat-live"]')){
                 requestingComments=comments
-                $('#tab-comments').attr('lazy-loading','')
             } 
             $('span#tab3-txt-loader').text('');
-            hideTabBtn($tabBtn);
+            cid_disableComments = setTimeout(disableComments_General,2700); //1.3 + 1.3 + 0.1
         }        
     }
 
@@ -1578,6 +1633,13 @@ function checkChatStatus(){
 
     let mtf_attrChatroom=(mutations, observer)=>{
 
+        if(+new Date - lastAction.time > 100){
+            lastAction.action='#chatroom';
+            lastAction.time=+new Date;
+            }else{
+                lastAction.time=+new Date;
+            }
+
 
 
         layoutStatusMutex.lockWith(unlock=>{
@@ -1611,7 +1673,7 @@ function checkChatStatus(){
                 cid_chatFrameCheck=setInterval(()=>{
                     // mutation on iframe window would not trigger the observer
                     // just check the first few seconds for this purpose.
-                    let chatFrameChecking, iframe;
+                    let chatFrameChecking;
                     if(+new Date - dd>6750){
                         //
                     }else if( isEmptyBody() ){
@@ -1682,12 +1744,8 @@ function checkChatStatus(){
 
 
         const cssElm=ytdFlexy.deref()
-        ;
         if(!cssElm)return;
 
-        let chatBlockStatusChanged = false
-        let theaterStatusChanged = false;
-        let twoColStatusChanged = false;
         let initalTriggering = !mutations
 
         if(!initalTriggering){
@@ -1707,7 +1765,6 @@ function checkChatStatus(){
 
                     } 
 
-                    theaterStatusChanged=true;
                 }else if (mutation.attributeName == 'userscript-chat-collapsed' || mutation.attributeName == 'userscript-chatblock'){
 
                     if(new_layoutStatus!==null){
@@ -1725,9 +1782,23 @@ function checkChatStatus(){
                         }
 
 
-                    } 
+                    }
 
-                    chatBlockStatusChanged=true
+                    if( cssElm.getAttribute('userscript-chatblock')==='chat-live' ){
+                            disableComments_LiveChat();
+                    }
+
+                    if(!cssElm.hasAttribute('userscript-chatblock')){
+
+                        setTimeout(()=>{
+                            if(!isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()){
+                                setToActiveTab();
+                            }
+                        },240);
+
+
+                    }
+
                 }else if (mutation.attributeName == 'is-two-columns_'){
                 
                     if(new_layoutStatus!==null){
@@ -1738,7 +1809,6 @@ function checkChatStatus(){
 
                     } 
 
-                    twoColStatusChanged=true;
                 }else if(mutation.attributeName=='tabview-selection'){
                     
                     if(new_layoutStatus!==null){
@@ -1829,6 +1899,10 @@ function switchTabActivity(activeLink) {
 
     function runAtEnd(){
 
+        const ytdFlexyElm=ytdFlexy.deref();
+
+        if(!ytdFlexyElm) return;
+
         if(activeLink) lastShowTab=activeLink.getAttribute('userscript-tab-content')
 
         displayedPlaylist.clear();
@@ -1840,7 +1914,7 @@ function switchTabActivity(activeLink) {
             scrollingVideosList.set(document.querySelector('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]'));
         }
      
-        ytdFlexy.deref().setAttribute('tabview-selection',activeLink?lastShowTab:'')
+        ytdFlexyElm.setAttribute('tabview-selection',activeLink?lastShowTab:'')
         
     }
 
@@ -1890,6 +1964,13 @@ function prepareTabBtn() {
 
             if (!this.hasAttribute('userscript-tab-content')) return;
 
+            
+            if(+new Date - lastAction.time > 100){
+            lastAction.action=this.getAttribute('userscript-tab-content');
+            lastAction.time=+new Date;
+            }else{
+                lastAction.time=+new Date;
+            }
 
 
             layoutStatusMutex.lockWith(unlock=>{
