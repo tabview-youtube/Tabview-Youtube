@@ -169,22 +169,10 @@
     
         }
 
+        let changes = 0;
 
-        if(old_layoutStatus===null){
-            if (new_isTwoColumns && new_isTheater && statusCollasped === 1) {
-    
-                hideTabAndChat()
-        
-            }
+        if(old_layoutStatus !== null )  changes = old_layoutStatus ^ new_layoutStatus;
 
-            return;
-
-        } 
-    
-        let changes = old_layoutStatus ^ new_layoutStatus
-    
-    
-    
     
     
         //console.log(7001)
@@ -198,22 +186,24 @@
     
  
 
+        let isChatExpandTriggering =  ((chat_collasped_changed && new_isExpandedChat));
+
+        let isChatOrTabExpandTriggering =  (isChatExpandTriggering || (tab_expanded_changed && new_isTabExpanded));
 
 
 
         if(fullscreen_mode_changed || new_isFullScreen){
 
 
-        }else if(new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && new_isExpandedChat && column_mode_changed && !chat_collasped_changed && !tab_expanded_changed){
+        }else if(column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && new_isExpandedChat && !chat_collasped_changed && !tab_expanded_changed){
 
             showTabOrChat();
 
-        }else if (new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && new_isExpandedChat && chat_collasped_changed && !tab_expanded_changed && !column_mode_changed) {
+        }else if (isChatExpandTriggering && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && !tab_expanded_changed && !column_mode_changed) {
     
             switchTabActivity(null);
     
-        } else if (new_isTwoColumns && new_isTheater && statusCollasped === 1 && !theater_mode_changed && !column_mode_changed &&
-            ((chat_collasped_changed && new_isExpandedChat) || (tab_expanded_changed && new_isTabExpanded)) ) {
+        } else if ( isChatOrTabExpandTriggering && new_isTwoColumns && new_isTheater && statusCollasped === 1 && !theater_mode_changed && !column_mode_changed ) {
     
             ytBtnCancelTheater();
         
@@ -221,11 +211,11 @@
     
             hideTabAndChat()
     
-        } else if (new_isTwoColumns && !new_isTheater && statusCollasped === 2 && new_isCollaspedChat && chat_collasped_changed && !tab_expanded_changed && !column_mode_changed ) {
+        } else if (chat_collasped_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 2 && new_isCollaspedChat && !tab_expanded_changed && !column_mode_changed ) {
     
             ytBtnSetTheater();
     
-        } else if(new_isTwoColumns && !new_isTheater && statusCollasped !==1  && (column_mode_changed || theater_mode_changed) && !chat_collasped_changed && !tab_expanded_changed){
+        } else if((column_mode_changed || theater_mode_changed) && new_isTwoColumns && !new_isTheater && statusCollasped !==1  && !chat_collasped_changed && !tab_expanded_changed){
             
             showTabOrChat();
     
@@ -1528,6 +1518,10 @@
     let no_fix_playlist_until = 0;
     let statusCollasped = 0;
     function resetBeforeNav() {
+
+
+        if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
+
         videoListBeforeSearch=null;
         statusCollasped=0;
         _cachedLastVideo.clear();
@@ -1566,6 +1560,8 @@
         mtoInterval = mtoInterval1;
         clickInterval = clickInterval1;
 
+        
+
     }
 
     let ytdFlexy=new WeakRefer();
@@ -1577,7 +1573,6 @@
 
         no_fix_contents_until = 0;
         no_fix_playlist_until = 0;
-        if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
 
         ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
@@ -1876,8 +1871,10 @@
 
     function disableComments_LiveChat(){
 
+        if(!scriptEnable)return;
         let cssElm=ytdFlexy.deref();
         if(!cssElm)return;
+
         cssElm.setAttribute('comments-disabled','');
         Q.mtf_fetchCommentsAvailable = null;   
 
@@ -1887,12 +1884,15 @@
 
         cid_disableComments=0;
 
+        if(!scriptEnable)return;
+        let cssElm=ytdFlexy.deref();
+        if(!cssElm)return;
 
         let comments = document.querySelector('ytd-comments#comments')
 
         if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))){
 
-            ytdFlexy.deref().setAttribute('comments-disabled','');
+            cssElm.setAttribute('comments-disabled','');
             Q.mtf_fetchCommentsAvailable = null;
 
         }
@@ -2254,12 +2254,8 @@
                         } 
 
                     }else if(mutation.attributeName=='tabview-selection'){
-
-                        console.log(1008,new_layoutStatus)
                         
                         if(new_layoutStatus!==null){
-
-                            console.log(1009,new_layoutStatus)
                         
                             if(isNonEmptyString( getAttribute(ytdFlexy.deref(),'tabview-selection') )) new_layoutStatus = new_layoutStatus | LAYOUT_TAB_EXPANDED;
                             else new_layoutStatus = new_layoutStatus & ~LAYOUT_TAB_EXPANDED;
@@ -2343,7 +2339,11 @@
     }
 
     function switchTabActivity(activeLink) {
+        if(!scriptEnable)return;
 
+        const ytdFlexyElm=ytdFlexy.deref();
+
+        if(!ytdFlexyElm) return;
 
         if (activeLink && $(activeLink).is('.tab-btn-hidden')) return; // not allow to switch to hide tab
 
@@ -2355,9 +2355,6 @@
 
         function runAtEnd(){
 
-            const ytdFlexyElm=ytdFlexy.deref();
-
-            if(!ytdFlexyElm) return;
 
             if(activeLink) lastShowTab=activeLink.getAttribute('userscript-tab-content')
 
@@ -2385,19 +2382,13 @@
                 } else {
                     $(link).addClass("active");
                     $(content).removeClass("tab-content-hidden");
-                    window.requestAnimationFrame(() => {
+                    setTimeout(()=>content.focus(),400);
                     
-                        content.focus()
-
-                        runAtEnd()
-                    })
                 }
             }
         }
 
-        if(!activeLink){
-            runAtEnd();
-        }
+        runAtEnd();
 
 
     }
