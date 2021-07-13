@@ -645,6 +645,15 @@ html:not(.style-scope) {
         display: none;
     }
 
+    
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
+
+        display: block;
+        opacity:0;
+        content-visibility: hidden;
+        position: absolute;
+        pointer-events: none;
+    }
 
     
     
