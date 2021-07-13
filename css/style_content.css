@@ -554,8 +554,8 @@ html:not(.style-scope) {
     }
     
     /* show the loading comment tab in grey color */
-    ytd-watch-flexy:not([comments-disabled]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-    ytd-watch-flexy:not([comments-disabled]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
+    ytd-watch-flexy:not([tabview-youtube-comments-loaded="disabled"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+    ytd-watch-flexy:not([tabview-youtube-comments-loaded="disabled"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
         display: inline-block;
         color: var(--yt-spec-icon-disabled);
         pointer-events: none;
@@ -646,7 +646,7 @@ html:not(.style-scope) {
     }
 
     
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
+    ytd-watch-flexy:not([tabview-youtube-comments-loaded]) #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
 
         display: block;
         opacity:0;

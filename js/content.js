@@ -1633,7 +1633,9 @@
 
         ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
-        $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed").removeAttr('comments-disabled');
+        
+
+        $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed").removeAttr('tabview-youtube-comments-loaded');
         $('span#tab3-txt-loader').text('');
 
         //removed any cache of #comments header (i.e. count message)
@@ -1911,6 +1913,7 @@
 
         function finish(){
             commentsScrollToTop = true;
+            ytdFlexy.deref().setAttribute('tabview-youtube-comments-loaded','loaded')
         }
 
         Q.mtf_fetchCommentsAvailable = () => {
@@ -1982,7 +1985,7 @@
         let cssElm=ytdFlexy.deref();
         if(!cssElm)return;
 
-        cssElm.setAttribute('comments-disabled','');
+        cssElm.setAttribute('tabview-youtube-comments-loaded','disabled');
         Q.mtf_fetchCommentsAvailable = null;   
 
     }
@@ -2010,7 +2013,7 @@
 
             if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))){
 
-                cssElm.setAttribute('comments-disabled','');
+                cssElm.setAttribute('tabview-youtube-comments-loaded','disabled');
                 Q.mtf_fetchCommentsAvailable = null;
 
             }
@@ -2102,7 +2105,7 @@
                 //console.log('attr comments changed - no hide')
 
                 if($tabBtn.is('.tab-btn-hidden')) $tabBtn.removeClass("tab-btn-hidden");
-                ytdFlexy.deref().removeAttribute('comments-disabled')
+                if(ytdFlexy.deref().getAttribute('tabview-youtube-comments-loaded')=='disabled')  ytdFlexy.deref().removeAttribute('tabview-youtube-comments-loaded')
                 asyncFetchCommentsAvailable();
 
                 //setTimeout(()=>nativeFunc(comments, "loadComments"),20)
