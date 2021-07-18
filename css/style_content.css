@@ -1772,31 +1772,6 @@ html:not(.style-scope) {
 
 
 
-    /* ensure the iframe is fully hidden */
-    ytd-watch-flexy[userscript-chat-collapsed] #chat[collapsed] iframe#chatframe{
-        display: none;
-    }
-
-
-
-
-    @supports (will-change: scroll-position){
-/*
-        ytd-watch-flexy[is-two-columns_] #right-tabs #tab-comments:not(.tab-content-hidden).tab-content-cld{
-            will-change: scroll-position;
-        }
-
-        ytd-watch-flexy[is-two-columns_] #right-tabs #tab-videos:not(.tab-content-hidden).tab-content-cld{
-            will-change: scroll-position;
-        }*/
-
-        /* iframe */
-        /*yt-live-chat-item-list-renderer #item-scroller{
-            will-change: scroll-position;
-        }*/
-
-    }
-
 
     @supports (content-visibility: hidden){
 
@@ -1806,11 +1781,6 @@ html:not(.style-scope) {
         }
 
         iframe#chatframe{
-            content-visibility: auto;
-        }
-    
-        /* iframe */
-        yt-live-chat-renderer #items{
             content-visibility: auto;
         }
 

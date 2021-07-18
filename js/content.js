@@ -57,6 +57,7 @@
         298.667,277.333 298.667,362.667 341.333,362.667 341.333,277.333 426.667,277.333 426.667,234.667"/>
         `
 
+
     class WeakRefer{
 
         
@@ -1352,11 +1353,13 @@
     let no_fix_contents_until = 0;
     let no_fix_playlist_until = 0;
     let statusCollasped = 0;
+    let cid_forceDisplayChatReplay=0;
     function resetBeforeNav() {
 
         //console.log(8001)
 
         if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
+        if(cid_forceDisplayChatReplay>0) cid_forceDisplayChatReplay=clearTimeout(cid_forceDisplayChatReplay);
 
         videoListBeforeSearch=null;
         statusCollasped=0;
@@ -1980,27 +1983,20 @@
 
         let expiredAt = +new Date + 20000; // 20s
         let tf=()=>{
+            cid_forceDisplayChatReplay=0;
             if(+new Date > expiredAt) return;
-            let items=chatFrameElement('yt-live-chat-item-list-renderer #items')
-
-            if(!items) return setTimeout(tf,100)
-
+            let items=chatFrameElement('yt-live-chat-item-list-renderer #items');
+            if(!items) return cid_forceDisplayChatReplay=setTimeout(tf,100);
             if(items.childElementCount!==0)return;
-
-            if(videoElm && video.paused && video.currentTime > 0 && !video.ended && video.readyState > video.HAVE_CURRENT_DATA){
-
-
+            if(!video.parentNode)return;
+            if(videoElm && video.currentTime > 0 && !video.ended && video.readyState > video.HAVE_CURRENT_DATA){
                 let chat = document.querySelector('ytd-live-chat-frame#chat');
                 if(chat){
-                
                     nativeFunc(chat, "postToContentWindow", [{"yt-player-video-progress":videoElm.currentTime}])
                 }
-
             }
         }
-        setTimeout(tf,100)
-        
-
+        cid_forceDisplayChatReplay=setTimeout(tf,100)
 
     }
 
