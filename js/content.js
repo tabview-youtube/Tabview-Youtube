@@ -1,7 +1,5 @@
 1&&!(function(){
 
-    /* iframe - css only */
-
     function inIframe () {
         try {
             return window.self !== window.top;
@@ -195,7 +193,6 @@
 
         if(fullscreen_mode_changed || new_isFullScreen){
 
-
         }else if(column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && new_isExpandedChat && !chat_collasped_changed && !tab_expanded_changed){
 
             showTabOrChat();
@@ -234,7 +231,7 @@
 
         if(column_mode_changed && !chat_collasped_changed && new_isExpandedChat){
 
-            forceDisplayChatReplay();
+            runAfterExpandChat();
 
         }
 
@@ -320,6 +317,14 @@
         document.documentElement.appendChild(scriptNode);
         return scriptNode;
     }
+    function addStyle(styleText, container) {
+        const styleNode = document.createElement('style');
+        styleNode.type = 'text/css';
+        styleNode.textContent = styleText;
+        (container||document.documentElement).appendChild(styleNode);
+        return styleNode;
+    }
+
 
 
 
@@ -453,13 +458,25 @@
         if (Q[key] && Q[key]() === false) Q[key] = null
     }
     
+    function chatFrameContentDocument(){
+        // non-null if iframe exist && contentDocument && readyState = complete
 
-    function chatFrameElement(cssSelector){
-        let iframe = document.querySelector('iframe#chatframe');
-        if(!iframe) return null;
-        let cDoc = iframe.contentDocument;
+        let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
+        if(!iframe) return null; //iframe must be there
+        let cDoc = null;
+        try{
+            cDoc = iframe.contentDocument;
+        }catch(e){}
         if(!cDoc) return null;
         if(cDoc.readyState  != 'complete') return null; //we must wait for its completion
+
+        return cDoc;
+
+    }
+
+    function chatFrameElement(cssSelector){
+        let cDoc = chatFrameContentDocument();
+        if(!cDoc) return null;
         let elm = null;
         try{
             elm = cDoc.querySelector(cssSelector)
@@ -1353,13 +1370,11 @@
     let no_fix_contents_until = 0;
     let no_fix_playlist_until = 0;
     let statusCollasped = 0;
-    let cid_forceDisplayChatReplay=0;
     function resetBeforeNav() {
 
         //console.log(8001)
 
         if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
-        if(cid_forceDisplayChatReplay>0) cid_forceDisplayChatReplay=clearTimeout(cid_forceDisplayChatReplay);
 
         videoListBeforeSearch=null;
         statusCollasped=0;
@@ -1930,29 +1945,8 @@
     function isEmptyBody(){
         //only deal with loaded document without body
         //other situation, case by case
-
-        let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
-
-        if(!iframe) return false; //iframe must be there
-
-        if(iframe.readyState  != 'complete') return false; //we must wait for its completion
-
-        let doc = null;
-        try{
-
-            doc=iframe.contentDocument
-
-        }catch(e){}
-
-        if(!doc) return false; //might be not loaded yet
-
-        if(doc.body && doc.body.childElementCount===0){
-            //empty body
-
-            return true;
-        }
-
-
+        let doc = chatFrameContentDocument();
+        return (doc && doc.body && doc.body.childElementCount===0);
     }
 
     class Mutex{
@@ -1973,40 +1967,95 @@
     let layoutStatusMutex=new Mutex();
 
     function forceDisplayChatReplay(){
-        
+        let items=chatFrameElement('yt-live-chat-item-list-renderer #items');
+        if(items && items.childElementCount!==0)return;
+
         let ytd_player = document.querySelector('ytd-player#ytd-player'); 
         if(!ytd_player)return;
         let videoElm = ytd_player.querySelector('video'); 
         if(!videoElm)return;
 
         let video=videoElm;
-
-        let expiredAt = +new Date + 20000; // 20s
-        let tf=()=>{
-            cid_forceDisplayChatReplay=0;
-            if(+new Date > expiredAt) return;
-            let items=chatFrameElement('yt-live-chat-item-list-renderer #items');
-            if(!items) return cid_forceDisplayChatReplay=setTimeout(tf,100);
-            if(items.childElementCount!==0)return;
-            if(!video.parentNode)return;
-            if(videoElm && video.currentTime > 0 && !video.ended && video.readyState > video.HAVE_CURRENT_DATA){
-                let chat = document.querySelector('ytd-live-chat-frame#chat');
-                if(chat){
-                    nativeFunc(chat, "postToContentWindow", [{"yt-player-video-progress":videoElm.currentTime}])
-                }
+        if(videoElm && video.currentTime > 0 && !video.ended && video.readyState > video.HAVE_CURRENT_DATA){
+            let chat = document.querySelector('ytd-live-chat-frame#chat');
+            if(chat){
+                nativeFunc(chat, "postToContentWindow", [{"yt-player-video-progress":videoElm.currentTime}])
             }
         }
-        cid_forceDisplayChatReplay=setTimeout(tf,100)
 
     }
 
+
+    
+    function runAfterExpandChat(){
+
+        let run_cDocReady=()=>{
+            let count = 150; //40*150 = 6000ms = 6s;
+            let tf=()=>{
+    
+                if(--count === 0)return;
+                let app=chatFrameElement('yt-live-chat-app');
+                if(!app) return setTimeout(tf,40);
+
+                let cDoc = app.ownerDocument;
+
+                setTimeout(()=>{
+
+                    addStyle(`      
+                        body #input-panel.yt-live-chat-renderer::after {
+                            background: transparent;
+                        }
+                        #items.yt-live-chat-item-list-renderer{
+                            contain: content;
+                        }
+                        yt-live-chat-text-message-renderer{
+                            contain: content;
+                        }
+                        #item-offset.yt-live-chat-item-list-renderer{
+                            contain: strict;
+                        }
+                        #item-scroller.yt-live-chat-item-list-renderer{
+                            contain: strict;
+                        }
+                    `, cDoc.documentElement)
+
+                    if(cDoc.querySelector('yt-live-chat-renderer #continuations')){
+                        mtf_ChatExist();
+                        $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded','')
+                    }
+
+                    forceDisplayChatReplay();
+
+                    cDoc=null;
+
+                },40)
+    
+
+            };
+            tf();
+
+        }
+
+        let dd=+new Date;
+        let cid_chatFrameCheck = 0;
+
+        cid_chatFrameCheck=setInterval(()=>{
+            let cDoc = chatFrameContentDocument();
+            if(cDoc) {
+                cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
+                run_cDocReady();
+            }else if(+new Date - dd > 6750){
+                cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
+            }
+        },60);
+    }
+
+    
 
     function checkChatStatus(){
         
         
         clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
-
-        let cid_chatFrameCheck=0;
 
         let mtf_attrChatroom=(mutations, observer)=>{
             if(!scriptEnable)return;
@@ -2014,81 +2063,38 @@
             if(+new Date - lastAction.time > 100){
                 lastAction.action='#chatroom';
                 lastAction.time=+new Date;
-                }else{
-                    lastAction.time=+new Date;
-                }
-
-
+            }else{
+                lastAction.time=+new Date;
+            }
 
             layoutStatusMutex.lockWith(unlock=>{
 
                 const chatBlock = document.querySelector('ytd-live-chat-frame#chat')
                 const cssElm = ytdFlexy.deref()
 
+                if(!chatBlock || !cssElm){
+                    unlock();
+                    return;
+                }
 
-                
                 if(!cssElm.hasAttribute('userscript-chatblock')) setAttr(cssElm, 'userscript-chatblock', true);
-                setAttr(cssElm,'userscript-chat-collapsed',!!chatBlock.hasAttribute('collapsed'));
+                let isCollapsed=!!chatBlock.hasAttribute('collapsed');
+                setAttr(cssElm,'userscript-chat-collapsed',isCollapsed);
 
-                if(cssElm.hasAttribute('userscript-chatblock')&&!chatBlock.hasAttribute('collapsed')) lastShowTab='#chatroom'
+                if(cssElm.hasAttribute('userscript-chatblock')&&!isCollapsed) lastShowTab='#chatroom';
 
-
-                if(!chatBlock.hasAttribute('collapsed') &&  document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()  ){
-
+                if(!isCollapsed && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()  ){
                     switchTabActivity(null);
-        
-                    setTimeout(unlock,40)
-
+                    setTimeout(unlock,40);
                 } else{
-
-                    unlock()
+                    unlock();
                 }
 
-                if(!chatBlock.hasAttribute('collapsed')) forceDisplayChatReplay();        
-
-        
-                if( chatBlock && cssElm && cssElm.hasAttribute('userscript-chatblock') && !chatBlock.hasAttribute('collapsed') && !cid_chatFrameCheck){
-                    let dd=+new Date;
-                    cid_chatFrameCheck=setInterval(()=>{
-                        // mutation on iframe window would not trigger the observer
-                        // just check the first few seconds for this purpose.
-                        let chatFrameChecking;
-                        if(+new Date - dd>6750){
-                            //
-                        }else if( isEmptyBody() ){
-        
-                            // bug. youtube iframe loaded with nothing
-        
-                            let button = document.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button ytd-toggle-button-renderer')
-                            if (button) {
-                                setTimeout(function(){
-                                    if(button && button.parentNode && isChatExpand()){
-                                        button.click();
-                                        setTimeout(function(){
-                                            if(button && button.parentNode && !isChatExpand()) button.click();
-                                            button=null;
-                                        },80)
-                                    }else{
-                                        button=null;
-                                    }
-                                },20)
-                            } 
-        
-                        
-                        }else if(chatFrameChecking=!!chatFrameElement('yt-live-chat-renderer #continuations')){
-                            mtf_ChatExist();
-                            $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded','')
-                        }else{
-                            return;
-                        }
-                        return (cid_chatFrameCheck=clearInterval(cid_chatFrameCheck));
-                    },270)
-                }else if(chatBlock){
-                    chatBlock.removeAttribute('yt-userscript-iframe-loaded')
-        
+                if(!isCollapsed){
+                    runAfterExpandChat();
+                }else {
+                    chatBlock.removeAttribute('yt-userscript-iframe-loaded');
                 }
-
-
 
             })
 
