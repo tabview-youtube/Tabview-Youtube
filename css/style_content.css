@@ -458,10 +458,11 @@ html:not(.style-scope) {
         margin-bottom: 0;
     }
     
-    ytd-watch-flexy[is-two-columns_] #right-tabs,
+    ytd-watch-flexy[is-two-columns_][userscript-chatblock] #right-tabs,
     ytd-watch-flexy:not([is-two-columns_]) #right-tabs{
         margin-top: var(--ytd-margin-2x);
     }
+
     
     #right-tabs #material-tabs{
         position: relative;
