@@ -773,10 +773,20 @@ html:not(.style-scope) {
     body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy, 
     body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
-        --ytd-watch-flexy-chat-max-height2: calc(var(--userscript-base-height) - 20px);
-        height: var(--ytd-watch-flexy-chat-max-height2);
+        --userscript-chat-max-height: calc(var(--userscript-base-height) - 20px);
+        height: var(--userscript-chat-max-height);
         min-height: 10px;
     }
+
+
+     /* double .ytd-watch-flexy is Youtube Coding Bug */
+     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
+    
+        --userscript-chat-max-height: var(--userscript-chatroom-height); /* not override if value not set */
+    
+    }
+    /*dy ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-*/
+    
     
     ytd-watch-flexy[is-two-columns_][userscript-chatblock]{
         --userscript-tab-content-vertical-offset: 42px;
@@ -786,18 +796,15 @@ html:not(.style-scope) {
         --userscript-tab-content-height: calc(var(--userscript-base-height) - var(--userscript-tab-content-vertical-offset, 0px));
     }
     
-    ytd-watch-flexy[is-two-columns_][userscript-chatblock][userscript-chat-collapsed]{
-        --userscript-available-height: var(--userscript-tab-content-height);
-        --userscript-min-height: var(--userscript-available-height);
-    }
     ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]){
         --userscript-available-height: var(--tabview-youtube-tabbtn-height);
-        --userscript-min-height: 0;
         --userscript-chatroom-height: calc(var(--userscript-base-height) - 6px);
     }
+
+    ytd-watch-flexy[is-two-columns_][userscript-chatblock][userscript-chat-collapsed],
     ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-chat-collapsed]){
         --userscript-available-height: var(--userscript-tab-content-height);
-        --userscript-min-height: var(--userscript-available-height);
+        --userscript-chatroom-height: '-NULL-';
     }
     
     
@@ -841,12 +848,6 @@ html:not(.style-scope) {
     }
     
     
-     /* double .ytd-watch-flexy is Youtube Coding Bug */
-    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
-    
-        height: var(--userscript-chatroom-height); /* not override if value not set */
-    
-    }
     
     .tab-content-cld ytd-playlist-panel-renderer{
         max-height: none !important;
