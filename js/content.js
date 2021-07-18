@@ -1993,7 +1993,7 @@
             let count = 150; //40*150 = 6000ms = 6s;
             let tf=()=>{
     
-                if(--count === 0)return;
+                if(--count === 0 || !scriptEnable || !isChatExpand())return;
                 let app=chatFrameElement('yt-live-chat-app');
                 if(!app) return setTimeout(tf,40);
 
@@ -2001,6 +2001,7 @@
 
                 setTimeout(()=>{
 
+                    if(!scriptEnable || !isChatExpand())return;
                     addStyle(`      
                         body #input-panel.yt-live-chat-renderer::after {
                             background: transparent;
@@ -2044,7 +2045,7 @@
             if(cDoc) {
                 cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
                 run_cDocReady();
-            }else if(+new Date - dd > 6750){
+            }else if(!scriptEnable || !isChatExpand() || +new Date - dd > 6750){
                 cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
             }
         },60);
