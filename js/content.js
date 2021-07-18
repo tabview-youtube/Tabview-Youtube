@@ -928,8 +928,7 @@
 
 
 
-    let mtoNav = null;
-    let mtoBody = null;
+    const mtoCs = {mtoNav:null, mtoBody:null};
 
 
     const mtoVs={}
@@ -1304,26 +1303,18 @@
             if(mtoNav_requestNo==1) setTimeout(mtoNav_delayedF,mtoInterval);
 
         }
-        mtoNav = new MutationObserver(mtoNavF);
-        mtoNav.observe(ytdFlexy.deref(), {
+
+        initMutationObserver(mtoCs, 'mtoNav', mtoNavF).observe(ytdFlexy.deref(), {
             subtree: true,
             childList: true,
             attributes: false
-        })
+        });
 
         1;1&&(async()=>{
             Q.addP=1; //force all checking
             mtoNav_requestNo++;
             if(mtoNav_requestNo==1) mtoNav_delayedF();
-
         })();
-
-
-
-        // for automcomplete plugin
-        if(mtoBody){
-            mtoBody = null;
-        }
 
         function mtoBodyF(mutations, observer){
             if(!scriptEnable)return;
@@ -1339,8 +1330,8 @@
 
         }
 
-        mtoBody = new MutationObserver(mtoBodyF);
-        mtoBody.observe(document.querySelector('body'), {
+        // for automcomplete plugin
+        initMutationObserver(mtoCs,'mtoBody', mtoBodyF).observe(document.querySelector('body'), {
             childList: true,
             subtree: false,
             attributes: false
@@ -1363,6 +1354,7 @@
     let statusCollasped = 0;
     function resetBeforeNav() {
 
+        //console.log(8001)
 
         if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
 
@@ -1381,15 +1373,8 @@
         clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
         clearMutationObserver(mtoVs,'mtoFlexyAttr')
 
-        if (mtoBody) {
-            mtoBody.takeRecords();
-            mtoBody.disconnect();
-            mtoBody = null;
-        }
-        if (mtoNav) {
-            mtoNav.takeRecords();
-            mtoNav.disconnect();
-            mtoNav = null;
+        clearMutationObserver(mtoCs,'mtoBody')
+        if (clearMutationObserver(mtoCs,'mtoNav')) {
 
             Q.mtf_advancedComments=null;
             Q.mtf_checkDescriptionLoaded = null;
@@ -1414,6 +1399,7 @@
     let cid_disableComments=0;
     let lastAction = {action:null, time:0};
     function resetAtNav() {
+        //console.log(8003)
 
         scriptEnable =true;
 
@@ -1520,6 +1506,7 @@
 
     function onNavigationEnd() {
 
+        
         resetBeforeNav();
         if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
 
@@ -1692,7 +1679,6 @@
 
             if(!scriptEnable)return true;
 
-            
             const rootElement = Q.mutationTarget || ytdFlexy.deref();
             if(!rootElement) return true;
 
@@ -1738,13 +1724,18 @@
                 finish();
                 return false;
             }else{
+                
                 return true;
 
             }
         
         }
-        if(Q.mutationTarget===null)
-        Q.$callOnceAsync('mtf_fetchCommentsAvailable')
+        if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_fetchCommentsAvailable');
+
+        //urlchange - no mutation triggering ?
+        setTimeout(()=>{
+            if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_fetchCommentsAvailable');
+        },40)
 
 
     }
@@ -1803,6 +1794,8 @@
         let mtf_attrPlaylist=(mutations, observer)=>{
 
             if(!scriptEnable)return;
+            let cssElm=ytdFlexy.deref();
+            if(!cssElm)return;
 
             var playlist=document.querySelector('ytd-playlist-panel-renderer#playlist')
             const $tabBtn = $('[userscript-tab-content="#tab-list"]');
@@ -1814,6 +1807,7 @@
                 //console.log('attr playlist changed - add hide')
                 hideTabBtn($tabBtn);
             }
+            cssElm.setAttribute('tabview-youtube-playlist', playlist.hasAttribute('hidden')?'hidden':'') /* visible layout for triggering hidden removal */ 
         }
 
         // pending for #playlist and set Attribute Observer
@@ -1825,8 +1819,7 @@
 
             var playlist=rootElement.querySelector('ytd-playlist-panel-renderer#playlist')
             if(!playlist) return true;
-            initMutationObserver(mtoVs,'mtoVisibility_Playlist', mtf_attrPlaylist)
-            mtoVs.mtoVisibility_Playlist.observe(playlist, {          
+            initMutationObserver(mtoVs,'mtoVisibility_Playlist', mtf_attrPlaylist).observe(playlist, {          
                 attributes: true,
                 attributeFilter: ['hidden'],
                 attributeOldValue: true
@@ -1914,8 +1907,7 @@
 
             var comments=rootElement.querySelector('ytd-comments#comments')
             if(!comments) return true;
-            initMutationObserver(mtoVs,'mtoVisibility_Comments',mtf_attrComments)
-            mtoVs.mtoVisibility_Comments.observe(comments, {          
+            initMutationObserver(mtoVs,'mtoVisibility_Comments',mtf_attrComments).observe(comments, {          
                 attributes: true,
                 attributeFilter: ['hidden'],
                 attributeOldValue: true
@@ -2117,8 +2109,7 @@
 
             var chatroom=rootElement.querySelector('ytd-live-chat-frame#chat')
             if(!chatroom) return true;
-            initMutationObserver(mtoVs,'mtoVisibility_Chatroom',mtf_attrChatroom)
-            mtoVs.mtoVisibility_Chatroom.observe(chatroom, {          
+            initMutationObserver(mtoVs,'mtoVisibility_Chatroom',mtf_attrChatroom).observe(chatroom, {          
                 attributes: true,
                 attributeFilter: ['collapsed'],
                 attributeOldValue: true
@@ -2250,8 +2241,7 @@
 
             $ws.layoutStatus=ls
 
-            initMutationObserver(mtoVs,'mtoFlexyAttr',mtf_attrFlexy)
-            mtoVs.mtoFlexyAttr.observe(flexy, {          
+            initMutationObserver(mtoVs,'mtoFlexyAttr',mtf_attrFlexy).observe(flexy, {          
                 attributes: true,
                 attributeFilter: ['userscript-chat-collapsed','userscript-chatblock','theater','is-two-columns_','tabview-selection','fullscreen'],
                 attributeOldValue: true
@@ -2543,8 +2533,8 @@
         if(!scriptEnable)return;
         console.log('beforeunload')
         resetBeforeNav();
-        let video=document.querySelector('video');
-        if(video && !video.paused) video.pause(); 
+        //let video=document.querySelector('video');
+        //if(video && !video.paused) video.pause(); 
     }, {capture: true})
 
     window.addEventListener('hashchange', function() { 
@@ -2565,17 +2555,15 @@
             o[key].takeRecords();
             o[key].disconnect();
             o[key]=null;
+            return true;
         }
     }
 
     function initMutationObserver(o, key, callback){
-
-
-        clearMutationObserver(o,key)
-        o[key]=new MutationObserver(callback)
-
-
-
+        clearMutationObserver(o,key);
+        const mto = new MutationObserver(callback);
+        o[key] = mto;
+        return mto;
     }
 
     document.addEventListener('wheel',function(evt){

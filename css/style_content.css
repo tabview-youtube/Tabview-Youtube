@@ -648,7 +648,14 @@ html:not(.style-scope) {
         content-visibility: hidden;
         pointer-events: none;
     }
-
+    ytd-watch-flexy[tabview-youtube-playlist="hidden"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
+        display: block;
+        position: absolute;
+        opacity:0;
+        content-visibility: hidden;
+        pointer-events: none;
+    }
+    
 
     ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
         display: none;
@@ -671,6 +678,14 @@ html:not(.style-scope) {
         content-visibility: hidden;
         pointer-events: none;
     }
+    ytd-watch-flexy[tabview-youtube-playlist="hidden"] #right-tabs .tab-content-cld#tab-list{
+        display: block;
+        position: absolute;
+        opacity:0;
+        content-visibility: hidden;
+        pointer-events: none;
+    }
+
 
 
 
