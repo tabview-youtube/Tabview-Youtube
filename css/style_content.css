@@ -134,7 +134,7 @@ html:not(.style-scope) {
     
     @keyframes animatedLoading {
         0% {
-            content: "⚫⚪⚪⚪⚪";
+            content: "⚫⚪⚪⚪●◉◻⬜⬛⚪";
         }
         25% {
             content: "⚪⚫⚪⚪⚪";
@@ -612,9 +612,6 @@ html:not(.style-scope) {
     }
 
 
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
-        display: none;
-    }
 
     
     ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content{
@@ -641,19 +638,41 @@ html:not(.style-scope) {
     
     
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
-
         display: none;
     }
-
     
     ytd-watch-flexy:not([tabview-youtube-comments-loaded]) #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
-
         display: block;
+        position: absolute;
         opacity:0;
         content-visibility: hidden;
-        position: absolute;
         pointer-events: none;
     }
+
+
+    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
+        display: none;
+    }
+    ytd-watch-flexy[is-two-columns_][tabview-selection=""]:not([tabview-youtube-comments-loaded]) #right-tabs .tab-content{
+        display: flex;
+        position: absolute;
+        opacity:0;
+        content-visibility: hidden;
+        pointer-events: none;
+    }
+
+    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
+        display: none;
+    }
+    ytd-watch-flexy[tabview-selection=""]:not([tabview-youtube-comments-loaded]) #right-tabs .tab-content-cld#tab-comments{
+        display: block;
+        position: absolute;
+        opacity:0;
+        content-visibility: hidden;
+        pointer-events: none;
+    }
+
+
 
     
     
@@ -675,9 +694,6 @@ html:not(.style-scope) {
     }
     
     
-    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
-        display: none;
-    }
 
     
 

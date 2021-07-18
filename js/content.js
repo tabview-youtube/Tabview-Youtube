@@ -175,10 +175,6 @@
 
         if(old_layoutStatus !== null )  changes = old_layoutStatus ^ new_layoutStatus;
 
-
-    
-    
-        //console.log(7001)
     
     
         let chat_collasped_changed = !!(changes & LAYOUT_CHATROOM_COLLASPED)
@@ -293,9 +289,6 @@
 
                     this.layoutStatus_pending=false;
                     const new_layoutStatus = this._layoutStatus;
-
-                    //console.log(1051, old_layoutStatus, new_layoutStatus)
-
                     layoutStatusChanged(old_layoutStatus, new_layoutStatus);
 
                     setTimeout(unlock,40)
@@ -338,7 +331,7 @@
             tComments: 1,
             tVideos: 1,
         },
-        defaultTab: "videos"
+        defaultTab: "#tab-videos"
     };
 
     const mtoInterval1=40;
@@ -571,84 +564,76 @@
 
     function mtf_fixAutoCompletePosition(elmAutoComplete){
 
-    var injectionScript_fixAutoComplete=function(){
+        var injectionScript_fixAutoComplete=function(){
 
-        // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
+            // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
 
-        for(const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')){
+            for(const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')){
 
 
-            let sc = s.sc;
-            if(sc instanceof HTMLElement){
+                let sc = s.sc;
+                if(sc instanceof HTMLElement){
 
-                let id=+new Date;
-                s.setAttribute('data-autocomplete-results-id',id);
-                sc.setAttribute('data-autocomplete-input-id', id);
-                
-                if(window.WeakRef){
-                    s._sc=new WeakRef(sc);
-                    s.sc=null;
-                    delete s.sc;
-                    Object.defineProperty(s,'sc',{
-                        get: function() { return s._sc.deref()||null; },
-                        enumerable: true,
-                        configurable: true
-                    })
+                    let id=+new Date;
+                    s.setAttribute('data-autocomplete-results-id',id);
+                    sc.setAttribute('data-autocomplete-input-id', id);
+                    
+                    if(window.WeakRef){
+                        s._sc=new WeakRef(sc);
+                        s.sc=null;
+                        delete s.sc;
+                        Object.defineProperty(s,'sc',{
+                            get: function() { return s._sc.deref()||null; },
+                            enumerable: true,
+                            configurable: true
+                        })
+                    }
+
+                    if(sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC =='function'){
+
+                        window.removeEventListener('resize', s.updateSC);
+                        s.updateSC=function(){};
+
+                    }
+
+                    sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+
+
                 }
-
-                if(sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC =='function'){
-
-                    window.removeEventListener('resize', s.updateSC);
-                    s.updateSC=function(){};
-
-                }
-
-                sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
-
 
             }
 
+        };
+
+        function handlerAutoCompleteExist(){
+
+            elmAutoComplete.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+
+            let autoComplete = this;
+            let domId= autoComplete.getAttribute('data-autocomplete-input-id')
+            let searchBox = autoComplete.ownerDocument.querySelector(`[data-autocomplete-results-id="${domId}"]`)
+
+            if(!domId || !searchBox) return;
+
+            let positioner=searchBox.nextSibling;
+            if(positioner && positioner.nodeName.toLowerCase()=="autocomplete-positioner"){
+            }else if(positioner && positioner.nodeName.toLowerCase()!="autocomplete-positioner"){
+                $(positioner=document.createElement("autocomplete-positioner")).insertAfter(searchBox);
+            }else{
+                $(positioner=document.createElement("autocomplete-positioner")).prependTo(searchBox.parentNode);
+            }
+            $(autoComplete).prependTo(positioner);
+
+            positioner.style.setProperty('--sb-margin-bottom',getComputedStyle(searchBox).marginBottom)
+            positioner.style.setProperty('--height',searchBox.offsetHeight + 'px')
+
         }
 
-    };
+        elmAutoComplete.setAttribute('autocomplete-disable-updatesc','')
+        elmAutoComplete.addEventListener('autocomplete-sc-exist',handlerAutoCompleteExist, false)
 
-    function handlerAutoCompleteExist(){
-
-
-        elmAutoComplete.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
-
-        let autoComplete = this;
-        let domId= autoComplete.getAttribute('data-autocomplete-input-id')
-        let searchBox = autoComplete.ownerDocument.querySelector(`[data-autocomplete-results-id="${domId}"]`)
-
-
-        if(!domId || !searchBox) return;
-
-        let positioner=searchBox.nextSibling;
-        if(positioner && positioner.nodeName.toLowerCase()=="autocomplete-positioner"){
-        }else if(positioner && positioner.nodeName.toLowerCase()!="autocomplete-positioner"){
-            $(positioner=document.createElement("autocomplete-positioner")).insertAfter(searchBox);
-        }else{
-            $(positioner=document.createElement("autocomplete-positioner")).prependTo(searchBox.parentNode);
-        }
-        $(autoComplete).prependTo(positioner);
-
-
-
-
-        positioner.style.setProperty('--sb-margin-bottom',getComputedStyle(searchBox).marginBottom)
-        positioner.style.setProperty('--height',searchBox.offsetHeight + 'px')
-
-
-    }
-
-    elmAutoComplete.setAttribute('autocomplete-disable-updatesc','')
-    elmAutoComplete.addEventListener('autocomplete-sc-exist',handlerAutoCompleteExist, false)
-
-    addScript(`!!(${injectionScript_fixAutoComplete+''})()`)
-    injectionScript_fixAutoComplete=null;
-
-
+        addScript(`!!(${injectionScript_fixAutoComplete+''})()`)
+        injectionScript_fixAutoComplete=null;
 
     }
 
@@ -761,14 +746,10 @@
                 }).join('|')
                 // /watch?v=XXXXX|/watch?v=XXXXXX|/watch?v=XXXXXX
 
-    /*
-
-                let elms = document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')
-                
-                let res = [...elms].map(elm=>elm.data.videoId||'').join('|') ;
-            */
-
-
+                // alternative - DOM.data.videoId
+                // let elms = document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')
+                // let res = [...elms].map(elm=>elm.data.videoId||'').join('|') ;
+     
                 if(res.indexOf('||')>=0){
                     res='';
                 }
@@ -792,9 +773,7 @@
                     if(videoListBeforeSearch){
                         //console.log('fromSearch', videoListBeforeSearch)
 
-
                         requestAnimationFrame(function(){
-
 
                             let renderer = document.querySelector('[placeholder-videos] ytd-watch-next-secondary-results-renderer');
                             if(searchBox && searchBox.parentNode) searchBox.blur();
@@ -806,14 +785,11 @@
                                     if(searchBox && searchBox.parentNode==scrollParent ) targetTop-=searchBox.offsetHeight
                                     scrollParent.scrollTop= targetTop - scrollParent.firstChild.offsetTop;
                                 }
-                            }
-
-                            
+                            }                        
             
                         });
 
                     }
-
 
                 }else if(videoListBeforeSearch){
 
@@ -865,7 +841,6 @@
         const chatBlockR = (elmChat?1:0)+(elmCont?2:0)
         if(Q.mtf_chatBlockQ!==chatBlockR){
 
-            //console.log(897, Q.mtf_chatBlockQ, chatBlockR)
             Q.mtf_chatBlockQ=chatBlockR
 
             
@@ -909,11 +884,8 @@
     let lastScrollAt = 0;
 
     function makeBodyScrollByEvt(){
-        // inside marco task (event)
-
+        // called inside marco task (event)
         Promise.resolve().then(()=>window.dispatchEvent(new Event("scroll")))
-
-
     }
 
     function makeBodyScroll() {
@@ -922,16 +894,11 @@
         if (+new Date - lastScrollAt < 30) return;
         lastScrollAt = +new Date;
 
-        //required for youtube content display
-
+        // required for youtube content display
         requestAnimationFrame(()=>{
-
             window.dispatchEvent(new Event("scroll"));
-
         })
         
-
-
     }
 
     let requestingComments = null
@@ -979,292 +946,123 @@
 
     }
 
+    const mutation_target_id_list=['ytp-caption-window-container', 'contents', 'items', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
+    const mutation_target_class_list=['ytp-panel-menu', 'ytp-endscreen-content'];
     function isMtoOverallSkip(dTarget) {
 
         if(!dTarget || dTarget.nodeType!==1) return true;
 
-        switch(dTarget.id){
-            case 'ytp-caption-window-container':
-                return true;
-            case 'contents':
-                return true;
-            case 'items':
-                return true;
-            case 'button':
-                return true;
-            case 'movie_player':
-                return true;
-            case 'player-ads':
-                return true;
-            case 'hover-overlays':
-                return true;
-            case 'replies':
-                return true;
-        }
+        if(mutation_target_id_list.includes(dTarget.id)) return true;
 
         className = dTarget.className.toLowerCase();
         classNameSplit = className.split(' ');
         for (const c of classNameSplit) {
-            switch (c) {
-                case 'ytp-panel-menu': // uncertain
-                    return true;
-                case 'ytp-endscreen-content':
-                    return true;
-            }
+            if(mutation_target_class_list.includes(c)) return true;
         }
 
-
         return false;
-
-        
-
-
     }
+
+
+    const mutation_div_id_ignorelist=[
+        'metadata-line',
+        'ytp-caption-window-container',
+        'top-level-buttons-computed',
+        'microformat',
+        'visibility-button',
+        'info-strings',
+        'action-menu',
+        'reply-button-end'
+    ]
+
+    const mutation_div_class_ignorelist=[
+        'badge','tp-yt-paper-tooltip','ytp-autonav-endscreen-upnext-header',
+        'ytp-bound-time-left','ytp-bound-time-right','ytp-share-icon',
+        'ytp-tooltip-title','annotation','ytp-copylink-icon','ytd-thumbnail',
+        'paper-ripple',
+        //caption
+        'captions-text','caption-visual-line','ytp-caption-segment', 'ytp-caption-window-container',
+        //menu
+        'ytp-playlist-menu-button-text',
+
+        'ytp-bezel-icon','ytp-bezel-text',
+        'dropdown-content',
+        'tp-yt-paper-menu-button','tp-yt-iron-dropdown'
+    ];
+
+    const mutation_target_tag_ignorelist=[
+        'ytd-channel-name','tp-yt-iron-dropdown','tp-yt-paper-tooltip',
+        'tp-yt-paper-listbox','yt-img-shadow','ytd-thumbnail','ytd-video-meta-block',
+
+        'yt-icon-button','tp-yt-paper-button','yt-formatted-string','yt-icon','button',
+
+        'ytd-player-microformat-renderer',
+        'ytd-engagement-panel-section-list-renderer','ytd-engagement-panel-title-header-renderer',
+        'ytd-comment-renderer', 'ytd-menu-renderer', 'ytd-badge-supported-renderer',
+        'ytd-subscribe-button-renderer', 'ytd-subscription-notification-toggle-button-renderer',
+        'ytd-button-renderer','ytd-toggle-button-renderer',
+        'yt-pdg-comment-chip-renderer','ytd-comment-action-buttons-renderer','ytd-comment-thread-renderer',
+        'ytd-compact-radio-renderer','ytd-compact-video-renderer',
+        'ytd-video-owner-renderer',
+
+        'ytd-moving-thumbnail-renderer',
+        'ytd-thumbnail-overlay-toggle-button-renderer',
+        'ytd-thumbnail-overlay-bottom-panel-renderer','ytd-thumbnail-overlay-equalizer',
+        'ytd-thumbnail-overlay-now-playing-renderer','ytd-thumbnail-overlay-resume-playback-renderer',
+        'ytd-thumbnail-overlay-side-panel-renderer','ytd-thumbnail-overlay-time-status-renderer',
+
+        'yt-interaction',
+        'tp-yt-paper-spinner-lite','tp-yt-paper-spinner',
+
+        'h1','h2','h3','h4','h5','span','a',
+
+        'meta','br','script','style','link','dom-module','template'
+    ]
 
     function isMtoTargetSkip(mutation) {
         //skip not important mutation tartget
 
         if (!mutation) return true;
-        if (mutation.type != 'childList') return false;
-        let target = mutation.target
+        let {type, target} = mutation
 
-        if (!target || target.nodeType !== 1) return true;
+        if (!target || target.nodeType !== 1 || type != 'childList') return true;
 
         let tagName = target.nodeName.toLowerCase();
         let className;
         let classNameSplit;
 
+        if(mutation_target_tag_ignorelist.includes(tagName)) return true;
+
         switch (tagName) {
 
-            case 'ytd-badge-supported-renderer': // level 5
-                return true;
-            case 'tp-yt-paper-listbox': // level 5
-
-                if (target.id === 'menu') return true;
-
-                return false;
-
-            case 'tp-yt-paper-tooltip':
-                return true;
-
-            case 'yt-img-shadow':
-
-                if (skipModeContent()) return true; // load comments
-
-            case 'ytd-button-renderer':
-                if (skipModeContent()) return true; // load comments
-
-            case 'yt-icon-button':
-                if (skipModeContent()) return true; // load comments
-            case 'ytd-toggle-button-renderer':
-                if (skipModeContent()) return true; // load comments
-
-            case 'yt-pdg-comment-chip-renderer':
-                if (skipModeContent()) return true; // load comments
-
-            case 'ytd-comment-action-buttons-renderer':
-                if (skipModeContent()) return true; // load comments
-
-            case 'ytd-comment-thread-renderer':
-                if (skipModeContent()) return true; // load comments
-
-            case 'ytd-thumbnail':
-                return true;
-
-            case 'ytd-video-meta-block': // uncertain
-                return true;
-
-            case 'ytd-compact-radio-renderer':
-                className = target.className.toLowerCase();
-                classNameSplit = className.split(' ');
-                for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'ytd-watch-next-secondary-results-renderer': // uncertain
-                            return true;
-                    }
-                }
-                return false;
-
-            case 'ytd-compact-video-renderer':
-                className = target.className.toLowerCase();
-                classNameSplit = className.split(' ');
-                for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'ytd-watch-next-secondary-results-renderer': // uncertain
-                            return true;
-                    }
-                }
-                return false;
-
-            case 'yt-interaction':
-                if (skipModeContent()) return true; // load comments
-                className = target.className.toLowerCase();
-                classNameSplit = className.split(' ');
-                for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'extended': // uncertain
-                            return true;
-                    }
-                }
-                return false;
-
-
-            case 'ytd-menu-renderer':
-                return true;
-
-
-
             case 'ytd-expander':
-
-
-                if (target.id == 'expander') {
-
-                    if (skipModeContent()) return true; // load comments
-
-
-                }
-
+                if (target.id == 'expander' && skipModeContent()) return true; // load comments
                 return false;
-            case 'tp-yt-paper-button':
-
-                if (target.id === 'more' && skipModeContent()) return true; // load comments
-                if (target.id === 'less' && skipModeContent()) return true; // load comments
-                if (target.id === 'button' && skipModeContent()) return true; // load comments
-
-                return false;
-
-
-
-            case 'yt-formatted-string':
-                return true;
-            case 'ytd-thumbnail-overlay-toggle-button-renderer':
-                return true;
-
-            case 'ytd-moving-thumbnail-renderer':
-                return true;
-
-            case 'yt-icon':
-                return true;
-
-
-            case 'button':
-                return true;
 
             case 'div':
 
                 if (target.id == 'contents') {
-
                     skipMode = 'contents';
                     skipModeExpiredAt = +new Date + 300;
                     return false;
-
                 }
-
+                if(mutation_div_id_ignorelist.includes(target.id)) return true;
+                
                 className = target.className.toLowerCase();
                 classNameSplit = className.split(' ');
                 for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'badge':
-                            return true;
-                        case 'tp-yt-paper-tooltip':
-                            return true;
-                        case 'ytp-autonav-endscreen-upnext-header':
-                            return true;
-                        case 'ytp-bound-time-left':
-                            return true;
-                        case 'ytp-bound-time-right':
-                            return true;
-                        case 'ytp-share-icon':
-                            return true;
-                        case 'ytp-tooltip-title':
-                            return true;
-                        case 'annotation':
-                            return true;
-                        case 'ytp-copylink-icon':
-                            return true;
-                        case 'ytd-thumbnail':
-                            return true;
-                        case 'paper-ripple':
-                            return true;
-
-                        case 'ytd-video-meta-block': //level 5
-                            if (target.id === 'metadata-line') return true;
-                            return false;
-
-                        case 'captions-text':
-                            return true;
-                        case 'caption-visual-line':
-                            return true;
-                        case 'ytp-caption-segment':
-                            return true;
-
-                    }
-                }
-
-
-                return false;
-            case 'span':
-
-
-                className = target.className.toLowerCase();
-                classNameSplit = className.split(' ');
-                for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'ytp-tooltip-text':
-                            return true;
-                        case 'ytp-time-current':
-                            return true;
-                        case 'ytp-offline-slate-buttons':
-                            return true;
-                        case 'ytp-cards-teaser-label':
-                            return true;
-                    }
-                }
-                return false;
-
-            case 'a':
-
-                className = target.className.toLowerCase();
-                classNameSplit = className.split(' ');
-                for (const c of classNameSplit) {
-                    switch (c) {
-                        case 'ytp-title-channel-name':
-                            return true;
-                        case 'ytd-toggle-button-renderer':
-                            return true;
-                        case 'ytd-button-renderer':
-                            return true;
-
-                    }
-
+                    if(mutation_div_class_ignorelist.includes(c)) return true;
                 }
 
                 return false;
-            case 'br':
-                return true;
-            case 'script':
-                return true;
-            case 'style':
-                return true;
-            case 'link':
-                return true;
-
-            default:
-
-                if (tagName.indexOf('ytd-thumbnail-') >= 0) return true;
-                return false;
-
 
         }
 
         return false;
 
-
     }
 
     function initObserver(){
-
-
 
 
         // continuous check for element relocation
@@ -1327,6 +1125,12 @@
                 $(truePlaylist).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
                 setDisplayedPlaylist();
 
+                requestAnimationFrame(()=>{
+                    if( !switchTabActivity_lastTab && (ytdFlexy.deref().getAttribute('tabview-selection')+'').indexOf('#tab-')===0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href) ){
+                        if(setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+                    }
+                })
+
             }
         }
 
@@ -1383,8 +1187,6 @@
             Q.addP = 0;
             Q.removeP = 0;
             
-
-            //console.log(1170,prettyElm(mutationTarget))
             
             let isInvalidAdding = Q.mutationTarget&& !Q.mutationTarget.parentNode
 
@@ -1445,8 +1247,7 @@
         Q.addP=0;
         Q.removeP=0; 
         Q.mutationTarget = null;
-        let hReqNo=0;
-        //let aaa = +new Date + 5000;
+        
         const mtoNavF=(mutations, observer) => {
             
         if(!scriptEnable)return;
@@ -1479,16 +1280,12 @@
                         ch = true;
                     }
             }
-
-
             
             if (!ch) return;
-
             
             if(dTarget===true) dTarget=ytdFlexy.deref();
 
             if(isMtoOverallSkip(dTarget)) return;
-
 
             Q.addP+=wAddP;
             Q.removeP+=wRemoveP;
@@ -1503,13 +1300,6 @@
 
 
             mtoNav_requestNo++;
-            hReqNo++;
-            /*
-            if(hReqNo==36) {
-                mtoInterval=mtoInterval2;
-                clickInterval=clickInterval2;
-            }*/
-            //console.log('motnav added to', mtoNav_requestNo)
 
             if(mtoNav_requestNo==1) setTimeout(mtoNav_delayedF,mtoInterval);
 
@@ -1522,20 +1312,21 @@
         })
 
         1;1&&(async()=>{
-            Q.addP=1; //fake the function
+            Q.addP=1; //force all checking
             mtoNav_requestNo++;
             if(mtoNav_requestNo==1) mtoNav_delayedF();
 
         })();
 
 
+
+        // for automcomplete plugin
         if(mtoBody){
-        mtoBody = null;
+            mtoBody = null;
         }
 
         function mtoBodyF(mutations, observer){
             if(!scriptEnable)return;
-
 
             for (const mutation of mutations) {
                 for (const addedNode of mutation.addedNodes)
@@ -1545,8 +1336,6 @@
                         }
                     }
             }
-
-
 
         }
 
@@ -1731,13 +1520,11 @@
 
     function onNavigationEnd() {
 
-
         resetBeforeNav();
-        if(!/https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&)*v=[\w\-\_]+/.test(window.location.href))return;
-
+        if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
 
         if(!document.querySelector('script#userscript-tabview-injection-1')) {
-            addScript(`(${ij1+""})()`).id='userscript-tabview-injection-1'
+            addScript(`!!(${ij1+""})()`).id='userscript-tabview-injection-1'
         }
 
         resetAtNav();
@@ -1761,36 +1548,26 @@
             promise.then(runAfterTabAppended).then(initObserver)
         }
 
-
         setTimeout(()=>{
-
             for(const s of document.querySelectorAll('#right-tabs [userscript-scrollbar-render]')){
-
                 Promise.resolve(s).then(s=>{
                     if(s && s.scrollTop>0) s.scrollTop=0;
                     let child =s.firstElementChild; 
                     if(child && child.scrollTop>0) child.scrollTop =0;
                 });
-
             }
-
         },90)
 
     }
 
-    function setToActiveTab() {
+    function setToActiveTab(defaultTab) {
         if(isTheater() && isWideScreenWithTwoColumns())return;
         const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
-            document.querySelector(`a[userscript-tab-content="#tab-${settings.defaultTab}"]:not(.tab-btn-hidden)`) ||
+            document.querySelector(`a[userscript-tab-content="${(defaultTab||settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
             document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
             null;
         switchTabActivity(jElm);
         return !!jElm;
-    }
-
-    function insertBefore(elm, p) {
-        if (elm && p && p.parentNode)
-            p.parentNode.insertBefore(elm, p);
     }
 
     function getWrapper(wrapperId){
@@ -1802,6 +1579,10 @@
     function runAfterTabAppended() {
 
         document.documentElement.setAttribute('plugin-tabview-youtube','')
+       
+        const cssElm = ytdFlexy.deref()
+        if(cssElm && !cssElm.hasAttribute('tabview-selection')) cssElm.setAttribute('tabview-selection','')
+
 
         fixTabs();
 
@@ -1811,16 +1592,11 @@
         // append the next videos 
         // it exists as "related" is already here
 
-
-
-
         prepareTabBtn();
-
         
         // append the detailed meta contents to the tab-info
         Q.mtf_checkDescriptionLoaded = () => {
-            
-            
+                        
             if(!scriptEnable)return true;
 
             const rootElement = Q.mutationTarget || ytdFlexy.deref();
@@ -1833,9 +1609,10 @@
             const avatar = document.querySelector('#meta-contents yt-img-shadow#avatar');
             if(avatar) hackImgShadow(avatar)
             return false;
+
         }
-        if(Q.mutationTarget===null)
-        Q.$callOnceAsync('mtf_checkDescriptionLoaded')
+
+        if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_checkDescriptionLoaded');
 
         // force window scroll when #continuations is first detected and #comments still [hidden]
         Q.mtf_advancedComments = () => {
@@ -1850,16 +1627,13 @@
             scrollForComments();
             return false;
         }
-        if(Q.mutationTarget===null)
-        Q.$callOnceAsync('mtf_advancedComments')
+        if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_advancedComments');
 
 
         // use video player's element to detect the live-chat situation (no commenting section)
         // this would be very useful if the live chat is collapsed, i.e. iframe has no indication on the where it is live or replay
         
-        Q.mtf_forceCheckLiveVideo_tf =()=>{
-
-            
+        Q.mtf_forceCheckLiveVideo_tf =()=>{         
             const cssElm = ytdFlexy.deref()
             if(!cssElm) return;
             if($(document.querySelector('#ytd-player .ytp-time-display')).is('.ytp-live')) {
@@ -1872,14 +1646,12 @@
             if(!scriptEnable)return true;
             const rootElement = Q.mutationTarget || ytdFlexy.deref();
             if(!rootElement) return true;
-
             const playerLabel = document.querySelector('#ytd-player .ytp-time-display') && document.querySelector('ytd-live-chat-frame#chat')
             if (!playerLabel) return true;
             setTimeout(Q.mtf_forceCheckLiveVideo_tf,170)
             return false;
         }
-        if(Q.mutationTarget===null)
-        Q.$callOnceAsync('mtf_forceCheckLiveVideo')
+        if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_forceCheckLiveVideo');
 
 
 
@@ -1934,7 +1706,6 @@
                     if (m) {
                         r = m[0].trim()
                         
-
                         //keep reading comments after changing videos
                         requestAnimationFrame(()=>{
                             if( switchTabActivity_lastTab =='#tab-comments' && (ytdFlexy.deref().getAttribute('tabview-selection')+'').indexOf('#tab-')===0) setToActiveTab();
@@ -2035,14 +1806,11 @@
 
             var playlist=document.querySelector('ytd-playlist-panel-renderer#playlist')
             const $tabBtn = $('[userscript-tab-content="#tab-list"]');
-            //console.log(3712,$tabBtn)
             //console.log('attr playlist changed')
             if( $tabBtn.is('.tab-btn-hidden') && !playlist.hasAttribute('hidden') ){
-                //console.log(3713)
                 //console.log('attr playlist changed - no hide')
                 $tabBtn.removeClass("tab-btn-hidden");
             }else if( !$tabBtn.is('.tab-btn-hidden') && playlist.hasAttribute('hidden') ){
-                //console.log(3714)
                 //console.log('attr playlist changed - add hide')
                 hideTabBtn($tabBtn);
             }
@@ -2063,11 +1831,9 @@
                 attributeFilter: ['hidden'],
                 attributeOldValue: true
             })
-            //console.log(3711)
             mtf_attrPlaylist()
             return false;
         }
-        //console.log(3710)
         if(Q.mutationTarget===null)
         Q.$callOnceAsync('mtf_initalAttr_playlist')
 
@@ -2385,7 +2151,7 @@
         function toLayoutStatus(nls, attributeName){
 
             let attrElm, b; 
-            switch(attributeName){
+            switch (attributeName){
                 case 'theater': 
                 nls = toogleAttribute(nls, isTheater(), LAYOUT_THEATER);
                 break;
