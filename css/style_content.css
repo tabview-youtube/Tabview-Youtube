@@ -134,7 +134,7 @@ html:not(.style-scope) {
     
     @keyframes animatedLoading {
         0% {
-            content: "⚫⚪⚪⚪●◉◻⬜⬛⚪";
+            content: "⚫⚪⚪⚪⚪";
         }
         25% {
             content: "⚪⚫⚪⚪⚪";
