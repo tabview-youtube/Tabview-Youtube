@@ -914,7 +914,6 @@
                         //console.log(7005)
                         cssElm.setAttribute('userscript-chatblock', 'chat-live')
                         //disableComments_LiveChat();
-                        requestingComments=null;
                     }
                     if(s==2) cssElm.setAttribute('userscript-chatblock', 'chat-playback')
                     //if(s==5) cssElm.setAttribute('userscript-chatblock', 'chat-live-paid')
@@ -1700,7 +1699,6 @@
                 //console.log(7006)
                 ytdFlexyElm.setAttribute('userscript-chatblock', 'chat-live')
                 //disableComments_LiveChat();
-                requestingComments=null;
             }
         }
         Q.mtf_forceCheckLiveVideo = () => {
@@ -1809,15 +1807,28 @@
     }
 
 
-    function disableComments_LiveChat(){
+    function _disableComments(){
 
         if(!scriptEnable)return;
         let cssElm=ytdFlexy.deref();
         if(!cssElm)return;
 
+        mtoInterval=mtoInterval2;
+        
+        let $tabBtn = $(document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]'));
+        if($tabBtn[0] && !$tabBtn.is('.tab-btn-hidden')){
+            hideTabBtn($tabBtn)
+        }
         
         akAttr(cssElm,'tabview-youtube-comments',true, 'D');
-        Q.mtf_fetchCommentsAvailable = null;   
+        Q.mtf_fetchCommentsAvailable = null; 
+
+
+    }
+
+
+    function disableComments_LiveChat(){
+        _disableComments();
 
     }
 
@@ -1843,10 +1854,8 @@
 
             if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))){
 
-                mtoInterval=mtoInterval2;
                 
-                akAttr(cssElm,'tabview-youtube-comments',true, 'D');
-                Q.mtf_fetchCommentsAvailable = null;
+                _disableComments();
 
             }
         })
@@ -2308,7 +2317,10 @@
                 if (mutation.attributeName == 'userscript-chat-collapsed' || mutation.attributeName == 'userscript-chatblock'){
 
                     if( cssElm.getAttribute('userscript-chatblock')==='chat-live' ){
-                            disableComments_LiveChat();
+                        
+                        requestingComments=null;    
+                        disableComments_LiveChat();
+
                     }
 
                     if(!cssElm.hasAttribute('userscript-chatblock')){
