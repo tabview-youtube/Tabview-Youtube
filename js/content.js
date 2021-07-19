@@ -26,13 +26,13 @@
     <path d="M54.072,2.535L19.93,2.465c-3.27,0-5.93,2.66-5.93,5.93v3.124l26.064-0.054c4.377,0,7.936,3.557,7.936,7.93v21.07v0.071
     v2.087l3.26,3.586c0.193,0.212,0.464,0.327,0.74,0.327c0.121,0,0.243-0.022,0.36-0.067c0.386-0.149,0.64-0.52,0.64-0.933v-10h1.07
     c3.27,0,5.93-2.66,5.93-5.929V8.465C60,5.195,57.34,2.535,54.072,2.535z"/>
-    `
+    `.trim();
 
     const svgVideos = `<path d="M298,33c0-13.255-10.745-24-24-24H24C10.745,9,0,19.745,0,33v232c0,13.255,10.745,24,24,24h250c13.255,0,24-10.745,24-24V33
     z M91,39h43v34H91V39z M61,259H30v-34h31V259z M61,73H30V39h31V73z M134,259H91v-34h43V259z M123,176.708v-55.417
     c0-8.25,5.868-11.302,12.77-6.783l40.237,26.272c6.902,4.519,6.958,11.914,0.056,16.434l-40.321,26.277
     C128.84,188.011,123,184.958,123,176.708z M207,259h-43v-34h43V259z M207,73h-43V39h43V73z M268,259h-31v-34h31V259z M268,73h-31V39
-    h31V73z"/>`
+    h31V73z"/>`.trim();
 
     const svgInfo = `<path d="M11.812,0C5.289,0,0,5.289,0,11.812s5.289,11.813,11.812,11.813s11.813-5.29,11.813-11.813
     S18.335,0,11.812,0z M14.271,18.307c-0.608,0.24-1.092,0.422-1.455,0.548c-0.362,0.126-0.783,0.189-1.262,0.189
@@ -45,48 +45,99 @@
     c0.158,0.129,0.435,0.194,0.827,0.194c0.185,0,0.392-0.033,0.626-0.097c0.232-0.064,0.4-0.121,0.506-0.17L14.271,18.307z
     M14.137,7.429c-0.353,0.328-0.778,0.492-1.275,0.492c-0.496,0-0.924-0.164-1.28-0.492c-0.354-0.328-0.533-0.727-0.533-1.193
     c0-0.465,0.18-0.865,0.533-1.196c0.356-0.332,0.784-0.497,1.28-0.497c0.497,0,0.923,0.165,1.275,0.497
-    c0.353,0.331,0.53,0.731,0.53,1.196C14.667,6.703,14.49,7.101,14.137,7.429z"/>`
+    c0.353,0.331,0.53,0.731,0.53,1.196C14.667,6.703,14.49,7.101,14.137,7.429z"/>`.trim();
 
     const svgPlayList = `
     <rect x="0" y="64" width="256" height="42.667"/>
     <rect x="0" y="149.333" width="256" height="42.667"/>
     <rect x="0" y="234.667" width="170.667" height="42.667"/>
     <polygon points="341.333,234.667 341.333,149.333 298.667,149.333 298.667,234.667 213.333,234.667 213.333,277.333 
-        298.667,277.333 298.667,362.667 341.333,362.667 341.333,277.333 426.667,277.333 426.667,234.667"/>
-        `
+    298.667,277.333 298.667,362.667 341.333,362.667 341.333,277.333 426.667,277.333 426.667,234.667"/>
+    `.trim();
 
+    // --- Youtube Video Testing : 
+    // Square Video: https://www.youtube.com/watch?v=L0RXVnRbFg8 
+    // Square Video: https://www.youtube.com/watch?v=bK_rKhMIotU
+    // ---
 
-    class WeakRefer{
-
-        
-        constructor(){
-
-            this.clear();
-
+    class ScriptEF {
+        constructor() {
+            this._id = scriptEC;
         }
-
-        deref(){
-
-            return (this._obj1?this._obj1.deref():this._obj2)||null
-
+        isValid() {
+            return this._id === scriptEC;
         }
+    }
+    
+    class Timeout {
+    
+        set(f, d, repeatCount) {
+            if (this.cid > 0) return;
+            let sEF = new ScriptEF();
+            if (repeatCount > 0) {
+    
+                let rc = repeatCount;
+                const g = () => {
+                    this.cid = 0;
+                    if (!sEF.isValid()) return;
+                    let res = f();
+                    if (--rc <= 0) return;
+                    if (res === true) this.cid = setTimeout(g, d);
+                }
+                g();
 
-        set(obj){
-
-            if(obj){
-                if(window.WeakRef) this._obj1= new WeakRef(obj);
-                else this._obj2=obj;
+            } else {
+    
+                const g = () => {
+                    this.cid = 0;
+                    if (!sEF.isValid()) return;
+                    if (f() === true) this.cid = setTimeout(g, d);
+                }
+                this.cid = setTimeout(g, d);
             }
-
         }
-
-        clear(){
-
-            this._obj1=null;
-            this._obj2=null;
-
+    
+        clear() {
+            if (this.cid > 0) clearTimeout(this.cid);
         }
-
+    
+        isEmpty() {
+            return !this.cid
+        }
+    
+    
+    }
+    
+    
+    class WeakRefer {
+    
+    
+        constructor() {
+            this.clear();
+        }
+    
+        deref() {
+    
+            return (this._obj1 ? this._obj1.deref() : this._obj2) || null
+    
+        }
+    
+        set(obj) {
+    
+            if (obj) {
+                if (window.WeakRef) this._obj1 = new WeakRef(obj);
+                else this._obj2 = obj;
+            }
+    
+        }
+    
+        clear() {
+    
+            this._obj1 = null;
+            this._obj2 = null;
+    
+        }
+    
     }
 
     function isNonEmptyString(s){
@@ -106,7 +157,7 @@
     const LAYOUT_CHATROOM_COLLASPED=16;
     const LAYOUT_TAB_EXPANDED = 32;
 
-    let cid_resize_for_layout_change=0;
+    let timeout_resize_for_layout_change=new Timeout();
 
     function layoutStatusChanged(old_layoutStatus, new_layoutStatus) {
 
@@ -238,17 +289,15 @@
 
         if(requestVideoResize){
 
-            if(cid_resize_for_layout_change) cid_resize_for_layout_change = clearTimeout(cid_resize_for_layout_change);
-            cid_resize_for_layout_change=setTimeout(() => {
-                cid_resize_for_layout_change=0;
+            timeout_resize_for_layout_change.clear();
+            timeout_resize_for_layout_change.set(() => {
                 window.dispatchEvent(new Event('resize'))
              } , 92)
             
         }else{
                 
-            if (!cid_resize_for_layout_change && (+new Date) - lastResizeAt > 600){
-                cid_resize_for_layout_change = setTimeout(() => {
-                    cid_resize_for_layout_change=0;
+            if (timeout_resize_for_layout_change.isEmpty() && (+new Date) - lastResizeAt > 600){
+                timeout_resize_for_layout_change.set(() => {
                     if((+new Date) - lastResizeAt > 600) window.dispatchEvent(new Event('resize'));
                 }, 62)
             }
@@ -331,23 +380,13 @@
     const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
 
     let settings = {
-        toggleSettings: {
-            tabs: 1,
-            tInfo: 1,
-            tComments: 1,
-            tVideos: 1,
-        },
         defaultTab: "#tab-videos"
     };
 
     const mtoInterval1=40;
     const mtoInterval2=150;
 
-    const clickInterval1=60;
-    const clickInterval2=60;
-
     let mtoInterval = mtoInterval1;
-    let clickInterval=clickInterval1;
 
     function getAttribute(elm,key){
         return elm?elm.getAttribute(key):null
@@ -661,9 +700,10 @@
         // causing difference apperance after resize of window
 
 
-        if(!scriptEnable)return ;
-        const rootElement = Q.mutationTarget || ytdFlexy.deref();
-        if(!rootElement) return ;
+        let ytdFlexyElm = ytdFlexy.deref();
+        if(!scriptEnable || !ytdFlexyElm) return;
+
+        const rootElement = Q.mutationTarget || ytdFlexyElm;
 
 
 
@@ -705,12 +745,10 @@
 
                     })
 
-                    let cid_searchbox_keyup=0;
+                    let timeoutOnce_searchbox_keyup=new Timeout();
                     searchBox.addEventListener('keyup',function(){
 
-                        if(cid_searchbox_keyup)return;
-                        cid_searchbox_keyup=setTimeout(()=>{
-                            cid_searchbox_keyup=0;
+                        timeoutOnce_searchbox_keyup.set(()=>{
                             
                             const autocomplete=document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${ this.getAttribute('data-autocomplete-results-id') }"]`)
 
@@ -834,7 +872,8 @@
 
     function mtf_ChatExist(){
 
-        if(!scriptEnable)return ;
+        let ytdFlexyElm = ytdFlexy.deref();
+        if(!scriptEnable || !ytdFlexyElm) return;
 
         // no mutation triggering if the changes are inside the iframe 
 
@@ -872,6 +911,7 @@
                     s |= elmCont.querySelector('yt-live-chat-replay-continuation, yt-player-seek-continuation')?2:0;
                     //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
                     if(s==1) {
+                        //console.log(7005)
                         cssElm.setAttribute('userscript-chatblock', 'chat-live')
                         //disableComments_LiveChat();
                         requestingComments=null;
@@ -963,7 +1003,7 @@
 
     }
 
-    const mutation_target_id_list=['ytp-caption-window-container', 'contents', 'items', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
+    const mutation_target_id_list=['ytp-caption-window-container', 'items', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
     const mutation_target_class_list=['ytp-panel-menu', 'ytp-endscreen-content'];
     function isMtoOverallSkip(dTarget) {
 
@@ -1084,10 +1124,11 @@
 
         // continuous check for element relocation
         function mtf_append_comments() {
-            
-            if(!scriptEnable)return;
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return;
+                
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
+
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             let comments = rootElement.querySelector('#primary ytd-watch-metadata ~ #info ~ ytd-comments#comments');
             if (comments) $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
@@ -1095,9 +1136,10 @@
 
         // continuous check for element relocation
         function mtf_liveChatBtnF() {
-            if(!scriptEnable)return ;
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return ;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
+
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             let button = rootElement.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
             if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
@@ -1109,9 +1151,10 @@
         // fired at begining & window resize, etc
         function mtf_append_playlist(){
             
-            if(!scriptEnable)return;
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return ;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
+
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             let ple1 = rootElement.querySelector("*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist");
             if(ple1){
@@ -1140,10 +1183,12 @@
                 let $wrapper = getWrapper('ytd-userscript-playlist')
                 $wrapper.append(truePlaylist).appendTo(document.querySelector("#tab-list"));
                 $(truePlaylist).attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
-                setDisplayedPlaylist();
+                setDisplayedPlaylist(); // relocation after re-layout
 
                 requestAnimationFrame(()=>{
-                    if( !switchTabActivity_lastTab && (ytdFlexy.deref().getAttribute('tabview-selection')+'').indexOf('#tab-')===0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href) ){
+                    let ytdFlexyElm = ytdFlexy.deref();
+                    if(!scriptEnable || !ytdFlexyElm) return;
+                    if( !switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tabview-selection')+'').indexOf('#tab-')===0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href) ){
                         if(setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
                     }
                 })
@@ -1203,7 +1248,6 @@
         
             Q.addP = 0;
             Q.removeP = 0;
-            
             
             let isInvalidAdding = Q.mutationTarget&& !Q.mutationTarget.parentNode
 
@@ -1276,6 +1320,7 @@
 
             let wAddP=0,wRemoveP=0;
 
+
             for (const mutation of mutations) {
                 if(!mutation || !mutation.target || !mutation.target.parentNode) continue;
                 if(isMtoTargetSkip(mutation))continue;
@@ -1304,6 +1349,7 @@
 
             if(isMtoOverallSkip(dTarget)) return;
 
+            
             Q.addP+=wAddP;
             Q.removeP+=wRemoveP;
 
@@ -1317,6 +1363,7 @@
 
 
             mtoNav_requestNo++;
+
 
             if(mtoNav_requestNo==1) setTimeout(mtoNav_delayedF,mtoInterval);
 
@@ -1362,6 +1409,7 @@
     const scrollingVideosList=new WeakRefer();
 
     let scriptEnable =false;
+    let scriptEC = 0;
     let lastShowTab = null;
 
 
@@ -1373,8 +1421,8 @@
     function resetBeforeNav() {
 
         //console.log(8001)
-
-        if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
+        timeout_attrComments.clear();
+        timeout_disableComments.clear();
 
         videoListBeforeSearch=null;
         statusCollasped=0;
@@ -1383,6 +1431,8 @@
         displayedPlaylist.clear();
         scrollingVideosList.clear();
         scriptEnable =false;
+        scriptEC++;
+        if(scriptEC>788888888) scriptEC=188888888;
         ytdFlexy.clear();
         $ws.layoutStatus=null;
 
@@ -1405,21 +1455,22 @@
         }
 
         mtoInterval = mtoInterval1;
-        clickInterval = clickInterval1;
 
 
-
+        loadingExpiredAt=-1;
         
 
     }
 
     let ytdFlexy=new WeakRefer();
-    let cid_disableComments=0;
+    let timeout_attrComments=new Timeout();
+    let timeout_disableComments=new Timeout();
     let lastAction = {action:null, time:0};
     function resetAtNav() {
         //console.log(8003)
 
         scriptEnable =true;
+        scriptEC++;
 
         no_fix_contents_until = 0;
         no_fix_playlist_until = 0;
@@ -1428,17 +1479,19 @@
 
         
 
-        $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed").removeAttr('tabview-youtube-comments-loaded');
+        $(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed");
         $('span#tab3-txt-loader').text('');
 
         //removed any cache of #comments header (i.e. count message)
         var prevCommentsHeader = document.querySelector('ytd-comments#comments ytd-comments-header-renderer');
         if (prevCommentsHeader) prevCommentsHeader.parentNode.removeChild(prevCommentsHeader);
 
-        var prevCommentsMsg= document.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer:only-child');
+        //removed any cache of #comments message (i.e. 留言功能已停用。)
+        var prevCommentsMsg= document.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer');
         if (prevCommentsMsg) prevCommentsMsg.parentNode.removeChild(prevCommentsMsg);
 
         //force to [hidden]
+        
         var prevComemnts = document.querySelector('ytd-comments#comments'); 
         if (prevComemnts) {
             setAttr(prevComemnts, 'hidden', true);
@@ -1446,17 +1499,19 @@
             scrollForComments();
         }
 
+        /*
+        var prevComemnts = document.querySelector('ytd-comments#comments'); 
+        if (prevComemnts) {
+            requestingComments = prevComemnts;
+            scrollForComments();
+        }
+        */
 
         
 
     }
 
     function getTabsHTML(){
-
-
-        let ts = settings.toggleSettings;
-
-        if (!ts.tabs) return;
 
         const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>Videos</span>`
         const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>Info</span>`
@@ -1470,10 +1525,10 @@
         `;
 
         const str_tabs = [
-            ts.tInfo ? `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}</a>` : '',
+            `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}</a>`,
             `<a id="tab-btn2" userscript-tab-content="#tab-live" class="tab-btn tab-btn-hidden">Chat${str1}</a>`,
-            ts.tComments ? `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}</a>` : '',
-            ts.tVideos ? `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}</a>` : '',
+            `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}</a>`,
+            `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}</a>`,
             `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn">${sTabBtnPlayList}${str1}</a>`
         ].join('')
 
@@ -1534,14 +1589,12 @@
 
         resetAtNav();
 
-        let findCount=10;
-        function findRelated(){
+        let timeoutR_findRelated=new Timeout();
+        timeoutR_findRelated.set(function(){
             let related = ytdFlexy.deref().querySelector("#related");
-            if(related) return foundRelated(related);
-            if(--findCount) return setTimeout(findRelated,100);
-            throw 'Please report the userscript is not able to use.'
-        }
-        findRelated();
+            if(!related) return true;
+            foundRelated(related);
+        },100,10)
 
         function foundRelated(related){
             let promise = Promise.resolve();
@@ -1602,10 +1655,10 @@
         // append the detailed meta contents to the tab-info
         Q.mtf_checkDescriptionLoaded = () => {
                         
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             const expander = document.querySelector("#meta-contents ytd-expander");
             if (!expander) return true;
@@ -1622,10 +1675,10 @@
         // force window scroll when #continuations is first detected and #comments still [hidden]
         Q.mtf_advancedComments = () => {
             
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
             const continuations = document.querySelector("ytd-comments#comments #continuations");
             if (!continuations) return true;
             requestingComments = document.querySelector('ytd-comments#comments');
@@ -1638,19 +1691,23 @@
         // use video player's element to detect the live-chat situation (no commenting section)
         // this would be very useful if the live chat is collapsed, i.e. iframe has no indication on the where it is live or replay
         
-        Q.mtf_forceCheckLiveVideo_tf =()=>{         
-            const cssElm = ytdFlexy.deref()
-            if(!cssElm) return;
+        Q.mtf_forceCheckLiveVideo_tf =()=>{
+
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
+
             if($(document.querySelector('#ytd-player .ytp-time-display')).is('.ytp-live')) {
-                cssElm.setAttribute('userscript-chatblock', 'chat-live')
+                //console.log(7006)
+                ytdFlexyElm.setAttribute('userscript-chatblock', 'chat-live')
                 //disableComments_LiveChat();
                 requestingComments=null;
             }
         }
         Q.mtf_forceCheckLiveVideo = () => {
-            if(!scriptEnable)return true;
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
+
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
             const playerLabel = document.querySelector('#ytd-player .ytp-time-display') && document.querySelector('ytd-live-chat-frame#chat')
             if (!playerLabel) return true;
             setTimeout(Q.mtf_forceCheckLiveVideo_tf,170)
@@ -1678,7 +1735,6 @@
     }
 
 
-    commentsScrollToTop = false;
     async function asyncFetchCommentsAvailable() {
 
         let span = document.querySelector("span#tab3-txt-loader")
@@ -1689,16 +1745,21 @@
 
 
         function finish(){
-            commentsScrollToTop = true;
-            ytdFlexy.deref().setAttribute('tabview-youtube-comments-loaded','loaded')
+
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
+
+            timeout_attrComments.clear();
+            timeout_disableComments.clear();
+            akAttr(ytdFlexyElm,'tabview-youtube-comments',false, 'LS')
         }
 
         Q.mtf_fetchCommentsAvailable = () => {
 
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             let messageElm, messageStr, commentRenderer;
             if (commentRenderer = rootElement.querySelector("ytd-comments#comments #count.ytd-comments-header-renderer")) {
@@ -1710,18 +1771,14 @@
                     if (m) {
                         r = m[0].trim()
                         
-                        //keep reading comments after changing videos
-                        requestAnimationFrame(()=>{
-                            if( switchTabActivity_lastTab =='#tab-comments' && (ytdFlexy.deref().getAttribute('tabview-selection')+'').indexOf('#tab-')===0) setToActiveTab();
-                        })
+                        
                     }
                 }
                 span.textContent = r;
                 mtoInterval=mtoInterval2;
-                clickInterval=clickInterval2;
                 finish();
                 return false;
-            }else if((messageElm = rootElement.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer:only-child'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
+            }else if((messageElm = rootElement.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
                 
                 // it is possible to get the message before the header generation.
                 setTimeout(function(){
@@ -1737,24 +1794,17 @@
                     }
                     span.textContent = messageStr;
                     mtoInterval=mtoInterval2;
-                    clickInterval=clickInterval2;
-                },240);
+                },40);
                 finish();
                 return false;
             }else{
                 
-                return true;
+                 return true;
 
             }
         
         }
         if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_fetchCommentsAvailable');
-
-        //urlchange - no mutation triggering ?
-        setTimeout(()=>{
-            if(Q.mutationTarget===null) Q.$callOnceAsync('mtf_fetchCommentsAvailable');
-        },40)
-
 
     }
 
@@ -1765,20 +1815,20 @@
         let cssElm=ytdFlexy.deref();
         if(!cssElm)return;
 
-        cssElm.setAttribute('tabview-youtube-comments-loaded','disabled');
+        
+        akAttr(cssElm,'tabview-youtube-comments',true, 'D');
         Q.mtf_fetchCommentsAvailable = null;   
 
     }
 
     function disableComments_General(){
 
-        if(!cid_disableComments) return;
-        cid_disableComments=0;
 
         if(!scriptEnable)return;
         let cssElm=ytdFlexy.deref();
         if(!cssElm)return;
 
+        if(loadingExpiredAt<0) return;
 
         let t = loadingExpiredAt - new Date;  // normal case : -100
 
@@ -1793,7 +1843,9 @@
 
             if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))){
 
-                cssElm.setAttribute('tabview-youtube-comments-loaded','disabled');
+                mtoInterval=mtoInterval2;
+                
+                akAttr(cssElm,'tabview-youtube-comments',true, 'D');
                 Q.mtf_fetchCommentsAvailable = null;
 
             }
@@ -1801,6 +1853,46 @@
 
         
 
+    }
+
+    
+    function akAttrV(cssElm, attrName){
+        let u = parseInt(cssElm.getAttribute(attrName)||0)||0;
+        return u;
+    }
+    function akAttrPV(cssElm, attrName){
+        let p = (cssElm.getAttribute(attrName)||'')
+        return p;
+    }
+    function akAttrOmit(cssElm, attrName, flag){
+        let pv = cssElm.getAttribute(attrName);
+        if(typeof pv == 'string' && pv.indexOf(flag)>0) cssElm.setAttribute(attrName, pv.replace(flag,''))
+    }
+
+    function akAttr(cssElm, attrName, isNegative, flag){
+        
+        let u = parseInt(cssElm.getAttribute(attrName)||0)||0;
+        let ak = Math.abs(u);
+        
+        if(ak>100 && isNegative && u<0){
+
+        }else if(ak>100 && !isNegative && u>0){
+
+        }else{
+            if(ak<=100) {
+                ak=101;
+             } else {
+                ak++;
+                if(ak>=800) ak=101;
+            }
+             // 101, 102, ... 799, 101 
+        }
+
+        let s = ''+(isNegative?-ak:ak);
+        flag = flag || '';
+
+        
+        cssElm.setAttribute(attrName, s+flag)
     }
 
     function createAttributeObservants() {
@@ -1825,15 +1917,16 @@
                 //console.log('attr playlist changed - add hide')
                 hideTabBtn($tabBtn);
             }
-            cssElm.setAttribute('tabview-youtube-playlist', playlist.hasAttribute('hidden')?'hidden':'') /* visible layout for triggering hidden removal */ 
+             /* visible layout for triggering hidden removal */ 
+            akAttr(cssElm, 'tabview-youtube-playlist', playlist.hasAttribute('hidden'));
         }
 
         // pending for #playlist and set Attribute Observer
         Q.mtf_initalAttr_playlist=()=>{
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             var playlist=rootElement.querySelector('ytd-playlist-panel-renderer#playlist')
             if(!playlist) return true;
@@ -1858,70 +1951,84 @@
         // Attr Mutation Observer callback - ytd-comments#comments - hidden
 
 
-        let cid_attrComments=0;
 
         let mtf_attrComments=(mutations, observer)=>{
 
-            if(!scriptEnable)return;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return;
 
             var comments=document.querySelector('ytd-comments#comments')
             const $tabBtn = $('[userscript-tab-content="#tab-comments"]');
             if(!comments || !$tabBtn[0])return;
             let isCommentHidden = comments.hasAttribute('hidden')
             //console.log('attr comments changed')
+
+
+            timeout_attrComments.clear();
+            timeout_disableComments.clear();
+            $('span#tab3-txt-loader').text('');
+            mtoInterval=mtoInterval1;
+
             if( !isCommentHidden ){
 
-                if(cid_attrComments) cid_attrComments=clearTimeout(cid_attrComments);
+                akAttr(ytdFlexyElm,'tabview-youtube-comments', false, 'K');
 
-                if(cid_disableComments>0) cid_disableComments=clearTimeout(cid_disableComments);
-                requestingComments=null;
-
-                mtoInterval=mtoInterval1;
-                clickInterval=clickInterval1;
 
                 //console.log('attr comments changed - no hide')
 
                 if($tabBtn.is('.tab-btn-hidden')) $tabBtn.removeClass("tab-btn-hidden");
-                if(ytdFlexy.deref().getAttribute('tabview-youtube-comments-loaded')=='disabled')  ytdFlexy.deref().removeAttribute('tabview-youtube-comments-loaded')
-                asyncFetchCommentsAvailable();
-
-                //setTimeout(()=>nativeFunc(comments, "loadComments"),20)
                 
-                setTimeout(()=>nativeFunc(comments, "loadComments"),20)
 
-
+                asyncFetchCommentsAvailable();
+                
+                
             }else if( isCommentHidden ){
 
 
-                if(cid_attrComments) cid_attrComments=clearTimeout(cid_attrComments);
-                cid_attrComments=setTimeout(function(){
+                //console.log('attr comments changed - add hide')
 
-                    cid_attrComments=0;
+                akAttr(ytdFlexyElm,'tabview-youtube-comments',true, 'K');
 
-                    mtoInterval=mtoInterval2;
-                    clickInterval=clickInterval2;
+                if(loadingExpiredAt<0) loadingExpiredAt = +new Date + 2600; 
+                else if(loadingExpiredAt>+new Date) loadingExpiredAt += 1700;
+                else loadingExpiredAt = +new Date + 2000;
+
+                timeout_attrComments.set(function(){
+
+                    let ytdFlexyElm = ytdFlexy.deref();
+                    if(!scriptEnable || !ytdFlexyElm) return;
+
+                    var comments=document.querySelector('ytd-comments#comments')
+                    const $tabBtn = $('[userscript-tab-content="#tab-comments"]');
+                    if(!comments || !$tabBtn[0])return;
+                    let isCommentHidden = comments.hasAttribute('hidden')
+
+                    if(!isCommentHidden) return;
+
+
                     if(!$tabBtn.is('.tab-btn-hidden')) hideTabBtn($tabBtn);
-                    //console.log('attr comments changed - add hide')
-                    if(!document.querySelector('[userscript-chatblock="chat-live"]')){
-                        requestingComments=comments
-                    } 
-                    $('span#tab3-txt-loader').text('');
-                    if(loadingExpiredAt<0) loadingExpiredAt = +new Date + 2600;
                     let t = loadingExpiredAt - +new Date;
                     if(t<0) t=0;
-                    cid_disableComments = setTimeout(disableComments_General, t + 100); //1.3 + 1.3 + 0.1
+                    timeout_disableComments.set(disableComments_General, t + 100); //1.3 + 1.3 + 0.1
 
-                },80);
+                },1630);
+
                 
-            }        
+            }   
+            
+            requestingComments = comments;
+            scrollForComments();
+            setTimeout(()=>nativeFunc(comments, "loadComments"),20)
+            
+
         }
 
         // pending for #comments and set Attribute Observer
         Q.mtf_initalAttr_comments=()=>{
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             var comments=rootElement.querySelector('ytd-comments#comments')
             if(!comments) return true;
@@ -1939,14 +2046,6 @@
         if(Q.mutationTarget===null)
         Q.$callOnceAsync('mtf_initalAttr_comments')
 
-    }
-
-
-    function isEmptyBody(){
-        //only deal with loaded document without body
-        //other situation, case by case
-        let doc = chatFrameContentDocument();
-        return (doc && doc.body && doc.body.childElementCount===0);
     }
 
     class Mutex{
@@ -1990,12 +2089,12 @@
     function runAfterExpandChat(){
 
         let run_cDocReady=()=>{
-            let count = 150; //40*150 = 6000ms = 6s;
-            let tf=()=>{
+            let timeoutR_ChatAppReady=new Timeout();
+            timeoutR_ChatAppReady.set(()=>{
     
-                if(--count === 0 || !scriptEnable || !isChatExpand())return;
+                if(!scriptEnable || !isChatExpand())return false;
                 let app=chatFrameElement('yt-live-chat-app');
-                if(!app) return setTimeout(tf,40);
+                if(!app) return true;
 
                 let cDoc = app.ownerDocument;
 
@@ -2013,15 +2112,24 @@
                             contain: content;
                         }
                         #item-offset.yt-live-chat-item-list-renderer{
-                            contain: strict;
+                            contain: content;
                         }
                         #item-scroller.yt-live-chat-item-list-renderer{
                             contain: strict;
                         }
+                        img[width][height]{
+                            contain: strict;
+                        }
+                        #item-list>yt-live-chat-item-list-renderer, #item-list>yt-live-chat-item-list-renderer>#contents{
+                            contain: strict;
+                        }
+                        yt-live-chat-app{
+                            contain: content;
+                        }
                     `, cDoc.documentElement)
 
                     if(cDoc.querySelector('yt-live-chat-renderer #continuations')){
-                        mtf_ChatExist();
+                        setTimeout(()=>mtf_ChatExist(),40);
                         $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded','')
                     }
 
@@ -2032,15 +2140,16 @@
                 },40)
     
 
-            };
-            tf();
+            },40,150); //40*150 = 6000ms = 6s;
 
         }
 
         let dd=+new Date;
         let cid_chatFrameCheck = 0;
 
+        let sEF = new ScriptEF();
         cid_chatFrameCheck=setInterval(()=>{
+            if(!sEF.isValid()) return cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
             let cDoc = chatFrameContentDocument();
             if(cDoc) {
                 cid_chatFrameCheck=clearInterval(cid_chatFrameCheck);
@@ -2105,10 +2214,10 @@
         }
 
         Q.mtf_initalAttr_chatroom=()=>{
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             var chatroom=rootElement.querySelector('ytd-live-chat-frame#chat')
             if(!chatroom) return true;
@@ -2204,6 +2313,7 @@
 
                     if(!cssElm.hasAttribute('userscript-chatblock')){
                         setTimeout(()=>{
+                            if(!scriptEnable)return;
                             if(!isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()){
                                 setToActiveTab();
                             }
@@ -2223,10 +2333,10 @@
 
 
         Q.mtf_checkFlexy=()=>{
-            if(!scriptEnable)return true;
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexy.deref();
-            if(!rootElement) return true;
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
 
             var flexy=ytdFlexy.deref()
             if(!flexy) return true;
@@ -2272,9 +2382,10 @@
 
     function setDisplayedPlaylist(){
         //override the default youtube coding event prevention
-        displayedPlaylist.set($('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer')[0] || null);
-        if(!!displayedPlaylist.deref()) $(ytdFlexy.deref()).attr('userscript-auto-scroll-playlist',''); 
-        else $(ytdFlexy.deref()).removeAttr('userscript-auto-scroll-playlist');
+        let cssElm=ytdFlexy.deref();
+        if(!scriptEnable || !cssElm)return;
+        displayedPlaylist.set(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer') || null);
+
 
 
     }
@@ -2290,13 +2401,9 @@
  
         if(isTheater() && isWideScreenWithTwoColumns()) activeLink=null;
  
-        const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
- 
- 
  
         function runAtEnd(){
- 
- 
+  
             if(activeLink) lastShowTab=activeLink.getAttribute('userscript-tab-content')
  
             displayedPlaylist.clear();
@@ -2311,17 +2418,21 @@
         
             ytdFlexyElm.setAttribute('tabview-selection',activeLink?lastShowTab:'')
             
-            if(lastShowTab == '#tab-comments' && commentsScrollToTop){
-                commentsScrollToTop=false;
-                    requestAnimationFrame(()=>{
+            if(lastShowTab == '#tab-comments' && akAttrPV(ytdFlexyElm, 'tabview-youtube-comments').lastIndexOf('S')>=0){
+
+                akAttr(ytdFlexyElm, 'tabview-youtube-comments',false,'L');
+
+                requestAnimationFrame(()=>{
                     let comments_tab=document.querySelector('#tab-comments');
                     if(comments_tab && comments_tab.scrollTop>0) comments_tab.scrollTop=0;
                 });
+
             }
             
         }
  
-        displayedPlaylist.clear();
+        const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
+ 
  
         for (const link of links) {
             let content = document.querySelector(link.getAttribute('userscript-tab-content'));
@@ -2430,10 +2541,9 @@
     window.addEventListener("yt-navigate-finish", onNavigationEnd)
 
     const singleColumnScrolling = (function() {
-        var lastD = 0,
-            lastF = 0;
+        var lastD = 0;
 
-        return function() {
+        return function(lastF) {
             let pageY = pageYOffset;
             if (pageY < 10 && lastD === 0 && !lastF) return;
 
@@ -2503,14 +2613,14 @@
                 header = null;
                 navElm = null;
 
-            })
+            });
 
         }
     })();
 
     window.addEventListener("scroll", function() {
         if(!scriptEnable)return;
-        singleColumnScrolling()
+        singleColumnScrolling(false)
     }, {
         capture: false,
         passive: true
@@ -2522,9 +2632,8 @@
         lastResizeAt= +new Date;
 
         requestAnimationFrame(() => {
-            lastF = 1;
-            singleColumnScrolling()
-            lastF = 0;
+            if(!scriptEnable)return;
+            singleColumnScrolling(true)
         })
 
     }, {
@@ -2550,6 +2659,8 @@
         if(!scriptEnable)return;
         console.log('popstate')
         resetBeforeNav();
+
+
     }, {capture: true})
 
 
