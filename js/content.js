@@ -156,6 +156,7 @@
     const LAYOUT_CHATROOM=8;
     const LAYOUT_CHATROOM_COLLASPED=16;
     const LAYOUT_TAB_EXPANDED = 32;
+    const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 64;
 
     let timeout_resize_for_layout_change=new Timeout();
 
@@ -176,9 +177,10 @@
         const new_isTheater = new_layoutStatus & LAYOUT_THEATER;
         const new_isTabExpanded = new_layoutStatus & LAYOUT_TAB_EXPANDED;
         const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
+        const new_isExpandEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND;
 
 
-        if(new_isExpandedChat || new_isTabExpanded){
+        if(new_isExpandedChat || new_isTabExpanded || new_isExpandEPanel){
             if(statusCollasped !== 1) statusCollasped = 1;
         }else{
             if(statusCollasped === 1) statusCollasped = 2;
@@ -195,7 +197,12 @@
                     if (new_isTabExpanded) switchTabActivity(null)
                     if (!new_isExpandedChat) ytBtnExpandChat();
     
-                } else {
+                } else if(lastShowTab && lastShowTab.indexOf('#engagement-panel-')==0){
+
+                    if (new_isTabExpanded) switchTabActivity(null)
+                    if (!new_isExpandEPanel) ytBtnOpenEngagementPanel(lastShowTab);
+                    
+                }else {
     
                     if (new_isExpandedChat) ytBtnCollapseChat()
                     if (!new_isTabExpanded) setToActiveTab();
@@ -213,6 +220,7 @@
     
                 if (new_isTabExpanded) switchTabActivity(null)
                 if (new_isExpandedChat) ytBtnCollapseChat()
+                if (new_isExpandEPanel) ytBtnCloseEngagementPanels();
     
     
                 setTimeout(unlock, 40);
@@ -232,24 +240,40 @@
         let theater_mode_changed = !!(changes & LAYOUT_THEATER)
         let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
         let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
+        let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
     
  
 
-        let isChatExpandTriggering =  ((chat_collasped_changed && new_isExpandedChat));
 
-        let isChatOrTabExpandTriggering =  (isChatExpandTriggering || (tab_expanded_changed && new_isTabExpanded));
 
+        let tab_change = (tab_expanded_changed?1:0)|(chat_collasped_changed?2:0)|(epanel_expanded_changed?4:0);
+        
+        let isChatOrTabExpandTriggering = tab_change==0?false:(
+            (tab_expanded_changed && new_isTabExpanded) ||
+            (chat_collasped_changed && new_isExpandedChat) ||
+            (epanel_expanded_changed && new_isExpandEPanel)
+            );
+       
+        let isChatOrTabCollaspeTriggering = tab_change==0?false:(
+            (tab_expanded_changed && !new_isTabExpanded) ||
+            (chat_collasped_changed && new_isCollaspedChat) ||
+            (epanel_expanded_changed && !new_isExpandEPanel)
+            );
+           
+    
+
+        let moreThanOneShown = (new_isTabExpanded + new_isExpandedChat + new_isExpandEPanel)>1
 
         let requestVideoResize=false;
 
         if(fullscreen_mode_changed || new_isFullScreen){
 
-        }else if(column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && new_isExpandedChat && !chat_collasped_changed && !tab_expanded_changed){
+        }else if(tab_change==0 && column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && moreThanOneShown){
 
             showTabOrChat();
             requestVideoResize=true;
 
-        }else if (isChatExpandTriggering && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && !tab_expanded_changed && !column_mode_changed) {
+        }else if (tab_change==2 && new_isExpandedChat && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && !column_mode_changed) {
     
             switchTabActivity(null);
             requestVideoResize=true;
@@ -264,12 +288,12 @@
             hideTabAndChat();
             requestVideoResize=true;
     
-        } else if (chat_collasped_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 2 && new_isCollaspedChat && !tab_expanded_changed && !column_mode_changed ) {
+        } else if (isChatOrTabCollaspeTriggering && new_isTwoColumns && !new_isTheater && statusCollasped === 2 && !column_mode_changed ) {
     
             ytBtnSetTheater();
             requestVideoResize=true;
-    
-        } else if((column_mode_changed || theater_mode_changed) && new_isTwoColumns && !new_isTheater && statusCollasped !==1  && !chat_collasped_changed && !tab_expanded_changed){
+        
+        } else if(tab_change==0 && (column_mode_changed || theater_mode_changed) && new_isTwoColumns && !new_isTheater && statusCollasped !==1){
             
             showTabOrChat();
             requestVideoResize=true;
@@ -294,16 +318,12 @@
                 window.dispatchEvent(new Event('resize'))
              } , 92)
             
-        }else{
-                
-            if (timeout_resize_for_layout_change.isEmpty() && (+new Date) - lastResizeAt > 600){
-                timeout_resize_for_layout_change.set(() => {
-                    if((+new Date) - lastResizeAt > 600) window.dispatchEvent(new Event('resize'));
-                }, 62)
-            }
-
+        }else if (timeout_resize_for_layout_change.isEmpty() && (+new Date) - lastResizeAt > 600){
+            timeout_resize_for_layout_change.set(() => {
+                if((+new Date) - lastResizeAt > 600) window.dispatchEvent(new Event('resize'));
+            }, 62)
         }
-    
+
        
     
     
@@ -441,6 +461,68 @@
 
     function isAnyActiveTab(){
         return $('#right-tabs .tab-btn.active').length>0
+    }
+
+    function isEngagementPanelExpanded(){
+        const cssElm=ytdFlexy.deref();
+        return (cssElm && +cssElm.getAttribute('userscript-engagement-panel')>0)
+    }
+
+    function engagement_panels_(){
+
+        let res = [];
+
+        let v = 0, k =1, count=0;
+        for(const ePanel of document.querySelectorAll('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[tabview-attr-checked]')){
+
+            let visibility = ePanel.getAttribute('visibility') //ENGAGEMENT_PANEL_VISIBILITY_EXPANDED //ENGAGEMENT_PANEL_VISIBILITY_HIDDEN
+
+            switch(visibility){
+                case 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED': v|=k; count++; res.push({ePanel, k, visible: true}); break;
+                case 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN': res.push({ePanel, k, visible: false}); break;
+                default: res.push({ePanel, k, visible: false});
+            }
+
+            k=k<<1;
+
+        }
+        return {list:res, value: v, count: count};
+    }
+    
+
+    function ytBtnOpenEngagementPanel(panel_id){
+
+        if(typeof panel_id =='string') {
+            panel_id = panel_id.replace('#engagement-panel-','');
+            panel_id = parseInt(panel_id);
+        }
+        if(panel_id>=0){}else return false;
+
+        let panels = engagement_panels_();
+
+        for(const {ePanel, k, visible} of panels.list){
+            if((panel_id & k) === k) {
+                if(!visible) ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+            }else{
+                if(visible) ytBtnCloseEngagementPanel(ePanel);
+            }
+        }
+
+    }
+
+    function ytBtnCloseEngagementPanel(s){
+        //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
+        let btn = s.querySelector('ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header>#visibility-button>ytd-button-renderer');
+        if(btn){
+            btn.click();
+        }
+    }
+    function ytBtnCloseEngagementPanels(){
+        if(isEngagementPanelExpanded()){
+            for(const s of document.querySelectorAll('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[tabview-attr-checked]')){
+                if(s.getAttribute('visibility')=="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED") ytBtnCloseEngagementPanel(s);
+            }
+        }
     }
 
     function ytBtnSetTheater(){
@@ -1257,6 +1339,7 @@
                 Q.$callOnceAsync('mtf_initalAttr_comments'),
                 Q.$callOnceAsync('mtf_initalAttr_playlist'),
                 Q.$callOnceAsync('mtf_initalAttr_chatroom'),
+                Q.$callOnceAsync('mtf_initalAttr_engagement_panel'),
                 Q.$callOnceAsync('mtf_checkFlexy'),
                 Q.$callOnceAsync('mtf_forceCheckLiveVideo'),
 
@@ -1449,6 +1532,7 @@
             Q.mtf_initalAttr_comments = null;
             Q.mtf_initalAttr_playlist = null;
             Q.mtf_initalAttr_chatroom = null;
+            Q.mtf_initalAttr_engagement_panel = null;
             Q.mtf_forceCheckLiveVideo=null;
             Q.mtf_chatBlockQ = null;
         }
@@ -1464,7 +1548,6 @@
     let ytdFlexy=new WeakRefer();
     let timeout_attrComments=new Timeout();
     let timeout_disableComments=new Timeout();
-    let lastAction = {action:null, time:0};
     function resetAtNav() {
         //console.log(8003)
 
@@ -2169,7 +2252,6 @@
         },60);
     }
 
-    
 
     function checkChatStatus(){
         
@@ -2177,14 +2259,8 @@
         clearMutationObserver(mtoVs,'mtoVisibility_Chatroom')
 
         let mtf_attrChatroom=(mutations, observer)=>{
-            if(!scriptEnable)return;
-
-            if(+new Date - lastAction.time > 100){
-                lastAction.action='#chatroom';
-                lastAction.time=+new Date;
-            }else{
-                lastAction.time=+new Date;
-            }
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return ;
 
             layoutStatusMutex.lockWith(unlock=>{
 
@@ -2245,16 +2321,114 @@
 
 
 
+
+
+        clearMutationObserver(mtoVs,'mtoVisibility_EngagementPanel')
+        for(const engagement_panel of document.querySelectorAll('ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([tabview-attr-checked])')){
+
+            engagement_panel.removeAttribute('tabview-attr-checked');
+        }
+
+        let mtf_attrEngagementPanel=(mutations, observer)=>{
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return ;
+
+            //multiple instance
+            if(mutations){
+                let cPanels = null;
+                for(const mutation of mutations){
+                    let ePanel = mutation.target;
+                    if(ePanel.getAttribute('visibility')=='ENGAGEMENT_PANEL_VISIBILITY_EXPANDED'){
+                        cPanels = cPanels || engagement_panels_();
+                        for(const entry of cPanels.list){
+                            if(entry.ePanel!=ePanel && entry.visible) ytBtnCloseEngagementPanel(entry.ePanel);
+                        }
+                    }
+                }
+            }
+
+            layoutStatusMutex.lockWith(unlock=>{
+
+                const ePanel = document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer')
+                const cssElm = ytdFlexy.deref()
+
+                if(!ePanel || !cssElm){
+                    unlock();
+                    return;
+                }
+                let previousValue = +cssElm.getAttribute('userscript-engagement-panel') || 0;
+                
+                let {value, count} = engagement_panels_();
+                let nextValue = value;
+                let nextCount = count;
+
+                if( ( nextCount > 1) || (cssElm.hasAttribute('userscript-engagement-panel') && previousValue===nextValue) ) {
+                    unlock();
+                    return;
+                }
+
+                cssElm.setAttribute('userscript-engagement-panel',nextValue); 
+
+                let b = false;
+                if(previousValue!=nextValue && nextValue>0) {
+                    lastShowTab = `#engagement-panel-${nextValue}`; 
+                    b=true;
+                }
+
+                if(b && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()  ){
+                    switchTabActivity(null);
+                    setTimeout(unlock,40);
+                } else{
+                    unlock();
+                }
+
+            })
+
+
+
+
+        }
+
+        
+        Q.mtf_initalAttr_engagement_panel=()=>{
+            let ytdFlexyElm = ytdFlexy.deref();
+            if(!scriptEnable || !ytdFlexyElm) return true;
+
+            const rootElement = Q.mutationTarget || ytdFlexyElm;
+
+            let toCheck=false;
+            for(const engagement_panel of rootElement.querySelectorAll('ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([tabview-attr-checked])')){
+
+                engagement_panel.setAttribute('tabview-attr-checked','');
+                let mto = mtoVs.mtoVisibility_EngagementPanel;
+                if(!mto) mto=initMutationObserver(mtoVs,'mtoVisibility_EngagementPanel',mtf_attrEngagementPanel);
+                mto.observe(engagement_panel, {          
+                    attributes: true,
+                    attributeFilter: ['visibility'],
+                    attributeOldValue: true
+                })
+                toCheck=true;
+            }
+
+            if(toCheck) mtf_attrEngagementPanel()
+            
+            return true;
+        }
+        if(Q.mutationTarget===null)
+        Q.$callOnceAsync('mtf_initalAttr_engagement_panel')
+
+
+
         clearMutationObserver(mtoVs,'mtoFlexyAttr')
 
 
         function toogleAttribute(mFlag, b, flag){
 
 
-                            if(b) mFlag = mFlag | flag; 
-                            else mFlag = mFlag & ~flag;
+            if(b) mFlag = mFlag | flag; 
+            else mFlag = mFlag & ~flag;
 
-                            return mFlag;
+            return mFlag;
 
 
         }
@@ -2262,7 +2436,7 @@
 
         function toLayoutStatus(nls, attributeName){
 
-            let attrElm, b; 
+            let attrElm, b, v; 
             switch (attributeName){
                 case 'theater': 
                 nls = toogleAttribute(nls, isTheater(), LAYOUT_THEATER);
@@ -2289,6 +2463,12 @@
                 case 'fullscreen': 
                 b = isNonEmptyString( getAttribute(ytdFlexy.deref(),'fullscreen') );
                 nls = toogleAttribute(nls, b, LAYOUT_FULLSCREEN);
+                break;
+
+                case 'userscript-engagement-panel': 
+                v = getAttribute(ytdFlexy.deref(),'userscript-engagement-panel');
+                b = (+v>0)
+                nls = toogleAttribute(nls,  b, LAYOUT_ENGAGEMENT_PANEL_EXPAND);
                 break;
 
             }
@@ -2363,12 +2543,13 @@
             ls=toLayoutStatus(ls,'is-two-columns_')
             ls=toLayoutStatus(ls,'tabview-selection')
             ls=toLayoutStatus(ls,'fullscreen')
+            ls=toLayoutStatus(ls,'userscript-engagement-panel')
 
             $ws.layoutStatus=ls
 
             initMutationObserver(mtoVs,'mtoFlexyAttr',mtf_attrFlexy).observe(flexy, {          
                 attributes: true,
-                attributeFilter: ['userscript-chat-collapsed','userscript-chatblock','theater','is-two-columns_','tabview-selection','fullscreen'],
+                attributeFilter: ['userscript-chat-collapsed','userscript-chatblock','theater','is-two-columns_','tabview-selection','fullscreen','userscript-engagement-panel'],
                 attributeOldValue: true
             })
 
@@ -2484,12 +2665,6 @@
 
                 if (!this.hasAttribute('userscript-tab-content')) return;
 
-                if(+new Date - lastAction.time > 100){
-                    lastAction.action=this.getAttribute('userscript-tab-content');
-                    lastAction.time=+new Date;
-                }else{
-                    lastAction.time=+new Date;
-                }
 
                 evt.preventDefault();
 
@@ -2501,6 +2676,7 @@
                         switchTabActivity_lastTab = this.getAttribute('userscript-tab-content');
     
                         if( isWideScreenWithTwoColumns() && !isTheater() && $(this).is(".tab-btn.active:not(.tab-btn-hidden)")){
+                            //optional
                             setTimeout(unlock,80);
                             switchTabActivity(null);
                             ytBtnSetTheater();
@@ -2511,6 +2687,9 @@
                             let pInterval = 20;
                             if(isChatExpand() && isWideScreenWithTwoColumns()) {
                                 ytBtnCollapseChat();
+                                pInterval+=40;
+                            }else if(isEngagementPanelExpanded() && isWideScreenWithTwoColumns()){
+                                ytBtnCloseEngagementPanels();
                                 pInterval+=40;
                             }else if(isWideScreenWithTwoColumns() && isTheater() && !isFullScreen() ){
                                 ytBtnCancelTheater();
@@ -2796,7 +2975,7 @@
 
                 //wait for DOM change, just in case
                 requestAnimationFrame(()=>{
-                    let {offsetTop}=res.m2  // as visiblity of m2 & m3 switched.
+                    let {offsetTop}=res.m2  // as visibility of m2 & m3 switched.
 
                     if(offsetTop-lastOffsetTop<40) return; // in case bug, or repeating calling.  // the next button shall below the this button 
                     lastOffsetTop= offsetTop
