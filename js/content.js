@@ -848,7 +848,7 @@
                             
                             if( isNotEmpty ){
 
-                                let elmVisible=isDOMVisible($(autocomplete))
+                                let elmVisible=isDOMVisible(autocomplete)
 
                                 if(!elmVisible) $(autocomplete).show();
 
