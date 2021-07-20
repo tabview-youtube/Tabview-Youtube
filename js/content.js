@@ -142,6 +142,11 @@
     
     }
 
+    function isDOMVisible( elem ){
+        // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
+        return !!( elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length );
+    }
+
     function isNonEmptyString(s){
         return typeof s=='string'&&s.length>0;
     }
@@ -819,7 +824,7 @@
                             
                             if( isNotEmpty ){
 
-                                let elmVisible=$(autocomplete).is(':visible')
+                                let elmVisible=isDOMVisible(autocomplete)
 
                                 if(elmVisible) $(autocomplete).hide(); else  $(autocomplete).show();
 
@@ -843,7 +848,7 @@
                             
                             if( isNotEmpty ){
 
-                                let elmVisible=$(autocomplete).is(':visible')
+                                let elmVisible=isDOMVisible($(autocomplete))
 
                                 if(!elmVisible) $(autocomplete).show();
 
