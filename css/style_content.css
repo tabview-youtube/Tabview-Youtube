@@ -1,4 +1,8 @@
-
+@font-face {
+    font-family: 'Noto Emoji';
+    src: url(https://gitcdn.xyz/repo/googlefonts/noto-emoji/master/fonts/NotoEmoji-Regular.ttf);
+    font-display: swap;
+}
 
 /* reference dimension */
 /*
@@ -130,36 +134,36 @@ html:not(.style-scope) {
     /* Animations */
     
     
-    /* Demo: https://jsfiddle.net/9ehxr23g/ */
+    /* Demo: https://jsfiddle.net/9te0g6b5/ */
     
     @keyframes animatedLoading {
         0% {
-            content: "⚫⚪⚪⚪⚪";
+            content: "●○○○○";
         }
         25% {
-            content: "⚪⚫⚪⚪⚪";
+            content: "○●○○○";
         }
         50% {
-            content: "⚪⚪⚫⚪⚪";
+            content: "○○●○○";
         }
         75%{
-            content: "⚪⚪⚪⚫⚪";
+            content: "○○○●○";
         }
         100%{
-            content: "⚪⚪⚪⚪⚫";
+            content: "○○○○●";
         }
     }
-    
+
     @keyframes animatedFetching {
         0% {
-            content: "⚪⚪⚪⚪⚪";
+            content: "○○○○○";
         }
         100% {
-            content: "⚫⚫⚫⚫⚫";
+            content: "●●●●●";
         }
     }
       
-    /* Demo: https://jsfiddle.net/9ehxr23g/ */
+    /* Demo: https://jsfiddle.net/9te0g6b5/ */
     
     
     
@@ -580,19 +584,22 @@ html:not(.style-scope) {
     }
 
     ytd-watch-flexy{
-        --userscript-loading-content-font-family: 'Verdana', 'Trebuchet MS', 'Tahoma', sans-serif;
+        --userscript-loading-content-font-family: 'Noto Emoji';
+        --userscript-loading-content-letter-spacing: 2px;
     }
     
     ytd-watch-flexy[tabview-youtube-comments^="-"] #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
         animation: animatedLoading 300ms linear infinite alternate;
         content: " ";
         font-family: var(--userscript-loading-content-font-family);
+        letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
     ytd-watch-flexy:not([tabview-youtube-comments^="-"]) #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
         animation: animatedFetching 80ms linear infinite alternate;
         content: " ";
         font-family: var(--userscript-loading-content-font-family);
+        letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
     
@@ -1723,6 +1730,7 @@ html:not(.style-scope) {
         line-height: var(--userscript-chatroom-height);
         animation: animatedLoading 300ms linear infinite alternate;
         font-family: var(--userscript-loading-content-font-family);
+        letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
     
