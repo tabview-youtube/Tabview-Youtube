@@ -1851,7 +1851,7 @@ html:not(.style-scope) {
     
     ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search{
         position: sticky; 
-        top: calc( -1 * var(--tab-content-padding, 0px)) ;
+        top: -1px;  /* visual gap */
         z-index: 2;
     }
     
@@ -1863,7 +1863,9 @@ html:not(.style-scope) {
     
     
     
-    
+    ytd-watch-flexy[is-two-columns_] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer.ytd-watch-flexy {
+        margin-bottom: var(--ytd-margin-2x);
+    }
     
     
     
