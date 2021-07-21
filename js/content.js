@@ -1568,7 +1568,7 @@
             if(Q.mutationTarget===null) Q.mutationTarget=dTarget;
             else if(Q.mutationTarget!=dTarget) Q.mutationTarget = ytdFlexy.deref();
 
-            console.log(prettyElm(dTarget), wAddP , wRemoveP, mtoInterval)
+            //console.log(prettyElm(dTarget), wAddP , wRemoveP, mtoInterval)
             //console.log(prettyElm(dTarget), reg.map(m=>prettyElm(m.target)))
             //console.log(7015, performance.now())
 
