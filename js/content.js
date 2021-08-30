@@ -1712,6 +1712,11 @@
                 Q.fetchedOnce = false
                 FOnce.mtf_fetchCommentsAvailable = FP.mtf_fetchCommentsAvailable;
                 if(Q.mutationTarget===null) $callOnceAsync('mtf_fetchCommentsAvailable');
+                        
+                window.requestAnimationFrame(()=>{
+                    let innerCommentsLoaderRet = innerCommentsLoader();
+                    if(innerCommentsLoaderRet) innerCommentsLoaderRet.f();    
+                })
                 
             }else if( isCommentHidden ){
 
@@ -2050,7 +2055,19 @@
     let timeout_attrComments=new Timeout();
     let timeout_disableComments=new Timeout();
 
-    function resetBeforeNav() {
+    function pluginHook(){
+
+        scriptEnable =true;
+        scriptEC++;
+
+        no_fix_contents_until = 0;
+        no_fix_playlist_until = 0;
+
+        ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
+
+        }
+
+    function pluginUnhook() {
 
         //console.log(8001)
         timeout_attrComments.clear();
@@ -2104,18 +2121,11 @@
         if(flag_videoChange != 3) return;
         flag_videoChange = 0;
 
-        resetBeforeNav();
+        pluginUnhook();
         if(!document.querySelector('script#userscript-tabview-injection-1')) {
             addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
         }
 
-        scriptEnable =true;
-        scriptEC++;
-
-        no_fix_contents_until = 0;
-        no_fix_playlist_until = 0;
-
-        ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
         var prevComemnts = document.querySelector('ytd-comments#comments'); 
 
@@ -2133,13 +2143,14 @@
             if (prevCommentsMsg) prevCommentsMsg.parentNode.removeChild(prevCommentsMsg);
             
             
-            $('span#tab3-txt-loader').text('');
-            setCommentSection(0)
 
         }
 
+        pluginHook();
     
         _onNavigationEnd();
+
+        return true;
 
     }
 
@@ -2240,7 +2251,14 @@
         
         if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
 
-        initializeForVideoChange(1);
+        $('span#tab3-txt-loader').text('');
+        setCommentSection(0)
+
+        let ret = initializeForVideoChange(1);
+        if(!ret){
+            pluginHook();
+            _onNavigationEnd();
+        }
 
         window.requestAnimationFrame(()=>{
             let innerCommentsLoaderRet = innerCommentsLoader();
@@ -2945,7 +2963,7 @@
     window.addEventListener('beforeunload', function() {
         if(!scriptEnable)return;
         console.log('beforeunload')
-        resetBeforeNav();
+        pluginUnhook();
         //let video=document.querySelector('video');
         //if(video && !video.paused) video.pause(); 
     }, {capture: true})
@@ -2953,13 +2971,13 @@
     window.addEventListener('hashchange', function() { 
         if(!scriptEnable)return;
         console.log('hashchange')
-        resetBeforeNav();
+        pluginUnhook();
     }, {capture: true})
     
     window.addEventListener('popstate', function() { 
         if(!scriptEnable)return;
         console.log('popstate')
-        resetBeforeNav();
+        pluginUnhook();
     }, {capture: true})
 
 
