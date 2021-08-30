@@ -74,6 +74,8 @@
     const mtoInterval1=40;
     const mtoInterval2=150;
 
+    let lastVideoURL = null;
+
 
     class ScriptEF {
         constructor() {
@@ -1139,8 +1141,8 @@
         
         if(mutation_target_id_list.includes(dTarget.id)) return true;
 
-        className = dTarget.className.toLowerCase();
-        classNameSplit = className.split(' ');
+        let className = dTarget.className.toLowerCase();
+        let classNameSplit = className.split(' ');
         for (const c of classNameSplit) {
             if(mutation_target_class_list.includes(c)) return true;
         }
@@ -1235,8 +1237,6 @@
             case 'div':
 
                 if (target.id == 'contents') {
-                    skipMode = 'contents';
-                    skipModeExpiredAt = Date.now() + 300;
                     return false;
                 }
                 if(mutation_div_id_ignorelist.includes(target.id)) return true;
@@ -1411,6 +1411,69 @@
         if(!comments || (comments.childElementCount === 0 && comments.hasAttribute('hidden'))) return 2;
         if(comments.hasAttribute('hidden')) return 1;
         return 0;
+
+    }
+
+    
+    function innerCommentsLoader(){
+
+
+        const rootElement = Q.mutationTarget || ytdFlexy.deref();
+        if(!rootElement)return;
+
+        let messageElm, messageStr, commentRenderer;
+        
+        if (commentRenderer = rootElement.querySelector("ytd-comments#comments #count.ytd-comments-header-renderer")) {
+            
+            return {
+                status: 1,
+                f: ()=>{
+
+                    let span = document.querySelector("span#tab3-txt-loader")
+                    Q.fetchedOnce=true;
+                    let r = '0';
+                    let txt = commentRenderer.textContent
+                    if (typeof txt == 'string') {
+                        let m = txt.match(/[\d\,\s]+/)
+                        if (m) {
+                            r = m[0].trim()
+                            
+                            
+                        }
+                    }
+                    if(span) span.textContent = r;
+                    mtoInterval=mtoInterval2;
+                    setCommentSection(1);
+                    comments_section_loaded_elm.set(document.querySelector('ytd-comments#comments div#contents'))
+                }
+            }
+            
+        }else if((messageElm = rootElement.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
+            // it is possible to get the message before the header generation.
+            return {
+                status:2,
+                f:()=>{
+                    setTimeout(function(){
+                        if(Q.fetchedOnce)return;
+                        let span = document.querySelector("span#tab3-txt-loader")
+                        const mainMsg= messageElm.querySelector('#message, #submessage')
+                        if(mainMsg && mainMsg.textContent){
+                            for(const msg of mainMsg.querySelectorAll('*:not(:empty)')){
+                                if(msg.childElementCount===0 && msg.textContent) {
+                                    messageStr=msg.textContent.trim()
+                                    break
+                                }
+                            } 
+                        }
+                        if(span) span.textContent = messageStr;
+                        mtoInterval=mtoInterval2;
+                        setCommentSection(1);
+                        comments_section_loaded_elm.set(document.querySelector('ytd-comments#comments div#contents'))
+                    },40);
+                }
+            }
+
+        }
 
     }
 
@@ -1921,54 +1984,12 @@
             let ytdFlexyElm = ytdFlexy.deref();
             if(!scriptEnable || !ytdFlexyElm) return true;
 
-            const rootElement = Q.mutationTarget || ytdFlexyElm;
+            let innerCommentsLoaderRet = innerCommentsLoader();
+            if(!innerCommentsLoaderRet) return true;
 
-            let messageElm, messageStr, commentRenderer;
-            if (commentRenderer = rootElement.querySelector("ytd-comments#comments #count.ytd-comments-header-renderer")) {
-                let span = document.querySelector("span#tab3-txt-loader")
-                Q.fetchedOnce=true;
-                let r = '0';
-                let txt = commentRenderer.textContent
-                if (typeof txt == 'string') {
-                    let m = txt.match(/[\d\,\s]+/)
-                    if (m) {
-                        r = m[0].trim()
-                        
-                        
-                    }
-                }
-                if(span) span.textContent = r;
-                mtoInterval=mtoInterval2;
-                Q.comments_section_loaded =1;
-                comments_section_loaded_elm.set(document.querySelector('ytd-comments#comments div#contents'))
-                fetchCommentsFinished();
-                return false;
-            }else if((messageElm = rootElement.querySelector('ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer'))&&(messageStr=(messageElm.textContent||'').trim())){ //ytd-message-renderer
-                // it is possible to get the message before the header generation.
-                setTimeout(function(){
-                    let span = document.querySelector("span#tab3-txt-loader")
-                    if(Q.fetchedOnce)return;
-                    const mainMsg= messageElm.querySelector('#message, #submessage')
-                    if(mainMsg && mainMsg.textContent){
-                        for(const msg of mainMsg.querySelectorAll('*:not(:empty)')){
-                            if(msg.childElementCount===0 && msg.textContent) {
-                                messageStr=msg.textContent.trim()
-                                break
-                            }
-                        } 
-                    }
-                    if(span) span.textContent = messageStr;
-                    mtoInterval=mtoInterval2;
-                    Q.comments_section_loaded =1;
-                    comments_section_loaded_elm.set(document.querySelector('ytd-comments#comments div#contents'))
-                },40);
-                fetchCommentsFinished();
-                return false;
-            }else{
-                
-                 return true;
-
-            }
+            innerCommentsLoaderRet.f();
+            fetchCommentsFinished();
+            return false;
         
         }
 
@@ -2072,8 +2093,21 @@
     
     const comments_section_loaded_elm = new WeakRefer();
 
-    function resetAtNav() {
-        //console.log(8003)
+    let flag_videoChange = 0;
+
+    function initializeForVideoChange(flag){
+
+        if(flag_videoChange&flag) return;
+        flag_videoChange |= flag;
+        //console.log('tabview-initializeForVideoChange', flag);
+        
+        if(flag_videoChange != 3) return;
+        flag_videoChange = 0;
+
+        resetBeforeNav();
+        if(!document.querySelector('script#userscript-tabview-injection-1')) {
+            addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
+        }
 
         scriptEnable =true;
         scriptEC++;
@@ -2083,14 +2117,10 @@
 
         ytdFlexy.set(document.querySelector('ytd-watch-flexy'))
 
-        
-
-        //$(ytdFlexy.deref()).removeAttr("userscript-chatblock").removeAttr("userscript-chat-collapsed");
-        $('span#tab3-txt-loader').text('');
-        
         var prevComemnts = document.querySelector('ytd-comments#comments'); 
-        if (prevComemnts) {
 
+        if(prevComemnts && prevComemnts.matches('[hidden]')){
+                
             // assumption: loading comments after executation of this function which removes the attribute [hidden] of #ytd-comments#comments
 
             var prevCommentsHeader = prevComemnts.querySelector('ytd-comments#comments ytd-comments-header-renderer');
@@ -2101,19 +2131,15 @@
 
             //removed any cache of #comments message (i.e. 留言功能已停用。)
             if (prevCommentsMsg) prevCommentsMsg.parentNode.removeChild(prevCommentsMsg);
-
-            //force to [hidden]
-            wAttr(prevComemnts, 'hidden', true); // no mutation observer at this time.
-            requestingComments = prevComemnts;
-            scrollForComments();
+            
+            
+            $('span#tab3-txt-loader').text('');
+            setCommentSection(0)
 
         }
 
-        
-        Q.comments_section_loaded =0;
-        comments_section_loaded_elm.clear();
-        
-        
+    
+        _onNavigationEnd();
 
     }
 
@@ -2179,16 +2205,7 @@
 
     }
 
-    function onNavigationEnd(evt) {
-        
-        resetBeforeNav();
-        if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
-
-        if(!document.querySelector('script#userscript-tabview-injection-1')) {
-            addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
-        }
-
-        resetAtNav();
+    function _onNavigationEnd() {
 
         let timeoutR_findRelated=new Timeout();
         timeoutR_findRelated.set(function(){
@@ -2216,6 +2233,19 @@
                 });
             }
         },90)
+
+    }
+
+    function onNavigationEnd(evt) {
+        
+        if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
+
+        initializeForVideoChange(1);
+
+        window.requestAnimationFrame(()=>{
+            let innerCommentsLoaderRet = innerCommentsLoader();
+            if(innerCommentsLoaderRet) innerCommentsLoaderRet.f();    
+        })
 
     }
 
@@ -2312,6 +2342,33 @@
         akAttr(ytdFlexyElm,'tabview-youtube-comments',false, 'LS')
     }
 
+    function setCommentSection(value){
+        Q.comments_section_loaded =value;
+
+        if(value===0){
+
+
+            comments_section_loaded_elm.clear();
+
+
+        }else{
+
+
+            let ytdComments = document.querySelector('ytd-comments#comments')
+            if(!ytdComments) return;
+            let ytdCommentsAttr = document.querySelector('tabview-ytd-cm-attr', ytdComments);
+            if(!ytdCommentsAttr){
+                let videoElm = document.querySelector('#player video, #movie_player video');
+                if(!videoElm) return;
+                ytdCommentsAttr=document.createElement('tabview-ytd-cm-attr');
+                ytdCommentsAttr.setAttribute('data-video', videoElm.src || 'null');
+                ytdComments.prepend(ytdCommentsAttr);
+            }
+            ytdCommentsAttr.setAttribute('data-value', value);
+
+        }
+
+    }
 
     function _disableComments(){
 
@@ -2320,7 +2377,8 @@
         if(!cssElm)return;
 
         mtoInterval=mtoInterval2;
-        Q.comments_section_loaded =2;
+        setCommentSection(2);
+        
         comments_section_loaded_elm.set(document.querySelector('ytd-comments#comments div#contents')||null)
         
         let tabBtn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]');
@@ -2769,6 +2827,21 @@
 
     // ---------------------------------------------------------------------------------------------
     window.addEventListener("yt-navigate-finish", onNavigationEnd)
+    
+    document.addEventListener("loadstart",(evt)=>{
+        if(!evt || !evt.target || evt.target.nodeName!=="VIDEO")return;
+        let elm = evt.target;
+        if(!elm.matches('#player video, #movie_player video'))return;
+        
+        let src = elm.src;
+        if(src!==lastVideoURL){
+            lastVideoURL = elm.src;
+            initializeForVideoChange(2);
+        }
+
+    }, true)
+
+    // ---------------------------------------------------------------------------------------------
 
     var scrolling_lastD = 0;
 
@@ -2786,7 +2859,7 @@
             if (!header) return;
             navElm = document.querySelector('#masthead-container, #masthead')
             if (!navElm) return;
-            navHeight = navElm ? navElm.offsetHeight : 0
+            let navHeight = navElm ? navElm.offsetHeight : 0
 
             let elmY = targetElm.offsetTop
 
