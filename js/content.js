@@ -2130,12 +2130,16 @@
 
     function initializeForVideoChange(flag){
 
+        
         if(flag_videoChange&flag) return;
         flag_videoChange |= flag;
-        //console.log('tabview-initializeForVideoChange', flag);
         
+
         if(flag_videoChange != 3) return;
         flag_videoChange = 0;
+
+
+
 
         pluginUnhook();
         if(!document.querySelector('script#userscript-tabview-injection-1')) {
@@ -2161,9 +2165,6 @@
 
         }
 
-        
-        $('span#tab3-txt-loader').text('');
-        setCommentSection(0)
 
         window.requestAnimationFrame(()=>{
 
@@ -2173,8 +2174,18 @@
     
             _onNavigationEnd();
 
+            setTimeout(()=>{
+
+                //ensure comment tab text is updated - no matter there is change of video or not
+                let innerCommentsLoaderRet = innerCommentsLoader();
+                if(innerCommentsLoaderRet) innerCommentsLoaderRet.f();    
+    
+            },40);
+            
+
         })
 
+        
         return true;
 
     }
@@ -2276,6 +2287,9 @@
         
         pluginUnhook(); // in case not triggered by popstate - say mini playing
 
+        $('span#tab3-txt-loader').text('');
+        setCommentSection(0)
+
         if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
 
 
@@ -2285,12 +2299,6 @@
             pluginHook(); 
             _onNavigationEnd();
         }
-
-        window.requestAnimationFrame(()=>{
-            //ensure comment tab text is updated - no matter there is change of video or not
-            let innerCommentsLoaderRet = innerCommentsLoader();
-            if(innerCommentsLoaderRet) innerCommentsLoaderRet.f();    
-        })
 
     }
 
@@ -2857,12 +2865,16 @@
     document.addEventListener("loadstart",(evt)=>{
         if(!evt || !evt.target || evt.target.nodeName!=="VIDEO")return;
         let elm = evt.target;
-        if(!elm.matches('#player video, #movie_player video'))return;
+        if(!elm.matches('#player video, #movie_player video, video[tabview-mainvideo]'))return;
         
         let src = elm.src;
         if(src!==lastVideoURL){
             lastVideoURL = elm.src;
+
+            elm.setAttribute('tabview-mainvideo', ''); // mainly for mini playing
+
             initializeForVideoChange(2);
+
         }
 
     }, true)
