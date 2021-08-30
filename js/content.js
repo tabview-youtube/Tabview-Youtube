@@ -2126,7 +2126,6 @@
             addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
         }
 
-
         var prevComemnts = document.querySelector('ytd-comments#comments'); 
 
         if(prevComemnts && prevComemnts.matches('[hidden]')){
@@ -2146,9 +2145,19 @@
 
         }
 
-        pluginHook();
+        
+        $('span#tab3-txt-loader').text('');
+        setCommentSection(0)
+
+        window.requestAnimationFrame(()=>{
+
+            // requestAnimationFrame is required to let youtube coding running first !
+            
+            pluginHook();
     
-        _onNavigationEnd();
+            _onNavigationEnd();
+
+        })
 
         return true;
 
@@ -2249,18 +2258,20 @@
 
     function onNavigationEnd(evt) {
         
+        pluginUnhook(); // in case not triggered by popstate - say mini playing
+
         if(!/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href))return;
 
-        $('span#tab3-txt-loader').text('');
-        setCommentSection(0)
 
-        let ret = initializeForVideoChange(1);
+        let ret = initializeForVideoChange(1); // true if video changed
         if(!ret){
-            pluginHook();
+             // restore the features - eg expanded from mini playing
+            pluginHook(); 
             _onNavigationEnd();
         }
 
         window.requestAnimationFrame(()=>{
+            //ensure comment tab text is updated - no matter there is change of video or not
             let innerCommentsLoaderRet = innerCommentsLoader();
             if(innerCommentsLoaderRet) innerCommentsLoaderRet.f();    
         })
@@ -2364,26 +2375,7 @@
         Q.comments_section_loaded =value;
 
         if(value===0){
-
-
             comments_section_loaded_elm.clear();
-
-
-        }else{
-
-
-            let ytdComments = document.querySelector('ytd-comments#comments')
-            if(!ytdComments) return;
-            let ytdCommentsAttr = document.querySelector('tabview-ytd-cm-attr', ytdComments);
-            if(!ytdCommentsAttr){
-                let videoElm = document.querySelector('#player video, #movie_player video');
-                if(!videoElm) return;
-                ytdCommentsAttr=document.createElement('tabview-ytd-cm-attr');
-                ytdCommentsAttr.setAttribute('data-video', videoElm.src || 'null');
-                ytdComments.prepend(ytdCommentsAttr);
-            }
-            ytdCommentsAttr.setAttribute('data-value', value);
-
         }
 
     }
