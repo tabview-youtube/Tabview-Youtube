@@ -1,8 +1,4 @@
-@font-face {
-    font-family: 'Noto Emoji';
-    src: url(https://gitcdn.xyz/repo/googlefonts/noto-emoji/master/fonts/NotoEmoji-Regular.ttf);
-    font-display: swap;
-}
+
 
 /* reference dimension */
 /*
@@ -584,21 +580,16 @@ html:not(.style-scope) {
     }
 
     ytd-watch-flexy{
-        --userscript-loading-content-font-family: 'Noto Emoji';
         --userscript-loading-content-letter-spacing: 2px;
     }
     
     ytd-watch-flexy[tabview-youtube-comments^="-"] #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
-        animation: animatedLoading 300ms linear infinite alternate;
-        content: " ";
-        font-family: var(--userscript-loading-content-font-family);
+        content: "Loading";
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
     ytd-watch-flexy:not([tabview-youtube-comments^="-"]) #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
-        animation: animatedFetching 80ms linear infinite alternate;
-        content: " ";
-        font-family: var(--userscript-loading-content-font-family);
+        content: "Fetching";
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
@@ -1718,7 +1709,7 @@ html:not(.style-scope) {
     
     ytd-live-chat-frame#chat:not([collapsed]):not([yt-userscript-iframe-loaded])::before{
         position: absolute;
-        content: " ";
+        content: "Loading";
         z-index: 0;
         display: block;
         height: 100%;
@@ -1728,8 +1719,6 @@ html:not(.style-scope) {
         text-align: center;
         /* line-height: 300px; */
         line-height: var(--userscript-chatroom-height);
-        animation: animatedLoading 300ms linear infinite alternate;
-        font-family: var(--userscript-loading-content-font-family);
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
