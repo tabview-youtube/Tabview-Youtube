@@ -383,17 +383,33 @@
             showTabOrChat();
             requestVideoResize=true;
     
+        } else if(!new_isFullScreen && new_isTwoColumns && !new_isTheater && (new_isCollaspedChat || !new_isExpandedChat) && !new_isTabExpanded){
+            // bug fix for restoring from mini player
+
+            layoutStatusMutex.lockWith(unlock => {
+
+                if (new_isExpandedChat) ytBtnCollapseChat()
+                setToActiveTab();
+
+                setTimeout(unlock, 40);
+
+            })
+ 
+            requestVideoResize=true;
+
         } else if(tab_expanded_changed){
 
             requestVideoResize=true;
 
         }
 
+
         if(column_mode_changed && !chat_collasped_changed && new_isExpandedChat){
 
             runAfterExpandChat();
 
         }
+
 
 
         if(requestVideoResize){
