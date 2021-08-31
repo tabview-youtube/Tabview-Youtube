@@ -101,69 +101,7 @@ html:not(.style-scope) {
     }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /* Animations */
-    
-    
-    /* Demo: https://jsfiddle.net/9te0g6b5/ */
-    
-    @keyframes animatedLoading {
-        0% {
-            content: "●○○○○";
-        }
-        25% {
-            content: "○●○○○";
-        }
-        50% {
-            content: "○○●○○";
-        }
-        75%{
-            content: "○○○●○";
-        }
-        100%{
-            content: "○○○○●";
-        }
-    }
-
-    @keyframes animatedFetching {
-        0% {
-            content: "○○○○○";
-        }
-        100% {
-            content: "●●●●●";
-        }
-    }
       
-    /* Demo: https://jsfiddle.net/9te0g6b5/ */
-    
-    
-    
-    
     
     
     
@@ -1088,6 +1026,22 @@ html:not(.style-scope) {
         padding: 0 !important;
         margin: 0 !important;
     }
+
+
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld #ytd-userscript-playlist{
+        height:100%;
+    }
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height]{
+        height:100%;
+    }
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] #container.ytd-playlist-panel-renderer{
+        max-height: none;
+    }
+
+
+
+
+
     
     ytd-watch-flexy:not([theater]):not([is-two-columns_]) #secondary.ytd-watch-flexy,
     ytd-watch-flexy[theater]:not([is-two-columns_]) #secondary.ytd-watch-flexy{
