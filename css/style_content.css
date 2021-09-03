@@ -2117,4 +2117,9 @@ html:not(.style-scope) {
     ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items{
         content-visibility: auto;
     }
+
+
+    ytd-comment-renderer #content.style-scope.ytd-expander{
+        height: auto; /* fix bug for comment section - version 1.8.6 */
+    }
     
