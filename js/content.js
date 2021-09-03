@@ -3158,6 +3158,18 @@
     },{passive:true})
 
 
+    /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
+    document.addEventListener('scroll',function(){
+        let css = `ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander:not([tabview-webkitbox-linefix])`;
+        setTimeout(function(){  // less priority 
+            requestAnimationFrame(function(){  // only active tab
+                for(const elm of document.querySelectorAll(css)){
+                    elm.setAttribute('tabview-webkitbox-linefix','')  // force render to eliminate the browser bug
+                }
+            });
+        },40);
+    },true);
+    /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
 
 
 
