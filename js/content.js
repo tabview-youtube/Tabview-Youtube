@@ -3194,6 +3194,7 @@
         // 1st fix: set the -webkit-box to change attribute when it is visually available; 
         // 2nd fix: change attribute again after 100ms 
 
+        /*
         function delayedFix(){
             // 2nd fix : auto to N/A
 
@@ -3217,9 +3218,13 @@
             },100) // requestAnimationFrame is too fast for 2nd fix
 
         }
+        */
         
+
         function linefix(){
             //1st fix : N/A to auto
+
+            //if(h<40) return false;
 
             Promise.resolve().then(()=>{
                 let ytdComments = kRef(wrComments);
@@ -3230,8 +3235,13 @@
                 let nodeList = document.querySelectorAll(css, ytdComments); // proceed for any element required for fixing
                 if(!nodeList.length) return false;
 
-                let h = ytdComments.offsetHeight; // expensive but neccessary - re-rendering for visible element only
-                if(h<40) return false;
+                
+                //let h = ytdComments.offsetHeight; // expensive but neccessary - re-rendering for visible element only
+                //console.log('hhh', h)
+                
+                //if(h<40) return false;
+                
+                
                 // not required for caching dim
 
                 return nodeList;
@@ -3241,7 +3251,12 @@
 
                 if(!enabled)return false;
 
+                //console.log('comments fix')
+
                 enabled = false;
+
+                // set attribute -> re-render -> height change
+                // enabled = false to skip the calling
 
                 let promises = [...nodeList].map(elm=>new Promise(resolve=>{
                     elm.setAttribute('tabview-webkitbox-linefix','')  // change from null to ''
@@ -3256,13 +3271,19 @@
                 if(!results) return false;
                 results.length=0;
                 enabled = true;
-                delayedFix(); // apply 2nd fix after 100ms
+                //delayedFix(); // apply 2nd fix after 100ms
             })
 
         }
 
-        const resizeObserver = new ResizeObserver(()=>{
+        if(!window.ResizeObserver) return; // this stupid coding only target for modern webkit browsers - edge, chrome, safari, etc.
+
+        const resizeObserver = new ResizeObserver(entries=>{
             if(!enabled)return;
+            if(!entries || entries.length!=1) return; //only ytdComments is observed
+            let h = entries[0].borderBoxSize; //inexpensive
+            //let w = entries[0].contentBoxSize;
+            if(h<40) return false;
             let t=tracer('fix_comments_when_added');
             requestAnimationFrame(()=>{  // only active tab
                 if(!tracer('fix_comments_when_added',t)) return; // lessen calls
