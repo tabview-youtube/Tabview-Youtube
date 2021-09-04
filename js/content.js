@@ -1701,6 +1701,7 @@
             var comments=document.querySelector('ytd-comments#comments')
             const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
             if(!comments || !tabBtn)return;
+            loadLineFix(comments)
             let isCommentHidden = comments.hasAttribute('hidden')
             //console.log('attr comments changed')
 
@@ -3158,17 +3159,122 @@
     },{passive:true})
 
 
+
+    
     /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
-    document.addEventListener('scroll',function(){
-        let css = `ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander:not([tabview-webkitbox-linefix])`;
-        setTimeout(function(){  // less priority 
-            requestAnimationFrame(function(){  // only active tab
-                for(const elm of document.querySelectorAll(css)){
-                    elm.setAttribute('tabview-webkitbox-linefix','')  // force render to eliminate the browser bug
+
+    /*
+     fix bug for comment section - version 1.8.7 
+    This issue is the bug in browser's rendering
+     I guess, this is due to the lines clamp with display:-webkit-box 
+     use stupid coding to let it re-render when its content become visible
+     
+    /*
+
+    ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander {
+        color: var(--yt-spec-text-primary);
+        display: -webkit-box;
+        overflow: hidden;
+        max-height: none;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: var(--ytd-expander-max-lines, 4);
+    }
+
+    */
+
+    function loadLineFix(ytdComments){
+
+        if(ytdComments.hasAttribute('data-loaded-linefix')) return;
+        ytdComments.setAttribute('data-loaded-linefix','');
+
+        let wrComments = mWeakRef(ytdComments);
+        let enabled=true;
+
+        //stupid coding for buggy -webkit-box 
+        // 1st fix: set the -webkit-box to change attribute when it is visually available; 
+        // 2nd fix: change attribute again after 100ms 
+
+        function delayedFix(){
+            // 2nd fix : auto to N/A
+
+            if(!enabled)return;
+            let t=tracer('fix_comments_2nd');
+
+            setTimeout(function(){  // only active tab
+
+                if(!tracer('fix_comments_2nd',t)) return; // lessen calls
+                let css = `[tabview-webkitbox-linefix=""]`;
+
+                let nodeList = document.querySelectorAll(css, ytdComments); // proceed unless no such elements
+            
+                if(nodeList.length){
+                    [...nodeList].map(elm=>new Promise(resolve=>{
+                        elm.setAttribute('tabview-webkitbox-linefix','1') // change from '' to '1'
+                        elm=null;
+                    }))                    
                 }
+
+            },100) // requestAnimationFrame is too fast for 2nd fix
+
+        }
+        
+        function linefix(){
+            //1st fix : N/A to auto
+
+            Promise.resolve().then(()=>{
+                let ytdComments = kRef(wrComments);
+                if(!ytdComments)return (enabled=false); // pass to another loadLineFix
+
+                let css = `ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander:not([tabview-webkitbox-linefix])`;
+
+                let nodeList = document.querySelectorAll(css, ytdComments); // proceed for any element required for fixing
+                if(!nodeList.length) return false;
+
+                let h = ytdComments.offsetHeight; // expensive but neccessary - re-rendering for visible element only
+                if(h<40) return false;
+                // not required for caching dim
+
+                return nodeList;
+
+            }).then(nodeList=>{
+                if(!nodeList)return false;
+
+                if(!enabled)return false;
+
+                enabled = false;
+
+                let promises = [...nodeList].map(elm=>new Promise(resolve=>{
+                    elm.setAttribute('tabview-webkitbox-linefix','')  // change from null to ''
+                    elm=null;
+                    resolve();
+                }));
+
+                return Promise.all(promises)
+
+
+            }).then(results=>{
+                if(!results) return false;
+                results.length=0;
+                enabled = true;
+                delayedFix(); // apply 2nd fix after 100ms
+            })
+
+        }
+
+        const resizeObserver = new ResizeObserver(()=>{
+            if(!enabled)return;
+            let t=tracer('fix_comments_when_added');
+            requestAnimationFrame(()=>{  // only active tab
+                if(!tracer('fix_comments_when_added',t)) return; // lessen calls
+                linefix();
             });
-        },40);
-    },true);
+        });
+        
+        resizeObserver.observe(ytdComments);
+
+    }
+
+    
     /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
 
 

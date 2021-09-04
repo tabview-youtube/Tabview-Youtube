@@ -2119,30 +2119,4 @@ html:not(.style-scope) {
     }
 
 
-    
-    /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
-
-    /*
-     fix bug for comment section - version 1.8.7 
-    This issue is the bug in browser's rendering
-     I guess, this is due to the lines clamp with display:-webkit-box 
      
-    /*
-
-    ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander {
-        color: var(--yt-spec-text-primary);
-        display: -webkit-box;
-        overflow: hidden;
-        max-height: none;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: var(--ytd-expander-max-lines, 4);
-    }
-
-    */
-
-    /* to fix this problem, apply css height to some value dynamically to force re-render */ 
-    [tabview-webkitbox-linefix]{
-        height: auto;
-    }
-
-    /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
