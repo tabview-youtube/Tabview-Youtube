@@ -67,15 +67,6 @@ html:not(.style-scope) {
 
 
 
-
-
-
-
-
-
-
-
-
     ytd-watch-flexy{
 
         --tabview-youtube-tabbtn-height: 46px;
@@ -1970,14 +1961,12 @@ html:not(.style-scope) {
         --YouTubeLiveFilledUpView-primary-width: calc(100vw - var(--ytd-watch-flexy-sidebar-width));
         --YouTubeLiveFilledUpView-secondary-width: var(--ytd-watch-flexy-sidebar-width);
     }
-    /*
-    .YouTubeLiveFilledUpView ytd-watch-flexy[flexy][js-panel-height_]:not([is-two-columns_]) ytd-live-chat-frame#chat.ytd-watch-flexy:not([collapsed]){
-        height: var(--userscript-chatroom-height) !important;
-    }*/
     .YouTubeLiveFilledUpView ytd-watch-flexy[flexy][js-panel-height_][is-two-columns_] ytd-live-chat-frame#chat.ytd-watch-flexy:not([collapsed]){
         height: calc(100vh - var(--YouTubeLiveFilledUpView-header-height)) !important;
     } 
     
+    
+    /* rendering acceleration - `contain` */
 
 
     #tab-comments ytd-comments, #tab-comments ytd-item-section-renderer, #tab-comments #contents,
@@ -1990,17 +1979,6 @@ html:not(.style-scope) {
     ytd-watch-flexy #material-tabs .tab-btn{
         contain: content;
     }
-
-/*
-    ytd-watch-flexy[is-two-columns_], 
-    ytd-watch-flexy[is-two-columns_]>#columns, 
-    ytd-watch-flexy[is-two-columns_] #primary, 
-    ytd-watch-flexy[is-two-columns_] #primary-inner, 
-    ytd-watch-flexy[is-two-columns_] #secondary, 
-    ytd-watch-flexy[is-two-columns_] #secondary-inner{
-        contain: content;
-    }
-    */
 
 
     #material-tabs .tab-btn paper-ripple, #material-tabs .tab-btn svg{
@@ -2118,5 +2096,54 @@ html:not(.style-scope) {
         content-visibility: auto;
     }
 
+
+    /* dummy fix for comments loading - `-webkit-box` `line-clamp` */
+
+
+    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]::before{
+        content: '\200B';
+        font-size: 1%;
+        color: red;
+        display: inline-block;
+        height: 1px;
+        width: auto;
+        position: relative;
+        float: left;
+        clear: left;
+        pointer-events: none;
+        user-select: none;
+    }
+    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]::after{
+        content: '\200B';
+        font-size: 1%;
+        color: red;
+        display: inline-block;
+        height: 1px;
+        width: auto;
+        position: relative;
+        pointer-events: none;
+        user-select: none;
+    }
+    
+    ytd-expander.style-scope.ytd-comment-renderer{
+        content-visibility: hidden;
+        contain: content;
+    }
+    .tab-content-cld:not(.tab-content-hidden) ytd-expander.style-scope.ytd-comment-renderer{
+        content-visibility: visible;  
+    }
+
+    ytd-expander > #content.ytd-expander{
+        content-visibility: hidden;
+    }
+    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]{
+        transform: translate3d(0, 0, 1px);
+        contain: content;
+        content-visibility: visible;  
+    }
+    ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander[tabview-webkitbox-linefix]{
+        transform: translate3d(0, 0, 2px);
+        height: auto;        
+    }
 
      
