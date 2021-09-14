@@ -2100,7 +2100,7 @@ html:not(.style-scope) {
     /* dummy fix for comments loading - `-webkit-box` `line-clamp` */
 
 
-    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]::before{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]::before{
         content: '\200B';
         font-size: 1%;
         color: red;
@@ -2113,7 +2113,7 @@ html:not(.style-scope) {
         pointer-events: none;
         user-select: none;
     }
-    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]::after{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]::after{
         content: '\200B';
         font-size: 1%;
         color: red;
@@ -2125,23 +2125,23 @@ html:not(.style-scope) {
         user-select: none;
     }
     
-    ytd-expander.style-scope.ytd-comment-renderer{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer{
         content-visibility: hidden;
         contain: content;
     }
-    .tab-content-cld:not(.tab-content-hidden) ytd-expander.style-scope.ytd-comment-renderer{
+    .tab-content-cld:not(.tab-content-hidden) ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer{
         content-visibility: visible;  
     }
 
-    ytd-expander > #content.ytd-expander{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander{
         content-visibility: hidden;
     }
-    ytd-expander > #content.ytd-expander[tabview-webkitbox-linefix]{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]{
         transform: translate3d(0, 0, 1px);
         contain: content;
         content-visibility: visible;  
     }
-    ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander[tabview-webkitbox-linefix]{
+    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer[should-use-number-of-lines][collapsed] > #content.ytd-expander[tabview-webkitbox-linefix]{
         transform: translate3d(0, 0, 2px);
         height: auto;        
     }
