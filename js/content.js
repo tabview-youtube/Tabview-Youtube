@@ -383,7 +383,10 @@
             showTabOrChat();
             requestVideoResize=true;
     
-        } else if(!new_isFullScreen && new_isTwoColumns && !new_isTheater && (new_isCollaspedChat || !new_isExpandedChat) && !new_isTabExpanded){
+        } else if(!new_isFullScreen && new_isTwoColumns && !new_isTheater && !new_isTabExpanded &&
+             (new_isCollaspedChat || !new_isExpandedChat) && 
+             !new_isExpandEPanel
+             ){
             // bug fix for restoring from mini player
 
             layoutStatusMutex.lockWith(unlock => {
