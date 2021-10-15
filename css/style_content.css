@@ -2146,4 +2146,12 @@ html:not(.style-scope) {
         height: auto;        
     }
 
+/* for https://greasyfork.org/scripts/4870-maximize-video */
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #masthead-container, 
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #right-tabs,
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-primary-info-renderer, 
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-secondary-info-renderer, 
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #player ~ div[id]{
+        visibility:collapse;
+    }
      
