@@ -2151,7 +2151,8 @@ html:not(.style-scope) {
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #right-tabs,
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-primary-info-renderer, 
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-secondary-info-renderer, 
-    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #player ~ div[id]{
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #player ~ div[id],
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-live-chat-frame{
         visibility:collapse;
     }
      
