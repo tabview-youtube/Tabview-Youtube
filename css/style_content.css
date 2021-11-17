@@ -2067,10 +2067,13 @@ html:not(.style-scope) {
 
     
     .tab-content-cld ytd-thumbnail-overlay-resume-playback-renderer,
-    .tab-content-cld ytd-thumbnail-overlay-time-status-renderer,
     .tab-content-cld ytd-thumbnail-overlay-now-playing-renderer{
         contain: strict; 
         content-visibility: auto;
+    }
+    .tab-content-cld ytd-thumbnail-overlay-time-status-renderer{
+        contain: paint;
+        content-visibility: auto;        
     }
 
     .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays{
@@ -2155,4 +2158,28 @@ html:not(.style-scope) {
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-live-chat-frame{
         visibility:collapse;
     }
+
+    /* ytd-thumbnail hover fix */
+    
      
+    .tab-content-cld ytd-thumbnail #overlays yt-icon,
+    .tab-content-cld ytd-thumbnail #mouseover-overlay yt-icon,
+    .tab-content-cld ytd-thumbnail #hover-overlays yt-icon {
+        z-index:99999999 !important;
+    }
+     
+    .tab-content-cld ytd-thumbnail #overlays [class],
+    .tab-content-cld ytd-thumbnail #mouseover-overlay [class],
+    .tab-content-cld ytd-thumbnail #hover-overlays [class]  
+    {
+        contain: none !important;
+        content-visibility: visible !important;  
+    }
+
+    .tab-content-cld ytd-thumbnail tp-yt-paper-tooltip{
+        contain: none !important;
+        content-visibility: visible !important;  
+        z-index:6666 !important;
+        pointer-events:none !important;
+
+    }
