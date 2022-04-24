@@ -698,8 +698,12 @@ html:not(.style-scope) {
     ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
         display: block;
         position: absolute;
-        opacity: 0;
+        /*
         content-visibility: hidden;
+        */
+        opacity:0;
+       z-index:-1 !important; /* 2022.04.25 - Edge 100 */
+        content-visibility: auto; /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
 
@@ -710,8 +714,12 @@ html:not(.style-scope) {
     ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
         display: block;
         position: absolute;
-        opacity: 0;
+        /*
         content-visibility: hidden;
+        */
+        opacity:0;
+       z-index:-1 !important; /* 2022.04.25 - Edge 100 */
+        content-visibility: auto; /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
     ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld#tab-list{
