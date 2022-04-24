@@ -2106,55 +2106,6 @@ html:not(.style-scope) {
     }
 
 
-    /* dummy fix for comments loading - `-webkit-box` `line-clamp` */
-
-
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]::before{
-        content: '\200B';
-        font-size: 1%;
-        color: red;
-        display: inline-block;
-        height: 1px;
-        width: auto;
-        position: relative;
-        float: left;
-        clear: left;
-        pointer-events: none;
-        user-select: none;
-    }
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]::after{
-        content: '\200B';
-        font-size: 1%;
-        color: red;
-        display: inline-block;
-        height: 1px;
-        width: auto;
-        position: relative;
-        pointer-events: none;
-        user-select: none;
-    }
-    
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer{
-        content-visibility: hidden;
-        contain: content;
-    }
-    .tab-content-cld:not(.tab-content-hidden) ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer{
-        content-visibility: visible;  
-    }
-
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander{
-        content-visibility: hidden;
-    }
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer > #content.ytd-expander[tabview-webkitbox-linefix]{
-        transform: translate3d(0, 0, 1px);
-        contain: content;
-        content-visibility: visible;  
-    }
-    ytd-comments#comments ytd-expander.style-scope.ytd-comment-renderer[should-use-number-of-lines][collapsed] > #content.ytd-expander[tabview-webkitbox-linefix]{
-        transform: translate3d(0, 0, 2px);
-        height: auto;        
-    }
-
 /* for https://greasyfork.org/scripts/4870-maximize-video */
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #masthead-container, 
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #right-tabs,
@@ -2198,7 +2149,7 @@ html:not(.style-scope) {
     }
     
     
-    /* comment fix line clamp */
+    /* -webkit-box | -webkit-line-clamp | comment fix line clamp */
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines][collapsed]>#content.ytd-expander{
        opacity:0.998;
     }

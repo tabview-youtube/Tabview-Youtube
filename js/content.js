@@ -1717,7 +1717,6 @@
       var comments = document.querySelector('ytd-comments#comments')
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
       if (!comments || !tabBtn) return;
-      loadLineFix(comments)
       let isCommentHidden = comments.hasAttribute('hidden')
       //console.log('attr comments changed')
 
@@ -3203,121 +3202,9 @@
       -webkit-line-clamp: var(--ytd-expander-max-lines, 4);
   }
 
+  // v1.8.36 imposed a effective solution for fixing this bug
+
   */
-
-  function loadLineFix(ytdComments) {
-
-    if (ytdComments.hasAttribute('data-loaded-linefix')) return;
-    ytdComments.setAttribute('data-loaded-linefix', '');
-
-    let wrComments = mWeakRef(ytdComments);
-    let enabled = true;
-
-    //stupid coding for buggy -webkit-box 
-    // 1st fix: set the -webkit-box to change attribute when it is visually available; 
-    // 2nd fix: change attribute again after 100ms 
-
-    /*
-    function delayedFix(){
-        // 2nd fix : auto to N/A
-
-        if(!enabled)return;
-        let t=tracer('fix_comments_2nd');
-
-        setTimeout(function(){  // only active tab
-
-            if(!tracer('fix_comments_2nd',t)) return; // lessen calls
-            let css = `[tabview-webkitbox-linefix=""]`;
-
-            let nodeList = document.querySelectorAll(css, ytdComments); // proceed unless no such elements
-        
-            if(nodeList.length){
-                [...nodeList].map(elm=>new Promise(resolve=>{
-                    elm.setAttribute('tabview-webkitbox-linefix','1') // change from '' to '1'
-                    elm=null;
-                }))                    
-            }
-
-        },100) // requestAnimationFrame is too fast for 2nd fix
-
-    }
-    */
-
-
-    function linefix() {
-      //1st fix : N/A to auto
-
-      //if(h<40) return false;
-
-      Promise.resolve().then(() => {
-        let ytdComments = kRef(wrComments);
-        if (!ytdComments) return (enabled = false); // pass to another loadLineFix
-
-        let css = `ytd-expander[should-use-number-of-lines][collapsed] > #content.ytd-expander:not([tabview-webkitbox-linefix])`;
-
-        let nodeList = document.querySelectorAll(css, ytdComments); // proceed for any element required for fixing
-        if (!nodeList.length) return false;
-
-
-        //let h = ytdComments.offsetHeight; // expensive but neccessary - re-rendering for visible element only
-        //console.log('hhh', h)
-
-        //if(h<40) return false;
-
-
-        // not required for caching dim
-
-        return nodeList;
-
-      }).then(nodeList => {
-        if (!nodeList) return false;
-
-        if (!enabled) return false;
-
-        //console.log('comments fix')
-
-        enabled = false;
-
-        // set attribute -> re-render -> height change
-        // enabled = false to skip the calling
-
-        let promises = [...nodeList].map(elm => new Promise(resolve => {
-          elm.setAttribute('tabview-webkitbox-linefix', '') // change from null to ''
-          elm = null;
-          resolve();
-        }));
-
-        return Promise.all(promises)
-
-
-      }).then(results => {
-        if (!results) return false;
-        results.length = 0;
-        enabled = true;
-        //delayedFix(); // apply 2nd fix after 100ms
-      })
-
-    }
-
-    if (!window.ResizeObserver) return; // this stupid coding only target for modern webkit browsers - edge, chrome, safari, etc.
-
-    const resizeObserver = new ResizeObserver(entries => {
-      if (!enabled) return;
-      if (!entries || entries.length != 1) return; //only ytdComments is observed
-      let h = entries[0].borderBoxSize; //inexpensive
-      //let w = entries[0].contentBoxSize;
-      if (h < 40) return false;
-      let t = tracer('fix_comments_when_added');
-      requestAnimationFrame(() => { // only active tab
-        if (!tracer('fix_comments_when_added', t)) return; // lessen calls
-        linefix();
-      });
-    });
-
-    resizeObserver.observe(ytdComments);
-
-  }
-
 
   /* --------------------------- browser's bug in -webkit-box ----------------------------------------- */
 
