@@ -2729,6 +2729,15 @@
     displayedPlaylist = mWeakRef(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer') || null);
   }
 
+  function fixLineClampFn1(){
+      setTimeout(()=>requestAnimationFrame(()=>new Promise(fixLineClampFn2)),1)
+  }
+  function fixLineClampFn2(){
+      let contentElements = document.querySelectorAll('ytd-comments#comments ytd-expander[should-use-number-of-lines][collapsed] #content')
+      for(const elm of contentElements) elm.classList.toggle('tabview-fix-line-clamp');
+      contentElements = null;
+  }
+
   function switchTabActivity(activeLink) {
     if (!scriptEnable) return;
 
@@ -2766,6 +2775,11 @@
           if (comments_tab && comments_tab.scrollTop > 0) comments_tab.scrollTop = 0;
         });
 
+      }
+      
+      if(lastShowTab=='#tab-comments'){
+          
+          fixLineClampFn1();
       }
 
     }
