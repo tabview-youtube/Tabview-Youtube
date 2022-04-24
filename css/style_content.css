@@ -1975,10 +1975,12 @@ html:not(.style-scope) {
         contain: content;
     }
     
+    /*
     ytd-watch-flexy #material-tabs,
     ytd-watch-flexy #material-tabs .tab-btn{
         contain: content;
     }
+    */
 
 
     #material-tabs .tab-btn paper-ripple, #material-tabs .tab-btn svg{
