@@ -250,7 +250,7 @@ html:not(.style-scope) {
     
     
     
-    ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents{
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
         margin-left: calc(5% + var(--userscript-meta-default-outline-thickness));
         margin-right: calc(5% + var(--userscript-meta-default-outline-thickness));
         width: calc(90% - var(--userscript-meta-default-outline-thickness) * 2);
@@ -262,41 +262,41 @@ html:not(.style-scope) {
     }
      
     
-    ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents{
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
         --border-radius-2: var(--border-radius-1) var(--border-radius-1);
     }
     
-    ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:not(:hover){
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
         --border-radius-1: var(--ytd-margin-2x);
     }
-    ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:hover{
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover{
         --border-radius-1: var(--ytd-margin-6x);
     }
-    ytd-watch-flexy[flexy][is-two-columns_] #primary #player ~ #meta #meta-contents{
+    ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
         border-radius: var(--border-radius-2) 0 0;
     }
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #player ~ #meta #meta-contents{
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #info ~ #meta #meta-contents{
         border-radius: var(--border-radius-2) var(--border-radius-2);
     }
-    ytd-watch-flexy[flexy] #primary #player ~ #meta #meta-contents:not(:hover){
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
         height: calc(var(--meta-contents-default-height-outer)); 
         overflow: hidden;
     }
     
-    ytd-watch-flexy[flexy] #primary #player ~ #meta{
+    ytd-watch-flexy[flexy] #primary #info ~ #meta{
         position: relative;
         height: calc(var(--meta-contents-default-height-outer)); 
         min-height: calc(var(--meta-contents-default-height-outer));  /* under flex */
     }
     
     
-    /* ytd-watch-flexy #player ~ #meta */
+    /* ytd-watch-flexy #primary #info ~ #meta */
     
-    ytd-watch-flexy #player ~ #meta ytd-expander{
+    ytd-watch-flexy #primary #info ~ #meta ytd-expander{
         display: none;
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents{
         position: absolute;
         bottom: 0;
         width: 100%;
@@ -309,26 +309,26 @@ html:not(.style-scope) {
         opacity: 1; 
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:hover ytd-video-secondary-info-renderer{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:hover ytd-video-secondary-info-renderer{
         padding: 0 var(--ytd-margin-6x);
     }
-    ytd-watch-flexy #player ~ #meta #meta-contents ytd-video-secondary-info-renderer{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents ytd-video-secondary-info-renderer{
         border-bottom: 0;
         padding: 0;
         margin: 0;
     }
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover){
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover){
         height: auto;
         padding: 0;
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) *{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) *{
         padding: 0;
         margin: 0;
         vertical-align: middle;
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row{
         padding: var(--meta-contents-padding-vertical);  
         
         /* just ensure nowrap for (non-hover meta-content)'s flex layout */
@@ -336,52 +336,52 @@ html:not(.style-scope) {
         zoom: 0.95;
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer>*{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer>*{
         align-self: center;
     }
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-icon-button#button{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-icon-button#button{
         --yt-button-icon-size: var(--meta-contents-default-height-inner);
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar{
         height: var(--meta-contents-default-height-inner);
         width: var(--meta-contents-default-height-inner);
         margin: 0px var(--ytd-margin-2x);
         vertical-align: middle;
     }
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) ytd-subscribe-button-renderer{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) ytd-subscribe-button-renderer{
         align-items: center;
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
         opacity: 0;
     }
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar img{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar img{
         height: var(--meta-contents-default-height-inner);
         width: var(--meta-contents-default-height-inner);
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents yt-img-shadow#avatar[loaded]{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents yt-img-shadow#avatar[loaded]{
     box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
     }
     
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) #owner-sub-count{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #owner-sub-count{
         display: none;
     }
     
     /* show button with smaller size (non-hover meta-content) -> (badge icon) */
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) tp-yt-paper-button{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button{
         height: calc( var(--meta-contents-default-height-inner) );
         margin: 0px var(--ytd-margin-2x);
         padding: 10px 0;
         zoom: 0.9;
     }
     /* margin for (non-hover meta-content) -> (badge icon) */
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) ytd-badge-supported-renderer{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) ytd-badge-supported-renderer{
         margin: 0px var(--ytd-margin-2x);
     }
     /* vertical center for (non-hover meta-content)'s (button text) */
-    ytd-watch-flexy #player ~ #meta #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
         line-height: 100%;
     }
     
@@ -1448,7 +1448,7 @@ html:not(.style-scope) {
     *:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer,  /* hide videos list & play list before script loading */
     #related > #related-skeleton, #related > #player-ads,
     *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist,  /* hide videos list & play list before script loading */
-    #primary #player ~ #meta #meta-contents ytd-expander /* meta-contents relocated */
+    #primary #primary #info ~ #meta #meta-contents ytd-expander /* meta-contents relocated */
     {
         position: absolute;
         z-index: -1;

@@ -18,6 +18,12 @@
      */
 
     const scriptVersionForExternal = '2021/07/03';
+        
+    const githubURLBase = "https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube";
+    const githubURLCommit = "bdf401045266e5224663f80b276bc7f56d122b8d";
+
+    const isMyScriptInChromeRuntime = ()=>typeof (chrome?.runtime?.getURL)=='function'
+
 
     const svgComments = `
     <path d="M40.068,13.465L5.93,13.535c-3.27,0-5.93,2.66-5.93,5.93v21.141c0,3.27,2.66,5.929,5.93,5.929H12v10
@@ -190,6 +196,13 @@
         const scriptNode = document.createElement('script');
         scriptNode.type = 'text/javascript';
         scriptNode.textContent = scriptText;
+        document.documentElement.appendChild(scriptNode);
+        return scriptNode;
+    }
+    function addScriptByURL(scriptURL) {
+        const scriptNode = document.createElement('script');
+        scriptNode.type = 'text/javascript';
+        scriptNode.src = scriptURL;
         document.documentElement.appendChild(scriptNode);
         return scriptNode;
     }
@@ -842,7 +855,11 @@
         elmAutoComplete.setAttribute('autocomplete-disable-updatesc','')
         elmAutoComplete.addEventListener('autocomplete-sc-exist',handlerAutoCompleteExist, false)
 
-        addScript(`!!(${injectionScript_fixAutoComplete+''})()`);
+if(isMyScriptInChromeRuntime())
+            addScriptByURL(chrome.runtime.getURL('js/injectionScript_fixAutoComplete.js'));
+        else 
+            addScriptByURL(`${githubURLBase}/${githubURLCommit}/js/injectionScript_fixAutoComplete.js`);
+//        addScript(`!!(${injectionScript_fixAutoComplete+''})()`);
 
     }
 
@@ -1283,7 +1300,7 @@
 
         const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-        let comments = rootElement.querySelector('#primary ytd-watch-metadata ~ #info ~ ytd-comments#comments');
+        let comments = rootElement.querySelector('#primary ytd-watch-metadata ~ ytd-comments#comments');
         if (comments) $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube',scriptVersionForExternal)
     }
 
@@ -2125,13 +2142,15 @@
 
 
 
-
-
         pluginUnhook();
         if(!document.querySelector('script#userscript-tabview-injection-1')) {
-            addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
+            
+if(isMyScriptInChromeRuntime())
+            addScriptByURL(chrome.runtime.getURL('js/injection_script_1.js')).id='userscript-tabview-injection-1';
+        else 
+            addScriptByURL(`${githubURLBase}/${githubURLCommit}/js/injection_script_1.js`).id='userscript-tabview-injection-1';
+//            addScript(`!!(${injection_script_1+""})()`).id='userscript-tabview-injection-1'
         }
-
         var prevComemnts = document.querySelector('ytd-comments#comments'); 
 
         if(prevComemnts && prevComemnts.matches('[hidden]')){
