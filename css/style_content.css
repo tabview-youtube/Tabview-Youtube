@@ -2183,3 +2183,10 @@ html:not(.style-scope) {
         pointer-events:none !important;
 
     }
+    
+    /* for chrome extension - Enhancer for YouTube™
+    https://chrome.google.com/webstore/detail/enhancer-for-youtube/ponfpcnoihfmfllpaingbgckeeldkhle  */
+    html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns #primary #player,
+    html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns #primary ytd-player#ytd-player {
+        contain: initial !important;
+    }
