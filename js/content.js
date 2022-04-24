@@ -2732,7 +2732,7 @@
       setTimeout(()=>requestAnimationFrame(()=>new Promise(fixLineClampFn2)),1)
   }
   function fixLineClampFn2(){
-      let contentElements = document.querySelectorAll('ytd-comments#comments ytd-expander[should-use-number-of-lines][collapsed] #content')
+      let contentElements = document.querySelectorAll('ytd-comments#comments ytd-expander[should-use-number-of-lines] #content')
       for(const elm of contentElements) elm.classList.toggle('tabview-fix-line-clamp');
       contentElements = null;
   }
