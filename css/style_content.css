@@ -689,11 +689,11 @@ html:not(.style-scope) {
         content-visibility: hidden;
         pointer-events: none;
     }
-    
 
     ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
         display: none;
         contain: strict;
+        width:100%; /* to allow comments loading */
     }
     ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
         display: block;
