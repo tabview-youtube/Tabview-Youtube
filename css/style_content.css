@@ -2196,3 +2196,16 @@ html:not(.style-scope) {
     html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns #primary ytd-player#ytd-player {
         contain: initial !important;
     }
+    
+    
+    /* comment fix line clamp */
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines][collapsed]>#content.ytd-expander{
+       opacity:0.998;
+    }
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines][collapsed]>#content.ytd-expander.tabview-fix-line-clamp{
+       opacity:0.999;
+    }
+    
+    
+    
+    
