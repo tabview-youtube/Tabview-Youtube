@@ -22,7 +22,7 @@
   const githubURLBase = "https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube";
   const githubURLCommit = "bdf401045266e5224663f80b276bc7f56d122b8d";
 
-  const isMyScriptInChromeRuntime = () => typeof(window.chrome?.runtime?.getURL) == 'function'
+  const isMyScriptInChromeRuntime = () => typeof ((((window||0).chrome||0).runtime||0).getURL) == 'function'
 
 
   const svgComments = `

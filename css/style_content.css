@@ -710,6 +710,7 @@ html:not(.style-scope) {
     ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
         display: none;
         contain: strict;
+        width:100%; /* to allow comments loading */ /*experimental*/
     }
     ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
         display: block;
@@ -1987,16 +1988,14 @@ html:not(.style-scope) {
         contain: content;
     }
     
-    /*
-    ytd-watch-flexy #material-tabs,
-    ytd-watch-flexy #material-tabs .tab-btn{
-        contain: content;
+    
+    ytd-watch-flexy #material-tabs, ytd-watch-flexy #material-tabs .tab-btn{
+        contain: layout; /* experimental */
     }
-    */
 
 
     #material-tabs .tab-btn paper-ripple, #material-tabs .tab-btn svg{
-        contain: strict;
+        contain: strict style; /* experimental */
     }
 
     ytd-comment-thread-renderer, ytd-comment-renderer, ytd-comment-replies-renderer, ytd-compact-video-renderer{
@@ -2004,7 +2003,7 @@ html:not(.style-scope) {
     }
 
     iframe[src][id]{ 
-        contain: strict;
+        contain: strict style; /* experimental */
     }
 
     ytd-live-chat-frame{
@@ -2012,13 +2011,16 @@ html:not(.style-scope) {
     } 
 
     #masthead-container, ytd-masthead#masthead{
-        contain: content;
+        contain: layout style; /* experimental */
     }
     
     ytd-masthead>#container{
-        contain: strict;
+        contain: size layout style; /* experimental */
     }
 
+    ytd-masthead>#container *{
+       contain: layout style; /* experimental */
+    }
  
     
 
@@ -2038,11 +2040,11 @@ html:not(.style-scope) {
     }
     
     yt-img-shadow[height][width]{
-        contain: strict;
+        contain: strict style; /* experimental */
         content-visibility: auto;
     }
     img[height][width]{
-        contain: strict;
+        contain: strict style; /* experimental */
         content-visibility: auto;
     }
 
@@ -2059,14 +2061,21 @@ html:not(.style-scope) {
     .tab-content-cld yt-interaction,
     .tab-content-cld tp-yt-paper-button,
     .tab-content-cld ytd-comment-action-buttons-renderer,
-     .tab-content-cld tp-yt-paper-tooltip,
+     .tab-content-cld tp-yt-paper-tooltip
+     
+     {
+        contain: layout paint;
+    }
+
+
+
      .tab-content-cld ytd-comment-action-buttons-renderer,
      .tab-content-cld ytd-compact-radio-renderer,
      .tab-content-cld ytd-compact-video-renderer,
      .tab-content-cld ytd-playlist-panel-video-renderer
      
      {
-        contain: layout paint;
+        contain: layout style; /* experimental */
     }
 
 
@@ -2164,7 +2173,5 @@ html:not(.style-scope) {
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines]>#content.ytd-expander.tabview-fix-line-clamp{
        opacity:0.999;
     }
-    
-    
     
     
