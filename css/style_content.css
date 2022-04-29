@@ -1995,7 +1995,7 @@ html:not(.style-scope) {
 
 
     #material-tabs .tab-btn paper-ripple, #material-tabs .tab-btn svg{
-        contain: strict style; /* experimental */
+        contain: size layout paint style; /* experimental */
     }
 
     ytd-comment-thread-renderer, ytd-comment-renderer, ytd-comment-replies-renderer, ytd-compact-video-renderer{
@@ -2003,7 +2003,7 @@ html:not(.style-scope) {
     }
 
     iframe[src][id]{ 
-        contain: strict style; /* experimental */
+        contain: size layout paint style; /* experimental */
     }
 
     ytd-live-chat-frame{
@@ -2018,14 +2018,14 @@ html:not(.style-scope) {
         contain: size layout style; /* experimental */
     }
 
-    ytd-masthead>#container *{
+    ytd-masthead>#container .style-scope.ytd-masthead{
        contain: layout style; /* experimental */
     }
  
     
 
     ytd-watch-flexy #player, ytd-player#ytd-player{
-        contain: content;
+        contain: layout paint style;
     }
     .ytp-caption-window-container .caption-window, .ytp-caption-window-container .captions-text, .ytp-caption-window-container .caption-visual-line, .ytp-caption-window-container .ytp-caption-segment{
         contain: content;
@@ -2040,11 +2040,11 @@ html:not(.style-scope) {
     }
     
     yt-img-shadow[height][width]{
-        contain: strict style; /* experimental */
+        contain: size layout paint style; /* experimental */
         content-visibility: auto;
     }
     img[height][width]{
-        contain: strict style; /* experimental */
+        contain: size layout paint style; /* experimental */
         content-visibility: auto;
     }
 
