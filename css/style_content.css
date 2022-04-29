@@ -662,13 +662,16 @@ html:not(.style-scope) {
     }
     
     ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
+        height:100%;
+        width:100%;
+         contain: size layout paint style;
         position: absolute;
-        contain: strict;
     }
     
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
         display: none;
-        contain: strict;
+        width:100%; /* width fix */
+        contain: size layout paint style;
     }
     
     ytd-watch-flexy[tabview-youtube-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
@@ -880,13 +883,6 @@ html:not(.style-scope) {
         --tab-content-padding: var(--ytd-margin-2x);
     }
     
-    
-    
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
-        height:100%;
-        width:100%;
-        contain: size layout paint;
-    }
     
     
 
@@ -1433,7 +1429,7 @@ html:not(.style-scope) {
         min-height: var(--ytd-subheadline-one-line-ellipsis_-_max-height);
         max-height: none;
         padding: 10px 16px;
-        box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22));
+        box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22)), 0px -2px 1px var(--yt-spec-general-background-b);
         margin-top: 1px; /* as tab use outline 1px */
         background-color: var(--yt-spec-general-background-b);
     }
@@ -1443,7 +1439,7 @@ html:not(.style-scope) {
     }
     
     #tab-list ytd-playlist-panel-renderer#playlist #container > .header + #items{
-        margin-top: calc(var(--ytd-subheadline-one-line-ellipsis_-_max-height) + 32px);  
+        margin-top: calc(var(--ytd-subheadline-one-line-ellipsis_-_max-height, 0px) + 42px);  
     }
             
     
@@ -1985,7 +1981,7 @@ html:not(.style-scope) {
     #tab-comments ytd-comments, #tab-comments ytd-item-section-renderer, #tab-comments #contents,
     #tab-videos [placeholder-videos], #tab-videos ytd-watch-next-secondary-results-renderer, #tab-videos #items
     {
-        contain: content;
+        contain: layout paint style; /* experimental */
     }
     
     
@@ -2121,6 +2117,21 @@ html:not(.style-scope) {
     ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items{
         content-visibility: auto;
     }
+        
+        
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments, 
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related, 
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
+        visibility: collapsed;
+    }
+        
+        /*
+
+    
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #header ~ #contents > .ytd-item-section-renderer {
+        content-visibility: auto; /* experimental /
+    }*/
+    
 
 
 /* for https://greasyfork.org/scripts/4870-maximize-video */
