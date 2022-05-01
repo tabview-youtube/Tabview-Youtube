@@ -272,6 +272,19 @@ html:not(.style-scope) {
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover{
         --border-radius-1: var(--ytd-margin-6x);
     }
+    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover::before{
+        content: "\00a0";
+        display: block;
+        position: absolute;
+        left: -32px;
+        right: -32px;
+        top: -12px;
+        bottom: -12px;
+        background-color: inherit;
+        border-radius: inherit;
+        opacity: 0;
+         z-order:-1;
+    }
     ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
         border-radius: var(--border-radius-2) 0 0;
     }
