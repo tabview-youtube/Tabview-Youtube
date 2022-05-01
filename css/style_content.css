@@ -1994,7 +1994,10 @@ html:not(.style-scope) {
         contain: size layout paint style; /* experimental */
     }
 
-    ytd-comment-thread-renderer, ytd-comment-renderer, ytd-comment-replies-renderer, ytd-compact-video-renderer{
+    ytd-comment-thread-renderer:not([can-reorder]):not([touch-persistent-drag-handle]), 
+    ytd-comment-renderer:not([can-reorder]):not([touch-persistent-drag-handle]), 
+    ytd-comment-replies-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
+    ytd-compact-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle]){
         contain: content;
     }
 
@@ -2065,10 +2068,10 @@ html:not(.style-scope) {
 
 
 
-     .tab-content-cld ytd-comment-action-buttons-renderer,
-     .tab-content-cld ytd-compact-radio-renderer,
-     .tab-content-cld ytd-compact-video-renderer,
-     .tab-content-cld ytd-playlist-panel-video-renderer
+     .tab-content-cld ytd-comment-action-buttons-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
+     .tab-content-cld ytd-compact-radio-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
+     .tab-content-cld ytd-compact-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
+     .tab-content-cld ytd-playlist-panel-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle])
      
      {
         contain: layout style; /* experimental */
@@ -2095,14 +2098,14 @@ html:not(.style-scope) {
         content-visibility: auto;        
     }
 
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays{
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
         contain: size;
     }
 
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay{
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay:not([can-reorder]):not([touch-persistent-drag-handle]){
         contain: size;
     }
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays{
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
         contain: size;
     }
 
@@ -2131,6 +2134,22 @@ html:not(.style-scope) {
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #header ~ #contents > .ytd-item-section-renderer {
         content-visibility: auto; /* experimental /
     }*/
+    
+    
+    /* experimental for drag & drop re-order */
+    .style-scope.playlist-drag-handle,
+    .style-scope[can-reorder],
+    .style-scope[touch-persistent-drag-handle],
+    .style-scope.playlist-drag-handle .style-scope,
+    .style-scope[can-reorder] .style-scope,
+    .style-scope[touch-persistent-drag-handle] .style-scope,
+    .style-scope.playlist-drag-handle ~ .style-scope,
+    .style-scope[can-reorder] ~ .style-scope,
+    .style-scope[touch-persistent-drag-handle] ~ .style-scope{
+        content-visibility: initial !important;
+        contain: initial !important;
+    }
+    
     
 
 
