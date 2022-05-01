@@ -263,14 +263,17 @@ html:not(.style-scope) {
      
     
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
-        --border-radius-2: var(--border-radius-1) var(--border-radius-1);
+        --border-radius-2t: var(--border-radius-1t) var(--border-radius-1t);
+        --border-radius-2b: var(--border-radius-1b) var(--border-radius-1b);
     }
     
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
-        --border-radius-1: var(--ytd-margin-2x);
+        --border-radius-1t: var(--ytd-margin-2x);
+        --border-radius-1b: calc(var(--border-radius-1t)*0.6);
     }
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover{
-        --border-radius-1: var(--ytd-margin-6x);
+        --border-radius-1t: var(--ytd-margin-3x);
+        --border-radius-1b: calc(var(--border-radius-1t)*0.6);
     }
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover::before{
         content: "\00a0";
@@ -283,13 +286,16 @@ html:not(.style-scope) {
         background-color: inherit;
         border-radius: inherit;
         opacity: 0;
-         z-order: -1;
+        z-order: -1;
+    }
+    ytd-watch-flexy[flexy] #primary #info > #info-contents > ytd-video-primary-info-renderer {
+       border-bottom-color: transparent;
     }
     ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
-        border-radius: var(--border-radius-2) 0 0;
+        border-radius: var(--border-radius-2t) var(--border-radius-2b);
     }
     ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #info ~ #meta #meta-contents{
-        border-radius: var(--border-radius-2) var(--border-radius-2);
+        border-radius: var(--border-radius-2t) var(--border-radius-2b);
     }
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
         height: calc(var(--meta-contents-default-height-outer)); 
@@ -2229,5 +2235,13 @@ html:not(.style-scope) {
        opacity:0.999;
     }
      
-     
+     /* Better CSS Layout for Info Meta since 2022.04.20 */
+     .watch-active-metadata.style-scope.ytd-watch-flexy{
+       flex-grow: 1;
+       display: flex;
+       flex-direction: column;   
+     }
+     .watch-active-metadata.style-scope.ytd-watch-flexy > #info{
+       flex-grow: 1;
+     }
     
