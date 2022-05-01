@@ -2178,11 +2178,24 @@ html:not(.style-scope) {
     
     
     /* -webkit-box | -webkit-line-clamp | comment fix line clamp */
+    
+    /* Chrome / Firefox / Edge */
+    /*
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines]>#content.ytd-expander{
        opacity:0.998;
     }
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines]>#content.ytd-expander.tabview-fix-line-clamp{
        opacity:0.999;
     }
+    */
     
+     /* Chrome / Firefox / Edge + backward compatible with Waterfox Classic */
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander{
+       opacity:0.998;
+    }
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander.tabview-fix-line-clamp{
+       opacity:0.999;
+    }
+     
+     
     
