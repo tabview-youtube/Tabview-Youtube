@@ -276,14 +276,14 @@ html:not(.style-scope) {
         content: "\00a0";
         display: block;
         position: absolute;
-        left: -32px;
-        right: -32px;
+        left: -18px;
+        right: -18px;
         top: -12px;
         bottom: -12px;
         background-color: inherit;
         border-radius: inherit;
         opacity: 0;
-         z-order:-1;
+         z-order: -1;
     }
     ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
         border-radius: var(--border-radius-2) 0 0;
