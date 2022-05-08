@@ -282,7 +282,8 @@ html:not(.style-scope) {
         left: -18px;
         right: -18px;
         top: -12px;
-        bottom: -12px;
+        /*bottom: -12px;*/
+        bottom: 0px;
         background-color: inherit;
         border-radius: inherit;
         opacity: 0;
@@ -381,7 +382,7 @@ html:not(.style-scope) {
     }
     
     ytd-watch-flexy #primary #info ~ #meta #meta-contents yt-img-shadow#avatar[loaded]{
-    box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
+        box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
     }
     
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #owner-sub-count{
@@ -421,7 +422,15 @@ html:not(.style-scope) {
         padding: 0; 
         outline: 1px solid var(--userscript-border-color);
     }
+/*
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] #material-tabs{
+        outline:0;
+    }    */
     
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs #material-tabs{
+        outline:0;
+    }   
+
     #right-tabs{
         --userscript-border-color: var(--yt-spec-10-percent-layer);
     }
@@ -500,17 +509,35 @@ html:not(.style-scope) {
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden{
         display: none;
     }
-    
+    /*
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden paper-ripple{
         display: none;
-    }
+    }*/
     
     /* show the loading comment tab in grey color */
-    ytd-watch-flexy:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-    ytd-watch-flexy:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
-        display: inline-block;
+    /*
+    ytd-watch-flexy:not([userscript-chatblock="chat-live"]):not([tabview-youtube-comments*="D"]):not([tabview-youtube-comments*="L"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+    ytd-watch-flexy:not([userscript-chatblock="chat-live"]):not([tabview-youtube-comments*="D"]):not([tabview-youtube-comments*="L"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
+        //*display: inline-block;//
+        
         color: var(--yt-spec-icon-disabled);
-        pointer-events: none;
+        /*pointer-events: none;/
+        
+    }
+    */
+
+    /* unknown bug - cannot fixed by js */
+    /* switch from normal video to live chat video using popstate */
+    /*
+    ytd-watch-flexy[userscript-chatblock="chat-live"]:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
+    ytd-watch-flexy[userscript-chatblock="chat-live"]:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
+        display: none;
+    }
+    */
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"], 
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"]:hover{
+        color: var(--yt-spec-icon-disabled);        
     }
     
     
@@ -578,102 +605,7 @@ html:not(.style-scope) {
         padding: var(--tab-content-padding);
         contain: layout paint;
         
-    }
-    /*
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
-        transform: translate3d(-200vw,0,0);
-        position: absolute !important;
-    }*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
-        position: absolute;
-        contain: strict;
-    }
-    
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
-        display: block;
-        position: absolute; 
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    
-    ytd-watch-flexy[tabview-youtube-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    
-
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
-        display: flex;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-
-    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld#tab-list{
-        display: block;
-        position: absolute;
-        opacity: 0;
-        content-visibility: hidden;
-        pointer-events: none;
-        contain: strict;
-    }
-*/
-
+    } 
 
     .tab-content-cld, #right-tabs, .tab-content{
         transition: none;
@@ -752,146 +684,7 @@ html:not(.style-scope) {
         content-visibility: hidden;
         pointer-events: none;
     }
-    
-    
-/*
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
-        position: absolute;
-        contain: strict;
-    }
-    
-
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    
-    ytd-watch-flexy[tabview-youtube-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    
-
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-
-    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld#tab-list{
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-*/
-    
-
-        /*
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
-        position: absolute;
-        contain: strict;
-    }
-
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
-        display: none;
-        contain: strict;
-    }
-    
-    ytd-watch-flexy[tabview-youtube-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
-        display: block;
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
-        display: block;
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    
-
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
-        display: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
-        display: flex;
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-
-    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
-        display: none;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
-        display: block;
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld#tab-list{
-        display: block;
-        visibility: collapse;
-        content-visibility: hidden;
-        position: absolute;
-        contain: strict;
-    }
-*/
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+     
     
     ytd-watch-flexy #right-tabs .tab-content-cld#tab-list{
         --tab-content-padding: 0px;
@@ -911,29 +704,7 @@ html:not(.style-scope) {
         min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--tabview-youtube-tabbtn-height) - var(--ytd-margin-3x));
     }
            
-
-  /*  
-    @supports (content-visibility: hidden){
-        
-        /.* speed up rendering *./
-    
-        .tab-content-cld #contents, .tab-content-cld #sections, .tab-content-cld #items{
-            content-visibility: auto;
-        }
-    }
-    
-    @supports (contain-intrinsic-size: var(--userscript-base-height)){
-        /.* make "visible scrollable area" fit (i.e. smaller) for {#continuations} to retrieve proper amount of comments *./
-    
-        .tab-content-cld #contents, .tab-content-cld #sections, .tab-content-cld #items{
-            contain-intrinsic-size: var(--userscript-base-height); /.* fix the height to base height *./
-        }
-        .tab-content-cld ytd-comment-replies-renderer #contents{
-            contain-intrinsic-size: auto; /.* the size of reply of reply *./ 
-        }
-    
-    }
-*/
+ 
 
 
 
@@ -1012,19 +783,7 @@ html:not(.style-scope) {
         --userscript-chatroom-height: var(--ytd-watch-flexy-chat-max-height);
     }
     
-    
-    
-    /*
-    ytd-watch-flexy:not([is-two-columns_]) #primary ytd-live-chat-frame#chat{
-        position: absolute;
-        z-index: -1;
-        visibility: collapse;
-    }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #secondary ytd-live-chat-frame#chat{
-        margin-top: 0;
-    }*/
-    
+     
     ytd-watch-flexy ytd-live-chat-frame#chat{
         margin-top: 0;
     }
@@ -1580,11 +1339,11 @@ html:not(.style-scope) {
     
         /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
         /* siginificant empty at the right side (vertical bar) in the dark mode */
-        html body {
+        html.tabview-mini-player body {
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
-        html body::-webkit-scrollbar {
+        html.tabview-normal-player body::-webkit-scrollbar {
             display: none; /* Blink and Webkit */
         }
     
@@ -1705,6 +1464,9 @@ html:not(.style-scope) {
         position: inherit;
     }
     
+    ytd-live-chat-frame#chat[collapsed] iframe{
+        display: none;
+    }
     
     
     
@@ -1764,10 +1526,21 @@ html:not(.style-scope) {
     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner>#info{
         flex: 1;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#secondary{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary{
         overflow: hidden;
     }
+/*
+    ytd-watch-flexy[is-two-columns_][theater][tabview-selection=""]:not([fullscreen]) > #columns > #secondary{
+        overflow: initial;  fix border
+    }
+     */
+
     
+     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary #right-tabs #material-tabs{
+        outline: 0;
+        border: 1px solid var(--userscript-border-color);
+        /* use border instead due to overflow:hidden */
+    }
     
     
     
@@ -2228,12 +2001,14 @@ html:not(.style-scope) {
     */
     
      /* Chrome / Firefox / Edge + backward compatible with Waterfox Classic */
-    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander{
+    /*
+     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander{
        opacity:0.998;
     }
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander.tabview-fix-line-clamp{
        opacity:0.999;
     }
+    */
      
      /* Better CSS Layout for Info Meta since 2022.04.20 */
      .watch-active-metadata.style-scope.ytd-watch-flexy{
@@ -2245,3 +2020,136 @@ html:not(.style-scope) {
        flex-grow: 1;
      }
     
+
+
+
+     /* experimental to fix Chinese display bug like 
+     
+
+https://www.youtube.com/watch?v=wzjgnrIt4n8
+https://www.youtube.com/watch?v=3-nuSx3F6YU
+
+     */
+
+     ytd-watch-flexy ytd-video-primary-info-renderer ytd-menu-renderer yt-formatted-string.style-scope.ytd-toggle-button-renderer.style-text{
+         white-space: pre;
+     }
+
+
+
+
+        
+     ytd-watch-flexy ytd-video-primary-info-renderer ytd-button-renderer.force-icon-button a.ytd-button-renderer{
+
+        overflow: hidden;
+        flex-wrap: wrap;
+        width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
+        height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
+
+    }
+
+    ytd-watch-flexy ytd-video-primary-info-renderer{
+        --yt-button-icon-size: 32px;
+    }
+
+    
+    ytd-watch-flexy ytd-video-primary-info-renderer .ytd-menu-renderer[style-target=button]{
+        --yt-icon-button-icon-width: 24px;
+        --yt-icon-button-icon-height: 24px;
+        --yt-icon-width: 32px;
+        --yt-icon-height: 32px;
+        width: var(--yt-icon-width);
+        height: var(--yt-icon-height);
+    }
+
+    
+    ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer{
+        
+        
+        height: auto;
+        overflow: visible;
+        -webkit-line-clamp: initial;
+    
+    }
+
+    /*
+    ytd-watch-flexy[tabview-selection] > #lyricscontainer{
+        background-color:transparent;
+        pointer-events: none;
+    }
+    ytd-watch-flexy[tabview-selection] > #lyricscontainer > *{
+        background-color:var(--yt-spec-general-background-b);
+        pointer-events: initial;
+    }
+    
+    ytd-watch-flexy[tabview-selection] > #lyricscontainer[style*="top"][style*="width"]{
+        display:flex;
+        flex-direction: column;
+        bottom:4px;
+    }
+    */
+    /*
+    ytd-watch-flexy[tabview-selection] > #lyricscontainer[style*="top"][style*="width"] > iframe#lyricsiframe[style*="width"][style*="height"]{
+        margin-top: calc(var(--tabview-youtube-tabbtn-height, 0px) + var(--ytd-margin-6x, 16px) - 16px + 4px);
+        margin-bottom: calc(var(--ytd-margin-6x, 16px) + 0px);  
+        height:auto !important;
+        width:auto !important;
+        flex-grow: 1;
+    }
+    */
+    body> .loadingspinnerholder[title][style]{
+        --tabview-youtube-tabbtn-height: 46px;
+        margin-top:var(--tabview-youtube-tabbtn-height, 0px);
+    }
+     
+
+    ytd-watch-flexy #content.ytd-engagement-panel-section-list-renderer iframe#lyricsiframe{
+        width: 100% important;
+        height: calc(var(--ytd-watch-flexy-panel-max-height) - 96px) !important;
+
+    }
+    
+    body > .loadingspinnerholder[style*="top"][style*="width"]{
+        display:none !important;
+        z-index:-1;
+        opacity:0;
+        visibility:collapse;
+    }
+
+    body > .loadingspinner[style*="top"][style*="width"]{
+        display:none !important;
+        z-index:-1;
+        opacity:0;
+        visibility:collapse;
+    }
+
+
+    ytd-transcript-segment-renderer{
+        content-visibility: auto;
+        contain: content;
+    }
+    ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer>#body{
+        contain: layout paint style;
+    }
+
+    yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer:focus {
+        outline: 0;
+    }
+
+    body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active){
+        background:transparent;
+    }
+    body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
+        background:transparent;
+    }
+/*
+    body .segment.ytd-transcript-segment-renderer:hover,
+    body .segment.ytd-transcript-segment-renderer:focus, 
+    body .segment.ytd-transcript-segment-renderer:active {
+        background-color: var(--yt-spec-badge-chip-background);
+    }
+    */
+    
+    ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
+        display:block;
+    }
