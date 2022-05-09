@@ -133,7 +133,7 @@ function injection_script_1() {
   let calledOnce = false;
 
   document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
-
+  
     function getEPC(ep) {
 
       if (!ep) return null;
@@ -153,12 +153,11 @@ function injection_script_1() {
 
     // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
 
-    let count = 0;
-    setTimeout(function $f() {
+    function createPanel(){
 
-      if (++count > 30) return;
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
-      if (!ytdFlexyElm) return setTimeout($f, 100);
+      if(!ytdFlexyElm) return null;
+
 
       /** @type {HTMLElement} */
       let newPanel = ytdFlexyElm.createComponent_({
@@ -218,56 +217,113 @@ function injection_script_1() {
 
       ytdFlexyElm.querySelector('#panels').appendChild(newPanel)
 
+      return newPanel;
+
+
+    }
+
+    let count = 0;
+    setTimeout(function $f() {
+
+      if (++count > 30) return;
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      if (!ytdFlexyElm) return setTimeout($f, 100);
+
+      
+
       function closeBtn() {
-        let hideBtns = null;
-        if (hideBtns = document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a')) {
-          for (const hideBtn of hideBtns) {
-            if (/\bhide\b/i.test(hideBtn.textContent)) return hideBtn;
-          }
-        }
+        return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
       }
 
-      new MutationObserver(function (mutations, observer) {
+      const visObserver = new MutationObserver(function (mutations, observer) {
 
         if (!mutations || !mutations[0]) return;
+        /** @type {HTMLElement} */
         let panel = mutations[0].target;
         if (!panel) return;
-        //console.log(panel)
-        setTimeout(function () {
-          if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
+        if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
+          setTimeout(function(){
+
             let hideBtn = closeBtn();
             if (hideBtn) hideBtn.dispatchEvent(new Event("click"));
-          }
-        }, 22);
-
-      }).observe(newPanel, {
-        attributes: true
-      })
-
-      new MutationObserver(function () {
-        let panel = document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
-        if (panel) {
-          let lyricscontainer = document.querySelector('body > #lyricscontainer')
-          if (!lyricscontainer && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
-            panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
-          }
+          },30);
+          //panel.querySelector('#lyricsiframe').remove();
         }
-      }).observe(document.body, {
-        childList: true
+
       })
 
-      setInterval(function () {
+      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
+      
+      let isLoading = false
+
+      let tf = null;
+      setInterval(tf=()=>{
+
+        if(!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')){
+          let newPanel = createPanel();
+          visObserver.takeRecords();
+          visObserver.disconnect();
+
+          visObserver.observe(newPanel, {
+            attributes: true,
+            attributeFilter: ['visibility']
+          })
+        }
+
+        
+        let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
+
+        if(isLoading!==isLoading_current){
+          isLoading = isLoading_current;
+          
+          let panel = document.querySelector(panel_cssSelector)
+          if(panel){
+            panel.classList.toggle('epanel-lyrics-loading', isLoading);
+          }
+        
+        }
+
+
+
         let elm = null;
-        if (elm = document.querySelector('body>#lyricscontainer>#lyricsiframe')) {
-          let panel = document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
-          let epc = getEPC(panel);
-          epc.innerHTML = '';
-          epc.appendChild(elm)
-          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
-        }
-      }, 400)
+        if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
 
-    }, 100)
+          let panel = document.querySelector(panel_cssSelector)
+          if(panel) {
+              
+            let epc = getEPC(panel);
+            if(epc) {
+
+              epc.innerHTML = '';
+              epc.appendChild(elm)
+              panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
+            }
+
+          }
+        }
+
+        
+  
+        for(const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')){
+          let lctc = clickable.textContent.toLocaleLowerCase()
+          clickable.setAttribute('lctc', lctc)
+          if(/\bhide\b/.test(lctc)){
+            clickable.classList.add('lctc-hide')
+            clickable.addEventListener('click',function(){
+              let panel = document.querySelector(panel_cssSelector)
+              if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
+                panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
+              }
+            },false)
+          }
+        }
+
+
+      },250)
+      tf();
+      
+
+    }, 25)
 
   })
   document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
