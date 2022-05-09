@@ -1010,11 +1010,12 @@
     elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
-    if (isMyScriptInChromeRuntime())
+    if (isMyScriptInChromeRuntime()){
       addScriptByURL(window.chrome.runtime.getURL('js/injectionScript_fixAutoComplete.js'));
-    else
-      addScript(`!!(${injectionScript_fixAutoComplete+''})()`);
-    //            addScriptByURL(`${githubURLBase}/${githubURLCommit}/js/injectionScript_fixAutoComplete.js`);
+    } else {
+      let injection_script = GM_getResourceText("injectionFixAutoComplete")
+      addScript(`${injection_script}`);
+    }
 
   }
 
@@ -2827,14 +2828,11 @@
   
   
       // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
-  
-      let count = 0;
-      setTimeout(function $f() {
-  
-        if (++count > 30) return;
-        let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
-        if (!ytdFlexyElm) return setTimeout($f, 100);
-  
+
+      function createPanel(){
+
+
+
         /** @type {HTMLElement} */
         let newPanel = ytdFlexyElm.createComponent_({
           "component": "ytd-engagement-panel-section-list-renderer",
@@ -2892,6 +2890,20 @@
         newPanel.classList.add('style-scope','ytd-watch-flexy')
   
         ytdFlexyElm.querySelector('#panels').appendChild(newPanel)
+
+        return newPanel;
+
+
+      }
+  
+      let count = 0;
+      setTimeout(function $f() {
+  
+        if (++count > 30) return;
+        let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+        if (!ytdFlexyElm) return setTimeout($f, 100);
+  
+        
   
         function closeBtn() {
           let hideBtns = null;
@@ -2901,8 +2913,8 @@
             }
           }
         }
-  
-        new MutationObserver(function (mutations, observer) {
+
+        let visObserver = new MutationObserver(function (mutations, observer) {
   
           if (!mutations || !mutations[0]) return;
           let panel = mutations[0].target;
@@ -2915,9 +2927,8 @@
             }
           }, 22);
   
-        }).observe(newPanel, {
-          attributes: true
         })
+  
   
         new MutationObserver(function () {
           let panel = document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
@@ -2932,10 +2943,24 @@
         })
   
         setInterval(function () {
+
+
+          if(!document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')){
+            let newPanel = createPanel();
+
+            visObserver.observe(newPanel, {
+              attributes: true
+            })
+          }
+
+
           let elm = null;
           if (elm = document.querySelector('body>#lyricscontainer>#lyricsiframe')) {
+
             let panel = document.querySelector('ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+            if(!panel) return;
             let epc = getEPC(panel);
+            if(!epc) return;
             epc.innerHTML = '';
             epc.appendChild(elm)
             panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
@@ -3281,12 +3306,15 @@
 
         if (!document.querySelector('script#userscript-tabview-injection-1')) {
 
-          if (isMyScriptInChromeRuntime())
-            addScriptByURL(window.chrome.runtime.getURL('js/injection_script_1.js')).id = 'userscript-tabview-injection-1';
-          else
-            addScript(`!!(${injection_script_1+""})()`).id = 'userscript-tabview-injection-1'
-          //            addScriptByURL(`${githubURLBase}/${githubURLCommit}/js/injection_script_1.js`).id='userscript-tabview-injection-1';
+          if (isMyScriptInChromeRuntime()){
 
+            addScriptByURL(window.chrome.runtime.getURL('js/injection_script_1.js')).id = 'userscript-tabview-injection-1';
+          }
+          else{
+
+            let injection_script = GM_getResourceText("injectionJS1")
+            addScript(`${injection_script}`).id = 'userscript-tabview-injection-1';
+          }
         }
 
         let ytdFlexyElm = document.querySelector('ytd-watch-flexy')

@@ -2104,7 +2104,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      
 
     ytd-watch-flexy #content.ytd-engagement-panel-section-list-renderer iframe#lyricsiframe{
-        width: 100% important;
+        width: 100% !important;
         height: calc(var(--ytd-watch-flexy-panel-max-height) - 96px) !important;
 
     }
@@ -2153,3 +2153,44 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
         display:block;
     }
+    ytd-engagement-panel-section-list-renderer #lyricsiframe{
+        transition: none;
+    }
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading #lyricsiframe{
+        opacity: 0 !important;
+        pointer-events:none;
+    }
+
+    ytd-engagement-panel-section-list-renderer:not(.epanel-lyrics-loading) #lyricsiframe{
+        opacity: 1 !important;
+    }
+
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading{
+        overflow:hidden;
+        position:relative;
+    }
+
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading::before{
+        
+        position: absolute;
+        content: "Loading";
+        z-index: 0;
+        display: block;
+        height: 100%;
+        color: var(--yt-spec-text-primary);
+        background-color: var(--ytd-searchbox-legacy-button-hover-border-color);
+        width: 100%;
+        text-align: center;
+        /* line-height: 300px; */
+        line-height: calc(var(--ytd-watch-flexy-panel-max-height) - 96px);
+        letter-spacing: var(--userscript-loading-content-letter-spacing);
+
+    }
+
+    body > #lyricscontainer > #lyricsiframe {
+        
+        opacity: 0 !important;
+        pointer-events:none;
+    }
+
+    
