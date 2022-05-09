@@ -81,16 +81,17 @@
   const mtoInterval2 = 150;
 
   let lastVideoURL = null; // for less attribute set only
-
-
+  
+  /** @type {WeakRef | null} */ 
   const WeakRef = window.WeakRef;
   const mWeakRef = WeakRef ? (o => o ? new WeakRef(o) : null) : (o => o || null);
+  /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
 
 
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-  function nonCryptoRandStr(n){
+  function nonCryptoRandStr(/** @type {number} */ n){
     const result = new Array(n);
     const baseStr = nonCryptoRandStr_base;
     const bLen = baseStr.length;
@@ -116,7 +117,7 @@
     /** @type {MutationObserver | IntersectionObserver} */
     observer;    
     
-    constructor(/** @type {Function} */ observerCreator){
+    constructor(/** @type {()=>MutationObserver | IntersectionObserver} */ observerCreator){
       let uid = null;
       const uidStore = ObserverRegister.uidStore;
       do{
@@ -289,18 +290,18 @@
 
 
 
-  function prettyElm(elm) {
+  function prettyElm(/** @type {Element} */ elm) {
     if (!elm || !elm.nodeName) return null;
     const eId = elm.id || null;
     const eClsName = elm.className || null;
     return [elm.nodeName.toLowerCase(), typeof eId == 'string' ? "#" + eId : '', typeof eClsName == 'string' ? '.' + eClsName.replace(/\s+/g, '.') : ''].join('').trim();
   }
 
-  function extractTextContent(elm) {
+  function extractTextContent(/** @type {Node} */ elm) {
     return elm.textContent.replace(/\s+/g, '').replace(/[^\da-zA-Z\u4E00-\u9FFF\u00C0-\u00FF\u00C0-\u02AF\u1E00-\u1EFF\u0590-\u05FF\u0400-\u052F\u0E00-\u0E7F\u0600-\u06FF\u0750-\u077F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\u3040-\u30FF\u31F0-\u31FF]/g, '')
   }
 
-  function addScript(scriptText) {
+  function addScript(/** @type {string} */ scriptText) {
     const scriptNode = document.createElement('script');
     scriptNode.type = 'text/javascript';
     scriptNode.textContent = scriptText;
@@ -312,7 +313,7 @@
     return scriptNode;
   }
 
-  function addScriptByURL(scriptURL) {
+  function addScriptByURL(/** @type {string} */ scriptURL) {
     const scriptNode = document.createElement('script');
     scriptNode.type = 'text/javascript';
     scriptNode.src = scriptURL;
@@ -324,7 +325,7 @@
     return scriptNode;
   }
 
-  function addStyle(styleText, container) {
+  function addStyle(/** @type {string} */ styleText, /** @type {HTMLElement | Document} */ container) {
     const styleNode = document.createElement('style');
     //styleNode.type = 'text/css';
     styleNode.textContent = styleText;
@@ -333,7 +334,7 @@
   }
 
 
-  const stopIframePropagation = function(evt){
+  const stopIframePropagation = function(/** @type {Event} */ evt){
     if(scriptEnable && evt && evt.target && evt.target.nodeName=='IFRAME'){
       evt.stopImmediatePropagation();
       evt.stopPropagation();
@@ -350,7 +351,7 @@
 
 
 
-  function isDOMVisible(elem) {
+  function isDOMVisible(/** @type {HTMLElement} */ elem) {
     // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
   }
@@ -360,29 +361,25 @@
   }
 
 
-  async function nativeFunc(dom, property, args) {
+  async function nativeFunc(/** @type {EventTarget} */ dom, /** @type {string} */ property, /** @type {any} */ args) {
     dom.dispatchEvent(new CustomEvent("userscript-call-dom-func", { detail: { property, args } }))
   }
 
-  /*
-  async function nativeValue(dom, property, args) {
-    dom.dispatchEvent(new CustomEvent("userscript-call-dom-value", { detail: { property, args } }))
-  }
-  */
-  async function nativeFuncStacked(selector, property, args){
-    document.dispatchEvent(new CustomEvent("userscript-call-dom-func-stacked", { detail: { selector, property, args } }))
-  }
-  /*
-  async function nativeValueStacked(selector, property, args){
-    document.dispatchEvent(new CustomEvent("userscript-call-dom-value-stacked", { detail: { selector, property, args } }))
-  }
-  async function nativeConstStacked(selector, property, args){
-    document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
-  }
-  */
+  // async function nativeValue(dom, property, args) {
+  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom-value", { detail: { property, args } }))
+  // }
+  // async function nativeFuncStacked(/** @type {string} */ selector, /** @type {string} */ property, /** @type {any} */ args){
+  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-func-stacked", { detail: { selector, property, args } }))
+  // }
+  // async function nativeValueStacked(selector, property, args){
+  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-value-stacked", { detail: { selector, property, args } }))
+  // }
+  // async function nativeConstStacked(selector, property, args){
+  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
+  // }
 
 
-  function akAttr(cssElm, attrName, isNegative, flag) {
+  function akAttr(/** @type {HTMLElement} */ cssElm, /** @type {String} */ attrName, /** @type {boolean} */ isNegative, /** @type {string | any} */ flag) {
     // isNegative => incomplete loading
 
     let u = parseInt(cssElm.getAttribute(attrName) || 0) || 0;
@@ -416,7 +413,7 @@
 
 
 
-  function layoutStatusChanged(old_layoutStatus, new_layoutStatus) {
+  function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
 
 
     if (old_layoutStatus === new_layoutStatus) return;
@@ -429,11 +426,13 @@
     const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
     const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
 
-    const new_isTwoColumns = new_layoutStatus & LAYOUT_TWO_COLUMNS;
-    const new_isTheater = new_layoutStatus & LAYOUT_THEATER;
-    const new_isTabExpanded = new_layoutStatus & LAYOUT_TAB_EXPANDED;
-    const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
-    const new_isExpandEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const new_isTwoColumns = !!(new_layoutStatus & LAYOUT_TWO_COLUMNS);
+    const new_isTheater = !!(new_layoutStatus & LAYOUT_THEATER);
+    const new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
+    const new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
+    const new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
+
+    
 
 
     function showTabOrChat() {
@@ -517,6 +516,21 @@
 
     if (fullscreen_mode_changed || new_isFullScreen) {
 
+    } else if(new_isTwoColumns && !new_isTheater && !column_mode_changed && (tab_change==2 || tab_change==4) && !new_isTabExpanded && new_isExpandedChat && new_isExpandEPanel){
+
+      if(epanel_expanded_changed){
+        layoutStatusMutex.lockWith(unlock => {
+          ytBtnCollapseChat();
+          setTimeout(unlock,13)
+        })
+      }else if(chat_collasped_changed){
+        layoutStatusMutex.lockWith(unlock => {
+          ytBtnCloseEngagementPanels();
+          setTimeout(unlock,13)
+        })
+
+      }
+
     } else if (tab_change == 0 && column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && moreThanOneShown) {
 
       showTabOrChat();
@@ -554,12 +568,8 @@
       // bug fix for restoring from mini player
 
       layoutStatusMutex.lockWith(unlock => {
-
-        if (new_isExpandedChat) ytBtnCollapseChat()
         setToActiveTab();
-
         timeline.setTimeout(unlock, 40);
-
       })
 
       requestVideoResize = true;
@@ -598,43 +608,45 @@
   }
 
 
-  const $ws = {
-    _layoutStatus: null,
-    layoutStatus_pending: false
-  }
 
-  let wls = new class {
-    get layoutStatus() {
-      return this._layoutStatus;
-    }
-    set layoutStatus(nv) {
-
-      if (nv === null) {
-        this._layoutStatus = null;
-        statusCollasped = 0;
-        return;
+  const wls = new Proxy({
+    /** @type {number | null} */
+    layoutStatus:undefined
+  }, {
+    get: function(target, prop) {
+      return target[prop];
+    },
+    set: function(target, prop, value) {
+      if(prop=='layoutStatus'){
+          
+        if (value === null) {
+          statusCollasped = 0;
+          target[prop] = value;
+          return;
+        }else if(target[prop]===value){
+          return;
+        }else{
+          if (!target.layoutStatus_pending) {
+            target.layoutStatus_pending = true;
+            const old_layoutStatus = target[prop];
+            target[prop] = value;
+            layoutStatusMutex.lockWith(unlock => {
+              target.layoutStatus_pending = false;
+              layoutStatusChanged(old_layoutStatus, target[prop]);
+              timeline.setTimeout(unlock, 40)
+            })
+            return;
+          }
+        }
       }
-      if (nv === this._layoutStatus) return;
-
-      if (!this.layoutStatus_pending) {
-        this.layoutStatus_pending = true;
-        const old_layoutStatus = this._layoutStatus;
-
-        layoutStatusMutex.lockWith(unlock => {
-
-          this.layoutStatus_pending = false;
-          const new_layoutStatus = this._layoutStatus;
-          layoutStatusChanged(old_layoutStatus, new_layoutStatus);
-
-          timeline.setTimeout(unlock, 40)
-
-
-        })
-      }
-
-      this._layoutStatus = nv;
+      target[prop] = value;
+    },
+    has: function(target, prop) {
+      return (prop in target);
     }
-  };
+  });
+
+
 
 
 
@@ -733,7 +745,7 @@
   }
 
 
-  function ytBtnOpenEngagementPanel(panel_id) {
+  function ytBtnOpenEngagementPanel(/** @type {number | string} */ panel_id) {
 
     if (typeof panel_id == 'string') {
       panel_id = panel_id.replace('#engagement-panel-', '');
@@ -753,7 +765,7 @@
 
   }
 
-  function ytBtnCloseEngagementPanel(s) {
+  function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */  s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
     let btn = s.querySelector('ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header>#visibility-button>ytd-button-renderer');
     if (btn) {
@@ -821,22 +833,15 @@
 
 
   const Q = {}
-  const FOnce = {}
-
-  const $callOnce = function(key) {
-    if (FOnce[key] && FOnce[key]() === false) FOnce[key] = null
-  }
-  const $callOnceAsync = async function(key) {
-    if (FOnce[key] && FOnce[key]() === false) FOnce[key] = null
-  }
 
 
 
   function chatFrameContentDocument() {
     // non-null if iframe exist && contentDocument && readyState = complete
-
+    /** @type {HTMLIFrameElement | null} */ 
     let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
     if (!iframe) return null; //iframe must be there
+    /** @type {Document | null} */ 
     let cDoc = null;
     try {
       cDoc = iframe.contentDocument;
@@ -848,9 +853,10 @@
 
   }
 
-  function chatFrameElement(cssSelector) {
+  function chatFrameElement(/** @type {string} */ cssSelector) {
     let cDoc = chatFrameContentDocument();
     if (!cDoc) return null;
+    /** @type {HTMLElement | null} */ 
     let elm = null;
     try {
       elm = cDoc.querySelector(cssSelector)
@@ -912,7 +918,7 @@
 
 
 
-
+    /** @type {HTMLElement | null} */ 
     let chatroom = null;
     if (chatroom = document.querySelector('*:not([data-positioner="before|#chat"]) + ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')) {
 
@@ -941,6 +947,7 @@
   function handlerAutoCompleteExist() {
 
 
+    /** @type {HTMLElement} */ 
     let autoComplete = this;
 
     autoComplete.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
@@ -963,14 +970,14 @@
 
   }
 
-  function mtf_fixAutoCompletePosition(elmAutoComplete) {
+  function mtf_fixAutoCompletePosition(/** @type {HTMLElement} */ elmAutoComplete) {
 
 
     elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
     if(document.querySelector('script#userscript-tabview-injection-facp')) return;
-    
+
     if (isMyScriptInChromeRuntime()){
       addScriptByURL(window.chrome.runtime.getURL('js/injectionScript_fixAutoComplete.js')).id = 'userscript-tabview-injection-facp';;
     } else {
@@ -983,9 +990,11 @@
   function mtf_AfterFixTabs() {
 
 
+    /** @type {HTMLElement | null} */ 
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
+    /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
 
@@ -1426,7 +1435,6 @@
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return ;
 
-    const rootElement = Q.mutationTarget || ytdFlexyElm;
     const playerLabel = document.querySelector('ytd-watch-flexy:not([hidden]) #ytd-player .ytp-time-display') && document.querySelector('ytd-watch-flexy:not([hidden]) ytd-live-chat-frame#chat')
     if (!playerLabel) return ;
     mtf_forceCheckLiveVideo_disable = 1;
@@ -1436,10 +1444,12 @@
 
   // continuous check for element relocation
   function mtf_append_comments() {
-
+    
+    /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
+    /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
     let comments = rootElement.querySelector('#primary ytd-watch-metadata ~ ytd-comments#comments');
@@ -1448,9 +1458,12 @@
 
   // continuous check for element relocation
   function mtf_liveChatBtnF() {
+    
+    /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
+    /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
     let button = rootElement.querySelector('ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
@@ -1463,9 +1476,11 @@
   // fired at begining & window resize, etc
   function mtf_append_playlist() {
 
+    /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
+    /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
     let ple1 = rootElement.querySelector("*:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist");
@@ -1559,29 +1574,9 @@
 
   }
 
+  function _innerCommentsLoader( /** @type {HTMLElement} */ rootElement) {
 
-  function getFMT(ytdFlexyElm) {
-
-
-    let fmt = ["ytd-comments#comments #count.ytd-comments-header-renderer", 'ytd-item-section-renderer#sections #header ~ #contents>ytd-message-renderer'].map(s => {
-
-      let elm = ytdFlexyElm.querySelector(s)
-      if (!elm) return null;
-      return elm.querySelector('yt-formatted-string') || elm.closest('yt-formatted-string') || null
-
-
-    });
-
-    return fmt
-  }
-
-  function toFST(elm) {
-    if (!elm) return null;
-    return elm.querySelector('yt-formatted-string') || elm.closest('yt-formatted-string') || null
-  }
-
-  function _innerCommentsLoader(rootElement) {
-
+    /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
     
@@ -2060,7 +2055,7 @@
 
     },
 
-    mtoNavF: (mutations, observer) => {
+    mtoNavF: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */   observer) => {
       //subtree DOM mutation checker - {ytd-watch-flexy} \single \subtree
 
       newVideoPageCheck()
@@ -2165,7 +2160,7 @@
     },
 
 
-    mtoBodyF: function(mutations, observer) {
+    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */   observer) => {
       //subtree DOM mutation checker - {body} \single \subtree
 
       if (!scriptEnable) return;
@@ -2327,7 +2322,7 @@
 
     },
 
-    mtf_attrEngagementPanel: (mutations, observer) => {
+    mtf_attrEngagementPanel: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */   observer) => {
       //attr mutation checker - {ytd-engagement-panel-section-list-renderer} \mutiple
       //::attr ~ visibility
 
@@ -2514,7 +2509,10 @@
 
 
 
+  /** @type {WeakRef | null} */ 
   let displayedPlaylist = null;
+  
+  /** @type {WeakRef | null} */ 
   let scrollingVideosList = null;
 
   let scriptEnable = false;
@@ -2527,13 +2525,12 @@
   let no_fix_playlist_until = 0;
   let statusCollasped = 0;
 
+  /** @type {WeakRef | null} */ 
   let ytdFlexy = null;
 
   function pluginUnhook() {
-    _pluginUnhook()
-
+    _pluginUnhook();
     resetCommentSection();
-
   }
 
   function _pluginUnhook() {
@@ -2914,7 +2911,7 @@
     akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'LS')
   }
 
-  function setCommentSection(value) {
+  function setCommentSection( /** @type {number} */ value) {
 
     Q.comments_section_loaded = value;
 
@@ -3239,7 +3236,7 @@
           timeline.setTimeout(() => {
             if (!scriptEnable) return;
             //delayed call => check with the "no active focus" condition with engagement panel status
-            if (!isAnyActiveTab() && !isEngagementPanelExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()) {
+            if (!isAnyActiveTab() && !isEngagementPanelExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()) {
               setToActiveTab();
             }
           }, 240);
@@ -3409,35 +3406,7 @@
     displayedPlaylist = mWeakRef(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer') || null);
   }
 
-  function fixLineClampFn1() {
-    // use IntersectionObserver for new browser
-    
-    if(!isIntersectionObserverAvailable)
-    timeline.setTimeout(() => requestAnimationFrame(() => new Promise(fixLineClampFn2)), 1)
-  }
 
-  //let lastFixLineClamp = 0
-  //let mConstructor = null
-  const isIntersectionObserverAvailable= !!window.IntersectionObserver;
-  function fixLineClampFn2() {
-    //let currentTime= Date.now();
-    //if(currentTime)
-    let contentElements = document.querySelectorAll('ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander:not(.tabview-fix-line-clamp)'); 
-          // backward compatible with Waterfox Classic 
-      // let contentElements = document.querySelectorAll('ytd-comments#comments ytd-expander[should-use-number-of-lines] > #content') 
-    for (const elm of contentElements){
-      //nativeValue(elm.parentNode,'recomputeOnResize',true)
-
-      // loading -> fetched -> loaded in non-visual mode
-      // require to trigger the update using mutation observer for line clamp
-      elm.classList.toggle('tabview-fix-line-clamp'); // this is to trigger mutation observer in dekstop_polymer.js
-  
-    }
-    nativeFuncStacked('ytd-comments#comments ytd-expander[max-number-of-lines]', 'calculateCanCollapse'); 
-    
-    //nativeConstStacked('ytd-comments#comments ytd-expander[max-number-of-lines]', 'recomputeOnResize',true); 
-    contentElements = null;
-  }
   
 
   function switchTabActivity(activeLink) {
@@ -3486,9 +3455,6 @@
 
       }
 
-      if (lastShowTab == '#tab-comments') {
-        fixLineClampFn1();
-      }
 
     }
 
@@ -3639,7 +3605,7 @@
 
   let scrolling_lastD = 0;
 
-  const singleColumnScrolling = function(scrolling_lastF) {
+  const singleColumnScrolling = function(/** @type {boolean} */  scrolling_lastF) {
     
     if (!scriptEnable || deferredVarYTDHidden) return;
 
@@ -3733,8 +3699,6 @@
     requestAnimationFrame(() => {
       singleColumnScrolling(true)
     })
-
-    if(lastShowTab == '#tab-comments') fixLineClampFn1() // in case window resized leading the change of number of lines.
 
   }, {
     capture: false,
@@ -3830,16 +3794,7 @@
         const new_isTabExpanded = new_layoutStatus & LAYOUT_TAB_EXPANDED;
         const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
         const new_isExpandEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND;
-
-        /*
-        console.log('d67',
-        
-        ytdFlexyElm.getAttribute('tabview-selection')==='' ,
-         new_isTwoColumns , !new_isTheater, !new_isTabExpanded, !new_isFullScreen , !new_isExpandEPanel , !new_isExpandedChat
-
-        )
-        */
-
+ 
         if( ytdFlexyElm.getAttribute('tabview-selection')==='' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat ){
           // e.g. engage panel removed after miniview and change video
           setToActiveTab();
@@ -3942,7 +3897,7 @@
   }, { capture: true, passive: true });
 
 
-  function setVideosTwoColumns(flag, bool) {
+  function setVideosTwoColumns(/** @type {number} */ flag, /** @type {boolean} */ bool) {
 
     //two columns to one column
 
@@ -4069,6 +4024,7 @@
 
   let storeLastPanel = null;
 
+  /** @type {boolean | null} */
   let deferredVarYTDHidden = null;
   let scheduledCommentRefresh = false;
 
@@ -4096,16 +4052,16 @@
     // after initialized (initObserver)
     cn1:{},
     cn2:{},
-    setTimeout(f,d){
+    setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d){
       return timeline.cn1[setTimeout(f,d)]=true
     },
-    clearTimeout(cid){
+    clearTimeout(/** @type {number} */ cid){
       timeline.cn1[cid]=false; return clearTimeout(cid)
     },
-    setInterval(f,d){
+    setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d){
       return timeline.cn2[setInterval(f,d)]=true
     },
-    clearInterval(cid){
+    clearInterval(/** @type {number} */ cid){
       timeline.cn2[cid]=false; return clearInterval(cid)
     },
     reset(){
@@ -4136,7 +4092,7 @@
       this._target = null;
       super.disconnect();
     }
-    observe(target){
+    observe(/** @type {Node} */ target){
       if(this._target) return; 
       this._target = mWeakRef(target);
       const options = {
@@ -4147,7 +4103,7 @@
       }
       super.observe(target, options)
     }
-    checker(target, attributeName){
+    checker(/** @type {Node} */ target,/** @type {string} */ attributeName){
       let nv = target.getAttribute(attributeName);
       if(this.res[attributeName]!==nv){
         this.res[attributeName] = nv
