@@ -1,6 +1,8 @@
 "use strict";
 
 function injection_script_1() {
+  
+  if(!window || !window.customElements || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
   document.addEventListener('userscript-call-dom-func', function (evt) {
 
@@ -109,7 +111,7 @@ function injection_script_1() {
 
 
   }
-  Object.defineProperty(HTMLElement.prototype, 'recomputeOnResize', {
+  Object.defineProperty(customElements.get('ytd-expander').prototype, 'recomputeOnResize', {
     get() {
       if (this.calculateCanCollapse !== f1) {
         this.calculateCanCollapse = f1
@@ -223,7 +225,7 @@ function injection_script_1() {
     }
 
     let count = 0;
-    setTimeout(function $f() {
+    function $f() {
 
       if (++count > 30) return;
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
@@ -257,6 +259,12 @@ function injection_script_1() {
       let isLoading = false
 
       let tf = null;
+      const closeClick = function(){
+        let panel = document.querySelector(panel_cssSelector)
+        if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
+          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
+        }
+      }
       setInterval(tf=()=>{
 
         if(!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')){
@@ -309,12 +317,7 @@ function injection_script_1() {
           clickable.setAttribute('lctc', lctc)
           if(/\bhide\b/.test(lctc)){
             clickable.classList.add('lctc-hide')
-            clickable.addEventListener('click',function(){
-              let panel = document.querySelector(panel_cssSelector)
-              if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
-                panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
-              }
-            },false)
+            clickable.addEventListener('click',closeClick,false)
           }
         }
 
@@ -323,11 +326,13 @@ function injection_script_1() {
       tf();
       
 
-    }, 25)
+    }
+    $f();
 
   })
   document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
 
+  /*
   function removeChildren(cssSelector, parentNode) {
     let elements = parentNode.querySelectorAll(cssSelector);
     let fragment = document.createDocumentFragment();
@@ -350,6 +355,7 @@ function injection_script_1() {
     }
     return elm;
   }
+  */
 
 
   //https://www.youtube.com/watch?v=Ud73fm4Uoq0
@@ -362,7 +368,7 @@ function injection_script_1() {
   function snippetText(snippet) {
     let res = [];
     for (const s of snippet.runs) {
-      res.push(_snippetText(s.text))
+      res.push(_snippetText(s.text||''))
     }
     return res.join('\n');
   }
@@ -455,6 +461,7 @@ function injection_script_1() {
       let main_endMs = (+segment.transcriptSegmentRenderer.endMs || 0)
       segment.transcriptSegmentRenderer[s7] = {};
       for (const initialSegment of initialSegments) {
+        if (!initialSegment) continue;
         if (initialSegment[s8]) continue;
 
         let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
@@ -474,7 +481,7 @@ function injection_script_1() {
 
       let snippet = segment.transcriptSegmentRenderer.snippet
 
-      let main_str = trim2(_snippetText(snippet.runs[0].text));
+      let main_str = trim2(_snippetText(snippet.runs[0].text||''));
 
       snippet.runs[0].text = main_str
 
