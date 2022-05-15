@@ -198,7 +198,7 @@ html:not(.style-scope) {
     /* Global */
     
     
-    #columns>yt-img-shadow, #columns>img{
+    #columns > yt-img-shadow, #columns > img{
         position: absolute;
         z-index: -1;
         visibility: collapse;
@@ -356,7 +356,7 @@ html:not(.style-scope) {
         zoom: 0.95;
     }
     
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer>*{
+    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer > *{
         align-self: center;
     }
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-icon-button#button{
@@ -700,7 +700,7 @@ html:not(.style-scope) {
 
     
 
-    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content>.tab-content-cld:not(.tab-content-hidden){
+    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content > .tab-content-cld:not(.tab-content-hidden){
         min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--tabview-youtube-tabbtn-height) - var(--ytd-margin-3x));
     }
            
@@ -724,7 +724,7 @@ html:not(.style-scope) {
     
     
     
-    ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child{
+    ytd-live-chat-frame#chat:not([collapsed]) > .ytd-live-chat-frame#show-hide-button:first-child{
         border-bottom: 1px solid var(--yt-spec-10-percent-layer);
         box-sizing: border-box;
         border-bottom-color: var(--yt-spec-general-background-a); /* css fix to background loading */
@@ -1229,8 +1229,8 @@ html:not(.style-scope) {
     
     
     /* hide original right tabs {#related} */
-    #primary-inner>#related, #secondary-inner>#related, /* during resizing - relocate it between {#primary} and {#secondary} */
-    *:not(#tab-videos)>#related,
+    #primary-inner > #related, #secondary-inner > #related, /* during resizing - relocate it between {#primary} and {#secondary} */
+    *:not(#tab-videos) > #related,
     #related #related, /* youtube coding bug */
     *:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer,  /* hide videos list & play list before script loading */
     #related > #related-skeleton, #related > #player-ads,
@@ -1250,7 +1250,7 @@ html:not(.style-scope) {
         position: absolute;
         z-index: -1;
         visibility: collapse;
-        contain: content;
+        contain: layout paint;
     }
     
     
@@ -1308,14 +1308,14 @@ html:not(.style-scope) {
         /* keep the single column view css as simple as possible */
         /* use js coding to make it like sticky */
         /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
-        #right-tabs>header{
+        #right-tabs > header{
             position: relative;
             box-sizing:border-box;
         }
-        ytd-watch-flexy[flexy] #right-tabs>header{
+        ytd-watch-flexy[flexy] #right-tabs > header{
             background-color: var(--yt-spec-general-background-a);
         }
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header{
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] > header{
             z-index: 2;
             position: fixed;
             top: var(--ytd-watch-flexy-masthead-height);
@@ -1379,7 +1379,7 @@ html:not(.style-scope) {
     
         /* video player sticky at the top */
     
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#player:first-child {
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
             top: 0;
             position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
         }
@@ -1410,7 +1410,7 @@ html:not(.style-scope) {
             display: none;
         }
         /* video player sticky at the top */
-        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])>#player-theater-container {
+        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) > #player-theater-container {
             top: 0;
             position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
         }
@@ -1489,7 +1489,7 @@ html:not(.style-scope) {
         flex-flow: column;
         height: 100%;
     }
-    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#info{
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #info{
         flex: 1;
     }
     
@@ -1511,19 +1511,19 @@ html:not(.style-scope) {
         display: flex;    
         flex-direction: column;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns{
         flex: 1;
         overflow: auto;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary{
         overflow: auto;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns #primary-inner{
         display: flex;
         flex-flow: column;
         height: 100%;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner>#info{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns #primary-inner > #info{
         flex: 1;
     }
     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary{
@@ -1544,11 +1544,11 @@ html:not(.style-scope) {
     
     
     
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary{
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary{
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary::-webkit-scrollbar {
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary::-webkit-scrollbar {
         display: none;
     }
     
@@ -1572,7 +1572,7 @@ html:not(.style-scope) {
     
     
     
-    ytd-watch-flexy[tabview-selection="#tab-list"]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer>#container{
+    ytd-watch-flexy[tabview-selection="#tab-list"]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer > #container{
         max-height: none;
     }
     
@@ -1584,7 +1584,7 @@ html:not(.style-scope) {
     }
     
     
-    ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search{
+    ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue] > #suggestions-search{
         position: sticky; 
         top: -1px;  /* visual gap */
         z-index: 2;
@@ -1614,7 +1614,7 @@ html:not(.style-scope) {
     
     /* autocomplete */
     
-    autocomplete-positioner>.autocomplete-suggestions{
+    autocomplete-positioner > .autocomplete-suggestions{
         position: absolute !important;
         left:auto !important;
         top:auto !important;
@@ -1647,7 +1647,7 @@ html:not(.style-scope) {
         top: calc( var(--height, auto) - var(--tab-content-padding, 0px)) ;
         z-index: 2; 
     }
-    autocomplete-positioner[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube]{
+    autocomplete-positioner[position-fixed-by-tabview-youtube] > .autocomplete-suggestions[position-fixed-by-tabview-youtube]{
         z-index: 2; 
     }
     
@@ -1790,7 +1790,7 @@ html:not(.style-scope) {
     ytd-comment-renderer:not([can-reorder]):not([touch-persistent-drag-handle]), 
     ytd-comment-replies-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
     ytd-compact-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle]){
-        contain: content;
+        contain: layout paint;
     }
 
     iframe[src][id]{ 
@@ -1798,18 +1798,18 @@ html:not(.style-scope) {
     }
 
     ytd-live-chat-frame{
-        contain: content;
+        contain: layout paint;
     } 
 
     #masthead-container, ytd-masthead#masthead{
         contain: layout style; /* experimental */
     }
     
-    ytd-masthead>#container{
+    ytd-masthead > #container{
         contain: size layout style; /* experimental */
     }
 
-    ytd-masthead>#container .style-scope.ytd-masthead{
+    ytd-masthead > #container .style-scope.ytd-masthead{
        contain: layout style; /* experimental */
     }
  
@@ -1819,15 +1819,15 @@ html:not(.style-scope) {
         contain: layout paint style;
     }
     .ytp-caption-window-container .caption-window, .ytp-caption-window-container .captions-text, .ytp-caption-window-container .caption-visual-line, .ytp-caption-window-container .ytp-caption-segment{
-        contain: content;
+        contain: layout paint;
     }
 
 
     yt-icon-button, .ytp-button{
-        contain: content;
+        contain: layout paint;
     }
     yt-img-shadow{
-        contain: content;
+        contain: layout paint;
     }
     
     yt-img-shadow[height][width]{
@@ -1902,14 +1902,18 @@ html:not(.style-scope) {
     }
 
   
-    ytd-watch-flexy .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents,
-    ytd-watch-flexy .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items{
-        contain: content;
+    ytd-watch-flexy .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
+        contain: layout paint;
+    }
+
+    
+    ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
+        contain: layout paint style;
     }
   
     
-    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents,
-    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items{
+    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents,
+    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
         content-visibility: auto;
     }
         
@@ -1992,10 +1996,10 @@ html:not(.style-scope) {
     
     /* Chrome / Firefox / Edge */
     /*
-    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines]>#content.ytd-expander{
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines] > #content.ytd-expander{
        opacity:0.998;
     }
-    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines]>#content.ytd-expander.tabview-fix-line-clamp{
+    #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines] > #content.ytd-expander.tabview-fix-line-clamp{
        opacity:0.999;
     }
     */
@@ -2031,28 +2035,25 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
      */
 
+
+
+     /* css for menu bar and hide image button text */
+
      ytd-watch-flexy ytd-video-primary-info-renderer ytd-menu-renderer yt-formatted-string.style-scope.ytd-toggle-button-renderer.style-text{
          white-space: pre;
      }
-
-
-
-
         
      ytd-watch-flexy ytd-video-primary-info-renderer ytd-button-renderer.force-icon-button a.ytd-button-renderer{
-
         overflow: hidden;
         flex-wrap: wrap;
         width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
         height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-
     }
 
     ytd-watch-flexy ytd-video-primary-info-renderer{
         --yt-button-icon-size: 32px;
     }
 
-    
     ytd-watch-flexy ytd-video-primary-info-renderer .ytd-menu-renderer[style-target=button]{
         --yt-icon-button-icon-width: 24px;
         --yt-icon-button-icon-height: 24px;
@@ -2062,14 +2063,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         height: var(--yt-icon-height);
     }
 
-    
     ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer{
-        
-        
         height: auto;
         overflow: visible;
         -webkit-line-clamp: initial;
-    
     }
 
     /*
@@ -2097,6 +2094,52 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         flex-grow: 1;
     }
     */
+
+       
+    ytd-watch-flexy ytd-video-primary-info-renderer ytd-download-button-renderer.force-icon-button a.ytd-download-button-renderer{
+       overflow: hidden;
+       flex-wrap: wrap;
+       width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
+       height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
+   }
+ 
+    
+    /*  Some CSS fix for transcript */
+
+    ytd-transcript-segment-renderer{
+        content-visibility: auto;
+        contain: layout paint;
+    }
+    ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer > #body{
+        contain: layout paint style;
+    }
+
+    yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer:focus {
+        outline: 0;
+    }
+
+    body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active){
+        background:transparent;
+    }
+    body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
+        background:transparent;
+    }
+/*
+    body .segment.ytd-transcript-segment-renderer:hover,
+    body .segment.ytd-transcript-segment-renderer:focus, 
+    body .segment.ytd-transcript-segment-renderer:active {
+        background-color: var(--yt-spec-badge-chip-background);
+    }
+    */
+    
+    ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
+        display:block;
+    }
+
+
+    /*  Userscript - Youtube Genius Lyrics */
+
+
     body> .loadingspinnerholder[title][style]{
         --tabview-youtube-tabbtn-height: 46px;
         margin-top:var(--tabview-youtube-tabbtn-height, 0px);
@@ -2124,35 +2167,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 
-    ytd-transcript-segment-renderer{
-        content-visibility: auto;
-        contain: content;
-    }
-    ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer>#body{
-        contain: layout paint style;
-    }
-
-    yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer:focus {
-        outline: 0;
-    }
-
-    body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active){
-        background:transparent;
-    }
-    body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
-        background:transparent;
-    }
-/*
-    body .segment.ytd-transcript-segment-renderer:hover,
-    body .segment.ytd-transcript-segment-renderer:focus, 
-    body .segment.ytd-transcript-segment-renderer:active {
-        background-color: var(--yt-spec-badge-chip-background);
-    }
-    */
-    
-    ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
-        display:block;
-    }
     ytd-engagement-panel-section-list-renderer #lyricsiframe{
         transition: none;
     }
@@ -2193,4 +2207,43 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         pointer-events:none;
     }
 
-    
+
+    /*  contain-intrinsic-size - guess the size = 1.2 x SizeMax */
+        
+    @supports (contain-intrinsic-size: 1px 1px){
+
+        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]{
+            content-visibility: auto;
+            contain-intrinsic-size: 1px var(--tabview-cmt-height, 234px); /* 1.2 x SizeMax */
+        }
+        /*
+
+        ytd-comment-renderer{
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 190px;  /-* 1.2 x SizeMax *-/
+        }
+        */
+
+        ytd-compact-video-renderer{
+            content-visibility: auto;
+            contain-intrinsic-size: 1px 94px; 
+        }
+
+
+    }
+    @supports (contain-intrinsic-size: auto 1px){
+
+
+        body ytd-compact-video-renderer{
+            content-visibility: auto;
+            contain-intrinsic-size: auto 94px; 
+        }
+/*
+        ytd-comment-thread-renderer *{
+            content-visibility: visible;
+        }
+*/
+
+
+
+    }

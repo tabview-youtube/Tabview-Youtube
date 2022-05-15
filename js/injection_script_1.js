@@ -4,6 +4,93 @@ function injection_script_1() {
   
   if(!window || !window.customElements || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
+  // note: YouTube implements its on window.customElements when it detects the browser is old.
+
+  // let lvoSymbol = Symbol();
+  document.addEventListener('tabview-chatroom-ready',function(evt){
+
+
+    /** @type {HTMLIFrameElement} */
+    let iframe = evt.target;
+    if(!iframe || iframe.nodeType!==1 || !iframe.matches('ytd-live-chat-frame #chatframe')) return;
+   
+    /*
+    
+    let ce = iframe.contentWindow.customElements.get('yt-live-chat-text-message-renderer')
+ 
+    if(window.IntersectionObserver){
+
+      let crmWM = new WeakMap();
+
+      let crmObserver = new IntersectionObserver(function (entries, observer) {
+      
+        for (const entry of entries) {
+  
+            let h = entry.boundingClientRect.height
+            if(h>10){
+              // possible to get height even it is not intersecting
+  
+              let m = crmWM.get(entry.target);
+              
+              let t= `${ h }px`
+              if(m!==t){
+                
+                crmWM.set(entry.target, t)
+              }
+  
+            }
+            
+            if(!entry.isIntersecting){
+              // set CSS rule when it leaves the visible region
+  
+  
+              console.log(2)
+  
+              let m = crmWM.get(entry.target);
+              if(m && entry.target.style.getPropertyValue("--tabview-crm-height")!==m){
+  
+                entry.target.style.setProperty("--tabview-crm-height",m)
+
+              }
+  
+            }
+            
+          
+        
+        }
+      },{
+        threshold: [0],
+        rootMargin: "-4px 0px -4px 0px"  // before fully leave the visible region
+  
+      })
+
+
+
+      for(const s of iframe.contentDocument.querySelectorAll('yt-live-chat-text-message-renderer')){
+        crmObserver.observe(s);
+      }
+
+      Object.defineProperty(ce.prototype, 'localVisibilityObserver_', {
+        get() {
+          return this[lvoSymbol];
+        },
+        set(nv) {
+          crmObserver.observe(this);
+          this[lvoSymbol] = nv;
+        },
+        enumerable: false,
+        configurable: true
+      });
+    
+
+
+    }
+
+ */
+
+  },true)
+
+
   document.addEventListener('userscript-call-dom-func', function (evt) {
 
     if (!evt || !evt.target || !evt.detail) return;
@@ -100,13 +187,68 @@ function injection_script_1() {
   let insObserver = null;
   if (window.IntersectionObserver) {
 
+
+    let cmtWM = new WeakMap();
+
+    let cmtObserver = new IntersectionObserver(function (entries, observer) {
+      
+      for (const entry of entries) {
+
+          let h = entry.boundingClientRect.height
+          if(h>10){
+            // possible to get height even it is not intersecting
+
+            let m = cmtWM.get(entry.target);
+            let t= `${h}px`
+            if(m!==t){
+              
+              cmtWM.set(entry.target, t)
+            }
+
+          }
+          
+          if(!entry.isIntersecting){
+            // set CSS rule when it leaves the visible region
+
+
+
+            let m = cmtWM.get(entry.target);
+            if(m && entry.target.style.getPropertyValue("--tabview-cmt-height")!==m){
+
+              entry.target.style.setProperty("--tabview-cmt-height",m)
+            }
+
+          }
+          
+        
+      
+      }
+    },{
+      threshold: [0],
+      rootMargin: "-18px 0px -18px 0px"  // before fully leave the visible region
+
+    })
+
+
     insObserver = new IntersectionObserver(function (entries, observer) {
       let count = 0
       for (const entry of entries) {
-        if (entry.isIntersecting && ++count) entry.target.calculateCanCollapse();
+        if (entry.isIntersecting && ++count){
+          /*let cHeight = (entry.boundingClientRect.height);
+          let newSize = `${cHeight}px`
+          if(entry.target.style['containIntrinsicHeight']!==newSize)
+          entry.target.style['containIntrinsicHeight']=newSize; 
+          */
+         let pElm = null;
+         if(pElm=entry.target.closest('ytd-comment-thread-renderer')){
+          if(!cmtWM.has(pElm)) cmtObserver.observe(pElm)
+         }
+          entry.target.calculateCanCollapse();
+        }
       }
     }, {
-      threshold: [0]
+      threshold: [0],
+      rootMargin: "300px 0px 300px 0px" // (top, right, bottom, left)  // +ve => enlarge intersection area
     })
 
 
@@ -549,6 +691,7 @@ function injection_script_1() {
   let afm = 0;
   let afArg = null;
   const g_postToContentWindow = function () {
+    if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
     if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
 
       afArg = [...arguments];
@@ -567,6 +710,7 @@ function injection_script_1() {
     }
   }
 
+  
   setInterval(function () {
 
     let tmp;
@@ -579,6 +723,7 @@ function injection_script_1() {
 
 
   }, 150)
+  
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
 
