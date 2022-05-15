@@ -2224,20 +2224,24 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
         */
 
+        /*
         ytd-compact-video-renderer{
             content-visibility: auto;
             contain-intrinsic-size: 1px 94px; 
         }
+        */
 
 
     }
     @supports (contain-intrinsic-size: auto 1px){
 
 
+        /*
         body ytd-compact-video-renderer{
             content-visibility: auto;
             contain-intrinsic-size: auto 94px; 
         }
+        */
 /*
         ytd-comment-thread-renderer *{
             content-visibility: visible;
