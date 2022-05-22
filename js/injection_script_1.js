@@ -474,6 +474,14 @@ function injection_script_1() {
   })
   document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
 
+
+  function removeDOMs(elements) {
+    let fragment = document.createDocumentFragment();
+    fragment.textContent = ' ';
+    fragment.firstChild.replaceWith(...elements);
+  }
+
+
   /*
   function removeChildren(cssSelector, parentNode) {
     let elements = parentNode.querySelectorAll(cssSelector);
@@ -722,7 +730,7 @@ function injection_script_1() {
 
 
 
-  }, 150)
+  }, 150);
   
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
@@ -750,7 +758,127 @@ function injection_script_1() {
 
     }
 
-  }, true)
+  }, true);
+
+
+
+  function textsMatch(runs1,runs2){
+
+    let i=runs1.length-runs2.length;
+    if(i<0) return false;
+    let j=0;
+    while(i<runs1.length && j<runs2.length){
+      if(runs1[i].text!==runs2[j].text)return false;
+      i++;
+      j++;
+    }
+    return true;
+
+  }
+
+  let cid_teaserInfo = 0;
+
+  //console.log(78)
+
+
+  function teaserInfoMatchCondition (lineExpander){
+
+    if(!lineExpander) return null;
+    let watch_metadata = lineExpander.__dataHost;
+    if(!watch_metadata || watch_metadata === lineExpander) return null;
+    if(!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer ) return null;
+
+
+
+    let full = watch_metadata.__data.descriptionText.runs
+    let detail = watch_metadata.__data.videoSecondaryInfoRenderer.description.runs
+    let content = lineExpander.text.runs
+
+    return [ watch_metadata, full, detail, content]
+
+
+  }
+
+
+  document.addEventListener('tabview-no-duplicate-info',function(evt){
+
+    if(cid_teaserInfo){
+      clearInterval(cid_teaserInfo)
+      cid_teaserInfo=0;
+    }
+    let mid='';
+
+    cid_teaserInfo = setInterval(()=>{
+
+      let lineExpander = document.querySelector('ytd-watch-metadata ytd-text-inline-expander');
+      let [ watch_metadata, full, detail, content] =  teaserInfoMatchCondition(lineExpander)
+        
+      let tid = `${content.length},${full.length},${detail.length}`
+      if(mid===tid) return null;
+      mid=tid;
+
+      let b1 = content.length===full.length && full.length>detail.length && content.length>full.length-detail.length
+
+      if(b1 && textsMatch(full,detail)){
+
+        let newLen = full.length-detail.length
+
+          if(newLen>1 && /^\s*[\u2022\u2023\u25E6\u2043\u2219\.\,]?\s*$/.test(content[newLen-1].text||'0')) newLen--;
+          content.length=newLen
+
+          lineExpander.alwaysShowExpandButton=false;
+
+          lineExpander.resize(true);
+      }
+
+    },150);
+
+
+  },true);
+
+
+  /*
+  let ile_resize_=null;
+  let ile_resize=null;
+  let ile_resize_busy =false;
+  Object.defineProperty(customElements.get('ytd-text-inline-expander').prototype, 'resize', {
+
+    get(){
+      return ile_resize_;
+    },
+
+    set(nv){
+      ile_resize = nv;
+      ile_resize_ = function(){
+        if(ile_resize_busy) return ile_resize.apply(this,arguments);
+
+        ile_resize_busy=true;
+        let [ watch_metadata, full, detail, content] =  teaserInfoMatchCondition(this)
+          
+        let b1 = content.length===full.length && full.length>detail.length && content.length>full.length-detail.length
+
+        if(b1 && textsMatch(full,detail)){
+          content.length=full.length-detail.length;
+          this.alwaysShowExpandButton=false;
+        }
+
+        let r =  ile_resize.apply(this,arguments);
+        
+        ile_resize_busy=false;
+
+        return r
+      }
+    },
+    enumerable: false,
+    configurable: true
+
+
+
+  })
+  */
+
+
+  document.documentElement.setAttribute('tabview-injection-js-1-ready','')
 
 
 }

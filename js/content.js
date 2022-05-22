@@ -1951,6 +1951,27 @@
   
 
     },
+    '#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])': (teaserInfo)=>{
+
+
+      // for Teaser UI
+      // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
+
+      let ytdFlexyElm = kRef(ytdFlexy);
+      if (!scriptEnable || !ytdFlexyElm) return ;
+      let addedInfo = document.querySelector('#tab-info ytd-expander[tabview-info-expander]');
+
+      if(!addedInfo) return;
+
+      if(!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return;
+
+      teaserInfo.setAttribute('tabview-removed-duplicate','')
+
+
+      teaserInfo.dispatchEvent(new CustomEvent('tabview-no-duplicate-info'))
+      //console.log(56)
+
+    }
   }
   const cssOnce = Object.keys(cssOnceFunc).join(', ')
 
@@ -2685,7 +2706,15 @@
   }
 
   function onNavigationEnd(evt) {
-    
+    forceConfig();
+    /*
+    console.log(window.ytcfg)
+    try{
+    window.ytcfg.set({
+      "EXPERIMENT_FLAGS": {"kevlar_watch_metadata_refresh":false}})
+    }catch(e){}
+    */
+
     newVideoPageCheck(); // required for init
 
     let mRet =
@@ -3707,7 +3736,54 @@
 
 
   // ---------------------------------------------------------------------------------------------
-  window.addEventListener("yt-navigate-finish", onNavigationEnd)
+  document.addEventListener("yt-navigate-finish", onNavigationEnd)
+  //yt-navigate-redirect
+  //"yt-page-data-fetched"
+  //yt-navigate-error
+  //yt-navigate-start
+  //yt-page-manager-navigate-start
+  //"yt-navigate"
+  //"yt-navigate-cache
+
+  document.addEventListener("yt-navigate-cache",()=>{
+    console.log('yt-navigate-cache')
+  })
+  document.addEventListener("yt-navigate-redirect",()=>{
+    console.log('yt-navigate-redirect')
+  })
+
+  function forceConfig(){
+    
+    let trial = false;
+    let f=()=>{
+      if(trial) return;
+      let b = true;
+      try{
+        document.dispatchEvent(new CustomEvent("me-func"))
+        window.yt.config_.EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh=true
+      }catch(e){
+        b=false;
+      }
+      if(b) trial = true;
+
+    }
+    f();
+    requestAnimationFrame(f)
+    setTimeout(f,30)
+    setTimeout(f,300)
+    
+  }
+
+  document.addEventListener("yt-navigate-start",()=>{
+    console.log('yt-navigate-start')
+    forceConfig();
+  })
+
+  document.addEventListener("yt-page-manager-navigate-start",()=>{
+    console.log('yt-page-manager-navigate-start')
+    forceConfig();
+  })
+
 
   document.addEventListener("loadstart", (evt) => {
     if (!evt || !evt.target || evt.target.nodeName !== "VIDEO") return;
