@@ -2410,3 +2410,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #tab-info #description.ytd-video-secondary-info-renderer{
         max-width: none;
     }
+
+    ytd-watch-flexy #columns #primary #player{
+        background-color: var(--yt-spec-general-background-a); /* prevent transparent */
+    }
