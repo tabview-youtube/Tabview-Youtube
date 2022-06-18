@@ -87,6 +87,11 @@ html:not(.style-scope) {
         --userscript-h2:calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
         --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
 
+        --userscript-zoom-info: var(--ut2257-info, 1.00);
+        --userscript-zoom-comments: var(--ut2257-comments, 1.00);
+        --userscript-zoom-videos: var(--ut2257-videos, 1.00);
+        --userscript-zoom-list: var(--ut2257-list, 1.00);
+
         
     
     }
@@ -111,11 +116,50 @@ html:not(.style-scope) {
     
     
     
+    .font-size-right{
+        display: inline-flex;
+        flex-direction: column;
+        position: absolute;
+        right:0;
+        top:0;
+        bottom:0;
+        width:16px;
+        padding:4px 0;
+        justify-content: space-evenly;
+        align-content: space-evenly;
+    } 
     
-    
-    
-    
-    
+    .tab-btn .font-size-btn {
+        display: none;
+    }
+    .tab-btn.active:hover .font-size-btn {
+        display: inline-block;
+    }
+
+    .font-size-btn {
+        width: 12px;
+        height: 12px;
+        color: var(--yt-spec-text-secondary);
+        background-color: var(--yt-spec-badge-chip-background);
+        box-sizing: border-box;
+        cursor: pointer;
+        transform-origin: left top;
+        margin:0;
+        padding: 0;
+        position:relative;
+        display: inline-block;
+        font-family: 'Menlo', 'Lucida Console', 'Monaco', 'Consolas', monospace;
+        line-height: 100%;
+        font-weight: 900;
+        transition: background-color 90ms linear, color 90ms linear;
+      }
+      
+      .font-size-btn:hover {
+        background-color: var(--yt-spec-text-primary);
+        color: var(--yt-spec-general-background-a);
+      }
+
+
     
     
     /* align scrollbar style */
@@ -1092,11 +1136,21 @@ html:not(.style-scope) {
     
     
     
+    /* --- zoom --- */
     
+    ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments{
+        zoom: var(--userscript-zoom-comments);
+    }
     
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos]{
+        zoom: var(--userscript-zoom-videos);
+    }
+
+    ytd-watch-flexy[is-two-columns_] #tab-list #ytd-userscript-playlist{
+        zoom: var(--userscript-zoom-list);
+    }
     
-    
-    
+    /* --- zoom --- */
     
     
     /* #tab-info ytd-expander */
@@ -1105,7 +1159,7 @@ html:not(.style-scope) {
         /* space fix for tab INFO */
         padding: 0;
         margin: 0;
-        zoom: 0.95; /* smaller text in tab Info */
+        zoom: var(--userscript-zoom-info); /* smaller text in tab Info */
     }
     /* single column view - keep margin-left if available */
     ytd-watch-flexy:not([is-two-columns_]) #tab-info ytd-expander{
@@ -1114,7 +1168,7 @@ html:not(.style-scope) {
         margin-right: 0;
         margin-top: 0;
         margin-bottom: 0;
-        zoom: 0.95; /* smaller text in tab Info */
+        zoom: var(--userscript-zoom-info); /* smaller text in tab Info */
     }
     
     #tab-info ytd-expander, 
@@ -1123,10 +1177,12 @@ html:not(.style-scope) {
     #tab-info ytd-expander .ytd-metadata-row-renderer, 
     #tab-info ytd-expander ytd-metadata-row-renderer {
         /* smaller text for tab INFO */
+        /*
         font-size: var(--ytd-user-comment_-_font-size);
         font-weight: var(--ytd-user-comment_-_font-weight);
         line-height: var(--ytd-user-comment_-_line-height);
         letter-spacing: var(--ytd-user-comment_-_letter-spacing);
+        */
     }
     
 

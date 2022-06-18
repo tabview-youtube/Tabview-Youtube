@@ -19,49 +19,34 @@
 
   const scriptVersionForExternal = '2022/05/07';
 
-  //const githubURLBase = "https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube";
-  //const githubURLCommit = "bdf401045266e5224663f80b276bc7f56d122b8d";
-
   const isMyScriptInChromeRuntime = () => typeof((((window || 0).chrome || 0).runtime || 0).getURL) == 'function'
 
+  const svgComments = `<path d="M40.068 13.465l-34.138.07A5.94 5.94 0 0 0 0 19.465v21.141a5.94 5.94 0 0 0 5.93 5.929H12v10a1 
+  1 0 0 0 1.74.673l9.704-10.675 16.626-.068A5.94 5.94 0 0 0 46 40.536V19.395a5.94 5.94 0 0 0-5.932-5.93zM10 23.465h13a1 
+  1 0 1 1 0 2H10a1 1 0 1 1 0-2zm26 14H10a1 1 0 1 1 0-2h26a1 1 0 1 1 0 2zm0-6H10a1 1 0 1 1 0-2h26a1 1 0 1 1 0 
+  2zm18.072-28.93l-34.142-.07A5.94 5.94 0 0 0 14 8.395v3.124l26.064-.054c4.377 0 7.936 3.557 7.936 7.93v21.07.071 
+  2.087l3.26 3.586a1 1 0 0 0 1.74-.673v-10h1.07A5.94 5.94 0 0 0 60 29.607V8.465a5.94 5.94 0 0 0-5.928-5.93z"/>`.trim();
 
-  const svgComments = `
-    <path d="M40.068,13.465L5.93,13.535c-3.27,0-5.93,2.66-5.93,5.93v21.141c0,3.27,2.66,5.929,5.93,5.929H12v10
-    c0,0.413,0.254,0.784,0.64,0.933c0.117,0.045,0.239,0.067,0.36,0.067c0.276,0,0.547-0.115,0.74-0.327l9.704-10.675l16.626-0.068
-    c3.27,0,5.93-2.66,5.93-5.929V19.395C46,16.125,43.34,13.465,40.068,13.465z M10,23.465h13c0.553,0,1,0.448,1,1s-0.447,1-1,1H10
-    c-0.553,0-1-0.448-1-1S9.447,23.465,10,23.465z M36,37.465H10c-0.553,0-1-0.448-1-1s0.447-1,1-1h26c0.553,0,1,0.448,1,1
-    S36.553,37.465,36,37.465z M36,31.465H10c-0.553,0-1-0.448-1-1s0.447-1,1-1h26c0.553,0,1,0.448,1,1S36.553,31.465,36,31.465z"/>
-    <path d="M54.072,2.535L19.93,2.465c-3.27,0-5.93,2.66-5.93,5.93v3.124l26.064-0.054c4.377,0,7.936,3.557,7.936,7.93v21.07v0.071
-    v2.087l3.26,3.586c0.193,0.212,0.464,0.327,0.74,0.327c0.121,0,0.243-0.022,0.36-0.067c0.386-0.149,0.64-0.52,0.64-0.933v-10h1.07
-    c3.27,0,5.93-2.66,5.93-5.929V8.465C60,5.195,57.34,2.535,54.072,2.535z"/>
-    `.trim();
+  const svgVideos = `<path d="M298 33c0-13.255-10.745-24-24-24H24C10.745 9 0 19.745 0 33v232c0 13.255 10.745 24 24 
+  24h250c13.255 0 24-10.745 24-24V33zM91 39h43v34H91V39zM61 259H30v-34h31v34zm0-186H30V39h31v34zm73 
+  186H91v-34h43v34zm-11-82.292v-55.417c0-8.25 5.868-11.302 12.77-6.783l40.237 26.272c6.902 4.519 6.958 11.914.056 
+  16.434l-40.321 26.277c-6.902 4.52-12.742 1.467-12.742-6.783zM207 259h-43v-34h43v34zm0-186h-43V39h43v34zm61 
+  186h-31v-34h31v34zm0-186h-31V39h31v34z"/>`.trim();
 
-  const svgVideos = `<path d="M298,33c0-13.255-10.745-24-24-24H24C10.745,9,0,19.745,0,33v232c0,13.255,10.745,24,24,24h250c13.255,0,24-10.745,24-24V33
-    z M91,39h43v34H91V39z M61,259H30v-34h31V259z M61,73H30V39h31V73z M134,259H91v-34h43V259z M123,176.708v-55.417
-    c0-8.25,5.868-11.302,12.77-6.783l40.237,26.272c6.902,4.519,6.958,11.914,0.056,16.434l-40.321,26.277
-    C128.84,188.011,123,184.958,123,176.708z M207,259h-43v-34h43V259z M207,73h-43V39h43V73z M268,259h-31v-34h31V259z M268,73h-31V39
-    h31V73z"/>`.trim();
+  const svgInfo = `<path d="M11.812 0C5.289 0 0 5.289 0 11.812s5.289 11.813 11.812 11.813 11.813-5.29 11.813-11.813S18.335 
+  0 11.812 0zm2.459 18.307c-.608.24-1.092.422-1.455.548s-.783.189-1.262.189c-.736 
+  0-1.309-.18-1.717-.539s-.611-.814-.611-1.367c0-.215.015-.435.045-.659a8.23 8.23 0 0 1 
+  .147-.759l.761-2.688c.067-.258.125-.503.171-.731a3.24 3.24 0 0 0 
+  .068-.633c0-.342-.071-.582-.212-.717s-.412-.201-.813-.201c-.196 
+  0-.398.029-.605.09s-.383.12-.529.176l.201-.828c.498-.203.975-.377 1.43-.521s.885-.218 1.29-.218c.731 0 1.295.178 
+  1.692.53s.594.812.594 1.376c0 .117-.014.323-.041.617a4.13 4.13 0 0 1-.152.811l-.757 
+  2.68c-.062.215-.117.461-.167.736s-.073.485-.073.626c0 .356.079.599.239.728s.435.194.827.194a2.4 2.4 0 0 0 .626-.097 
+  3.56 3.56 0 0 0 .506-.17l-.203.827zm-.134-10.878c-.353.328-.778.492-1.275.492s-.924-.164-1.28-.492a1.57 1.57 0 
+  0 1-.533-1.193c0-.465.18-.865.533-1.196a1.81 1.81 0 0 1 1.28-.497 1.79 1.79 0 0 1 1.275.497c.353.331.53.731.53 
+  1.196s-.177.865-.53 1.193z"/>`.trim();
 
-  const svgInfo = `<path d="M11.812,0C5.289,0,0,5.289,0,11.812s5.289,11.813,11.812,11.813s11.813-5.29,11.813-11.813
-    S18.335,0,11.812,0z M14.271,18.307c-0.608,0.24-1.092,0.422-1.455,0.548c-0.362,0.126-0.783,0.189-1.262,0.189
-    c-0.736,0-1.309-0.18-1.717-0.539s-0.611-0.814-0.611-1.367c0-0.215,0.015-0.435,0.045-0.659c0.031-0.224,0.08-0.476,0.147-0.759
-    l0.761-2.688c0.067-0.258,0.125-0.503,0.171-0.731c0.046-0.23,0.068-0.441,0.068-0.633c0-0.342-0.071-0.582-0.212-0.717
-    c-0.143-0.135-0.412-0.201-0.813-0.201c-0.196,0-0.398,0.029-0.605,0.09c-0.205,0.063-0.383,0.12-0.529,0.176l0.201-0.828
-    c0.498-0.203,0.975-0.377,1.43-0.521c0.455-0.146,0.885-0.218,1.29-0.218c0.731,0,1.295,0.178,1.692,0.53
-    c0.395,0.353,0.594,0.812,0.594,1.376c0,0.117-0.014,0.323-0.041,0.617c-0.027,0.295-0.078,0.564-0.152,0.811l-0.757,2.68
-    c-0.062,0.215-0.117,0.461-0.167,0.736c-0.049,0.275-0.073,0.485-0.073,0.626c0,0.356,0.079,0.599,0.239,0.728
-    c0.158,0.129,0.435,0.194,0.827,0.194c0.185,0,0.392-0.033,0.626-0.097c0.232-0.064,0.4-0.121,0.506-0.17L14.271,18.307z
-    M14.137,7.429c-0.353,0.328-0.778,0.492-1.275,0.492c-0.496,0-0.924-0.164-1.28-0.492c-0.354-0.328-0.533-0.727-0.533-1.193
-    c0-0.465,0.18-0.865,0.533-1.196c0.356-0.332,0.784-0.497,1.28-0.497c0.497,0,0.923,0.165,1.275,0.497
-    c0.353,0.331,0.53,0.731,0.53,1.196C14.667,6.703,14.49,7.101,14.137,7.429z"/>`.trim();
-
-  const svgPlayList = `
-    <rect x="0" y="64" width="256" height="42.667"/>
-    <rect x="0" y="149.333" width="256" height="42.667"/>
-    <rect x="0" y="234.667" width="170.667" height="42.667"/>
-    <polygon points="341.333,234.667 341.333,149.333 298.667,149.333 298.667,234.667 213.333,234.667 213.333,277.333 
-    298.667,277.333 298.667,362.667 341.333,362.667 341.333,277.333 426.667,277.333 426.667,234.667"/>
-    `.trim();
+  const svgPlayList = `<path d="M0 64h256v42.667H0zm0 85.333h256V192H0zm0 85.334h170.667v42.667H0zm341.333 
+  0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
   // --- Youtube Video Testing : 
   // Square Video: https://www.youtube.com/watch?v=L0RXVnRbFg8 
@@ -81,6 +66,53 @@
   const mtoInterval2 = 150;
 
   let lastVideoURL = null; // for less attribute set only
+
+
+  function scriptInjector(script_id, url_chrome, response_id){
+
+    let res={
+      script_id: script_id,
+      inject: function(){
+
+        let res = this, script_id = this.script_id;
+
+        if(!document.querySelector(`script#${script_id}`)){
+          if (res.runtime_url){
+            addScriptByURL(res.runtime_url).id = script_id;
+          } else {
+            addScript(`${res.injection_script}`).id = script_id;
+          }
+        }
+
+      }
+    }
+    res.script_id = script_id;
+    
+    if (isMyScriptInChromeRuntime()){
+      res.runtime_url = window.chrome.runtime.getURL(url_chrome)
+    } else {
+      res.injection_script = GM_getResourceText(response_id);
+    }
+
+    return res;
+
+
+
+  }
+
+  const script_inject_facp = scriptInjector(
+    'userscript-tabview-injection-facp',
+    'js/injectionScript_fixAutoComplete.js',
+    "injectionFixAutoComplete");
+    
+  const script_inject_js1 = scriptInjector(
+    'userscript-tabview-injection-1',
+    'js/injection_script_1.js',
+    "injectionJS1");
+    
+
+
+
   
   /** @type {WeakRef | null} */ 
   const WeakRef = window.WeakRef;
@@ -995,14 +1027,7 @@
     elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
-    if(document.querySelector('script#userscript-tabview-injection-facp')) return;
-
-    if (isMyScriptInChromeRuntime()){
-      addScriptByURL(window.chrome.runtime.getURL('js/injectionScript_fixAutoComplete.js')).id = 'userscript-tabview-injection-facp';;
-    } else {
-      let injection_script = GM_getResourceText("injectionFixAutoComplete")
-      addScript(`${injection_script}`).id = 'userscript-tabview-injection-facp';;
-    }
+    script_inject_facp.inject();
 
   }
 
@@ -2646,11 +2671,17 @@
         </paper-ripple>
         `;
 
+    let str_fbtns = `
+    <div class="font-size-right">
+    <div class="font-size-btn font-size-plus">+</div><div class="font-size-btn font-size-minus">-</div>
+    </div>
+    `.replace(/[\r\n]+/g,'')
+
     const str_tabs = [
-            `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}</a>`,
-            `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}</a>`,
-            `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}</a>`,
-            `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn">${sTabBtnPlayList}${str1}</a>`
+            `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
+            `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}${str_fbtns}</a>`,
+            `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
+            `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
         ].join('')
 
     let addHTML = `
@@ -2706,6 +2737,13 @@
   }
 
   function onNavigationEnd(evt) {
+    console.log('yt-navigate-finish')
+    
+    document.documentElement.setAttribute('youtube-ready','')
+    
+    script_inject_js1.inject();
+    document.documentElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+
     forceConfig();
     /*
     console.log(window.ytcfg)
@@ -2736,19 +2774,6 @@
       let tf = () => {
 
         if (--timeout > 0 && !document.querySelector('#player video')) return requestAnimationFrame(tf);
-
-        if (!document.querySelector('script#userscript-tabview-injection-1')) {
-
-          if (isMyScriptInChromeRuntime()){
-
-            addScriptByURL(window.chrome.runtime.getURL('js/injection_script_1.js')).id = 'userscript-tabview-injection-1';
-          }
-          else{
-
-            let injection_script = GM_getResourceText("injectionJS1")
-            addScript(`${injection_script}`).id = 'userscript-tabview-injection-1';
-          }
-        }
 
         let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
@@ -3635,6 +3660,33 @@
 
   }
 
+
+  const STORE_VERSION = 1;
+  const STORE_key = 'userscript-tabview-settings';
+  function getStore(){
+    let s = localStorage[STORE_key];
+    function resetStore(){
+      let ret = {
+        version: 1,
+      };
+      localStorage[STORE_key]=JSON.stringify(ret);
+      return ret;
+    }
+    if(!s) return resetStore();
+    let obj = null;
+    try{
+      obj = JSON.parse(s);
+    }catch(e){}
+    return obj && obj.version === STORE_VERSION ? obj : resetStore();
+  }
+
+  function setStore(obj){
+    if(!obj || typeof obj !=='object') return false;
+    if(obj.version !== STORE_VERSION) return false;
+    localStorage[STORE_key]=JSON.stringify(obj);
+    return true;
+  }
+
   let tabsUiScript_setclick = false;
 
   function prepareTabBtn() {
@@ -3656,6 +3708,8 @@
         if (!scriptEnable || !ytdFlexyElm) return null;
 
         if (!this.hasAttribute('userscript-tab-content')) return;
+
+        if (evt.target.matches('.font-size-btn')) return;
 
 
         evt.preventDefault();
@@ -3729,6 +3783,84 @@
 
 
       });
+      /*
+
+      $(materialTab).on("mousedown", ".font-size-btn", function(evt){
+
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+
+      });
+
+      $(materialTab).on("pointerdown", ".font-size-btn", function(evt){
+
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+
+      });
+      
+      $(materialTab).on("mouseup", ".font-size-btn", function(evt){
+
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+
+      });
+
+      $(materialTab).on("pointerup", ".font-size-btn", function(evt){
+
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+
+      });
+      */
+
+      function updateCSS_fontsize(){
+
+        let store = getStore();
+        
+        let ytdFlexyElm = kRef(ytdFlexy);
+        if(ytdFlexyElm){
+          if(store['font-size-#tab-info'])
+          ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
+          if(store['font-size-#tab-comments'])
+          ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
+          if(store['font-size-#tab-videos'])
+          ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
+          if(store['font-size-#tab-list'])
+          ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
+        }
+
+      }
+
+      $(materialTab).on("click", ".font-size-btn", function(evt){
+
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+
+        let value = evt.target.matches('.font-size-plus')?1: evt.target.matches('.font-size-minus')?-1 :0;
+
+        let active_tab_content = evt.target.closest('[userscript-tab-content]').getAttribute('userscript-tab-content'); 
+
+        let store = getStore();
+        let settingKey = `font-size-${active_tab_content}`
+        if(!store[settingKey]) store[settingKey] = 1.0;
+        if(value<0) store[settingKey] -= 0.05;
+        if(value>0) store[settingKey] += 0.05;
+        setStore(store);
+
+
+        updateCSS_fontsize();
+
+
+        //console.log(this.textContent)
+
+
+      });
+
+      updateCSS_fontsize();
+
+
 
     }
 
@@ -3752,9 +3884,23 @@
     console.log('yt-navigate-redirect')
   })
 
+  function onReady(){
+    //might be earlier than yt-navigation-finish
+    console.log('html-onReady')
+    if(location.pathname=='/watch') script_inject_js1.inject();
+  }
+
+  if(document.readyState!=='loading'){
+    onReady();
+  }else{
+    document.addEventListener('DOMContentLoaded', onReady)
+  }
+
   function forceConfig(){
     
     let trial = false;
+    
+/*
     let f=()=>{
       if(trial) return;
       let b = true;
@@ -3765,17 +3911,19 @@
         b=false;
       }
       if(b) trial = true;
-
     }
     f();
     requestAnimationFrame(f)
     setTimeout(f,30)
     setTimeout(f,300)
+*/
+    
     
   }
 
   document.addEventListener("yt-navigate-start",()=>{
-    console.log('yt-navigate-start')
+    console.log('yt-navigate-start') // not always trigger before navigate-end
+    script_inject_js1.inject();
     forceConfig();
   })
 
