@@ -545,7 +545,7 @@ html:not(.style-scope) {
     
     /* .tab-btn[userscript-tab-content] */
     
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] svg{
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]>svg{
         height: 18px;
         padding-right: 4px;
         vertical-align: bottom;
@@ -555,6 +555,14 @@ html:not(.style-scope) {
         fill: var(--iron-icon-fill-color, currentcolor);
         stroke: var(--iron-icon-stroke-color, none);
     }
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] svg{
+        pointer-events: none;
+    }
+
+
+
+
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active{
         font-weight: 500;
         outline: 0;

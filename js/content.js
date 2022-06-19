@@ -2673,7 +2673,17 @@
 
     let str_fbtns = `
     <div class="font-size-right">
-    <div class="font-size-btn font-size-plus">+</div><div class="font-size-btn font-size-minus">-</div>
+    <div class="font-size-btn font-size-plus">
+    <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet" 
+    stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-size">
+      <path d="M12 25h26"/><path d="M25 12v26"/>
+    </svg>
+    </div><div class="font-size-btn font-size-minus">
+    <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet"
+    stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-size">
+      <path d="M12 25h26"/>
+    </svg>
+    </div>
     </div>
     `.replace(/[\r\n]+/g,'')
 
