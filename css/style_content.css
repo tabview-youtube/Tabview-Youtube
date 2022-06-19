@@ -127,8 +127,11 @@ html:not(.style-scope) {
         padding:4px 0;
         justify-content: space-evenly;
         align-content: space-evenly;
-        user-select: none !important;
     } 
+
+    html body ytd-watch-flexy.style-scope .font-size-btn{
+        user-select: none !important;
+    }
     
     .tab-btn .font-size-btn {
         display: none;
@@ -153,7 +156,6 @@ html:not(.style-scope) {
         line-height: 100%;
         font-weight: 900;
         transition: background-color 90ms linear, color 90ms linear;
-        user-select: none !important;
       }
       
       .font-size-btn:hover {
