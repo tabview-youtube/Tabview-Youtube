@@ -68,6 +68,12 @@
   let lastVideoURL = null; // for less attribute set only
 
 
+
+  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
+  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
+
+
+
   function scriptInjector(script_id, url_chrome, response_id){
 
     let res={
@@ -818,7 +824,7 @@
 
   function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */  s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
-    let btn = s.querySelector('ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button > ytd-button-renderer');
+    let btn = querySelectorFromAnchor.call(s,'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button > ytd-button-renderer');
     if (btn) {
       btn.click();
     }
@@ -850,7 +856,7 @@
 
   function ytBtnExpandChat() {
     let button = document.querySelector('ytd-live-chat-frame#chat[collapsed] > .ytd-live-chat-frame#show-hide-button')
-    if (button) button.querySelector('ytd-toggle-button-renderer').click();
+    if (button) querySelectorFromAnchor.call(button,'ytd-toggle-button-renderer').click();
   }
 
   function ytBtnCollapseChat() {
@@ -937,11 +943,11 @@
       let relocatedRelated = queryElement.parentNode; // NOT NULL
 
       let right_tabs = document.querySelector('#right-tabs');
-      let tab_videos = right_tabs.querySelector("#tab-videos");
+      let tab_videos = querySelectorFromAnchor.call(right_tabs,"#tab-videos");
 
       if (!right_tabs || !tab_videos) return;
 
-      for (const s of relocatedRelated.querySelectorAll('#related')) {
+      for (const s of querySelectorAllFromAnchor.call(relocatedRelated,'#related')) {
         s.setAttribute('non-placeholder-videos', '')
       }
 
@@ -1043,7 +1049,7 @@
 
 
 
-    const autocomplete = rootElement.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
+    const autocomplete = querySelectorFromAnchor.call(rootElement,'[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
 
     if (autocomplete) {
 
@@ -1117,7 +1123,7 @@
 
 
 
-    let currentLastVideo = rootElement.querySelector('[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
+    let currentLastVideo = querySelectorFromAnchor.call(rootElement,'[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
     let prevLastVideo = kRef(_cachedLastVideo);
 
     if (prevLastVideo !== currentLastVideo && currentLastVideo) {
@@ -1235,8 +1241,8 @@
       let s = 0;
       if (elmCont) {
         //not found if it is collasped.
-        s |= elmCont.querySelector('yt-timed-continuation') ? 1 : 0;
-        s |= elmCont.querySelector('yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
+        s |= querySelectorFromAnchor.call(elmCont,'yt-timed-continuation') ? 1 : 0;
+        s |= querySelectorFromAnchor.call(elmCont,'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
         //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
         if (s == 1) {
           attr_chatblock = 'chat-live';
@@ -1496,7 +1502,7 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let comments = rootElement.querySelector('#primary ytd-watch-metadata ~ ytd-comments#comments');
+    let comments = querySelectorFromAnchor.call(rootElement,'#primary ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
   }
 
@@ -1510,7 +1516,7 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let button = rootElement.querySelector('ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
+    let button = querySelectorFromAnchor.call(rootElement,'ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
     if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
   }
 
@@ -1527,7 +1533,7 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let ple1 = rootElement.querySelector("*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist");
+    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist");
     if (ple1) {
       let ct = Date.now();
       let truePlaylist = null;
@@ -1580,12 +1586,13 @@
         no_fix_contents_until = Date.now() + 3000;
         timeline.setTimeout(function() {
           const expander = content.parentNode;
+          if(!expander || expander.nodeType!==1) return;
 
           if (expander.hasAttribute('collapsed')) wAttr(expander, 'collapsed', false);
           expander.style.setProperty('--ytd-expander-collapsed-height', '');
 
-          let btn1 = expander.querySelector('tp-yt-paper-button#less:not([hidden])');
-          let btn2 = expander.querySelector('tp-yt-paper-button#more:not([hidden])');
+          let btn1 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#less:not([hidden])');
+          let btn2 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#more:not([hidden])');
 
           if (btn1) wAttr(btn1, 'hidden', true);
           if (btn2) wAttr(btn2, 'hidden', true);
@@ -1630,7 +1637,7 @@
     let messageElm, messageStr, commentRenderer;
     let diffCSS = `[tabview-cache-time="${sect_hTime}"]`
 
-    if (commentRenderer = rootElement.querySelector(`ytd-comments#comments #count.ytd-comments-header-renderer:not(${diffCSS})`)) {
+    if (commentRenderer = querySelectorFromAnchor.call(rootElement,`ytd-comments#comments #count.ytd-comments-header-renderer:not(${diffCSS})`)) {
 
       scheduledCommentRefresh=false;
       let eTime = Date.now();
@@ -1670,7 +1677,7 @@
         }
       }
 
-    } else if ((messageElm = rootElement.querySelector(`ytd-item-section-renderer#sections #header ~ #contents > ytd-message-renderer:not(${diffCSS})`)) && (messageStr = (messageElm.textContent || '').trim())) { //ytd-message-renderer
+    } else if ((messageElm = querySelectorFromAnchor.call(rootElement,`ytd-item-section-renderer#sections #header ~ #contents > ytd-message-renderer:not(${diffCSS})`)) && (messageStr = (messageElm.textContent || '').trim())) { //ytd-message-renderer
       // it is possible to get the message before the header generation.
       // sample link - https://www.youtube.com/watch?v=PVUZ8Nvr1ic
       // sample link - https://www.youtube.com/watch?v=yz8AiQc1Bk8
@@ -1688,9 +1695,9 @@
         f: () => {
           timeline.setTimeout(function() {
             let span = document.querySelector("span#tab3-txt-loader")
-            const mainMsg = messageElm.querySelector('#message, #submessage')
+            const mainMsg = querySelectorFromAnchor.call(messageElm,'#message, #submessage')
             if (mainMsg && mainMsg.textContent) {
-              for (const msg of mainMsg.querySelectorAll('*:not(:empty)')) {
+              for (const msg of querySelectorAllFromAnchor.call(mainMsg,'*:not(:empty)')) {
                 if (msg.childElementCount === 0 && msg.textContent) {
                   messageStr = msg.textContent.trim()
                   break
@@ -1744,7 +1751,7 @@
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return ;
 
-    const comments = ytdFlexyElm.querySelector('ytd-comments#comments')
+    const comments = querySelectorFromAnchor.call(ytdFlexyElm,'ytd-comments#comments')
     if (!comments) return ;
 
     if(deferredVarYTDHidden) return;
@@ -1766,7 +1773,7 @@
         const rootElement = comments.parentNode
 
 
-        if (pendingOne && comments.querySelectorAll('[tabview-cache-time]').length > 1) return;
+        if (pendingOne && querySelectorAllFromAnchor.call(comments,'[tabview-cache-time]').length > 1) return;
         pendingOne = false;
         if(!rootElement) return; //prevent unknown condition
         
@@ -1789,7 +1796,7 @@
               //console.log(2633)
               if (holder.textContent !== sect_hText && sect_hTime > 0) {
 
-                if (comments.querySelectorAll('[tabview-cache-time]').length === 1) {
+                if (querySelectorAllFromAnchor.call(comments,'[tabview-cache-time]').length === 1) {
 
                   sect_hTime--;
 
@@ -1901,7 +1908,7 @@
 
       const rootElement = comments.parentNode
 
-      let sections = rootElement.querySelector('ytd-comments#comments > ytd-item-section-renderer#sections');
+      let sections = querySelectorFromAnchor.call(rootElement,'ytd-comments#comments > ytd-item-section-renderer#sections');
 
 
       if (sections) {
@@ -2017,7 +2024,7 @@
 
           if(rootElement){
 
-            let fElms = rootElement.querySelectorAll(cssOnce)
+            let fElms = querySelectorAllFromAnchor.call(rootElement,cssOnce)
             if(fElms.length>0){
 
               for(const fElm of fElms){
@@ -2479,7 +2486,7 @@
 
         mtoVisibility_Chatroom.clear(true);
 
-        let chatroom = rootElement.querySelector(`ytd-live-chat-frame#chat:not([${sa_chatroom}]`)
+        let chatroom = querySelectorFromAnchor.call(rootElement,`ytd-live-chat-frame#chat:not([${sa_chatroom}]`)
         if (chatroom) {
           mgChatFrame.setVar(chatroom);
 
@@ -2503,7 +2510,7 @@
       const rootElement = Q.mutationTarget || ytdFlexyElm;
 
       let toCheck = false;
-      for (const engagement_panel of rootElement.querySelectorAll(
+      for (const engagement_panel of querySelectorAllFromAnchor.call(rootElement,
         `ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}])`
         )) {
 
@@ -2802,7 +2809,7 @@
         timeoutR_findRelated.set(function() {
           let ytdFlexyElm = kRef(ytdFlexy);
           if(!ytdFlexyElm) return true;
-          let related = ytdFlexyElm.querySelector("#related");
+          let related = querySelectorFromAnchor.call(ytdFlexyElm,"#related");
           if (!related) return true;
           foundRelated(related);
         }, 100, 10)
@@ -3013,7 +3020,7 @@
 
     if(tab_btn){
 
-      let span = tab_btn.querySelector('span#tab3-txt-loader');
+      let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
 
       tab_btn.removeAttribute('loaded-comment')
       tab_btn.classList.remove('tab-btn-hidden')
@@ -3072,7 +3079,7 @@
 
     let ytd_player = document.querySelector('ytd-player#ytd-player');
     if (!ytd_player) return;
-    let videoElm = ytd_player.querySelector('video');
+    let videoElm = querySelectorFromAnchor.call(ytd_player,'video');
     if (!videoElm) return;
 
     let video = videoElm;
@@ -3425,7 +3432,7 @@
       }
     }
 
-    let rTabSelection = [...ytdFlexyElm.querySelectorAll('.tab-btn[userscript-tab-content]')]
+    let rTabSelection = [...querySelectorAllFromAnchor.call(ytdFlexyElm,'.tab-btn[userscript-tab-content]')]
       .map(elm => ({ elm, hidden: elm.classList.contains('tab-btn-hidden') }));
 
     if(rTabSelection.length === 0){
@@ -3706,7 +3713,7 @@
 
     let noActiveTab = !!document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')
 
-    const activeLink = materialTab.querySelector('a[userscript-tab-content].active:not(.tab-btn-hidden)')
+    const activeLink = querySelectorFromAnchor.call(materialTab,'a[userscript-tab-content].active:not(.tab-btn-hidden)')
     if (activeLink) switchTabActivity(noActiveTab ? null : activeLink)
 
     if (!tabsUiScript_setclick) {
@@ -3976,7 +3983,7 @@
 
       targetElm = document.querySelector("#right-tabs");
       if (!targetElm) return;
-      header = targetElm.querySelector("header");
+      header = querySelectorFromAnchor.call(targetElm,"header");
       if (!header) return;
       navElm = document.querySelector('#masthead-container, #masthead')
       if (!navElm) return;
@@ -4156,7 +4163,7 @@
         if( ytdFlexyElm.getAttribute('tabview-selection')==='' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat ){
           // e.g. engage panel removed after miniview and change video
           setToActiveTab();
-        }else if(new_isExpandEPanel && ytdFlexyElm.querySelectorAll('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]').length===0){
+        }else if(new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm,'ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]').length===0){
           wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPAND)
         }
 
