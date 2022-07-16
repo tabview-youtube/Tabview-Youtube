@@ -1435,8 +1435,12 @@ html:not(.style-scope) {
             -ms-overflow-style: none;  /* IE and Edge */
             scrollbar-width: none;  /* Firefox */
         }
+        /*
         html.tabview-normal-player body::-webkit-scrollbar {
-            display: none; /* Blink and Webkit */
+            display: none; /.* Blink and Webkit *./
+        }*/
+        html.tabview-normal-player body {
+            overflow-y: auto; /* override body { overflow-y: scroll } */
         }
     
     /* whole page scroll bar (original-type) >> */
