@@ -2485,6 +2485,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     @supports not (zoom: 0.5) {
         #right-tabs .font-size-btn {
-            display: none !important;
+            display: none !important;  /* hide zoom btn for FireFox */
         }
+    }
+
+    #player-theater-container{
+        z-index:1; /* fix meta bar overlap */
     }
