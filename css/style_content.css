@@ -1257,31 +1257,38 @@ html:not(.style-scope) {
     
     /* fix playlist title */
     
+    /*
         font-size: var(--ytd-user-comment_-_font-size);
         font-weight: var(--ytd-user-comment_-_font-weight);
         line-height: var(--ytd-user-comment_-_line-height);
         letter-spacing: var(--ytd-user-comment_-_letter-spacing);
         height: calc(1 * var(--ytd-subheadline-one-line-ellipsis_-_max-height));
+        */
         white-space: nowrap;
         
     }
     
-    #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #header-description, 
-    #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #header-description yt-formatted-string[class]{
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description, 
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description yt-formatted-string[class]{
         height: auto;
         max-height: none;
         white-space: normal;
     }
     
-    #tab-list ytd-playlist-panel-renderer#playlist #header-contents {
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer {
         cursor: default;
     }
-    #tab-list ytd-playlist-panel-renderer#playlist #header-contents #publisher-container, #tab-list ytd-playlist-panel-renderer#playlist #header-contents #playlist-actions{
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #publisher-container, 
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #playlist-actions{
         display: none;
     }
     
-    #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #publisher-container, #tab-list ytd-playlist-panel-renderer#playlist #header-contents:hover #playlist-actions{
-        display: block;
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #publisher-container{
+        display: flex; /* since 2022/07/17 */
+    }
+
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #playlist-actions{
+        display: flex; /* since 2022/07/17 */
     }
     
     
@@ -1305,11 +1312,12 @@ html:not(.style-scope) {
     }
     
     #tab-list ytd-playlist-panel-renderer#playlist #container > .header yt-icon-button{
-        background-color: var(--yt-spec-badge-chip-background);
+        background-color: transparent;
     }
     
     #tab-list ytd-playlist-panel-renderer#playlist #container > .header + #items{
-        margin-top: calc(var(--ytd-subheadline-one-line-ellipsis_-_max-height, 0px) + 42px);  
+        /*margin-top: calc(var(--ytd-subheadline-one-line-ellipsis_-_max-height, 0px) + 42px);  */
+        margin-top: 50px;
     }
             
     
@@ -1967,6 +1975,12 @@ html:not(.style-scope) {
         contain: layout paint;
     }
 
+    .tab-content-cld ytd-toggle-button-renderer.ytd-menu-renderer,
+    .tab-content-cld ytd-button-renderer.ytd-playlist-loop-button-renderer
+    {
+        contain: layout;
+    }
+
 
 
      .tab-content-cld ytd-comment-action-buttons-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
@@ -2213,15 +2227,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
        height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
    }
 
-   ytd-watch-flexy ytd-menu-renderer{
+   ytd-watch-flexy #primary #menu ytd-menu-renderer{
        --yt-button-icon-size: 32px;
+   }
+   ytd-watch-flexy #primary #menu ytd-menu-renderer .ytd-menu-renderer[style-target=button]{
+        --yt-icon-button-icon-width: 24px;
+        --yt-icon-button-icon-height: 24px;
+        --yt-icon-width: 32px;
+        --yt-icon-height: 32px;
    }
 
    ytd-watch-flexy ytd-menu-renderer .ytd-menu-renderer[style-target=button]{
-       --yt-icon-button-icon-width: 24px;
-       --yt-icon-button-icon-height: 24px;
-       --yt-icon-width: 32px;
-       --yt-icon-height: 32px;
        width: var(--yt-icon-width);
        height: var(--yt-icon-height);
    }
@@ -2499,4 +2515,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]){
         max-width: none; /* fix game content box width */
+    }
+
+    #tab-list ytd-playlist-panel-renderer:not([hide-header-text]):not([collapsed]):not([has-toolbar]) #header-contents.ytd-playlist-panel-renderer{
+        margin-bottom: 0;
     }
