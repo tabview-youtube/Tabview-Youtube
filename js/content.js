@@ -1599,10 +1599,10 @@
         timeline.setTimeout(function() {
           const domElement = contentToggleBtn;
           contentToggleBtn = null;
-          if(!domElement.parentElement) return;
+          // if(!domElement.parentElement) return; // not working in pseudo custom element - parentNode = documentFragment
           const expander = closestDOM.call(domElement, 'ytd-watch-flexy #tab-info ytd-expander')
   
-          if(!expander || expander.nodeType!==1) return;
+          if(!expander || expander.nodeType!==1) return; // checking whether it is still on the page
           if(expander.style.getPropertyValue('--ytd-expander-collapsed-height')){
             expander.style.setProperty('--ytd-expander-collapsed-height','')
           }
@@ -1631,7 +1631,10 @@
         timeline.setTimeout(function() {
           const domElement = playlist;
           playlist = null;
-          if(!domElement.parentElement || domElement.nodeType!==1) return;
+          // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
+          const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
+  
+          if(!tablist || tablist.nodeType!==1) return; // checking whether it is still on the page
 
           if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
           if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
