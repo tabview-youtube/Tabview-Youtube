@@ -868,32 +868,8 @@
 
   function ytBtnCollapseChat() {
     let button = document.querySelector('ytd-live-chat-frame#chat:not([collapsed]) > .ytd-live-chat-frame#show-hide-button')
-    if (button) button.querySelector('ytd-toggle-button-renderer').click();
+    if (button) querySelectorFromAnchor.call(button, 'ytd-toggle-button-renderer').click();
   }
-
-/*
-  function hackImgShadow(imgShadow) {
-    // add to #columns and add back after loaded
-    let img = imgShadow.querySelector('img')
-    if (!img) return;
-
-    let p = imgShadow.parentNode
-    let z = $(imgShadow).clone()[0]; //to occupy the space
-    p.replaceChild(z, imgShadow)
-    $(imgShadow).prependTo('#columns'); // refer to css hack
-
-    function onload(evt) {
-      if (evt) this.removeEventListener('load', onload, false)
-      p.replaceChild(imgShadow, z)
-      p = null;
-      z = null;
-      imgShadow = null;
-    }
-
-    if (img.complete) onload();
-    else img.addEventListener('load', onload, false)
-  }
-  */
 
 
   const Q = {}
@@ -947,7 +923,7 @@
 
     if (isRelocated) {
 
-      let relocatedRelated = queryElement.parentNode; // NOT NULL
+      let relocatedRelated = closestDOM.call(queryElement, '#related'); // NOT NULL
 
       let right_tabs = document.querySelector('#right-tabs');
       let tab_videos = querySelectorFromAnchor.call(right_tabs,"#tab-videos");
@@ -968,7 +944,7 @@
       $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue');
 
       tab_videos.appendChild(videos_related);
-      let videos_results_renderer = relocatedRelated.querySelector("ytd-watch-next-secondary-results-renderer");
+      let videos_results_renderer = querySelectorFromAnchor.call(relocatedRelated,"ytd-watch-next-secondary-results-renderer");
       if (videos_results_renderer) videos_results_renderer.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal);
       videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
       videos_related.setAttribute('placeholder-videos', '')
@@ -1145,7 +1121,7 @@
       function getVideoListHash() {
 
         let res = [...document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')].map(renderer => {
-          return renderer.querySelector('a[href*="watch"][href*="v="]').getAttribute('href')
+          return querySelectorFromAnchor.call(renderer,'a[href*="watch"][href*="v="]').getAttribute('href')
 
         }).join('|')
         // /watch?v=XXXXX|/watch?v=XXXXXX|/watch?v=XXXXXX
