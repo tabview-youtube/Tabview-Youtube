@@ -18,6 +18,55 @@ function injection_script_1() {
 
   },true)
 
+  document.addEventListener('userscript-call-dom',function(evt){
+    //console.log(1233)
+
+    if (!evt || !evt.target || !evt.detail) return;
+    let dom = evt.target;
+
+    let detail = evt.detail;
+    //console.log(detail)
+    if(!detail || !detail.length) return;
+
+    for(const obj of detail){
+
+      const {method, property, args, value} = obj
+      if(method && typeof method=='string'){
+        const f=dom[method];
+        if(!f) console.log('This method is not supported');
+        else if(args&&args.length>=1){
+          try{
+            f.apply(dom,args)
+            
+          }catch(e){
+            console.log(`Dom Method Failed: ${method}`)
+          }
+        }else {
+          try{
+            f.call(dom)
+            
+          }catch(e){
+            console.log(`Dom Method Failed: ${method}`)
+          }
+        }
+      }else if(property && typeof property=='string'){
+        if(!(property in dom)) console.log('This propert is not supported')
+        else if (value===undefined) console.log('undefined value is not supported')
+        else {
+          
+          try{
+            dom[property]=value;
+            
+          }catch(e){
+            console.log(`Dom Property Failed: ${property}`)
+          }
+        } 
+      }
+
+    }
+
+  }, true)
+
 
   document.addEventListener('userscript-call-dom-func', function (evt) {
 

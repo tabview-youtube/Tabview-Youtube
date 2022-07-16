@@ -69,8 +69,9 @@
 
 
 
-  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
-  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
+  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1
+  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1
+  const closestDOM = HTMLElement.prototype.closest;
 
 
 
@@ -417,6 +418,12 @@
     return typeof s == 'string' && s.length > 0;
   }
 
+
+  async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
+    //console.log(1231)
+    dom.dispatchEvent(new CustomEvent("userscript-call-dom", { detail: detail }))
+    //console.log(1232)
+  }
 
   async function nativeFunc(/** @type {EventTarget} */ dom, /** @type {string} */ property, /** @type {any} */ args) {
     dom.dispatchEvent(new CustomEvent("userscript-call-dom-func", { detail: { property, args } }))
@@ -1580,40 +1587,58 @@
 
     if (!scriptEnable) return;
 
-    if (no_fix_contents_until < Date.now()) {
-      if (document.querySelector('#tab-info ytd-expander > #content')) {
-        no_fix_contents_until = Date.now() + 3000;
+    let date_now = Date.now()
+
+    if(no_fix_contents_until<date_now){
+
+      let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])')
+
+      if(contentToggleBtn){
+  
+        no_fix_contents_until = date_now + 39;
         timeline.setTimeout(function() {
-          const expander = document.querySelector('ytd-watch-flexy #tab-info ytd-expander');
+          const domElement = contentToggleBtn;
+          contentToggleBtn = null;
+          if(!domElement.parentElement) return;
+          const expander = closestDOM.call(domElement, 'ytd-watch-flexy #tab-info ytd-expander')
+  
           if(!expander || expander.nodeType!==1) return;
           if(expander.style.getPropertyValue('--ytd-expander-collapsed-height')){
-              expander.style.setProperty('--ytd-expander-collapsed-height','')
-          }else{
-
-              if (expander.hasAttribute('collapsed')) wAttr(expander, 'collapsed', false);
-              expander.style.setProperty('--ytd-expander-collapsed-height', '');
-
-              let btn1 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#less:not([hidden])');
-              let btn2 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#more:not([hidden])');
-
-              if (btn1) wAttr(btn1, 'hidden', true);
-              if (btn2) wAttr(btn2, 'hidden', true);
+            expander.style.setProperty('--ytd-expander-collapsed-height','')
           }
+          nativeCall(expander, [
+            {'property':'canToggleJobId','value':1}, // false disable calculateCanCollapse in childrenChanged
+            {'property':'alwaysToggleable','value':false}, // this is checked in childrenChanged
+            {'property':'recomputeOnResize','value':false}, // no need to check toggleable
+            {'property':'isToggled','value':true}, // show full content
+            {'property':'canToggle','value':false}, // hide show more or less btn
+            {'property':'collapsedHeight','value':999999} // disable collapsed height check
+          ])
+  
         }, 40);
-
       }
+
     }
 
-    if (no_fix_playlist_until < Date.now()) {
+
+    if(no_fix_playlist_until<date_now){
+
+
       // just in case the playlist is collapsed
-      const playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-      if (playlist) {
-        no_fix_playlist_until = Date.now() + 3000;
+      let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
+      if(playlist.matches('[collapsed], [collapsible]')) {
+        no_fix_playlist_until=  date_now + 39;
         timeline.setTimeout(function() {
-          if (playlist.hasAttribute('collapsed')) wAttr(playlist, 'collapsed', false);
-          if (playlist.hasAttribute('collapsible')) wAttr(playlist, 'collapsible', false);
+          const domElement = playlist;
+          playlist = null;
+          if(!domElement.parentElement || domElement.nodeType!==1) return;
+
+          if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
+          if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
         }, 40)
       }
+
+
     }
 
 
@@ -1668,7 +1693,7 @@
           
           if (span){
 
-            let tab_btn = span.closest('.tab-btn[userscript-tab-content="#tab-comments"]')
+            let tab_btn = closestDOM.call(span,'.tab-btn[userscript-tab-content="#tab-comments"]')
             if(tab_btn)tab_btn.setAttribute('loaded-comment','normal')
             span.textContent = r;
           } 
@@ -1708,7 +1733,7 @@
               }
             }
             if (span){
-              let tab_btn = span.closest('.tab-btn[userscript-tab-content="#tab-comments"]')
+              let tab_btn = closestDOM.call(span,'.tab-btn[userscript-tab-content="#tab-comments"]')
               if(tab_btn)tab_btn.setAttribute('loaded-comment','message')
               span.textContent ='\u200B';
             } 
@@ -2759,6 +2784,9 @@
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
     
+    no_fix_contents_until = 0;
+    no_fix_playlist_until = 0;
+    
     document.documentElement.setAttribute('youtube-ready','')
     
     script_inject_js1.inject();
@@ -2988,7 +3016,11 @@
     })
 
 
+    no_fix_contents_until = 0;
+    no_fix_playlist_until = 0;
+    scriptEnable = true;
     regularCheck(1, 0, null);
+    
 
     
 
@@ -3860,7 +3892,7 @@
 
         let value = evt.target.matches('.font-size-plus')?1: evt.target.matches('.font-size-minus')?-1 :0;
 
-        let active_tab_content = evt.target.closest('[userscript-tab-content]').getAttribute('userscript-tab-content'); 
+        let active_tab_content = closestDOM.call(evt.target,'[userscript-tab-content]').getAttribute('userscript-tab-content'); 
 
         let store = getStore();
         let settingKey = `font-size-${active_tab_content}`
@@ -3943,6 +3975,10 @@
 
   document.addEventListener("yt-navigate-start",()=>{
     console.log('yt-navigate-start') // not always trigger before navigate-end
+    
+    no_fix_contents_until = 0;
+    no_fix_playlist_until = 0;
+
     script_inject_js1.inject();
     forceConfig();
   })
@@ -3965,6 +4001,11 @@
     if (src !== lastVideoURL) {
       lastVideoURL = elm.src;
       elm.setAttribute('tabview-mainvideo', ''); // mainly for mini playing
+      
+      no_fix_contents_until = 0;
+      no_fix_playlist_until = 0;
+      regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
+
     }
 
   }, true)
@@ -4097,6 +4138,7 @@
 
     console.log('newVideoPage')
     
+    
     //console.log('newVideoPage-', 150, location.href)
 
     let ytdFlexyElm = kRef(ytdFlexy);
@@ -4183,6 +4225,9 @@
 
       }
 
+      no_fix_contents_until = 0;
+      no_fix_playlist_until = 0;
+      scriptEnable = true;
       regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
 
 
