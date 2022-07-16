@@ -2482,3 +2482,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy #columns #primary #player{
         background-color: var(--yt-spec-general-background-a); /* prevent transparent */
     }
+
+    @supports not (zoom: 0.5) {
+        #right-tabs .font-size-btn {
+            display: none !important;
+        }
+    }

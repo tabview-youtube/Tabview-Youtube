@@ -3898,7 +3898,9 @@
         let settingKey = `font-size-${active_tab_content}`
         if(!store[settingKey]) store[settingKey] = 1.0;
         if(value<0) store[settingKey] -= 0.05;
-        if(value>0) store[settingKey] += 0.05;
+        else if(value>0) store[settingKey] += 0.05;
+        if(store[settingKey]<0.1) store[settingKey] = 0.1;
+        else if(store[settingKey]>10) store[settingKey] = 10.0;
         setStore(store);
 
 
