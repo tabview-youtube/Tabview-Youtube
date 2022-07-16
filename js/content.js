@@ -74,6 +74,7 @@
   const closestDOM = HTMLElement.prototype.closest;
   const elementRemove = HTMLElement.prototype.remove;
   const elementInsertBefore = HTMLElement.prototype.insertBefore; // since 2022/07/12
+  const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
 
 
@@ -1506,7 +1507,12 @@
       let parentNode = closestDOM.call(button, 'ytd-live-chat-frame#chat');
       if (!parentNode){
         console.log('parentNode failed')
-      }else{
+      } else if( HTMLElement.prototype.prepend ){
+        // using prepend
+        HTMLElement.prototype.prepend.call(parentNode, button)
+
+      } else{
+        // using insertBefore
         try{
           elementInsertBefore.call(parentNode, button, parentNode.firstChild);
         }catch(e){
@@ -1656,6 +1662,8 @@
     let messageElm, messageStr, commentRenderer;
     let diffCSS = `[tabview-cache-time="${sect_hTime}"]`
 
+    //console.log(823100,rootElement)
+
     if (commentRenderer = querySelectorFromAnchor.call(rootElement,`ytd-comments#comments #count.ytd-comments-header-renderer:not(${diffCSS})`)) {
 
       scheduledCommentRefresh=false;
@@ -1802,11 +1810,12 @@
 
         //console.log(1222,_innerCommentsLoader)
 
-        if (!innerCommentsLoaderRet) {
+        if (!innerCommentsLoaderRet) {  //unable to get the status
 
 
           let holder = kRef(sect_holder);
-          if (holder && comments.contains(holder)) {
+          //if (holder && comments.contains(holder)) {
+          if (holder && elementContains.call(comments,holder)) {  // previous status in page
 
             if (sect_lastUpdate) return;
             sect_lastUpdate = 1;
@@ -1836,7 +1845,7 @@
               sect_lastUpdate = 0
             }, 400)
 
-          } else if (sect_holder) {
+          } else if (sect_holder) { //previous status not in page but we have the previous text
             sect_holder = null
             sect_hTime = 0;
             sect_lastUpdate = 0;
@@ -1850,8 +1859,10 @@
               }
             },142);
             
-            Q.mutationTarget=null;
-            FP.mtf_attrComments(); // in case for popstate
+            //Q.mutationTarget=null;
+            //console.log(87103)
+            // try to omit in 2.5.x
+            //FP.mtf_attrComments(); // in case for popstate
           }
 
 
@@ -2218,7 +2229,7 @@
 
           if (dTarget === null) dTarget = mutation.target; //first
           else if (dTarget === true) {} //ytdFlexy
-          else if (dTarget.contains(mutation.target)) {} //first node is the container to all subsequential targets
+          else if ( elementContains.call(dTarget, mutation.target)) {} //first node is the container to all subsequential targets
           else { dTarget = true; } //the target is not the child of first node
 
         }
@@ -2889,7 +2900,10 @@
         
         Q.mutationTarget=null;
         atChange(); // in case no mutation occurance
-        FP.mtf_attrComments()
+        //console.log(87100)
+        
+        // try to omit in 2.5.x
+        //FP.mtf_attrComments()
       },160);
         
     }
@@ -4150,7 +4164,7 @@
 
       let isFlexyHidden = (deferredVarYTDHidden = ytdFlexyElm.hasAttribute('hidden'));
 
-      let flag2 = !isFlexyHidden;
+      let flag2 = !isFlexyHidden;  // flexy is visible
 
       if(flag1^flag2) return timeline.setTimeout(tf,7); else funcVisibleWatch();
 
@@ -4161,6 +4175,8 @@
     }
 
     let funcVisibleWatch = ()=>{
+
+      //(flexy is visible and watch video page)  ||  (flexy is inivisible and it is not watch video page)
       
       //scriptEnable = true;
 
@@ -4168,6 +4184,7 @@
       ytdFlexyHiddenCheckBasic(ytdFlexyElm)
 
       if(!isFlexyHidden) {
+        //(flexy is visible and watch video page) 
 
         mtf_forceCheckLiveVideo_disable = 0;
         mtc_store= Date.now()+2870
@@ -4178,10 +4195,14 @@
           pendingOne = document.querySelectorAll(`ytd-watch-flexy ytd-comments#comments [tabview-cache-time]`).length>1;
         }
 
+        /*
+        // try to omit in 2.5.x
         timeline.setTimeout(()=>{
           Q.mutationTarget=null;
+          console.log(87101)
           FP.mtf_attrComments()
         },2870)
+        */
     
         if(pageInit_attrComments) hookSection();
 
@@ -4214,7 +4235,9 @@
       
         FP.mtf_attrPlaylist();
       
-        FP.mtf_attrComments();   
+        //console.log(87102)
+        // try to omit in 2.5.x
+        //FP.mtf_attrComments();   
       
         FP.mtf_attrChatroom();
 
@@ -4299,7 +4322,7 @@
 
     if (!scriptEnable) return;
     const displayedPlaylist_element = kRef(displayedPlaylist);
-    if (displayedPlaylist_element && displayedPlaylist_element.contains(evt.target)) {
+    if (displayedPlaylist_element && elementContains.call(displayedPlaylist_element, evt.target)) {
       evt.stopPropagation();
       evt.stopImmediatePropagation();
     }
@@ -4453,7 +4476,7 @@
       if (!elm) return false;
       let ytdFlexyElm = kRef(ytdFlexy);
       if(!ytdFlexyElm) return false;
-      return ytdFlexyElm.contains(elm)
+      return elementContains.call(ytdFlexyElm, elm)
     }
   };
 
