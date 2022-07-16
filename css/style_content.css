@@ -2492,3 +2492,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #player-theater-container{
         z-index:1; /* fix meta bar overlap */
     }
+
+    ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]){
+        max-width: none; /* fix game content box width */
+    }
