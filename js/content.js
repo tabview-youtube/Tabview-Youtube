@@ -69,10 +69,11 @@
 
 
 
-  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1
-  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1
+  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1 // since 2022/07/12
+  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
   const elementRemove = HTMLElement.prototype.remove;
+  const elementInsertBefore = HTMLElement.prototype.insertBefore; // since 2022/07/12
 
 
 
@@ -1506,7 +1507,11 @@
       if (!parentNode){
         console.log('parentNode failed')
       }else{
-        parentNode.insertBefore(button, parentNode.firstChild) //experimental in old browser CE
+        try{
+          elementInsertBefore.call(parentNode, button, parentNode.firstChild);
+        }catch(e){
+          console.log('element insert failed in old browser CE')
+        }
       }
     } 
     //if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
@@ -1915,6 +1920,7 @@
     }
     //console.log(3241, location.href)
     
+    //console.log('cid_render_section',1)
     let cid_render_section = timeline.setInterval(function() {
 
      // console.log(3244, location.href)
@@ -1927,6 +1933,7 @@
 
       if (sections) {
 
+        //console.log('cid_render_section',0)
         timeline.clearInterval(cid_render_section);
         foundSection(sections);
 
@@ -2504,6 +2511,7 @@
         if (chatroom) {
           mgChatFrame.setVar(chatroom);
 
+          //console.log(124,chatroom)
           if(mtoVisibility_Chatroom.bindElement(chatroom)){
             mtoVisibility_Chatroom.observer.check(9)
           }
@@ -4454,13 +4462,17 @@
     cn1:{},
     cn2:{},
     setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d){
-      return timeline.cn1[setTimeout(f,d)]=true
+      let cid = setTimeout(f,d)
+      timeline.cn1[cid]=true
+      return cid;
     },
     clearTimeout(/** @type {number} */ cid){
       timeline.cn1[cid]=false; return clearTimeout(cid)
     },
     setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d){
-      return timeline.cn2[setInterval(f,d)]=true
+      let cid = setInterval(f,d);
+      timeline.cn2[cid]=true
+      return cid;
     },
     clearInterval(/** @type {number} */ cid){
       timeline.cn2[cid]=false; return clearInterval(cid)
@@ -4495,7 +4507,10 @@
     }
     observe(/** @type {Node} */ target){
       if(this._target) return; 
+      //console.log(123124, target)
       this._target = mWeakRef(target);
+      
+      //console.log(123125, kRef(this._target))
       const options = {
         attributes: true,
         attributeFilter: Object.keys(this.flist),
@@ -4516,8 +4531,12 @@
     check(delay = 0){
       setTimeout(()=>{
         let target = kRef(this._target)
-        for(const key of Object.keys(this.flist)){
-          this.checker(target,key)
+        if(target!==null){
+          for(const key of Object.keys(this.flist)){
+            this.checker(target,key)
+          }
+        }else{
+          console.log('target is null') //disconnected??
         }
         target = null;
       },delay)
