@@ -1581,21 +1581,24 @@
     if (!scriptEnable) return;
 
     if (no_fix_contents_until < Date.now()) {
-      const content = document.querySelector('#meta-contents ytd-expander > #content, #tab-info ytd-expander > #content')
-      if (content) {
+      if (document.querySelector('#tab-info ytd-expander > #content')) {
         no_fix_contents_until = Date.now() + 3000;
         timeline.setTimeout(function() {
-          const expander = content.parentNode;
+          const expander = document.querySelector('ytd-watch-flexy #tab-info ytd-expander');
           if(!expander || expander.nodeType!==1) return;
+          if(expander.style.getPropertyValue('--ytd-expander-collapsed-height')){
+              expander.style.setProperty('--ytd-expander-collapsed-height','')
+          }else{
 
-          if (expander.hasAttribute('collapsed')) wAttr(expander, 'collapsed', false);
-          expander.style.setProperty('--ytd-expander-collapsed-height', '');
+              if (expander.hasAttribute('collapsed')) wAttr(expander, 'collapsed', false);
+              expander.style.setProperty('--ytd-expander-collapsed-height', '');
 
-          let btn1 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#less:not([hidden])');
-          let btn2 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#more:not([hidden])');
+              let btn1 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#less:not([hidden])');
+              let btn2 = querySelectorFromAnchor.call(expander,'tp-yt-paper-button#more:not([hidden])');
 
-          if (btn1) wAttr(btn1, 'hidden', true);
-          if (btn2) wAttr(btn2, 'hidden', true);
+              if (btn1) wAttr(btn1, 'hidden', true);
+              if (btn2) wAttr(btn2, 'hidden', true);
+          }
         }, 40);
 
       }
