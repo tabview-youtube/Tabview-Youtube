@@ -4,6 +4,9 @@ function injection_script_1() {
   
   if(!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
+  
+  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
+  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
 
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready',function(evt){
@@ -56,11 +59,11 @@ function injection_script_1() {
     function getEPC(ep) {
 
       if (!ep) return null;
-      let epc = ep.querySelector('#content');
+      let epc = querySelectorFromAnchor.call(ep,'#content');
       if (!epc) return null;
 
-      let epc1 = epc.querySelector('ytd-ads-engagement-panel-content-renderer #content')
-      let epc2 = epc.querySelector('ytd-ads-engagement-panel-content-renderer')
+      let epc1 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer #content')
+      let epc2 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer')
 
       return epc1 || epc2 || epc;
 
@@ -134,7 +137,7 @@ function injection_script_1() {
 
       newPanel.classList.add('style-scope','ytd-watch-flexy')
 
-      ytdFlexyElm.querySelector('#panels').appendChild(newPanel)
+      querySelectorFromAnchor.call(ytdFlexyElm,'#panels').appendChild(newPanel)
 
       return newPanel;
 
