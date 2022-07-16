@@ -72,6 +72,7 @@
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1
   const closestDOM = HTMLElement.prototype.closest;
+  const elementRemove = HTMLElement.prototype.remove;
 
 
 
@@ -1500,7 +1501,15 @@
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
     let button = querySelectorFromAnchor.call(rootElement,'ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
-    if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
+    if (button){
+      let parentNode = closestDOM.call(button, 'ytd-live-chat-frame#chat');
+      if (!parentNode){
+        console.log('parentNode failed')
+      }else{
+        parentNode.insertBefore(button, parentNode.firstChild) //experimental in old browser CE
+      }
+    } 
+    //if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
   }
 
 
@@ -1523,22 +1532,20 @@
       let truePlaylist_items = document.querySelector('ytd-playlist-panel-renderer#playlist #items:not(:empty)');
       if (truePlaylist_items) {
 
-        let pElm = truePlaylist_items.parentNode;
-        while (pElm && pElm.nodeType === 1) {
-          if (pElm.id == 'playlist') {
-            pElm.setAttribute('tabview-true-playlist', ct)
-            truePlaylist = pElm;
-            break;
-          }
-          pElm = pElm.parentNode;
+        let truePlaylist = closestDOM.call(truePlaylist_items, '#playlist');
+        if(!truePlaylist || truePlaylist.nodeType!==1) truePlaylist = null;
+        else {
+          truePlaylist.setAttribute('tabview-true-playlist', ct)
         }
 
       }
 
       if (!truePlaylist) truePlaylist = ple1; // NOT NULL
 
-      for (const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`))
-        s.parentNode.removeChild(s);
+      for (const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)){
+        elementRemove.call(s);
+      }
+        
 
       let $wrapper = getWrapper('ytd-userscript-playlist')
       $wrapper.append(truePlaylist).appendTo(document.querySelector("#tab-list"));
