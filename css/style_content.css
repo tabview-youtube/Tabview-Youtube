@@ -2543,3 +2543,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         max-height: 0;
         display: inline-block;
     }
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander > #snippet-text + #ellipsis ~ * {
+        visibility: hidden;
+        max-height: 0;
+        display: inline-block;
+    }
