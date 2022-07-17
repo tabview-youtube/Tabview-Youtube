@@ -2927,6 +2927,30 @@
     return $wrapper.first();
   }
 
+  function regularCheckFull(){
+    
+    if(scriptEnable){
+
+      no_fix_contents_until = 0;
+      no_fix_playlist_until = 0;
+      Q.mutationTarget =null;
+      regularCheck(1, 0, null);
+      
+  
+      FP.mtf_attrEngagementPanel();
+        
+      FP.mtf_attrPlaylist();
+    
+      //console.log(87102)
+      // try to omit in 2.5.x
+      //FP.mtf_attrComments();   
+    
+      FP.mtf_attrChatroom();
+
+    }
+    
+  }
+
   function runAfterTabAppended() {
 
     document.documentElement.setAttribute('plugin-tabview-youtube', '')
@@ -3023,12 +3047,8 @@
       attributes: false
     })
 
+    regularCheckFull()
 
-    no_fix_contents_until = 0;
-    no_fix_playlist_until = 0;
-    scriptEnable = true;
-    regularCheck(1, 0, null);
-    
 
     
 
@@ -4012,9 +4032,7 @@
       lastVideoURL = elm.src;
       elm.setAttribute('tabview-mainvideo', ''); // mainly for mini playing
       
-      no_fix_contents_until = 0;
-      no_fix_playlist_until = 0;
-      regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
+      regularCheckFull()
 
     }
 
@@ -4184,7 +4202,10 @@
       ytdFlexyHiddenCheckBasic(ytdFlexyElm)
 
       if(!isFlexyHidden) {
+
         //(flexy is visible and watch video page) 
+
+        scriptEnable = true;
 
         mtf_forceCheckLiveVideo_disable = 0;
         mtc_store= Date.now()+2870
@@ -4229,25 +4250,15 @@
           wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPAND)
         }
 
-        //mtf_attrFlexy();
-
-        FP.mtf_attrEngagementPanel();
-      
-        FP.mtf_attrPlaylist();
-      
-        //console.log(87102)
-        // try to omit in 2.5.x
-        //FP.mtf_attrComments();   
-      
-        FP.mtf_attrChatroom();
-
+        
+        regularCheckFull()
 
       }
 
-      no_fix_contents_until = 0;
-      no_fix_playlist_until = 0;
-      scriptEnable = true;
-      regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
+      //no_fix_contents_until = 0;
+      //no_fix_playlist_until = 0;
+      //scriptEnable = true;
+      //regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
 
 
 
