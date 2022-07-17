@@ -2533,6 +2533,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         max-height: 0;
         display: inline-block;
     }
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text > span.bold[style-target="bold"] + span[style*="color: "]:not([style-target="bold"]):not(.bold) ~ .yt-simple-endpoint.style-scope.yt-formatted-string{
+        visibility: hidden;
+        max-height: 0;
+        display: inline-block;
+    }
     ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander + tp-yt-paper-button#expand[style*="left: "]{
         visibility: hidden;
         max-height: 0;
