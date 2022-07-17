@@ -2520,3 +2520,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #tab-list ytd-playlist-panel-renderer:not([hide-header-text]):not([collapsed]):not([has-toolbar]) #header-contents.ytd-playlist-panel-renderer{
         margin-bottom: 0;
     }
+
+    /* fix teaser UI overflow */
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata #bottom-row.style-scope.ytd-watch-metadata{
+        max-width: 100%;
+    }
