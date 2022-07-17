@@ -2525,3 +2525,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy[flexy] #primary ytd-watch-metadata #bottom-row.style-scope.ytd-watch-metadata{
         max-width: 100%;
     }
+
+    /* experimental css - teaser ui */
+    /* visible if tab-info is with no content */
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text > span.bold[style-target="bold"] + span[style*="color: "]:not([style-target="bold"]):not(.bold){
+        visibility: hidden;
+    }
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander + tp-yt-paper-button#expand[style*="left: "]{
+        visibility: hidden;
+    }
