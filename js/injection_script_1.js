@@ -7,6 +7,7 @@ function injection_script_1() {
   
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
+  const closestFromAnchor = HTMLElement.prototype.closest;
 
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready',function(evt){
@@ -555,6 +556,30 @@ function injection_script_1() {
 
       let wm = new WeakMap();
 
+
+
+      async function callReset(target,value){
+
+
+        if(wm.get(target)!==value){
+          wm.set(target, value)
+          target.reset();
+          if(!target.hasAttribute('QNJMC')){
+            target.setAttribute('QNJMC','')  
+            target.addEventListener('mouseenter',function(){
+              requestAnimationFrame(()=>{
+                if(this.atStart===true) this.reset();
+              })
+            },false)
+          }
+        }
+        
+        setTimeout(()=>{
+          if(target.atStart===true) target.reset();
+        },160)
+
+      }
+
       insObserver = new IntersectionObserver(function (entries, observer) {
         
         for (const entry of entries) {
@@ -565,9 +590,8 @@ function injection_script_1() {
 
               if(entry.target&&entry.target.reset){
                 let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
-                if(wm.get(entry.target)!==area){
-                  wm.set(entry.target, area)
-                  entry.target.reset();
+                if(area>10){
+                  callReset(entry.target,area)
                 }
               }
 
@@ -587,6 +611,77 @@ function injection_script_1() {
 
 
     return insObserver;
+
+
+  }
+
+  
+  function getMutObserverChipCloud(){
+
+
+    let mutObserver = null;
+    if (window.MutationObserver) {
+
+      let wm = new WeakMap();
+
+
+      async function callReset(target,value){
+
+        if(wm.get(target)!==value){
+          wm.set(target, value)
+          target.reset();
+        }
+        setTimeout(()=>{
+          if(target.atStart===true) target.reset();
+        },160)
+
+      }
+
+      let t = 0;
+      function mSet(target){
+
+
+        let c= Date.now();
+        t=c;
+        setTimeout(()=>{
+
+          if(t!==c)return;
+          
+          let chips = querySelectorFromAnchor.call(target, 'iron-selector#chips');
+
+          if(!chips) return;
+
+          callReset(target, chips.offsetWidth)
+
+        },160)
+
+      }
+
+
+      mutObserver = new MutationObserver(function (mutationList, observer) {
+        
+        for (const mutation of mutationList) {
+
+            let target = mutation.target;
+            target = closestFromAnchor.call(target,'yt-chip-cloud-renderer')
+
+            if(target&&target.reset){
+
+              mSet(target)
+
+
+            }
+            
+        }
+      })
+
+
+
+
+    }
+
+
+    return mutObserver;
 
 
   }
@@ -730,6 +825,7 @@ function injection_script_1() {
 
     let s32 = Symbol();
     let insObserverChipCloud = getInsObserverChipCloud();
+    let mutObserverChipCloud = getMutObserverChipCloud();
     // yt-chip-cloud-renderer
     Object.defineProperty(customElements.get('yt-chip-cloud-renderer').prototype, 'boundChipCloudChipScrollIntoView', {
       get() {
@@ -737,6 +833,9 @@ function injection_script_1() {
       },
       set(nv) {
         if (insObserverChipCloud) insObserverChipCloud.observe(this)
+        if (mutObserverChipCloud) mutObserverChipCloud.observe(this,{
+          attributes: false, childList: true, subtree: true 
+        })
         this[s32] = nv;
       },
       enumerable: false,

@@ -2206,6 +2206,9 @@
       Q.removeP = 0;
       
       //mtc_nr_comments=Date.now()+1870
+      
+    
+      mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+260)
 
 
       let regularChecks = regularCheck(addP, removeP, mutationTarget);
@@ -2213,6 +2216,7 @@
       Promise.all(regularChecks).then(() => {
         regularChecks = null;
         
+        mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+260)
         //mtc_nr_comments= Date.now() + 3870 // pending Comments start to load
         
         Q.mutationTarget = null;
@@ -2944,7 +2948,7 @@
 
       let elmComments = document.querySelector('ytd-comments#comments')
 
-      if (elmComments) {
+      if (elmComments && querySelectorFromAnchor.call(elmComments,'ytd-item-section-renderer#sections.style-scope.ytd-comments')){
         nativeFunc(elmComments, "loadComments")
       }
 
