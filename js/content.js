@@ -1761,7 +1761,7 @@
     mtf_forceCheckLiveVideo_disable = 0; 
     mtf_forceCheckLiveVideo();
 
-    if(Q.comments_section_loaded===0){
+    if(Q.comments_section_loaded===0 && mtf_forceCheckLiveVideo_disable !== 2){
 
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"].tab-btn-hidden')
       if(tabBtn) {
@@ -1874,7 +1874,7 @@
               if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
 
                 scheduledCommentRefresh=false; // logic tbc
-                resetCommentSection();
+                emptyCommentSection();
                 
               }
             },142);
@@ -2179,18 +2179,9 @@
     if(!deferredVarYTDHidden && Q.comments_section_loaded>0){
 
       scheduledCommentRefresh = false;
-        
-      let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
+      emptyCommentSection();
 
-      if(tab_btn){
-        let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
-        tab_btn.removeAttribute('loaded-comment')
-        if(span){
-          span.textContent='';
-        }
-      }
 
-      setCommentSection(0);
     }
 
     if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
@@ -2198,12 +2189,8 @@
       //console.log(78,3)
         timeline.clearInterval(mtc_cid)
         mtc_cid=0;
-        if(mtf_forceCheckLiveVideo_disable===2)return;
-        //console.log(79,1, isNullComments())
-        if(isNullComments()) {
-          
-          _disableComments();
-        }
+        if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
+        _disableComments();
 
     },80)
 
@@ -2705,7 +2692,7 @@
 
   function pluginUnhook() {
     _pluginUnhook();
-    resetCommentSection();
+    emptyCommentSection();
   }
 
   function _pluginUnhook() {
@@ -2835,21 +2822,22 @@
     scheduledCommentRefresh=true;
     let comments = document.querySelector('ytd-comments#comments')
     
-    if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
-
-      scheduledCommentRefresh=false; 
-      
-      // comment tab btn - hide by timer in attribute change
-      resetCommentSection();
-    }
 
     mtf_forceCheckLiveVideo_disable = 0
     mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+3870)
     //console.log(7053)
 
+    if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
+
+      scheduledCommentRefresh=false; 
+      
+      // comment tab btn - hide by timer in attribute change
+      if(Q.comments_section_loaded>0) emptyCommentSection();
+    }
+
     if (deferredVarYTDHidden) {  // reset info when hidden
       
-      resetCommentSection();
+      if(Q.comments_section_loaded>0) emptyCommentSection();
     }else{
       checkVisibleEngagementPanel();
       atChange(); // in case no mutation occurance
@@ -3174,6 +3162,32 @@
 
 
   }
+
+
+  function emptyCommentSection(){
+    
+
+    let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
+
+
+    if(tab_btn){
+
+      let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
+
+      tab_btn.removeAttribute('loaded-comment')
+        
+      if(span){
+        span.textContent='';
+      }
+    }
+
+
+    setCommentSection(0);
+
+
+  }
+
+
 
   function _disableComments() {
     time_preventImmHidden = 0;
