@@ -638,12 +638,14 @@ function injection_script_1() {
       }
 
       let t = 0;
+      let cid_mset = 0;
       function mSet(target){
 
 
         let c= Date.now();
         t=c;
-        setTimeout(()=>{
+        if(cid_mset) clearTimeout(cid_mset);
+        cid_mset=setTimeout(()=>{
 
           if(t!==c)return;
           
