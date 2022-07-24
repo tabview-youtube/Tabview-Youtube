@@ -2567,3 +2567,31 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
     }
+
+    
+    .ytp-progress-bar[tabindex][role="slider"] > .ytp-scrubber-container[style]{
+        transition-delay: 10ms;
+    }
+
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]){
+        transition-delay: 12ms;
+    }
+
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-text{
+        transition-delay: 15ms;
+    }
+
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-bg{
+        transition-delay: 16ms;
+    }
+
+    
+
+    /*  fix Iridium CSS  */
+
+    ytd-watch-flexy[fullscreen] #info .iri-quick-controls-tooltip{
+        margin-top: -7rem;
+    }
+
+
+    

@@ -1282,7 +1282,10 @@
         wAttr(ytdFlexyElm, 'userscript-chatblock', attr_chatblock)
         wAttr(ytdFlexyElm, 'userscript-chat-collapsed', attr_chatcollapsed)
         
-        if(attr_chatblock=='chat-live') _disableComments();
+        if(attr_chatblock=='chat-live') {
+          time_preventImmHidden = 0;
+          _disableComments();
+        }
       }
     }
 
@@ -2417,7 +2420,10 @@
               mtc_cid=0;
               if(mtf_forceCheckLiveVideo_disable===2)return;
               console.log(79,1, isNullComments())
-              if(isNullComments()) _disableComments();
+              if(isNullComments()) {
+                time_preventImmHidden = 0;
+                _disableComments();
+              }
   
           },80)
 
@@ -2635,7 +2641,7 @@
         ytdFlexyElm.setAttribute('userscript-chatblock', 'chat-live')
         //console.log(2441)
         mtf_forceCheckLiveVideo_disable = 2;
-        
+        time_preventImmHidden = 0;
         _disableComments();
         
        //console.log(701)
@@ -3369,6 +3375,13 @@
                   pointer-events: none;
                 }
 
+                yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
+                yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer
+                {
+                  contain: layout paint style;
+                  cursor: default;
+                  pointer-events: none;
+                }
 
                  
                 body yt-live-chat-app{
@@ -3388,6 +3401,23 @@
                 #item-offset.style-scope.yt-live-chat-item-list-renderer > #items:only-child{
                   contain: layout paint style;
                 }
+
+                yt-live-chat-text-message-renderer:nth-last-child(5n):hover #menu.yt-live-chat-text-message-renderer{
+                  transition-delay: 100ms;
+                }
+                yt-live-chat-text-message-renderer:nth-last-child(5n+1):hover #menu.yt-live-chat-text-message-renderer{
+                  transition-delay: 95ms;
+                }
+                yt-live-chat-text-message-renderer:nth-last-child(5n+2):hover #menu.yt-live-chat-text-message-renderer{
+                  transition-delay: 90ms;
+                }
+                yt-live-chat-text-message-renderer:nth-last-child(5n+3):hover #menu.yt-live-chat-text-message-renderer{
+                  transition-delay: 85ms;
+                }
+                yt-live-chat-text-message-renderer:nth-last-child(5n+4):hover #menu.yt-live-chat-text-message-renderer{
+                  transition-delay: 80ms;
+                }
+
  
 
             `, cDoc.documentElement).id='userscript-tabview-chatroom-css'
@@ -3506,6 +3536,7 @@
 
           if (cssElm.getAttribute('userscript-chatblock') === 'chat-live') {
             // assigned new attribute - "chat-live" => disable comments section
+            time_preventImmHidden = 0;
             _disableComments();
           }
 
