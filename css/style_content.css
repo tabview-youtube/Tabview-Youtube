@@ -1150,11 +1150,21 @@ html:not(.style-scope) {
     
     /* --- zoom --- */
     
-    ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments{
+    ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer{
         zoom: var(--userscript-zoom-comments);
+        /*
+        transform: scale(var(--userscript-zoom-comments, 1.0));
+        transform-origin: 0 0;
+        --width: calc(100% * 1.0 / var(--userscript-zoom-comments, 1.0));
+        width: var(--width);
+        */
     }
     
-    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos]{
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-video-renderer,
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-radio-renderer,
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-playlist-renderer,
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] yt-chip-cloud-chip-renderer.style-scope.yt-chip-cloud-renderer
+    {
         zoom: var(--userscript-zoom-videos);
     }
 
@@ -1221,7 +1231,7 @@ html:not(.style-scope) {
     
     /* smaller text in tab Comments */
     #tab-comments > #comments #main.ytd-comment-renderer{
-        zoom: 0.95;
+        /*zoom: 0.95;*/
     }
     
     #tab-comments ytd-comments-header-renderer{
@@ -1232,7 +1242,7 @@ html:not(.style-scope) {
     
     /* smaller text for tab Videos */
     #tab-videos [placeholder-videos] ytd-compact-video-renderer .details > .metadata.style-scope.ytd-compact-video-renderer {
-        zoom: 0.94;
+        /*zoom: 0.94;*/
     }
     
     
@@ -1334,7 +1344,7 @@ html:not(.style-scope) {
     #related #related, /* youtube coding bug */
     *:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer,  /* hide videos list & play list before script loading */
     #related > #related-skeleton, #related > #player-ads,
-    *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist,  /* hide videos list & play list before script loading */
+    *:not(#ytd-userscript-playlist):not(#card) > ytd-playlist-panel-renderer#playlist,  /* hide videos list & play list before script loading */
     #primary #primary #info ~ #meta #meta-contents ytd-expander /* meta-contents relocated */
     {
         position: absolute;
@@ -1948,11 +1958,11 @@ html:not(.style-scope) {
     }
     
     yt-img-shadow[height][width]{
-        contain: size layout paint style; /* experimental */
+        contain: layout paint style; /* experimental */
         content-visibility: auto;
     }
     img[height][width]{
-        contain: size layout paint style; /* experimental */
+        contain: layout paint style; /* experimental */
         content-visibility: auto;
     }
 

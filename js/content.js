@@ -1768,6 +1768,8 @@
     }
   }
 
+  let cld_comments_nothingFound=0;
+  let time_preventImmHidden = 0;
 
 
   function hookSection(){
@@ -1796,6 +1798,8 @@
       function ulfx() {
         //console.log(1220)
 
+        
+        time_preventImmHidden = Date.now()+800;
 
         const rootElement = comments.parentNode
 
@@ -1805,10 +1809,14 @@
         if(!rootElement) return; //prevent unknown condition
         
 
+        timeline.clearTimeout(cld_comments_nothingFound);
+        cld_comments_nothingFound=0;
 
         let innerCommentsLoaderRet = _innerCommentsLoader(rootElement);
 
         //console.log(1222,_innerCommentsLoader)
+
+        //console.log(702, innerCommentsLoaderRet, rootElement, sect_holder, kRef(sect_holder))
 
         if (!innerCommentsLoaderRet) {  //unable to get the status
 
@@ -1817,6 +1825,9 @@
           //if (holder && comments.contains(holder)) {
           if (holder && elementContains.call(comments,holder)) {  // previous status in page
 
+                
+            
+            //console.log(74,5)
             if (sect_lastUpdate) return;
             sect_lastUpdate = 1;
 
@@ -1846,9 +1857,12 @@
             }, 400)
 
           } else if (sect_holder) { //previous status not in page but we have the previous text
+            
+            //console.log(74,6)
             sect_holder = null
             sect_hTime = 0;
             sect_lastUpdate = 0;
+                
             pendingOne = false;
             timeline.setTimeout(()=>{
               if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
@@ -1863,7 +1877,26 @@
             //console.log(87103)
             // try to omit in 2.5.x
             //FP.mtf_attrComments(); // in case for popstate
+          } else {
+            // previous status removed and no more new status found
+
+            
+            cld_comments_nothingFound= timeline.setTimeout(()=>{
+              //delay call after DOM modification completed.
+
+              
+            //scheduledCommentRefresh=false;  
+
+              if(Q.comments_section_loaded>0)
+              resetCommentSection()
+
+            }, 400)
+
+            
+
           }
+          
+          //console.log(74,7)
 
 
         } else {
@@ -1896,8 +1929,10 @@
             classList.contains('ytd-comments-header-renderer') ||
             classList.contains('ytd-message-renderer')) {
             valid = true
-            break;
+            //break;
           }
+
+          //console.log(701,[...classList],valid)
 
           break; // only outest mutation
 
@@ -2333,6 +2368,8 @@
       if( mtf_forceCheckLiveVideo_disable === 2 ){
 
       }else if (!isCommentHidden) {
+
+        //console.log(78, 1)
         
 
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
@@ -2349,27 +2386,45 @@
         mtc_cid&&timeline.clearInterval(mtc_cid);
 
       } else if (isCommentHidden) {
+        
+        //console.log(78, 2, mtc_cid)
 
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K'); 
+
+
+        let immHidden=()=>{
+          
+          if(time_preventImmHidden>Date.now()) return timeline.setTimeout(immHidden,400);
+
+          let comments = document.querySelector('ytd-comments#comments')
+
+          if(!comments.hasAttribute('hidden')) return;
+
+          timeline.setTimeout(function(){
+            if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
+              //console.log(3434)
+              scheduledCommentRefresh=false;  //logic tbc
+              resetCommentSection();
+              //console.log(8022)
+            }
+          },142)
+   
+  
+          if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
+            if(mtc_store>Date.now()) return;
+            //console.log(78,3)
+              timeline.clearInterval(mtc_cid)
+              mtc_cid=0;
+              if(mtf_forceCheckLiveVideo_disable===2)return;
+              console.log(79,1, isNullComments())
+              if(isNullComments()) _disableComments();
+  
+          },80)
+
+        }
+
+        immHidden();
         
-        timeline.setTimeout(function(){
-          if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
-            //console.log(3434)
-            scheduledCommentRefresh=false;  //logic tbc
-            resetCommentSection();
-            //console.log(8022)
-          }
-        },142)
- 
-
-        if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
-          if(mtc_store>Date.now()) return;
-            timeline.clearInterval(mtc_cid)
-            mtc_cid=0;
-            if(mtf_forceCheckLiveVideo_disable===2)return;
-            if(isNullComments()) _disableComments();
-
-        },80)
 
       }
 
@@ -2641,6 +2696,8 @@
   function _pluginUnhook() {
 
     sect_lastUpdate = 0;
+    clearTimeout(cld_comments_nothingFound);
+    cld_comments_nothingFound = 0;
     sect_holder = null;
     sect_hTime = 0;
 
@@ -3070,6 +3127,9 @@
 
     if (value === 0) {
       sect_lastUpdate = 0;
+      timeline.clearTimeout(cld_comments_nothingFound);
+      cld_comments_nothingFound=0;
+      
       comments_section_loaded_elm = null;
     }
 
@@ -3213,34 +3273,46 @@
                 body #input-panel.yt-live-chat-renderer::after {
                     background: transparent;
                 }
+
+                
                 #items.yt-live-chat-item-list-renderer{
-                    contain: content;
-                }
-                yt-live-chat-text-message-renderer{
-                    contain: content;
-                }
-                #item-offset.yt-live-chat-item-list-renderer{
-                    contain: content;
+                  contain: layout paint style;
                 }
                 #item-scroller.yt-live-chat-item-list-renderer{
-                    contain: strict;
+                  contain: size style;
                 }
-                img[width][height]{
-                    contain: strict;
-                }
-                #item-list > yt-live-chat-item-list-renderer, #item-list > yt-live-chat-item-list-renderer > #contents{
-                    contain: strict;
+                #chat.style-scope.yt-live-chat-renderer{
+                  contain: size layout paint style;
                 }
 
+                
+                #item-offset.yt-live-chat-item-list-renderer{
+                  contain: layout paint style;
+                }
 
-                #chat.style-scope.yt-live-chat-renderer,
-                yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-                #item-scroller,
+                img.style-scope.yt-img-shadow[width][height]{
+                  contain: size layout paint style;
+                }
+
+                #item-list > yt-live-chat-item-list-renderer, 
+                #item-list > yt-live-chat-item-list-renderer > #contents{
+                    contain: size layout paint style;
+                }
+                
+                yt-live-chat-text-message-renderer{
+                  contain: layout paint style;
+                }
+
+                yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer{
+                  contain: style;
+                }
+                
                 yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer .style-scope.yt-live-chat-text-message-renderer,
                 yt-live-chat-ticker-paid-message-item-renderer
                 {
-                  contain: layout paint style;
+                  contain: paint style;
                 }
+                
                  
                 yt-img-shadow#author-photo.style-scope{
                   contain: layout paint style;
@@ -3252,7 +3324,14 @@
                 #items.style-scope.yt-live-chat-item-list-renderer {
                   contain: layout paint;
                 }
-                 
+
+
+
+
+
+
+
+                /*
                 .style-scope.yt-live-chat-text-message-renderer {
                   cursor: default;
                 }
@@ -3264,11 +3343,33 @@
                   pointer-events: none;
                 }
                  
-                span#message.style-scope.yt-live-chat-text-message-renderer > img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer{
+                */
+
+                yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
+                yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer{
+                  pointer-events: none;
+                }
+                 
+                yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer > img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer{
                   contain: layout paint style;
                   cursor: default;
                   pointer-events: none;
                 }
+
+                yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer{
+                  contain: layout paint style;
+                  cursor: default;
+                  pointer-events: none;
+                }
+
+
+                yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer{
+                  contain: layout paint style;
+                  cursor: default;
+                  pointer-events: none;
+                }
+
+
                  
                 body yt-live-chat-app{
                   contain: size layout paint style;
@@ -3276,41 +3377,10 @@
                   transform: translate3d(0,0,0);
                   overflow: hidden;
                 }
-
-
-                /*
-                yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer:nth-last-of-type(n+20){
-                  content-visibility: auto;
-                }
-                */
-
-                /*
-                @supports (contain-intrinsic-size: auto 1px){
-
-                  yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer{
-                    content-visibility: auto;
-                    contain-intrinsic-size: auto 24px; 
-                  }
-
-                }
-                */
                  
                 .style-scope.yt-live-chat-item-list-renderer{
                   box-sizing: border-box; 
                 }
-
-                /*
-                .style-scope.yt-live-chat-item-list-renderer[style*="--tabview-crm-height"]{
-                  content-visibility: auto;
-                  contain-intrinsic-size: 1px var(--tabview-crm-height, 24px); 
-                }
-
-                #item-offset.style-scope.yt-live-chat-item-list-renderer{
-                  height: auto !important;
-                }
-                #item-offset.style-scope.yt-live-chat-item-list-renderer > #items:only-child{
-                  position: relative !important;
-                }*/
 
                 #item-offset.style-scope.yt-live-chat-item-list-renderer{
                   contain: size layout paint style;
@@ -4166,6 +4236,8 @@
 
     console.log('newVideoPage')
     
+    time_preventImmHidden = Date.now()+800;
+    
     
     //console.log('newVideoPage-', 150, location.href)
 
@@ -4173,6 +4245,10 @@
     if(!ytdFlexyElm) return;
 
     timeline.reset();
+    mtc_cid=0;
+    cid_render_section=0;
+    runAfterExpandChat.cid_chatFrameCheck1=0;
+    runAfterExpandChat.cid_chatFrameCheck2=0;
     layoutStatusMutex = new Mutex();
 
     //console.log('newVideoPage-', 350, location.href)
@@ -4211,6 +4287,8 @@
         mtc_store= Date.now()+2870
 
         sect_lastUpdate = 0;
+        timeline.clearTimeout(cld_comments_nothingFound);
+        cld_comments_nothingFound=0;
         if(pendingOne){
           // reset pendingOne = false if the element is already removed.
           pendingOne = document.querySelectorAll(`ytd-watch-flexy ytd-comments#comments [tabview-cache-time]`).length>1;
