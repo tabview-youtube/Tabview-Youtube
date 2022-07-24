@@ -958,6 +958,36 @@ function injection_script_1() {
 
   },true);
 
+  setInterval(function(){
+
+    // this is looping function to update the "Started streaming XX minutes ago "
+    // seems a bug for new code to old layout
+
+    let s = [...document.querySelectorAll('ytd-video-primary-info-renderer')]
+
+    s=s.filter(e=>{
+      if(!e||!e.data|!e.data.dateText||!e.data.dateText.simpleText) return false;
+      let str = e.data.dateText.simpleText;
+      if(typeof str !=='string') return false;
+      return true;
+    })
+
+
+    if(s.length!==1) return;
+
+    let dom = s[0];
+
+    let fst = querySelectorFromAnchor.call(dom, '#count+#info-strings>span#dot:first-child+yt-formatted-string')
+
+    let txt = dom.data.dateText.simpleText
+    //console.log(txt, fst)
+    if(fst && fst.textContent !== txt){
+      fst.textContent = txt
+    }
+
+    //ytd-video-primary-info-renderer
+
+  },450)
 
   document.documentElement.setAttribute('tabview-injection-js-1-ready','')
 
