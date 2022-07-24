@@ -1283,7 +1283,7 @@
         wAttr(ytdFlexyElm, 'userscript-chat-collapsed', attr_chatcollapsed)
         
         if(attr_chatblock=='chat-live') {
-          time_preventImmHidden = 0;
+          
           _disableComments();
         }
       }
@@ -1802,6 +1802,9 @@
         //console.log(1220)
 
         
+        mtc_nr_comments=Math.max(mtc_nr_comments, Date.now()+1470)
+        //console.log(7051)
+        
         time_preventImmHidden = Date.now()+800;
 
         const rootElement = comments.parentNode
@@ -1887,11 +1890,7 @@
             cld_comments_nothingFound= timeline.setTimeout(()=>{
               //delay call after DOM modification completed.
 
-              
-            //scheduledCommentRefresh=false;  
-
-              if(Q.comments_section_loaded>0)
-              resetCommentSection()
+              immHidden();
 
             }, 400)
 
@@ -1995,7 +1994,7 @@
   }
 
 
-  let mtc_store=0;
+  let mtc_nr_comments=0;
   let mtc_cid = 0;
   const cssOnceFunc = {
     [`ytd-comments#comments:not([o3r-${sa_comments}])`]:(comments)=>{
@@ -2165,6 +2164,51 @@
 
   }
 
+  function immHidden(){
+
+
+    if(time_preventImmHidden>Date.now()) return timeline.setTimeout(immHidden,400);
+    
+    let comments = document.querySelector('ytd-comments#comments')
+
+    if(!comments.hasAttribute('hidden')) return;
+
+    mtc_nr_comments=Math.max(mtc_nr_comments, Date.now()+1470)
+    //console.log(7052)
+
+    if(!deferredVarYTDHidden && Q.comments_section_loaded>0){
+
+      scheduledCommentRefresh = false;
+        
+      let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
+
+      if(tab_btn){
+        let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
+        tab_btn.removeAttribute('loaded-comment')
+        if(span){
+          span.textContent='';
+        }
+      }
+
+      setCommentSection(0);
+    }
+
+    if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
+      if(mtc_nr_comments>Date.now()) return;
+      //console.log(78,3)
+        timeline.clearInterval(mtc_cid)
+        mtc_cid=0;
+        if(mtf_forceCheckLiveVideo_disable===2)return;
+        //console.log(79,1, isNullComments())
+        if(isNullComments()) {
+          
+          _disableComments();
+        }
+
+    },80)
+
+  }
+
   const FP = {
 
     mtoNav_delayedF: () => {
@@ -2174,7 +2218,7 @@
       Q.addP = 0;
       Q.removeP = 0;
       
-      mtc_store=Date.now()+1870
+      //mtc_nr_comments=Date.now()+1870
 
 
       let regularChecks = regularCheck(addP, removeP, mutationTarget);
@@ -2182,7 +2226,7 @@
       Promise.all(regularChecks).then(() => {
         regularChecks = null;
         
-        mtc_store= Date.now() + 3870 // pending Comments start to load
+        //mtc_nr_comments= Date.now() + 3870 // pending Comments start to load
         
         Q.mutationTarget = null;
 
@@ -2366,7 +2410,7 @@
 
       mtoInterval = mtoInterval1;
       
-      mtc_store=Date.now()+2870
+      mtc_nr_comments=Date.now()+2870
 
       if( mtf_forceCheckLiveVideo_disable === 2 ){
 
@@ -2393,41 +2437,6 @@
         //console.log(78, 2, mtc_cid)
 
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K'); 
-
-
-        let immHidden=()=>{
-          
-          if(time_preventImmHidden>Date.now()) return timeline.setTimeout(immHidden,400);
-
-          let comments = document.querySelector('ytd-comments#comments')
-
-          if(!comments.hasAttribute('hidden')) return;
-
-          timeline.setTimeout(function(){
-            if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
-              //console.log(3434)
-              scheduledCommentRefresh=false;  //logic tbc
-              resetCommentSection();
-              //console.log(8022)
-            }
-          },142)
-   
-  
-          if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
-            if(mtc_store>Date.now()) return;
-            //console.log(78,3)
-              timeline.clearInterval(mtc_cid)
-              mtc_cid=0;
-              if(mtf_forceCheckLiveVideo_disable===2)return;
-              console.log(79,1, isNullComments())
-              if(isNullComments()) {
-                time_preventImmHidden = 0;
-                _disableComments();
-              }
-  
-          },80)
-
-        }
 
         immHidden();
         
@@ -2641,7 +2650,7 @@
         ytdFlexyElm.setAttribute('userscript-chatblock', 'chat-live')
         //console.log(2441)
         mtf_forceCheckLiveVideo_disable = 2;
-        time_preventImmHidden = 0;
+        
         _disableComments();
         
        //console.log(701)
@@ -2835,7 +2844,8 @@
     }
 
     mtf_forceCheckLiveVideo_disable = 0
-    mtc_store= Date.now()+3870
+    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+3870)
+    //console.log(7053)
 
     if (deferredVarYTDHidden) {  // reset info when hidden
       
@@ -3166,6 +3176,7 @@
   }
 
   function _disableComments() {
+    time_preventImmHidden = 0;
     
     //requestingComments = null;
     mtc_cid && timeline.clearInterval(mtc_cid)
@@ -3536,7 +3547,7 @@
 
           if (cssElm.getAttribute('userscript-chatblock') === 'chat-live') {
             // assigned new attribute - "chat-live" => disable comments section
-            time_preventImmHidden = 0;
+            
             _disableComments();
           }
 
@@ -3686,7 +3697,8 @@
     
 
     
-    mtc_store= Date.now()+2870
+    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+    //console.log(7054)
     //console.log(7004)
     deferredVarYTDHidden = ytdFlexyElm.hasAttribute('hidden');
 
@@ -4126,7 +4138,8 @@
     if (!elm.matches('#player video, #movie_player video, video[tabview-mainvideo]')) return;
 
     
-    mtc_store= Date.now()+2870
+    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+    //console.log(7055)
 
     let src = elm.src;
     if (src !== lastVideoURL) {
@@ -4315,7 +4328,8 @@
         scriptEnable = true;
 
         mtf_forceCheckLiveVideo_disable = 0;
-        mtc_store= Date.now()+2870
+        mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+        //console.log(7056)
 
         sect_lastUpdate = 0;
         timeline.clearTimeout(cld_comments_nothingFound);
