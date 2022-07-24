@@ -545,6 +545,52 @@ function injection_script_1() {
 
   }
 
+
+  
+  function getInsObserverChipCloud(){
+
+
+    let insObserver = null;
+    if (window.IntersectionObserver) {
+
+      let wm = new WeakMap();
+
+      insObserver = new IntersectionObserver(function (entries, observer) {
+        
+        for (const entry of entries) {
+
+            let h = entry.boundingClientRect.height
+            if(h>10 && entry.isIntersecting){
+              // possible to get height even it is not intersecting
+
+              if(entry.target&&entry.target.reset){
+                let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
+                if(wm.get(entry.target)!==area){
+                  wm.set(entry.target, area)
+                  entry.target.reset();
+                }
+              }
+
+            }
+            
+        }
+      },{
+        threshold: [0],
+        rootMargin: "0px 0px 0px 0px"  // before fully leave the visible region
+
+      })
+
+
+
+
+    }
+
+
+    return insObserver;
+
+
+  }
+
   function getFunc_postToContentWindow(){
     let afm = 0;
     let afArg = null;
@@ -679,6 +725,24 @@ function injection_script_1() {
         cid55=0;
       }
     },150)
+
+
+
+    let s32 = Symbol();
+    let insObserverChipCloud = getInsObserverChipCloud();
+    // yt-chip-cloud-renderer
+    Object.defineProperty(customElements.get('yt-chip-cloud-renderer').prototype, 'boundChipCloudChipScrollIntoView', {
+      get() {
+        return this[s32];
+      },
+      set(nv) {
+        if (insObserverChipCloud) insObserverChipCloud.observe(this)
+        this[s32] = nv;
+      },
+      enumerable: false,
+      configurable: false // if redefine by YouTube, error comes and change the coding
+    });
+
 
 
 
