@@ -958,36 +958,78 @@ function injection_script_1() {
 
   },true);
 
-  setInterval(function(){
-
-    // this is looping function to update the "Started streaming XX minutes ago "
-    // seems a bug for new code to old layout
-
-    let s = [...document.querySelectorAll('ytd-video-primary-info-renderer')]
-
-    s=s.filter(e=>{
-      if(!e||!e.data|!e.data.dateText||!e.data.dateText.simpleText) return false;
-      let str = e.data.dateText.simpleText;
-      if(typeof str !=='string') return false;
-      return true;
-    })
-
-
-    if(s.length!==1) return;
-
-    let dom = s[0];
-
-    let fst = querySelectorFromAnchor.call(dom, '#count+#info-strings>span#dot:first-child+yt-formatted-string')
-
-    let txt = dom.data.dateText.simpleText
-    //console.log(txt, fst)
-    if(fst && fst.textContent !== txt){
-      fst.textContent = txt
-    }
-
+  function updateStreamingTime(){
     //ytd-video-primary-info-renderer
 
-  },450)
+    let pir=null;
+    let yfs=null;
+
+      // this is looping function to update the "Started streaming XX minutes ago "
+      // seems a bug for new code to old layout
+
+    setInterval(function(){
+  
+      let dom = pir;
+      let fst = yfs;
+      if(!dom || !fst) return;
+
+      if(dom && dom.data && dom.data.dateText && dom.data.dateText.simpleText){
+
+      }else{
+        return;
+      }
+  
+      let txt = dom.data.dateText.simpleText
+      //console.log(txt, fst)
+      if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
+        fst.textContent = txt
+      }
+  
+    },450)
+
+
+    let tf = function(){
+
+      let s = [...document.querySelectorAll('ytd-video-primary-info-renderer')]
+
+      s=s.filter(e=>{
+        if(!e||!e.data|!e.data.dateText||!e.data.dateText.simpleText) return false;
+        let str = e.data.dateText.simpleText;
+        if(typeof str !=='string') return false;
+        return true;
+      })
+
+
+
+      let fst = null;
+      let dom = null;
+
+      if(s.length===1){
+        dom = s[0];
+        if(dom){
+          fst = querySelectorFromAnchor.call(dom, '#count+#info-strings>span#dot:first-child+yt-formatted-string')
+        }
+      }
+
+      if(!fst){
+        pir = null;
+        yfs = null;
+        return;
+      }
+      
+      pir = dom;
+      yfs = fst;
+
+
+    };
+
+    tf();  
+    setInterval(tf,6500)
+
+  }
+
+  updateStreamingTime();
+
 
   document.documentElement.setAttribute('tabview-injection-js-1-ready','')
 
