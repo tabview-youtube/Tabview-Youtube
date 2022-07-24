@@ -3411,6 +3411,13 @@
                   cursor: default;
                   pointer-events: none;
                 }
+                
+                
+                yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer{
+                  contain: layout paint style;
+                  cursor: default;
+                  pointer-events: none;
+                }
 
                  
                 body yt-live-chat-app{
