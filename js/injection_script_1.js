@@ -1045,6 +1045,8 @@ function injection_script_1() {
   },true)
 
 
+
+
   document.addEventListener('userscript-fix-chatroombtn-text',function(evt){
 
     //console.log('t10')
@@ -1111,9 +1113,20 @@ function injection_script_1() {
         //console.log('t34')
         // in case adblock by user
 
+
         let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
   
-        if(fst) setFST(fst, t2);
+        if(fst){
+
+          if(fst.textContent.trim()===t1.trim()){
+            try{
+              let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+              tbr.isToggled=!tbr.isToggled;
+            }catch(e){}
+            setFST(fst, t2);
+          }
+
+        } 
 
 
         chatFrame.removeAttribute('collapsed')
@@ -1121,8 +1134,18 @@ function injection_script_1() {
       }else{
         //console.log('t35')
         let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-  
-        if(fst) setFST(fst, t1);
+        
+        if(fst){
+
+          if(fst.textContent.trim()===t2.trim()){
+            try{
+              let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+              tbr.isToggled=!tbr.isToggled;
+            }catch(e){}
+            setFST(fst, t1);
+          }
+
+        } 
 
         chatFrame.setAttribute('collapsed','')
 
