@@ -1084,9 +1084,9 @@ function injection_script_1() {
       if(!lcr || !data_shb) return;
       //console.log('t22')
 
-      let t1 = null, t2 = null;
-      //t1: EXPAND
-      //t2: COLLAPSE
+      let txt_expand = null, txt_collapse = null, default_display_state ='';
+      //txt_expand: EXPAND
+      //txt_collapse: COLLAPSE
 
       if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
 
@@ -1095,24 +1095,27 @@ function injection_script_1() {
 
           if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
 
+            default_display_state = lcr.initialDisplayState
               
-            t2=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
+            txt_collapse=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
 
-            t1=(data_shb.toggledText.runs[0]||0).text  // expand the area
+            txt_expand=(data_shb.toggledText.runs[0]||0).text  // expand the area
+
           }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
+            default_display_state = lcr.initialDisplayState
 
-            t1=(data_shb.defaultText.runs[0]||0).text  // expand the area
+            txt_expand=(data_shb.defaultText.runs[0]||0).text  // expand the area
 
-            t2=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
+            txt_collapse=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
           }
 
 
 
-          if(typeof t1=='string' && typeof t2=='string' && t1.length>0 && t2.length>0){
+          if(typeof txt_expand=='string' && typeof txt_collapse=='string' && txt_expand.length>0 && txt_collapse.length>0){
 
           }else{
-            t1=null;
-            t2=null;
+            txt_expand=null;
+            txt_collapse=null;
           }
         }
 
@@ -1120,56 +1123,55 @@ function injection_script_1() {
 
       let video = document.querySelector('ytd-watch-flexy ytd-player#ytd-player video');
       //ensure it is called when it is playing normally (not hidden page or minimized page)
-      if(t1 && t2 && video && isDOMVisible(video)){
+      if(txt_expand && txt_collapse && video && isDOMVisible(video)){
 
         //console.log('t33')
 
         let iframe=querySelectorFromAnchor.call(chatFrame, 'iframe#chatframe.style-scope.ytd-live-chat-frame');
+        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
+  
         if( iframe && isDOMVisible(iframe)){
-
-          //console.log('t34')
           // in case adblock by user
 
+          if(fst && fst.textContent.trim()===txt_expand.trim()){
+            // change expand to collapse
+            let tbr = null;
+            try{
+              tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+            }catch(e){}
 
-          let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-    
-          if(fst){
-
-            if(fst.textContent.trim()===t1.trim()){
-              let tbr = null;
-              try{
-                tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-              }catch(e){}
-              if(tbr && typeof tbr.isToggled == 'boolean'){
-                // old Youtube Layout not using "isToggled"
-                tbr.isToggled=!tbr.isToggled;
-                setFST(fst, t2);
-              }
+            if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_EXPANDED" && tbr && tbr.isToggled === true){
+              tbr.isToggled = false;
+            }
+            else if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_COLLAPSED" && tbr && tbr.isToggled === false){
+              tbr.isToggled = true;
             }
 
-          } 
+            setFST(fst, txt_collapse);
+
+          }
 
 
           chatFrame.removeAttribute('collapsed')
 
         }else{
-          //console.log('t35')
-          let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-          
-          if(fst){
 
-            if(fst.textContent.trim()===t2.trim()){
-              let tbr = null;
-              try{
-                tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-              }catch(e){}
-              if(tbr && typeof tbr.isToggled == 'boolean'){
-                // old Youtube Layout not using "isToggled"
-                tbr.isToggled=!tbr.isToggled;
-                setFST(fst, t1);
-              }
+          if(fst && fst.textContent.trim()===txt_collapse.trim()){
+            // change collapse to expand
+            let tbr = null;
+            try{
+              tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+            }catch(e){}
+
+            if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_EXPANDED" && tbr && tbr.isToggled === false){
+              tbr.isToggled = true;
+            }
+            else if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_COLLAPSED" && tbr && tbr.isToggled === true){
+              tbr.isToggled = false;
             }
 
+            setFST(fst, txt_expand);
+            
           }
 
           chatFrame.setAttribute('collapsed','')
