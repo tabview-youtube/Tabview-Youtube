@@ -1136,11 +1136,15 @@ function injection_script_1() {
           if(fst){
 
             if(fst.textContent.trim()===t1.trim()){
+              let tbr = null;
               try{
-                let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-                tbr.isToggled=!tbr.isToggled;
+                tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
               }catch(e){}
-              setFST(fst, t2);
+              if(tbr && typeof tbr.isToggled == 'boolean'){
+                // old Youtube Layout not using "isToggled"
+                tbr.isToggled=!tbr.isToggled;
+                setFST(fst, t2);
+              }
             }
 
           } 
@@ -1155,14 +1159,18 @@ function injection_script_1() {
           if(fst){
 
             if(fst.textContent.trim()===t2.trim()){
+              let tbr = null;
               try{
-                let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-                tbr.isToggled=!tbr.isToggled;
+                tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
               }catch(e){}
-              setFST(fst, t1);
+              if(tbr && typeof tbr.isToggled == 'boolean'){
+                // old Youtube Layout not using "isToggled"
+                tbr.isToggled=!tbr.isToggled;
+                setFST(fst, t1);
+              }
             }
 
-          } 
+          }
 
           chatFrame.setAttribute('collapsed','')
 
