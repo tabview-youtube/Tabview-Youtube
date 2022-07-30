@@ -9,6 +9,13 @@ function injection_script_1() {
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
 
+  function setFST(fst, text){
+    if(!fst) return;
+    let textNode = fst.firstChild;
+    if(textNode && textNode.nodeType===3) textNode.nodeValue = text;
+    else fst.textContent = text;
+  }
+
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready',function(evt){
 
@@ -1077,7 +1084,9 @@ function injection_script_1() {
 
     }
 
-    if(t1 && t2){
+    let video = document.querySelector('ytd-watch-flexy ytd-player#ytd-player video');
+    //ensure it is called when it is playing normally (not hidden page or minimized page)
+    if(t1 && t2 && video && isDOMVisible(video)){
 
       //console.log('t33')
 
@@ -1089,7 +1098,7 @@ function injection_script_1() {
 
         let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
   
-        if(fst) fst.textContent = t2;
+        if(fst) setFST(fst, t2);
 
 
         chatFrame.removeAttribute('collapsed')
@@ -1098,7 +1107,7 @@ function injection_script_1() {
         //console.log('t35')
         let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
   
-        if(fst) fst.textContent = t1;
+        if(fst) setFST(fst, t1);
 
         chatFrame.setAttribute('collapsed','')
 
@@ -1150,7 +1159,9 @@ function injection_script_1() {
       let txt = dom.data.dateText.simpleText
       //console.log(txt, fst)
       if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
-        fst.textContent = txt
+        
+        setFST(fst, txt);
+
       }
   
     },450);
