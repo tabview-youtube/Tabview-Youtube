@@ -1058,20 +1058,35 @@ function injection_script_1() {
     if(!chatFrame) return;
     //console.log('t15')
 
-    let data_shb = ((((chatFrame||0).data||0).liveChatRenderer||0).showHideButton||0).toggleButtonRenderer
+    let lcr = ((chatFrame||0).data||0).liveChatRenderer
 
-    if(!data_shb) return;
+    let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
+
+    if(!lcr || !data_shb) return;
     //console.log('t22')
 
     let t1 = null, t2 = null;
+    //t1: EXPAND
+    //t2: COLLAPSE
 
     if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
 
       if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
 
-        t1=(data_shb.defaultText.runs[0]||0).text
 
-        t2=(data_shb.toggledText.runs[0]||0).text
+        if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
+
+            
+          t2=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
+
+          t1=(data_shb.toggledText.runs[0]||0).text  // expand the area
+        }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
+
+          t1=(data_shb.defaultText.runs[0]||0).text  // expand the area
+
+          t2=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
+        }
+
 
 
         if(typeof t1=='string' && typeof t2=='string' && t1.length>0 && t2.length>0){
