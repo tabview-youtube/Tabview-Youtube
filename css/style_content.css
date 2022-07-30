@@ -2607,4 +2607,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
+    ytd-watch-flexy div#scroll-container.style-scope.yt-chip-cloud-renderer {
+        user-select: none !important;
+    }
     
