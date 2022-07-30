@@ -688,9 +688,37 @@ function injection_script_1() {
 
   }
 
+  const pageStatus = {
+    hasFocus: null,
+    visibilityState: null,
+    vState:0,
+    lastCheck: 0,
+    check: ()=>{
+      let d = Date.now();
+      if(d>pageStatus.lastCheck+300){
+        
+      }else{
+        return;
+      }
+      pageStatus.lastCheck = d;
+      pageStatus.hasFocus=document.hasFocus();
+      pageStatus.visibilityState=document.visibilityState;
+      pageStatus.vState= pageStatus.hasFocus?1:pageStatus.visibilityState=='visible'?2:4;
+    }
+  }
+
+
+
   function getFunc_postToContentWindow(){
     let afm = 0;
     let afArg = null;
+    const symbol_gtcw=Symbol();
+    const tf_gtcw=function(){
+      if(afm > 0){
+        afm = 0;
+        this.__$$postToContentWindow$$__.apply(this, afArg)
+      }
+    };
     const g_postToContentWindow = function () {
       if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
       if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
@@ -698,27 +726,24 @@ function injection_script_1() {
         afArg = [...arguments];
         afm++;
         if (afm === 1) {
+          pageStatus.check();
+          if(!this[symbol_gtcw]) this[symbol_gtcw]=tf_gtcw.bind(this)
+          
+          switch(pageStatus.vState){
+            case 1:
+              requestAnimationFrame(this[symbol_gtcw]);
+              break;
 
-          if(document.hasFocus()){
+            case 2:
+              setTimeout(() => {
+                requestAnimationFrame(this[symbol_gtcw]);
+              },370)
+              break;
 
-            requestAnimationFrame(() => {
-              afm = 0;
-              this.__$$postToContentWindow$$__.apply(this, afArg || arguments)
-            })
-
-          }else if(document.visibilityState=='visible'){
-
-            setTimeout(() => {
-              afm = 0;
-              this.__$$postToContentWindow$$__.apply(this, afArg || arguments)
-            },120)
-
-          }else{
-
-            setTimeout(() => {
-              afm = 0;
-            },800)
-
+            default:
+              setTimeout(() => {
+                afm = 0;
+              },800)
           }
 
         }
