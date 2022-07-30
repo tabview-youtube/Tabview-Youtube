@@ -1517,46 +1517,45 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist):not(#card.style-scope.ytd-miniplayer) > ytd-playlist-panel-renderer#playlist");
-    if (ple1) {
+    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist):not(#card.style-scope.ytd-miniplayer) > ytd-playlist-panel-renderer#playlist #items:not(:empty)");
+    if (ple1) { 
       let ct = Date.now();
-      let truePlaylist = null;
-      let truePlaylist_items = document.querySelector('ytd-playlist-panel-renderer#playlist #items:not(:empty)');
-      if (truePlaylist_items) {
 
-        let truePlaylist = closestDOM.call(truePlaylist_items, '#playlist');
-        if(!truePlaylist || truePlaylist.nodeType!==1) truePlaylist = null;
-        else {
-          truePlaylist.setAttribute('tabview-true-playlist', ct)
-        }
+      let truePlaylist = closestDOM.call(ple1, 'ytd-playlist-panel-renderer#playlist');
+      if(!truePlaylist || truePlaylist.nodeType!==1) truePlaylist = null;
 
-      }
 
       
 
-      if (!truePlaylist) truePlaylist = ple1; // NOT NULL
+      if (truePlaylist) {
 
-      if(truePlaylist){
-        //console.log('mtf_append_playlist', truePlaylist.parentNode )
-      }
+        let tab_list = document.querySelector("#tab-list");
 
-      for (const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)){
-        elementRemove.call(s);
-      }
-        
+        if(!tab_list) return;
 
-      let $wrapper = getWrapper('ytd-userscript-playlist')
-      $wrapper.append(truePlaylist).appendTo(document.querySelector("#tab-list"));
-      truePlaylist.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
-      setDisplayedPlaylist(); // relocation after re-layout
+        truePlaylist.setAttribute('tabview-true-playlist', ct)
 
-      requestAnimationFrame(() => {
-        let ytdFlexyElm = kRef(ytdFlexy);
-        if (!scriptEnable || !ytdFlexyElm) return;
-        if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tabview-selection') + '').indexOf('#tab-') === 0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href)) {
-          if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+
+        for (const s of document.querySelectorAll(`ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)){
+          s.removeAttribute('tabview-true-playlist')
         }
-      })
+  
+        let $wrapper = getWrapper('ytd-userscript-playlist')
+        $wrapper.append(truePlaylist).appendTo(tab_list);
+        truePlaylist.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
+        setDisplayedPlaylist(); // relocation after re-layout
+  
+        requestAnimationFrame(() => {
+          let ytdFlexyElm = kRef(ytdFlexy);
+          if (!scriptEnable || !ytdFlexyElm) return;
+          if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tabview-selection') + '').indexOf('#tab-') === 0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href)) {
+            if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+          }
+        })
+
+      }
+
+
 
     }
   }
@@ -2030,7 +2029,7 @@
       //comments = null;
 
     },
-    [`ytd-playlist-panel-renderer#playlist:not([o3r-${sa_playlist}])`]:(playlist)=>{
+    [`ytd-playlist-panel-renderer#playlist[tabview-true-playlist]:not([o3r-${sa_playlist}])`]:(playlist)=>{
 
         // once per {ytd-playlist-panel-renderer#playlist} detection
 
@@ -2397,7 +2396,7 @@
       let cssElm = kRef(ytdFlexy);
       if (!cssElm) return;
 
-      let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist')
+      let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-list"]');
       let isPlaylistHidden = playlist.hasAttribute('hidden')
       //console.log(1212.2, isPlaylistHidden, playlist.getAttribute('hidden'))
@@ -3041,7 +3040,7 @@
 
         if(rc_nav_end<20){ // <=15s
 
-          let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist')
+          let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
 
           //Object.keys($0.data)
 
@@ -3462,7 +3461,7 @@
        }
 
    }
-   
+
    /* yt-live-chat-text-message-renderer:nth-last-child(5n):hover #menu.yt-live-chat-text-message-renderer{
         transition-delay: 100ms;
    }
@@ -3810,7 +3809,7 @@
     //override the default youtube coding event prevention
     let cssElm = kRef(ytdFlexy);
     if (!scriptEnable || !cssElm) return;
-    displayedPlaylist = mWeakRef(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer') || null);
+    displayedPlaylist = mWeakRef(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer[tabview-true-playlist]') || null);
   }
 
 

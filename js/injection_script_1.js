@@ -1045,6 +1045,7 @@ function injection_script_1() {
   },true)
 
 
+  let lf_crb = 0;
 
 
   document.addEventListener('userscript-fix-chatroombtn-text',function(evt){
@@ -1054,106 +1055,128 @@ function injection_script_1() {
     let chatroomBtn = evt.target;
     if(chatroomBtn.nodeType!==1) return;
 
-    //console.log('t12')
-    let chatFrame = closestFromAnchor.call(chatroomBtn, 'ytd-live-chat-frame#chat');
+    requestAnimationFrame(()=>{
 
-    if(!chatFrame) return;
-    //console.log('t15')
+      // check in visible state
 
-    let lcr = ((chatFrame||0).data||0).liveChatRenderer
+      let cDate = Date.now()
 
-    let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
-
-    if(!lcr || !data_shb) return;
-    //console.log('t22')
-
-    let t1 = null, t2 = null;
-    //t1: EXPAND
-    //t2: COLLAPSE
-
-    if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
-
-      if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
-
-
-        if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
-
-            
-          t2=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
-
-          t1=(data_shb.toggledText.runs[0]||0).text  // expand the area
-        }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
-
-          t1=(data_shb.defaultText.runs[0]||0).text  // expand the area
-
-          t2=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
-        }
-
-
-
-        if(typeof t1=='string' && typeof t2=='string' && t1.length>0 && t2.length>0){
-
-        }else{
-          t1=null;
-          t2=null;
-        }
-      }
-
-    }
-
-    let video = document.querySelector('ytd-watch-flexy ytd-player#ytd-player video');
-    //ensure it is called when it is playing normally (not hidden page or minimized page)
-    if(t1 && t2 && video && isDOMVisible(video)){
-
-      //console.log('t33')
-
-      let iframe=querySelectorFromAnchor.call(chatFrame, 'iframe#chatframe.style-scope.ytd-live-chat-frame');
-      if( iframe && isDOMVisible(iframe)){
-
-        //console.log('t34')
-        // in case adblock by user
-
-
-        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-  
-        if(fst){
-
-          if(fst.textContent.trim()===t1.trim()){
-            try{
-              let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-              tbr.isToggled=!tbr.isToggled;
-            }catch(e){}
-            setFST(fst, t2);
-          }
-
-        } 
-
-
-        chatFrame.removeAttribute('collapsed')
+      if(cDate-lf_crb>600){
 
       }else{
-        //console.log('t35')
-        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-        
-        if(fst){
+        return;
+      }
 
-          if(fst.textContent.trim()===t2.trim()){
-            try{
-              let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-              tbr.isToggled=!tbr.isToggled;
-            }catch(e){}
-            setFST(fst, t1);
+      lf_crb = cDate;
+
+
+
+      //console.log('t12')
+      let chatFrame = closestFromAnchor.call(chatroomBtn, 'ytd-live-chat-frame#chat');
+
+      if(!chatFrame) return;
+      //console.log('t15')
+
+      let lcr = ((chatFrame||0).data||0).liveChatRenderer
+
+      let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
+
+      if(!lcr || !data_shb) return;
+      //console.log('t22')
+
+      let t1 = null, t2 = null;
+      //t1: EXPAND
+      //t2: COLLAPSE
+
+      if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
+
+        if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
+
+
+          if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
+
+              
+            t2=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
+
+            t1=(data_shb.toggledText.runs[0]||0).text  // expand the area
+          }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
+
+            t1=(data_shb.defaultText.runs[0]||0).text  // expand the area
+
+            t2=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
           }
 
-        } 
-
-        chatFrame.setAttribute('collapsed','')
 
 
+          if(typeof t1=='string' && typeof t2=='string' && t1.length>0 && t2.length>0){
+
+          }else{
+            t1=null;
+            t2=null;
+          }
+        }
 
       }
 
-    }
+      let video = document.querySelector('ytd-watch-flexy ytd-player#ytd-player video');
+      //ensure it is called when it is playing normally (not hidden page or minimized page)
+      if(t1 && t2 && video && isDOMVisible(video)){
+
+        //console.log('t33')
+
+        let iframe=querySelectorFromAnchor.call(chatFrame, 'iframe#chatframe.style-scope.ytd-live-chat-frame');
+        if( iframe && isDOMVisible(iframe)){
+
+          //console.log('t34')
+          // in case adblock by user
+
+
+          let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
+    
+          if(fst){
+
+            if(fst.textContent.trim()===t1.trim()){
+              try{
+                let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+                tbr.isToggled=!tbr.isToggled;
+              }catch(e){}
+              setFST(fst, t2);
+            }
+
+          } 
+
+
+          chatFrame.removeAttribute('collapsed')
+
+        }else{
+          //console.log('t35')
+          let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
+          
+          if(fst){
+
+            if(fst.textContent.trim()===t2.trim()){
+              try{
+                let tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
+                tbr.isToggled=!tbr.isToggled;
+              }catch(e){}
+              setFST(fst, t1);
+            }
+
+          } 
+
+          chatFrame.setAttribute('collapsed','')
+
+
+
+        }
+
+      }
+
+
+
+
+    })
+
 
 
 
