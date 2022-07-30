@@ -2397,6 +2397,7 @@
       if (!cssElm) return;
 
       let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
+      if(!playlist) return;
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-list"]');
       let isPlaylistHidden = playlist.hasAttribute('hidden')
       //console.log(1212.2, isPlaylistHidden, playlist.getAttribute('hidden'))
