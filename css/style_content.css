@@ -2589,9 +2589,22 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /*  fix Iridium CSS  */
 
-    ytd-watch-flexy[fullscreen] #info .iri-quick-controls-tooltip{
+    ytd-watch-flexy[flexy][is-two-columns_][fullscreen] #info .iri-quick-controls-tooltip{
         margin-top: -7rem;
     }
+
+    /* 2022/07/30 #primary-inner > #player + #below */
+
+    ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner > #below {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    ytd-watch-flexy[flexy][fullscreen] ytd-live-chat-frame,  ytd-watch-flexy[flexy][fullscreen] #right-tabs .tab-content {
+        content-visibility: auto;
+    }
+
 
 
     

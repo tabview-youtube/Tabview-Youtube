@@ -957,6 +957,138 @@ function injection_script_1() {
 
 
   },true);
+  
+  
+  function isDOMVisible(/** @type {HTMLElement} */ elem) {
+    // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
+    return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
+  }
+
+  
+  document.addEventListener('userscript-fix-playlist-display',function(evt){
+ 
+    if(!evt || !evt.target) return;
+    let playlist = evt.target;
+    if(playlist.nodeType!==1) return;
+
+    if(playlist.hasAttribute('hidden')){
+      // fix youtube bug
+      let up = null;
+      try{
+        up=new URLSearchParams(location.href);
+      }catch(e){}
+      let q_list = up ? up.get('list') : null
+      if(q_list && typeof q_list == 'string' && q_list.length>0){
+
+        if(!playlist.data || Object.keys(playlist.data).length===0){
+
+
+          try{
+              const url = new URL(window.document.URL);
+              if(url.pathname==='/watch' && url.searchParams.has('v')){
+                if(url.searchParams.has('list')){
+                  url.searchParams.delete('list');
+                  url.searchParams.delete('index');
+                }
+                window.history.replaceState(null, "", url.toString());
+              }
+          }catch(e){}
+        
+          
+
+
+        }else{
+
+          playlist.removeAttribute('hidden');
+            
+          if(mtoVisibility_Playlist.bindElement(playlist)){
+            mtoVisibility_Playlist.observer.check(9)
+          }
+        }
+
+      }
+    }
+
+    
+  },true)
+
+
+  document.addEventListener('userscript-fix-chatroombtn-text',function(evt){
+
+    //console.log('t10')
+    if(!evt || !evt.target) return;
+    let chatroomBtn = evt.target;
+    if(chatroomBtn.nodeType!==1) return;
+
+    //console.log('t12')
+    let chatFrame = closestFromAnchor.call(chatroomBtn, 'ytd-live-chat-frame#chat');
+
+    if(!chatFrame) return;
+    //console.log('t15')
+
+    let data_shb = ((((chatFrame||0).data||0).liveChatRenderer||0).showHideButton||0).toggleButtonRenderer
+
+    if(!data_shb) return;
+    //console.log('t22')
+
+    let t1 = null, t2 = null;
+
+    if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
+
+      if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
+
+        t1=(data_shb.defaultText.runs[0]||0).text
+
+        t2=(data_shb.toggledText.runs[0]||0).text
+
+
+        if(typeof t1=='string' && typeof t2=='string' && t1.length>0 && t2.length>0){
+
+        }else{
+          t1=null;
+          t2=null;
+        }
+      }
+
+    }
+
+    if(t1 && t2){
+
+      //console.log('t33')
+
+      let iframe=querySelectorFromAnchor.call(chatFrame, 'iframe#chatframe.style-scope.ytd-live-chat-frame');
+      if( iframe && isDOMVisible(iframe)){
+
+        //console.log('t34')
+        // in case adblock by user
+
+        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
+  
+        if(fst) fst.textContent = t2;
+
+
+        chatFrame.removeAttribute('collapsed')
+
+      }else{
+        //console.log('t35')
+        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
+  
+        if(fst) fst.textContent = t1;
+
+        chatFrame.setAttribute('collapsed','')
+
+
+
+      }
+
+    }
+
+
+
+
+
+  },true);
+
 
   function updateStreamingTime(){
     //ytd-video-primary-info-renderer
@@ -967,7 +1099,18 @@ function injection_script_1() {
       // this is looping function to update the "Started streaming XX minutes ago "
       // seems a bug for new code to old layout
 
+
+      let counter = 0;
+      let tf;
+
     setInterval(function(){
+
+
+      if( (++counter) % 14 === 1 ){
+        tf();
+        counter = 1;
+      }
+
   
       let dom = pir;
       let fst = yfs;
@@ -985,10 +1128,10 @@ function injection_script_1() {
         fst.textContent = txt
       }
   
-    },450)
+    },450);
 
 
-    let tf = function(){
+    tf = function(){
 
       let s = [...document.querySelectorAll('ytd-video-primary-info-renderer')]
 
@@ -1023,8 +1166,6 @@ function injection_script_1() {
 
     };
 
-    tf();  
-    setInterval(tf,6500)
 
   }
 

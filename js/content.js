@@ -77,6 +77,10 @@
   const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
 
+  function maxUInt(s, d){
+    let t = (d>s?d:s);
+    return t>0?t:0;
+  }
 
   function scriptInjector(script_id, url_chrome, response_id){
 
@@ -1314,32 +1318,6 @@
     })
   }
 
-  //let requestingComments = null
-  //let scrollForComments_lastStart = 0;
-   /*
-  function scrollForComments_TF() {
- 
-    let comments = requestingComments;
-    if (!comments) return;
-    if (comments.hasAttribute('hidden')) {
-      window.dispatchEvent(new Event("scroll"));
-    } else requestingComments = null;
-
-  }
-  function scrollForComments() {
-    scrollForComments_TF();
-    if (!requestingComments) return;
-    requestAnimationFrame(scrollForComments_TF);
-    let ct = Date.now();
-    if (ct - scrollForComments_lastStart < 60) return;
-    scrollForComments_lastStart = ct;
-    timeline.setTimeout(scrollForComments_TF, 80);
-    timeline.setTimeout(scrollForComments_TF, 240);
-    timeline.setTimeout(scrollForComments_TF, 870);
-  
-  }
-  */
-
 
 
   const mtoCs = { mtoNav: null, mtoBody: null };
@@ -1539,7 +1517,7 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist");
+    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist):not(#card.style-scope.ytd-miniplayer) > ytd-playlist-panel-renderer#playlist");
     if (ple1) {
       let ct = Date.now();
       let truePlaylist = null;
@@ -1554,7 +1532,13 @@
 
       }
 
+      
+
       if (!truePlaylist) truePlaylist = ple1; // NOT NULL
+
+      if(truePlaylist){
+        //console.log('mtf_append_playlist', truePlaylist.parentNode )
+      }
 
       for (const s of document.querySelectorAll(`*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)){
         elementRemove.call(s);
@@ -1623,7 +1607,7 @@
 
       // just in case the playlist is collapsed
       let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-      if(playlist.matches('[collapsed], [collapsible]')) {
+      if(playlist && playlist.matches('[collapsed], [collapsible]')) {
         no_fix_playlist_until=  date_now + 39;
         timeline.setTimeout(function() {
           const domElement = playlist;
@@ -1651,6 +1635,22 @@
     let comments = document.querySelector('ytd-comments#comments')
     if (!comments || comments.hasAttribute('hidden')) return true;
 
+    return false;
+  }
+
+  function isNullCommentsDeep() {
+
+    let comments = document.querySelector('ytd-comments#comments')
+    if (!comments || comments.hasAttribute('hidden')) return true;
+
+    if (querySelectorFromAnchor.call(comments,'#count.ytd-comments-header-renderer, ytd-item-section-renderer#sections #header ~ #contents > ytd-message-renderer')){
+
+      return false;
+
+    }
+
+    return true;
+
   }
 
   function _innerCommentsLoader( /** @type {HTMLElement} */ rootElement) {
@@ -1662,7 +1662,7 @@
     if (deferredVarYTDHidden) return;
 
 
-    let messageElm, messageStr, commentRenderer;
+    let messageElm, commentRenderer;
     let diffCSS = `[tabview-cache-time="${sect_hTime}"]`
 
     //console.log(823100,rootElement)
@@ -1765,7 +1765,16 @@
 
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"].tab-btn-hidden')
       if(tabBtn) {
+
+        if(isNullCommentsDeep()) emptyCommentSection();
+
         tabBtn.classList.remove("tab-btn-hidden") //if contains
+        //console.log('show comments tabe #1')
+
+
+        mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+2870)
+        setTimeout(immHidden, 450)
+
       }
 
     }
@@ -1802,7 +1811,7 @@
         //console.log(1220)
 
         
-        mtc_nr_comments=Math.max(mtc_nr_comments, Date.now()+1470)
+        mtc_nr_comments=maxUInt(mtc_nr_comments, Date.now()+1470)
         //console.log(7051)
         
         time_preventImmHidden = Date.now()+800;
@@ -2166,14 +2175,18 @@
 
   function immHidden(){
 
+    //console.log(135)
 
-    if(time_preventImmHidden>Date.now()) return timeline.setTimeout(immHidden,400);
+    // *** consider this can happen immediately after pop state. timeout / interval might clear out.
+
+    if(time_preventImmHidden>Date.now()) return setTimeout(immHidden,400); // avoid timeline reset due to change of video
     
+    //console.log(136)
     let comments = document.querySelector('ytd-comments#comments')
 
-    if(!comments.hasAttribute('hidden')) return;
+    if(!comments.hasAttribute('hidden')) return;   // visible comments content
 
-    mtc_nr_comments=Math.max(mtc_nr_comments, Date.now()+1470)
+    mtc_nr_comments=maxUInt(mtc_nr_comments, Date.now()+1470)
     //console.log(7052)
 
     if(!deferredVarYTDHidden && Q.comments_section_loaded>0){
@@ -2184,15 +2197,31 @@
 
     }
 
-    if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
-      if(mtc_nr_comments>Date.now()) return;
-      //console.log(78,3)
-        timeline.clearInterval(mtc_cid)
-        mtc_cid=0;
-        if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
-        _disableComments();
 
-    },80)
+    // mtc_nr_comments must >= now + 1470
+    setTimeout(()=>{
+
+      let ytdFlexyElm = kRef(ytdFlexy);
+      if (!scriptEnable || !ytdFlexyElm) return;
+
+      //console.log(137)
+      if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
+        if(mtc_nr_comments>Date.now()) return;
+        //console.log(137.5, `se ${!!scriptEnable}, ye ${!!kRef(ytdFlexy)}`)
+        
+        let ytdFlexyElm = kRef(ytdFlexy);
+        if (!scriptEnable || !ytdFlexyElm) return;
+        //console.log(138)
+        //console.log(78,3)
+          timeline.clearInterval(mtc_cid)
+          mtc_cid=0;
+          if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
+          _disableComments();
+  
+      },80)
+
+    },1310);
+
 
   }
 
@@ -2208,7 +2237,7 @@
       //mtc_nr_comments=Date.now()+1870
       
     
-      mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+260)
+      mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+380)
 
 
       let regularChecks = regularCheck(addP, removeP, mutationTarget);
@@ -2216,7 +2245,7 @@
       Promise.all(regularChecks).then(() => {
         regularChecks = null;
         
-        mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+260)
+        mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+380)
         //mtc_nr_comments= Date.now() + 3870 // pending Comments start to load
         
         Q.mutationTarget = null;
@@ -2374,10 +2403,11 @@
       //console.log(1212.2, isPlaylistHidden, playlist.getAttribute('hidden'))
       if (tabBtn) {
         //console.log('attr playlist changed')
-        if (tabBtn.classList.contains('tab-btn-hidden') && !isPlaylistHidden) {
+        let isPlaylistTabHidden = tabBtn.classList.contains('tab-btn-hidden')
+        if (isPlaylistTabHidden && !isPlaylistHidden) {
           //console.log('attr playlist changed - no hide')
           tabBtn.classList.remove("tab-btn-hidden");
-        } else if (!tabBtn.classList.contains('tab-btn-hidden') && isPlaylistHidden) {
+        } else if (!isPlaylistTabHidden && isPlaylistHidden) {
           //console.log('attr playlist changed - add hide')
           hideTabBtn(tabBtn);
         }
@@ -2389,8 +2419,8 @@
       //attr mutation checker - {ytd-comments#comments} \single
       //::attr ~ hidden
 
-      let ytdFlexyElm = kRef(ytdFlexy);
-      if (!scriptEnable || !ytdFlexyElm) return;
+      // *** consider this can happen immediately after pop state. timeout / interval might clear out.
+
       if (deferredVarYTDHidden) return;
 
       let comments = document.querySelector('ytd-comments#comments')
@@ -2403,6 +2433,10 @@
       
       mtc_nr_comments=Date.now()+2870
 
+      
+      let ytdFlexyElm = kRef(ytdFlexy);
+      if (!scriptEnable || !ytdFlexyElm) return;
+
       if( mtf_forceCheckLiveVideo_disable === 2 ){
 
       }else if (!isCommentHidden) {
@@ -2410,24 +2444,38 @@
         //console.log(78, 1)
         
 
-        akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
-
-
-
-        //console.log('attr comments changed - no hide')
-        tabBtn.classList.remove("tab-btn-hidden") //if contains
-
-            
-        
-        //console.log(703)
-
         mtc_cid&&timeline.clearInterval(mtc_cid);
+
+          
+
+
+          akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+
+          
+          if(isNullCommentsDeep()) emptyCommentSection();
+
+          //console.log('attr comments changed - no hide')
+          tabBtn.classList.remove("tab-btn-hidden") //if contains
+          //console.log('show comments tabe #2')
+
+          //console.log(703)
+  
+
+
 
       } else if (isCommentHidden) {
         
         //console.log(78, 2, mtc_cid)
 
+
+
+
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K'); 
+
+
+        time_preventImmHidden= maxUInt(time_preventImmHidden, Date.now()+120);
+        
+
 
         immHidden();
         
@@ -2828,7 +2876,7 @@
     
 
     mtf_forceCheckLiveVideo_disable = 0
-    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+3870)
+    mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+3870)
     //console.log(7053)
 
     if(!deferredVarYTDHidden && scheduledCommentRefresh && Q.comments_section_loaded>0 && comments.hasAttribute('hidden')){
@@ -2851,6 +2899,8 @@
 
   }
 
+  let cid_nav_end = 0;
+  let rc_nav_end = 0;
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
     
@@ -2971,6 +3021,71 @@
         //FP.mtf_attrComments()
       },160);
         
+    }
+
+    if(scriptEnable) {
+      atChange(); // trigger hidden comments removal timer
+      
+      if(cid_nav_end>0) {
+        clearInterval(cid_nav_end)
+        cid_nav_end = 0;
+      }
+
+      rc_nav_end = 0;
+      cid_nav_end=setInterval(()=>{
+
+        if(rc_nav_end<1000) rc_nav_end++;
+
+        // regular check for different issues with UI display status
+        // until the initialization of the page finished + 4700ms
+
+        if(rc_nav_end<20){ // <=15s
+
+          let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist')
+
+          //Object.keys($0.data)
+
+          if(playlist){
+            
+            playlist.dispatchEvent(new CustomEvent("userscript-fix-playlist-display", { detail: {} }))
+          }
+
+
+  
+          let chatroomBtn = document.querySelector('ytd-live-chat-frame#chat #show-hide-button.ytd-live-chat-frame')
+          if(chatroomBtn){
+            // in case text is different from the visual state
+            chatroomBtn.dispatchEvent(new CustomEvent("userscript-fix-chatroombtn-text", { detail: {} }))
+          }
+
+        }
+
+        
+        if(rc_nav_end<80){ // <=63s
+
+
+          let cTime = Date.now();
+          if(cTime - mtc_nr_comments<2700) return;
+          if(!mtc_nr_comments || cTime - mtc_nr_comments>4700){
+            clearInterval(cid_nav_end)
+            cid_nav_end = 0;
+            // last check
+          }
+
+          const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]')
+          if(tabBtn) {
+    
+            if(isNullCommentsDeep()){
+              emptyCommentSection();
+              tabBtn.classList.add("tab-btn-hidden")
+            } 
+    
+          }
+
+        }
+
+
+      },800)
     }
 
   }
@@ -3140,30 +3255,6 @@
       
       comments_section_loaded_elm = null;
     }
-
-  }
-
-  function resetCommentSection(){
-    
-
-    let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
-
-
-    if(tab_btn){
-
-      let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
-
-      tab_btn.removeAttribute('loaded-comment')
-      tab_btn.classList.remove('tab-btn-hidden')
-        
-      if(span){
-        span.textContent='';
-      }
-    }
-
-
-    setCommentSection(0);
-
 
   }
 
@@ -3722,7 +3813,7 @@
     
 
     
-    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+    mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+2870)
     //console.log(7054)
     //console.log(7004)
     deferredVarYTDHidden = ytdFlexyElm.hasAttribute('hidden');
@@ -3768,7 +3859,6 @@
 
 
   
-  let recordScrollTop = 0
 
   function switchTabActivity(activeLink) {
     if (!scriptEnable) return;
@@ -3781,21 +3871,6 @@
 
     if (isTheater() && isWideScreenWithTwoColumns()) activeLink = null;
 
-    /*
-    let isPrevTabComments = document.querySelector('.tab-content-cld:not(.tab-content-hidden)');
-    isPrevTabComments=isPrevTabComments&&isPrevTabComments.matches('#tab-comments')
-
-    if(isPrevTabComments){
-    
-      let comments_tab = document.querySelector('#tab-comments');
-      if(comments_tab){
-        let st = comments_tab.scrollTop;
-        if(st>=0) recordScrollTop = st;
-      }
-
-
-    }
-    */
 
     function runAtEnd() {
 
@@ -3823,33 +3898,10 @@
         else{
           akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'L');
 
-          /*
-          requestAnimationFrame(() => {
-            let comments_tab = document.querySelector('#tab-comments');
-            if (comments_tab && comments_tab.scrollTop > 0) comments_tab.scrollTop = 0;
-          });
-          */
         }
 
       }
 
-      /*
-    let isNewTabComments = document.querySelector('.tab-content-cld:not(.tab-content-hidden)')
-    
-    isNewTabComments=isNewTabComments&&isNewTabComments.matches('#tab-comments')
-
-    if(isNewTabComments){
-      
-      let comments_tab = document.querySelector('#tab-comments');
-      if(comments_tab){
-        let st = comments_tab.scrollTop;
-        if(Math.abs(st-recordScrollTop)>0.9) comments_tab.scrollTop=recordScrollTop;
-      }
-
-      
-      
-    }
-    */
 
 
     }
@@ -4163,7 +4215,7 @@
     if (!elm.matches('#player video, #movie_player video, video[tabview-mainvideo]')) return;
 
     
-    mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+    mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+2870)
     //console.log(7055)
 
     let src = elm.src;
@@ -4313,6 +4365,8 @@
     let ytdFlexyElm = kRef(ytdFlexy);
     if(!ytdFlexyElm) return;
 
+    mtc_nr_comments = maxUInt(mtc_nr_comments, Date.now()+1600);
+
     timeline.reset();
     mtc_cid=0;
     cid_render_section=0;
@@ -4353,7 +4407,7 @@
         scriptEnable = true;
 
         mtf_forceCheckLiveVideo_disable = 0;
-        mtc_nr_comments= Math.max(mtc_nr_comments, Date.now()+2870)
+        mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+2870)
         //console.log(7056)
 
         sect_lastUpdate = 0;
