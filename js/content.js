@@ -2397,23 +2397,22 @@
       if (!cssElm) return;
 
       let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
-      if(!playlist) return;
+      let isAnyPlaylistExist = playlist && !playlist.hasAttribute('hidden');
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-list"]');
-      let isPlaylistHidden = playlist.hasAttribute('hidden')
       //console.log(1212.2, isPlaylistHidden, playlist.getAttribute('hidden'))
       if (tabBtn) {
         //console.log('attr playlist changed')
         let isPlaylistTabHidden = tabBtn.classList.contains('tab-btn-hidden')
-        if (isPlaylistTabHidden && !isPlaylistHidden) {
+        if (isPlaylistTabHidden && isAnyPlaylistExist) {
           //console.log('attr playlist changed - no hide')
           tabBtn.classList.remove("tab-btn-hidden");
-        } else if (!isPlaylistTabHidden && isPlaylistHidden) {
+        } else if (!isPlaylistTabHidden && !isAnyPlaylistExist) {
           //console.log('attr playlist changed - add hide')
           hideTabBtn(tabBtn);
         }
       }
       /* visible layout for triggering hidden removal */
-      akAttr(cssElm, 'tabview-youtube-playlist', isPlaylistHidden);
+      akAttr(cssElm, 'tabview-youtube-playlist', !isAnyPlaylistExist);
     },
     mtf_attrComments: (attrName, newValue) => {
       //attr mutation checker - {ytd-comments#comments} \single
