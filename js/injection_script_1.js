@@ -720,6 +720,7 @@ function injection_script_1() {
     let afm = 0;
     let afArg = null;
     const symbol_gtcw=Symbol();
+    let refreshAt = 0;
     const tf_gtcw=function(){
       if(afm > 0){
         afm = 0;
@@ -731,6 +732,11 @@ function injection_script_1() {
       if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
 
         afArg = [...arguments];
+        let curTime = 0;
+        if(afm>0 && (curTime=Date.now())>refreshAt){
+          afm = 0;
+          refreshAt = curTime+800;
+        } 
         afm++;
         if (afm === 1) {
           pageStatus.check();
