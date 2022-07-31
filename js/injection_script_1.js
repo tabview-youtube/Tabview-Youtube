@@ -724,6 +724,7 @@ function injection_script_1() {
     const tf_gtcw=function(){
       if(afm > 0){
         afm = 0;
+        refreshAt = Date.now()+800;
         this.__$$postToContentWindow$$__.apply(this, afArg)
       }
     };
