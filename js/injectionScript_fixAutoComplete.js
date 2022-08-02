@@ -1,5 +1,5 @@
 "use strict";
-
+/*
     const injectionScript_fixAutoComplete=function(){
 
         // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
@@ -42,4 +42,4 @@
     };
 
     injectionScript_fixAutoComplete();
-    
+    */

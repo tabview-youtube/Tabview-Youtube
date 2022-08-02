@@ -589,31 +589,6 @@ html:not(.style-scope) {
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden{
         display: none;
     }
-    /*
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden paper-ripple{
-        display: none;
-    }*/
-    
-    /* show the loading comment tab in grey color */
-    /*
-    ytd-watch-flexy:not([userscript-chatblock="chat-live"]):not([tabview-youtube-comments*="D"]):not([tabview-youtube-comments*="L"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-    ytd-watch-flexy:not([userscript-chatblock="chat-live"]):not([tabview-youtube-comments*="D"]):not([tabview-youtube-comments*="L"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
-        //*display: inline-block;//
-        
-        color: var(--yt-spec-icon-disabled);
-        /*pointer-events: none;/
-        
-    }
-    */
-
-    /* unknown bug - cannot fixed by js */
-    /* switch from normal video to live chat video using popstate */
-    /*
-    ytd-watch-flexy[userscript-chatblock="chat-live"]:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden, 
-    ytd-watch-flexy[userscript-chatblock="chat-live"]:not([tabview-youtube-comments*="D"]) #right-tabs .tab-btn[userscript-tab-content="#tab-comments"].tab-btn-hidden:hover{
-        display: none;
-    }
-    */
 
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"], 
     ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"]:hover{
@@ -732,9 +707,6 @@ html:not(.style-scope) {
     ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
         display: block;
         position: absolute;
-        /*
-        content-visibility: hidden;
-        */
         opacity:0;
        z-index:-1 !important; /* 2022.04.25 - Edge 100 */
         content-visibility: auto; /* 2022.04.25 - Edge 100 */
@@ -2054,7 +2026,7 @@ html:not(.style-scope) {
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments, 
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related, 
     ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
-        visibility: collapsed;
+        visibility: collapse;
     }
         
         /*
@@ -2175,52 +2147,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-     
-
-     /* css for menu bar and hide image button text */
-
-     /*
-     ytd-watch-flexy ytd-video-primary-info-renderer ytd-menu-renderer yt-formatted-string.style-scope.ytd-toggle-button-renderer.style-text{
-         white-space: pre;
-     }
-        
-     ytd-watch-flexy ytd-video-primary-info-renderer ytd-button-renderer.force-icon-button a.ytd-button-renderer{
-        overflow: hidden;
-        flex-wrap: wrap;
-        width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-        height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-    }
-
-    ytd-watch-flexy ytd-video-primary-info-renderer{
-        --yt-button-icon-size: 32px;
-    }
-
-    ytd-watch-flexy ytd-video-primary-info-renderer .ytd-menu-renderer[style-target=button]{
-        --yt-icon-button-icon-width: 24px;
-        --yt-icon-button-icon-height: 24px;
-        --yt-icon-width: 32px;
-        --yt-icon-height: 32px;
-        width: var(--yt-icon-width);
-        height: var(--yt-icon-height);
-    }
-*/
+      
     ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer{
         height: auto;
         overflow: visible;
         -webkit-line-clamp: initial;
     }
-
-  /*     
-    ytd-watch-flexy ytd-video-primary-info-renderer ytd-download-button-renderer.force-icon-button a.ytd-download-button-renderer{
-       overflow: hidden;
-       flex-wrap: wrap;
-       width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-       height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-   }
- */
-
-
-
+ 
 
 
 
@@ -2288,14 +2221,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
         background:transparent;
-    }
-/*
-    body .segment.ytd-transcript-segment-renderer:hover,
-    body .segment.ytd-transcript-segment-renderer:focus, 
-    body .segment.ytd-transcript-segment-renderer:active {
-        background-color: var(--yt-spec-badge-chip-background);
-    }
-    */
+    } 
     
     ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
         display:block;
@@ -2381,39 +2307,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             content-visibility: auto;
             contain-intrinsic-size: 1px var(--tabview-cmt-height, 234px); /* 1.2 x SizeMax */
         }
-        /*
-
-        ytd-comment-renderer{
-            content-visibility: auto;
-            contain-intrinsic-size: 1px 190px;  /-* 1.2 x SizeMax *-/
-        }
-        */
-
-        /*
-        ytd-compact-video-renderer{
-            content-visibility: auto;
-            contain-intrinsic-size: 1px 94px; 
-        }
-        */
-
-
-    }
-    @supports (contain-intrinsic-size: auto 1px){
-
-
-        /*
-        body ytd-compact-video-renderer{
-            content-visibility: auto;
-            contain-intrinsic-size: auto 94px; 
-        }
-        */
-/*
-        ytd-comment-thread-renderer *{
-            content-visibility: visible;
-        }
-*/
-
-
 
     }
 
@@ -2465,41 +2358,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         display: none;
     }
 
-    /*
-    .tabview-no-duplicate-info #extra-content.style-scope.ytd-watch-metadata,
-    .tabview-no-duplicate-info #extra-content.style-scope.ytd-watch-metadata ~ tp-yt-paper-button#collapse,
-    .tabview-no-duplicate-info [slot="extra-content"].style-scope.ytd-watch-metadata,
-    .tabview-no-duplicate-info [slot="extra-content"].style-scope.ytd-watch-metadata ~ tp-yt-paper-button#collapse
-    {
-        display:none;
-    }
-
-
-    .tabview-no-duplicate-info #snippet {
-        -webkit-mask-image: none !important;
-    }
-    
-    .tabview-no-duplicate-info #snippet #formatted-snippet-text,
-    .tabview-no-duplicate-info #snippet #ellipsis,
-    .tabview-no-duplicate-info #snippet #expand-sizer,
-    .tabview-no-duplicate-info #snippet ~ tp-yt-paper-button#expand
-    {
-        display:none;
-    }
-    
-    
-    .tabview-no-duplicate-info #snippet #plain-snippet-text[hidden]{
-        display: block !important;
-    }
-    */
-
     /**  ==== for Teaser UI  ===  */
 
 
 
     /**  fix dimensions */
     
-    /*ytd-watch-flexy[flexy][is-two-columns_][is-extra-wide-video_] #primary.ytd-watch-flexy, */
     body ytd-watch-flexy[flexy][is-two-columns_][is-four-three-to-sixteen-nine-video_] #primary.ytd-watch-flexy {
         max-width: none;
         /* square video : https://www.youtube.com/watch?v=rEU4CjSQzNY */

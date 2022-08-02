@@ -114,11 +114,13 @@
 
   }
 
+  /*
   const script_inject_facp = scriptInjector(
     'userscript-tabview-injection-facp',
     'js/injectionScript_fixAutoComplete.js',
     "injectionFixAutoComplete");
-    
+    */
+
   const script_inject_js1 = scriptInjector(
     'userscript-tabview-injection-1',
     'js/injection_script_1.js',
@@ -262,33 +264,6 @@
 
 
 
-
-  function tracer(key, cmp) {
-    if (cmp > 0) return tracer[key] === cmp;
-    return (tracer[key] = Date.now());
-  }
-
-  function racer(key, f) {
-    let now = Date.now();
-    const kTime = `${key}$$1`
-    let t = racer[kTime] || 0;
-
-    if (now < t) {
-      const kCount = `${key}$$2`;
-      racer[kCount] = (racer[kCount] || 0) + 1;
-      if (racer[kCount] === 1) {
-        let g = f;
-        requestAnimationFrame(() => {
-          racer[kCount] = 0;
-          g();
-          g = null;
-        })
-      }
-    } else {
-      racer[kTime] = now + 16;
-      f();
-    }
-  }
 
   class ScriptEF {
     constructor() {
@@ -449,6 +424,11 @@
   //   document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
   // }
 
+  function isCommentsK(ytdFlexyElm){
+    
+    return (ytdFlexyElm.getAttribute('tabview-youtube-comments')||'').indexOf('K')>=0
+
+  }
 
   function akAttr(/** @type {HTMLElement} */ cssElm, /** @type {String} */ attrName, /** @type {boolean} */ isNegative, /** @type {string | any} */ flag) {
     // isNegative => incomplete loading
@@ -740,6 +720,7 @@
   }
 
   function hideTabBtn(tabBtn) {
+    console.log('hideTabBtn', tabBtn)
     let isActiveBefore = tabBtn.classList.contains('active');
     tabBtn.classList.add("tab-btn-hidden");
     if (isActiveBefore) {
@@ -1023,7 +1004,12 @@
     elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
-    script_inject_facp.inject();
+    let tf = ()=>{
+      if(!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return setTimeout(tf, 300);
+      document.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'))
+    }
+    tf();
+    //script_inject_facp.inject();
 
   }
 
@@ -1642,11 +1628,13 @@
     let comments = document.querySelector('ytd-comments#comments')
     if (!comments || comments.hasAttribute('hidden')) return true;
 
+    
     if (querySelectorFromAnchor.call(comments,'#count.ytd-comments-header-renderer, ytd-item-section-renderer#sections #header ~ #contents > ytd-message-renderer')){
-
       return false;
-
     }
+
+    //let ytdFlexyElm = kRef(ytdFlexy);
+   // if (ytdFlexyElm && isCommentsK(ytdFlexyElm) ) return false;
 
     return true;
 
@@ -1801,6 +1789,40 @@
     //new MutationObserver(function(){console.log(comments.querySelectorAll('*').length)}).observe(comments,{ attributes: true, childList: true, subtree: true })
     
 
+    function restoreFetching(){
+
+
+      let ytdFlexyElm = kRef(ytdFlexy);
+
+      if(!ytdFlexyElm) return;
+
+      let visibleComments = querySelectorFromAnchor.call(ytdFlexyElm, 'ytd-comments#comments:not([hidden])')
+
+      if(!visibleComments) return;
+
+      if( !isCommentsK(ytdFlexyElm) ){
+
+        mtc_cid&&timeline.clearInterval(mtc_cid);
+        
+        mtoInterval = mtoInterval1;
+
+        time_preventImmHidden = Date.now() + 2870
+
+        akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+          
+        emptyCommentSection();
+
+        const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
+
+        if(tabBtn){
+          tabBtn.classList.remove("tab-btn-hidden")
+        }
+
+      }
+
+
+    }
+
     function foundSection(sections){
 
       
@@ -1894,6 +1916,7 @@
           } else {
             // previous status removed and no more new status found
 
+            restoreFetching();
             
             cld_comments_nothingFound= timeline.setTimeout(()=>{
               //delay call after DOM modification completed.
@@ -2215,6 +2238,7 @@
           timeline.clearInterval(mtc_cid)
           mtc_cid=0;
           if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
+
           _disableComments();
   
       },80)
@@ -2236,7 +2260,7 @@
       //mtc_nr_comments=Date.now()+1870
       
     
-      mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+380)
+      mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+680)
 
 
       let regularChecks = regularCheck(addP, removeP, mutationTarget);
@@ -2244,7 +2268,7 @@
       Promise.all(regularChecks).then(() => {
         regularChecks = null;
         
-        mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+380)
+        mtc_nr_comments= maxUInt(mtc_nr_comments, Date.now()+680)
         //mtc_nr_comments= Date.now() + 3870 // pending Comments start to load
         
         Q.mutationTarget = null;
@@ -3022,9 +3046,44 @@
         
     }
 
+
+
+    function disableCommentsBytimeout(){
+
+
+      const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]')
+
+        
+      let ytdFlexyElm = kRef(ytdFlexy)
+
+
+      if(tabBtn && ytdFlexyElm && isNullCommentsDeep() && isCommentsK(ytdFlexyElm) ){
+
+        let comment_content = document.querySelector('ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld')
+        if(comment_content){
+          //if(comment_content.classList.contains('tab-content-hidden')){
+
+            // bug to be fixed for tab-content-hidden (comments reloading after loaded)      
+          //  }else{
+
+              emptyCommentSection();
+              _disableComments();
+              //tabBtn.classList.add("tab-btn-hidden")
+          //  }  
+        }
+    
+      } 
+
+
+
+    }
+
+
+
     if(scriptEnable) {
       atChange(); // trigger hidden comments removal timer
-      
+    
+
       if(cid_nav_end>0) {
         clearInterval(cid_nav_end)
         cid_nav_end = 0;
@@ -3071,15 +3130,8 @@
             // last check
           }
 
-          const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]')
-          if(tabBtn) {
-    
-            if(isNullCommentsDeep()){
-              emptyCommentSection();
-              tabBtn.classList.add("tab-btn-hidden")
-            } 
-    
-          }
+
+          disableCommentsBytimeout();
 
         }
 
@@ -3294,9 +3346,15 @@
     let cssElm = kRef(ytdFlexy);
     if (!cssElm) return;
 
+
+    let comments = document.querySelector('ytd-comments#comments')
+    if(comments && !comments.hasAttribute('hidden')) return;   // visible comments content)
+
+
     mtoInterval = mtoInterval2;
 
     if(Q.comments_section_loaded>0) return; //already displayed / disabled
+
 
     scheduledCommentRefresh=false;
     setCommentSection(2);
@@ -3307,6 +3365,7 @@
     if(tabBtn) {
       tabBtn.removeAttribute('loaded-comment')
       if (!tabBtn.classList.contains('tab-btn-hidden')) {
+        console.log('hide', comments, comments && comments.hasAttribute('hidden'))
         hideTabBtn(tabBtn)
       }
     }
@@ -4332,6 +4391,8 @@
     newVideoPage.entryTime = 0;
 
     console.log('newVideoPage')
+    
+    mtoInterval = mtoInterval1;
     
     time_preventImmHidden = Date.now()+800;
     
