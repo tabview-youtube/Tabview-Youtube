@@ -3425,10 +3425,22 @@
         white-space: nowrap;
    }
 
+   #items.style-scope.yt-live-chat-item-list-renderer > yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer{
+     --tabview-chat-message-display: block;
+     --tabview-chat-message-mt: 2px;
+     --tabview-chat-message-mb: 4px;
+   }
+
    #message.yt-live-chat-text-message-renderer {
-    display: block;
-    margin-top: 2px;
-    margin-bottom: 4px;
+    display: var(--tabview-chat-message-display);
+    margin-top: var(--tabview-chat-message-mt);
+    margin-bottom: var(--tabview-chat-message-mb);
+  }
+
+  [collapsed] #message.yt-live-chat-text-message-renderer{
+    --tabview-chat-message-display: 'VOID';
+    --tabview-chat-message-mt: 'VOID';
+    --tabview-chat-message-mb: 'VOID';
   }
 
 
