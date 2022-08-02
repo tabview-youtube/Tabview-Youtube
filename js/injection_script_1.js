@@ -1039,10 +1039,7 @@ function injection_script_1() {
         }else{
 
           playlist.removeAttribute('hidden');
-            
-          if(mtoVisibility_Playlist.bindElement(playlist)){
-            mtoVisibility_Playlist.observer.check(9)
-          }
+
         }
 
       }
