@@ -3364,7 +3364,7 @@
     if(tabBtn) {
       tabBtn.removeAttribute('loaded-comment')
       if (!tabBtn.classList.contains('tab-btn-hidden')) {
-        console.log('hide', comments, comments && comments.hasAttribute('hidden'))
+        //console.log('hide', comments, comments && comments.hasAttribute('hidden'))
         hideTabBtn(tabBtn)
       }
     }
