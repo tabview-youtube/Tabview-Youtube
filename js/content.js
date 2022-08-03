@@ -1503,17 +1503,16 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist):not(#card.style-scope.ytd-miniplayer) > ytd-playlist-panel-renderer#playlist #items:not(:empty)");
+    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
+/* 
+<ytd-playlist-panel-renderer id="playlist" hide-header-text="" within-miniplayer="" class="style-scope ytd-miniplayer" docked-panel-next="" js-panel-height="" chevron-tap-target-size="" is-dark-theme="" has-playlist-buttons="" has-toolbar="" playlist-type="RDCL">
+*/
     if (ple1) { 
       let ct = Date.now();
 
       let truePlaylist = closestDOM.call(ple1, 'ytd-playlist-panel-renderer#playlist');
       if(!truePlaylist || truePlaylist.nodeType!==1) truePlaylist = null;
-
-
-      
-
-      if (truePlaylist) {
+      else {
 
         let tab_list = document.querySelector("#tab-list");
 
