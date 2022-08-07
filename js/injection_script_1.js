@@ -391,6 +391,7 @@ function injection_script_1() {
         for (const entry of res[text]) {
 
           if (lastEntry && entry) {
+            // snippetText(lastEntry.initialSegment.transcriptSegmentRenderer.snippet) === snippetText(entry.initialSegment.transcriptSegmentRenderer.snippet)
             if (entry.startMs - lastEntry.endMs < 5 && entry.startMs >= lastEntry.endMs) {
 
               lastEntry.endMs = entry.endMs
@@ -399,6 +400,16 @@ function injection_script_1() {
 
               continue;
             }
+            
+            if (entry.startMs - lastEntry.endMs < 180 && entry.startMs >= lastEntry.endMs && entry.endMs - entry.startMs < 800 ) {
+                
+              lastEntry.endMs = entry.endMs
+              lastEntry.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs
+              map.add(entry.initialSegment);
+
+              continue;
+            }
+
           }
 
           lastEntry = entry
@@ -465,11 +476,7 @@ function injection_script_1() {
       }
 
 
-      //console.log(fRes)
-
-
-
-      //console.log(fRes)
+      console.log(7559, fRes)
 
       return fRes;
 
@@ -1327,7 +1334,7 @@ function injection_script_1() {
 
   //injectionScript_fixAutoComplete();
   
-
+  let _streamTime_cache = null;
 
   function updateStreamingTime(){
     //ytd-video-primary-info-renderer
@@ -1335,39 +1342,60 @@ function injection_script_1() {
     let pir=null;
     let yfs=null;
 
-      // this is looping function to update the "Started streaming XX minutes ago "
-      // seems a bug for new code to old layout
+    // this is looping function to update the "Started streaming XX minutes ago "
+    // seems a bug for new code to old layout
 
+    let counter = 0;
+    let tf;
 
-      let counter = 0;
-      let tf;
+    let skip_until = 0;
 
     setInterval(function(){
 
-
-      if( (++counter) % 14 === 1 ){
-        tf();
-        counter = 1;
-      }
-
-  
-      let dom = pir;
-      let fst = yfs;
-      if(!dom || !fst) return;
-
-      if(dom && dom.data && dom.data.dateText && dom.data.dateText.simpleText){
-
-      }else{
+      let currentTime = Date.now()
+      if(skip_until>currentTime){
+        counter=0;
         return;
       }
-  
-      let txt = dom.data.dateText.simpleText
-      //console.log(txt, fst)
-      if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
-        
-        setFST(fst, txt);
 
+      if( (++counter) % 14 === 1 ){
+        // 6.3s 
+        tf();
+        if(counter > 90000) counter = 1;
       }
+
+      let dom = pir;
+      let fst = yfs;
+      if(!dom || !fst) {
+        _streamTime_cache = null;
+        return;
+      }
+
+      let txt = (((dom||0).data||0).dateText||0).simpleText
+
+      if(!txt) {
+        _streamTime_cache = null;
+        return;
+      }
+
+      if(txt !== _streamTime_cache){
+
+        _streamTime_cache = txt;
+
+        if(counter%14 !== 1) tf(); // ensure dom is correct
+          
+        let dom = pir;
+        let fst = yfs;
+
+        //console.log(txt, fst)
+        if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
+          setFST(fst, txt);
+          skip_until = currentTime+55*1000;  //assume text update per minute (min duration)
+        }
+        
+      }
+
+
   
     },450);
 
@@ -1382,8 +1410,6 @@ function injection_script_1() {
         if(typeof str !=='string') return false;
         return true;
       })
-
-
 
       let fst = null;
       let dom = null;
@@ -1403,7 +1429,6 @@ function injection_script_1() {
       
       pir = dom;
       yfs = fst;
-
 
     };
 
@@ -1427,7 +1452,6 @@ function injection_script_1() {
         for(const contentEntry of contents){
 
           if(contentEntry && typeof contentEntry == 'object'){
-
             for(let rendererKey in contentEntry){
 
               let renderer = contentEntry[rendererKey]
@@ -1445,22 +1469,41 @@ function injection_script_1() {
 
             }
             if(isProp) break;
-  
-
           }
         }
-
-
 
     }
     return isProp
   }
+  
 
-  let cm_ut_c = 0;
+  let cm_ut_c = -1;
   let cm_ut_e = null;
   let cm_flexy = null;
-  setInterval(()=>{
-    
+  let cm_ut_tf = null;
+  let cm_ut_cid = 0;
+
+  let t_v_change = Date.now();
+
+  document.addEventListener('tabview-v-change',function(){
+
+
+    if(cm_ut_c<0){
+      cm_ut_c=0;
+      cm_ut_cid=setInterval(cm_ut_tf, 200);
+    }else if(cm_ut_c>0){
+      cm_ut_c=0;
+    }
+
+
+    t_v_change = Date.now();
+
+
+  })
+
+  cm_ut_tf = ()=>{
+    // only for 3200ms once video detected.
+
     cm_ut_c++;
 
     if(cm_ut_c%4===1) {
@@ -1474,13 +1517,22 @@ function injection_script_1() {
 
       if(isProp && !isAttr) cm_ut_e.setAttribute('tabview-csi','')
       else if(!isProp && isAttr) cm_ut_e.removeAttribute('tabview-csi')
+    }
 
+    if(cm_ut_c>16){
+      clearInterval(cm_ut_cid)
+      cm_ut_cid=0;
+      cm_ut_c=-1;
 
     }
 
 
 
-  },200)
+  }
+
+  
+  cm_ut_c=0;
+  cm_ut_cid=setInterval(cm_ut_tf, 200); 
 
 
 

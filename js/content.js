@@ -3001,6 +3001,7 @@
   let rc_nav_end = 0;
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
+    document.dispatchEvent(new CustomEvent('tabview-v-change')) //possible duplicated
     
     t_preheat_TabInfo_FixContents = 0;
     t_preheat_TabList_FixPlaylist = 0;
@@ -4474,6 +4475,7 @@
     newVideoPage.entryTime = 0;
 
     console.log('newVideoPage')
+    document.dispatchEvent(new CustomEvent('tabview-v-change')) //possible duplicated
     
     mtoInterval = mtoInterval1;
     
