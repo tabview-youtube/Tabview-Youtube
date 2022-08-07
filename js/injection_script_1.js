@@ -4,6 +4,8 @@ function injection_script_1() {
   
   if(!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
+  if(document.documentElement.hasAttribute('tabview-injection-js-1-ready'))return;
+  document.documentElement.setAttribute('tabview-injection-js-1-ready','1')
   
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
@@ -777,7 +779,7 @@ function injection_script_1() {
     _ceHack_calledOnce = true;
     console.log('ce-hack')
 
-    if(!window.customElements) throw 'Your browser does not support Tabview userscript.';
+    if(typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
     // note: YouTube implements its on window.customElements when it detects the browser is old.
 
     let s1 = Symbol();
@@ -884,6 +886,22 @@ function injection_script_1() {
     });
 
 
+    /*
+    let s33 = Symbol();
+    Object.defineProperty(customElements.get('ytd-comments').prototype, 'cachedCommentIds_', {
+      get() {
+        console.log(7511)
+        return this[s33];
+      },
+      set(nv) {
+        console.log(7512)
+        this[s33] = nv;
+      },
+      enumerable: false,
+      configurable: false // if redefine by YouTube, error comes and change the coding
+    });
+    */
+    
 
 
   }
@@ -1198,7 +1216,73 @@ function injection_script_1() {
 
   },true);
 
+  /*
+  let s34 = Symbol();
+
+  Object.defineProperty(yt.config_,'wn_commentsTIMING_ACTION',{
+    get() {
+      console.log(786)
+      return this[s34];
+    },
+    set(nv) {
+      console.log(785)
+      this[s34] = nv;
+    },
+    enumerable: false,
+    configurable: false // if redefine by YouTube, error comes and change the coding
+  })
+  */
+  /*
+  document.addEventListener('tabview-youtube-comments-check',function(evt){
   
+    let cm_ut_e = document.querySelector('ytd-comments#comments');
+    let isProp = !!(((cm_ut_e||0).$||0).sections||0).items_
+    isProp = isProp && isProp.length>=1
+    console.log(5675,isProp)
+
+    console.log(5677, yt.config_.wn_commentsTIMING_ACTION)
+
+  })
+
+
+  let cm_ut_c = 0;
+  let cm_ut_e = null;
+  setInterval(()=>{
+    
+    cm_ut_c++;
+
+    if(cm_ut_c%4===1) {
+      cm_ut_e = document.querySelector('ytd-comments#comments');
+    }
+
+    if(cm_ut_e){
+      let isProp = !!(((cm_ut_e||0).$||0).sections||0).items_
+      isProp = isProp && isProp.length>=1
+      let isAttr = cm_ut_e.hasAttribute('tabview-initCommentsCsi_');
+      if(isProp && !isAttr) cm_ut_e.setAttribute('tabview-initCommentsCsi_','')
+      else if(!isProp && isAttr) cm_ut_e.removeAttribute('tabview-initCommentsCsi_')
+    }
+
+
+  },200)
+  */
+
+  /*
+  document.addEventListener('tabview-youtube-comments-not-exist',function(evt){
+
+    
+              //emptyCommentSection();
+              _disableComments();
+              //tabBtn.classList.add("tab-btn-hidden")
+          //  }  
+
+    
+
+
+          //initCommentsCsi_
+
+  })
+  */
 
   document.addEventListener('tabview-fix-autocomplete',function(){
 
@@ -1329,7 +1413,7 @@ function injection_script_1() {
   updateStreamingTime();
 
 
-  document.documentElement.setAttribute('tabview-injection-js-1-ready','')
+  document.documentElement.setAttribute('tabview-injection-js-1-ready','2')
 
 
 }

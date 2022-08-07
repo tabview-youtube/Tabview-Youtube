@@ -19,7 +19,7 @@
 
   const scriptVersionForExternal = '2022/05/07';
 
-  const isMyScriptInChromeRuntime = () => typeof((((window || 0).chrome || 0).runtime || 0).getURL) == 'function'
+  const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof((((window || 0).chrome || 0).runtime || 0).getURL) == 'function'
 
   const svgComments = `<path d="M40.068 13.465l-34.138.07A5.94 5.94 0 0 0 0 19.465v21.141a5.94 5.94 0 0 0 5.93 5.929H12v10a1 
   1 0 0 0 1.74.673l9.704-10.675 16.626-.068A5.94 5.94 0 0 0 46 40.536V19.395a5.94 5.94 0 0 0-5.932-5.93zM10 23.465h13a1 
@@ -54,19 +54,21 @@
   // ---
 
 
-  const LAYOUT_TWO_COLUMNS = 1;
-  const LAYOUT_THEATER = 2;
-  const LAYOUT_FULLSCREEN = 4;
-  const LAYOUT_CHATROOM = 8;
-  const LAYOUT_CHATROOM_COLLASPED = 16;
-  const LAYOUT_TAB_EXPANDED = 32;
-  const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 64;
+  const LAYOUT_VAILD = 1;
+
+  const LAYOUT_TWO_COLUMNS = 2;
+  const LAYOUT_THEATER = 4;
+  const LAYOUT_FULLSCREEN = 8;
+  const LAYOUT_CHATROOM = 16;
+  const LAYOUT_CHATROOM_COLLASPED = 32;
+  const LAYOUT_TAB_EXPANDED = 64;
+  const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 128;
+  const LAYOUT_CHATROOM_EXPANDED = 256;
 
   const mtoInterval1 = 40;
   const mtoInterval2 = 150;
 
   let lastVideoURL = null; // for less attribute set only
-
 
 
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1 // since 2022/07/12
@@ -126,13 +128,12 @@
     'js/injection_script_1.js',
     "injectionJS1");
     
-
-
+   
 
   
-  /** @type {WeakRef | null} */ 
-  const WeakRef = window.WeakRef;
-  const mWeakRef = WeakRef ? (o => o ? new WeakRef(o) : null) : (o => o || null);
+  /** @type {(o: Object | null) => WeakRef | null} */
+  const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
+
   /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
@@ -473,15 +474,13 @@
 
     if (!cssElm) return;
 
+    const BF_TWOCOL_N_THEATER = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER
 
-    const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
-    const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
+    let new_isExpandedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_EXPANDED)
 
-    const new_isTwoColumns = !!(new_layoutStatus & LAYOUT_TWO_COLUMNS);
-    const new_isTheater = !!(new_layoutStatus & LAYOUT_THEATER);
-    const new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
-    const new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
-    const new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
+    let new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
+    let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
+    let new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
 
     
 
@@ -490,15 +489,15 @@
 
       layoutStatusMutex.lockWith(unlock => {
 
-        if (lastShowTab == '#chatroom') {
+        if (lstTab.lastPanel == '#chatroom') {
 
           if (new_isTabExpanded) switchTabActivity(null)
           if (!new_isExpandedChat) ytBtnExpandChat();
 
-        } else if (lastShowTab && lastShowTab.indexOf('#engagement-panel-') == 0) {
+        } else if (lstTab.lastPanel && lstTab.lastPanel.indexOf('#engagement-panel-') == 0) {
 
           if (new_isTabExpanded) switchTabActivity(null)
-          if (!new_isExpandEPanel) ytBtnOpenEngagementPanel(lastShowTab);
+          if (!new_isExpandEPanel) ytBtnOpenEngagementPanel(lstTab.lastPanel);
 
         } else {
 
@@ -527,37 +526,26 @@
 
     }
 
+    const statusCollaspedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED))
+    const statusCollaspedTrue = !statusCollaspedFalse
+    
 
-    if (new_isExpandedChat || new_isTabExpanded || new_isExpandEPanel) {
-      if (statusCollasped !== 1) statusCollasped = 1;
-    } else {
-      if (statusCollasped === 1) statusCollasped = 2;
-    }
-
-    let changes = 0;
-
-    if (old_layoutStatus !== null) changes = old_layoutStatus ^ new_layoutStatus;
+    let changes = (old_layoutStatus & LAYOUT_VAILD) ? old_layoutStatus ^ new_layoutStatus : 0;
 
     let chat_collasped_changed = !!(changes & LAYOUT_CHATROOM_COLLASPED)
+    let chat_expanded_changed = !!(changes & LAYOUT_CHATROOM_EXPANDED)
     let tab_expanded_changed = !!(changes & LAYOUT_TAB_EXPANDED)
     let theater_mode_changed = !!(changes & LAYOUT_THEATER)
     let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
     let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
     let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
 
-    let tab_change = (tab_expanded_changed ? 1 : 0) | (chat_collasped_changed ? 2 : 0) | (epanel_expanded_changed ? 4 : 0);
-
-    let isChatOrTabExpandTriggering = tab_change == 0 ? false : (
-      (tab_expanded_changed && new_isTabExpanded) ||
-      (chat_collasped_changed && new_isExpandedChat) ||
-      (epanel_expanded_changed && new_isExpandEPanel)
-    );
-
-    let isChatOrTabCollaspeTriggering = tab_change == 0 ? false : (
-      (tab_expanded_changed && !new_isTabExpanded) ||
-      (chat_collasped_changed && new_isCollaspedChat) ||
-      (epanel_expanded_changed && !new_isExpandEPanel)
-    );
+    
+    
+    let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND))
+    let tab_change = BF_LayoutCh_Panel;
+    let isChatOrTabExpandTriggering = !!((new_layoutStatus) & BF_LayoutCh_Panel);
+    let isChatOrTabCollaspeTriggering = !!((~new_layoutStatus) & BF_LayoutCh_Panel);
 
 
 
@@ -565,9 +553,104 @@
 
     let requestVideoResize = false;
 
-    if (fullscreen_mode_changed || new_isFullScreen) {
+    // two column; not theater; tab collapse; chat expand; ep expand
+    const IF_01a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const IF_01b = LAYOUT_TWO_COLUMNS|0|0|LAYOUT_CHATROOM|0|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
 
-    } else if(new_isTwoColumns && !new_isTheater && !column_mode_changed && (tab_change==2 || tab_change==4) && !new_isTabExpanded && new_isExpandedChat && new_isExpandEPanel){
+    
+    // two column; not theater;
+    const IF_02a = BF_TWOCOL_N_THEATER;
+    const IF_02b = LAYOUT_TWO_COLUMNS;
+
+    // two column; not theater; tab expand; chat expand; 
+    const IF_03a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED;
+    const IF_03b = LAYOUT_TWO_COLUMNS|0|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
+
+    
+    // two column; tab expand; chat expand; 
+    const IF_06a = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED;
+    const IF_06b = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
+
+    
+    // two column; theater;
+    const IF_04a = BF_TWOCOL_N_THEATER;
+    const IF_04b = BF_TWOCOL_N_THEATER;
+
+    // not fullscreen; two column; not theater; not tab expand; not EP expand; not expand chat
+    const IF_05a = LAYOUT_FULLSCREEN|LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED;
+    const IF_05b = 0|LAYOUT_TWO_COLUMNS|0|0|0|0;
+
+    const IF_Z1a = LAYOUT_TWO_COLUMNS|LAYOUT_CHATROOM_COLLASPED|LAYOUT_CHATROOM_EXPANDED
+    const IF_Z1b = LAYOUT_TWO_COLUMNS|0|LAYOUT_CHATROOM_EXPANDED
+
+
+    if(new_isFullScreen){
+
+
+      if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_06a) === IF_06b && statusCollaspedFalse && !column_mode_changed) {
+
+        // two column; tab expand; chat expand; 
+    
+          switchTabActivity(null);
+
+
+          
+      }
+
+
+      if( !!(tab_change & LAYOUT_CHATROOM_EXPANDED) && new_isExpandedChat && !new_isTabExpanded ){
+        //tab_change = LAYOUT_CHATROOM_EXPANDED
+        //tab_change = LAYOUT_CHATROOM_EXPANDED|LAYOUT_TAB_EXPANDED
+        
+        timeline.setTimeout(() => {
+          let scrollElement = document.querySelector('ytd-app[scrolling]')
+          if(!scrollElement) return;
+          // single column view; click button; scroll to tab content area 100%
+          let chatFrame = document.querySelector('ytd-live-chat-frame#chat');
+          if (chatFrame && chatFrame.offsetTop > 0 && isChatExpand()) {
+            scrollElement.scrollTo(0, chatFrame.offsetTop);
+          }
+        }, 60)
+
+      }
+
+      
+      if( !!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel && !new_isExpandedChat && !new_isTabExpanded ){
+        
+        timeline.setTimeout(() => {
+          let scrollElement = document.querySelector('ytd-app[scrolling]')
+          if(!scrollElement) return;
+          // single column view; click button; scroll to tab content area 100%
+          let epPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
+          if (epPanel && epPanel.offsetTop > 0) {
+            scrollElement.scrollTo(0, epPanel.offsetTop);
+          }
+        }, 60)
+
+      }
+
+
+
+    }else if (fullscreen_mode_changed) {
+
+
+      
+
+      if( !new_isFullScreen && statusCollaspedTrue && isWideScreenWithTwoColumns() && !isTheater()){
+        showTabOrChat();
+        requestVideoResize = true;
+      } else if( !new_isFullScreen && statusCollaspedFalse && isWideScreenWithTwoColumns() && isTheater()){
+        ytBtnCancelTheater();
+        requestVideoResize = true;
+      }
+
+
+
+    } else if((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change==LAYOUT_CHATROOM_EXPANDED || tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND) ){
+
+    // two column; not theater; tab collapse; chat expand; ep expand
+
+
 
       if(epanel_expanded_changed){
         layoutStatusMutex.lockWith(unlock => {
@@ -582,40 +665,72 @@
 
       }
 
-    } else if (tab_change == 0 && column_mode_changed && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && moreThanOneShown) {
+    } else if (!tab_change && column_mode_changed && (new_layoutStatus & IF_02a) === IF_02b && moreThanOneShown) {
+
+    // two column; not theater;
+    // moreThanOneShown
 
       showTabOrChat();
       requestVideoResize = true;
 
-    } else if (tab_change == 2 && new_isExpandedChat && new_isTwoColumns && !new_isTheater && statusCollasped === 1 && new_isTabExpanded && !column_mode_changed) {
+    } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollaspedFalse && !column_mode_changed) {
+
+    // two column; not theater; tab expand; chat expand; 
 
       switchTabActivity(null);
       requestVideoResize = true;
 
-    } else if (isChatOrTabExpandTriggering && new_isTwoColumns && new_isTheater && statusCollasped === 1 && !theater_mode_changed && !column_mode_changed) {
+    } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollaspedFalse && (changes & BF_TWOCOL_N_THEATER) === 0 ) {
 
       ytBtnCancelTheater();
       requestVideoResize = true;
 
-    } else if (new_isTwoColumns && new_isTheater && statusCollasped === 1) {
+    } else if ((new_layoutStatus & IF_04a) === IF_04b && statusCollaspedFalse) {
 
       hideTabAndChat();
       requestVideoResize = true;
 
-    } else if (isChatOrTabCollaspeTriggering && new_isTwoColumns && !new_isTheater && statusCollasped === 2 && !column_mode_changed) {
+    } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue && !column_mode_changed) {
 
-      ytBtnSetTheater();
+      if(tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND){
+
+        lstTab.lastPanel = null;
+
+        if(new_isFullScreen){
+
+        }else{
+          showTabOrChat();
+        }
+      }else if(tab_change==LAYOUT_CHATROOM_EXPANDED){
+
+        lstTab.lastPanel = null;
+
+        if(new_isFullScreen){
+
+        }else{
+          showTabOrChat();
+        }
+      }else{
+
+        
+        if(new_isFullScreen){
+
+        }else{
+
+        ytBtnSetTheater();
+
+        }
+
+      }
+
       requestVideoResize = true;
 
-    } else if (tab_change == 0 && (column_mode_changed || theater_mode_changed) && new_isTwoColumns && !new_isTheater && statusCollasped !== 1) {
+    } else if (!tab_change &&  !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue) {
 
       showTabOrChat();
       requestVideoResize = true;
 
-    } else if (!new_isFullScreen && new_isTwoColumns && !new_isTheater && !new_isTabExpanded &&
-      (new_isCollaspedChat || !new_isExpandedChat) &&
-      !new_isExpandEPanel
-    ) {
+    } else if ( (new_layoutStatus & IF_05a) === IF_05b ) {
       // bug fix for restoring from mini player
 
       layoutStatusMutex.lockWith(unlock => {
@@ -632,7 +747,7 @@
     }
 
 
-    if (column_mode_changed && !chat_collasped_changed && new_isExpandedChat) {
+    if ( (changes & IF_Z1a ) === IF_Z1b ) {
 
       runAfterExpandChat();
 
@@ -658,6 +773,14 @@
 
   }
 
+  function fixLayoutStatus(x){
+
+
+    const new_isExpandedChat = !(x & LAYOUT_CHATROOM_COLLASPED) && (x & LAYOUT_CHATROOM)
+
+    if(new_isExpandedChat) return x | LAYOUT_CHATROOM_EXPANDED ; else return x & ~LAYOUT_CHATROOM_EXPANDED;
+
+  }
 
 
   const wls = new Proxy({
@@ -670,8 +793,7 @@
     set: function(target, prop, value) {
       if(prop=='layoutStatus'){
           
-        if (value === null) {
-          statusCollasped = 0;
+        if (value === 0) {
           target[prop] = value;
           return;
         }else if(target[prop]===value){
@@ -683,7 +805,7 @@
             target[prop] = value;
             layoutStatusMutex.lockWith(unlock => {
               target.layoutStatus_pending = false;
-              layoutStatusChanged(old_layoutStatus, target[prop]);
+              layoutStatusChanged((old_layoutStatus), (target[prop]));
               timeline.setTimeout(unlock, 40)
             })
             return;
@@ -720,7 +842,7 @@
   }
 
   function hideTabBtn(tabBtn) {
-    console.log('hideTabBtn', tabBtn)
+    //console.log('hideTabBtn', tabBtn)
     let isActiveBefore = tabBtn.classList.contains('active');
     tabBtn.classList.add("tab-btn-hidden");
     if (isActiveBefore) {
@@ -1284,33 +1406,26 @@
 
 
 
-  let lastScrollAt1 = 0;
+  let t_heated_BodyScroll = 0;
 
   function makeBodyScrollByEvt() {
     let ct = Date.now();
-    if (ct - lastScrollAt1 < 6) return; // avoid duplicate calling
-    lastScrollAt1 = ct;
+    if (ct - t_heated_BodyScroll < 6) return; // avoid duplicate calling
+    t_heated_BodyScroll = ct;
     window.dispatchEvent(new Event("scroll")); // dispatch Scroll Event to Window for content display
   }
-
-  let lastScrollAt2 = 0;
+/*
+  let t_preheatAF_BodyScroll = 0;
 
   function makeBodyScroll() {
     let ct = Date.now();
-    if (ct - lastScrollAt2 < 30) return; // avoid over triggering
-    lastScrollAt2 = ct;
+    if (ct - t_preheatAF_BodyScroll < 30) return; // avoid over triggering
+    t_preheatAF_BodyScroll = ct;
     requestAnimationFrame(() => {
       window.dispatchEvent(new Event("scroll")); // ask youtube to display content
     })
   }
-
-
-
-  const mtoCs = { mtoNav: null, mtoBody: null };
-
-
-  const mtoVs = {}
-
+*/
   const mutation_target_id_list = ['ytp-caption-window-container', 'items', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
   const mutation_target_class_list = ['ytp-panel-menu', 'ytp-endscreen-content'];
 
@@ -1404,7 +1519,6 @@
 
     switch (tagName) {
 
-
       case 'ytd-expander':
         if (target.id == 'expander' && Q.comments_section_loaded == 1 && target.classList.contains('ytd-comment-renderer')) return true; // load comments
         return false;
@@ -1432,6 +1546,9 @@
   function mtf_forceCheckLiveVideo() {
     // once per $$player-playback-timestamp$$ {#ytd-player .ytp-time-display} &&  $$chat-frame$$ {ytd-live-chat-frame#chat} detection
     // reset after popstatechange / videochange
+    
+    // use video player's element to detect the live-chat situation (no commenting section)
+    // this would be very useful if the live chat is collapsed, i.e. iframe has no indication on the where it is live or replay
 
     if(mtf_forceCheckLiveVideo_disable) return ;
 
@@ -1554,13 +1671,13 @@
 
     let date_now = Date.now()
 
-    if(no_fix_contents_until<date_now){
+    if(t_preheat_TabInfo_FixContents<date_now){
 
       let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])')
 
       if(contentToggleBtn){
   
-        no_fix_contents_until = date_now + 39;
+        t_preheat_TabInfo_FixContents = date_now + 39;
         timeline.setTimeout(function() {
           const domElement = contentToggleBtn;
           contentToggleBtn = null;
@@ -1586,13 +1703,13 @@
     }
 
 
-    if(no_fix_playlist_until<date_now){
+    if(t_preheat_TabList_FixPlaylist<date_now){
 
 
       // just in case the playlist is collapsed
       let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
       if(playlist && playlist.matches('[collapsed], [collapsible]')) {
-        no_fix_playlist_until=  date_now + 39;
+        t_preheat_TabList_FixPlaylist=  date_now + 39;
         timeline.setTimeout(function() {
           const domElement = playlist;
           playlist = null;
@@ -1674,13 +1791,10 @@
             let m = txt.match(/[\d\,\s]+/)
             if (m) {
               r = m[0].trim()
-
-
             }
           }
           
           if (span){
-
             let tab_btn = closestDOM.call(span,'.tab-btn[userscript-tab-content="#tab-comments"]')
             if(tab_btn)tab_btn.setAttribute('loaded-comment','normal')
             span.textContent = r;
@@ -1767,7 +1881,7 @@
   }
 
   let cld_comments_nothingFound=0;
-  let time_preventImmHidden = 0;
+  let t_preheat_ImmHidden = 0;
 
 
   function hookSection(){
@@ -1805,7 +1919,7 @@
         
         mtoInterval = mtoInterval1;
 
-        time_preventImmHidden = Date.now() + 2870
+        t_preheat_ImmHidden = Date.now() + 2870
 
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
           
@@ -1829,20 +1943,17 @@
 
       function ulfx() {
         //console.log(1220)
-
         
         mtc_nr_comments=maxUInt(mtc_nr_comments, Date.now()+1470)
         //console.log(7051)
         
-        time_preventImmHidden = Date.now()+800;
+        t_preheat_ImmHidden = Date.now()+800;
 
         const rootElement = comments.parentNode
-
 
         if (pendingOne && querySelectorAllFromAnchor.call(comments,'[tabview-cache-time]').length > 1) return;
         pendingOne = false;
         if(!rootElement) return; //prevent unknown condition
-        
 
         timeline.clearTimeout(cld_comments_nothingFound);
         cld_comments_nothingFound=0;
@@ -1886,7 +1997,6 @@
 
                 }
 
-
               }
               sect_lastUpdate = 0
             }, 400)
@@ -1915,6 +2025,8 @@
           } else {
             // previous status removed and no more new status found
 
+            //if(t_preheat_ImmHidden>Date.now()) mtc_nr_comments=maxUInt(mtc_nr_comments, Date.now()+2470)
+
             restoreFetching();
             
             cld_comments_nothingFound= timeline.setTimeout(()=>{
@@ -1930,7 +2042,6 @@
           
           //console.log(74,7)
 
-
         } else {
 
           //console.log(9443)
@@ -1940,8 +2051,6 @@
           pendingOne = true;
 
         }
-
-
 
       }
 
@@ -1955,7 +2064,6 @@
           if (!target.id) break;
           let classList = target.classList;
 
-
           if (
             classList.contains('ytd-item-section-renderer') ||
             classList.contains('ytd-comments-header-renderer') ||
@@ -1968,18 +2076,15 @@
 
           break; // only outest mutation
 
-
         }
         if (valid) ulfx();
       }
-
       
       if(sections.hasAttribute('tabview-comment-section-checked')){
 
         //console.log(3612)
         ulfx();
         
-
       }else{
 
         pendingOne = false;
@@ -1990,10 +2095,7 @@
         observer.observe(sections, config);
         ulfx();
 
-
       }
-
-
 
     }
     //console.log(3241, location.href)
@@ -2003,11 +2105,9 @@
 
      // console.log(3244, location.href)
 
-
       const rootElement = comments.parentNode
 
       let sections = querySelectorFromAnchor.call(rootElement,'ytd-comments#comments > ytd-item-section-renderer#sections');
-
 
       if (sections) {
 
@@ -2035,9 +2135,13 @@
       if (!scriptEnable || !ytdFlexyElm) return;
 
       if (!comments) return;
-
-
-
+              /*
+      document.dispatchEvent(new CustomEvent('tabview-youtube-comments-check'))
+      setTimeout(()=>{
+        
+      document.dispatchEvent(new CustomEvent('tabview-youtube-comments-check'))
+      },2000)
+      */
 
       if(mtoVisibility_Comments.bindElement(comments)){
         mtoVisibility_Comments.observer.check(9);
@@ -2071,6 +2175,7 @@
     '#meta-contents ytd-expander:not([tabview-info-expander])':(expander)=>{
 
         // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
+        // append the detailed meta contents to the tab-info
 
         let ytdFlexyElm = kRef(ytdFlexy);
         if (!scriptEnable || !ytdFlexyElm) return ;
@@ -2083,7 +2188,6 @@
 
     },
     '#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])': (teaserInfo)=>{
-
 
       // for Teaser UI
       // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
@@ -2137,9 +2241,6 @@
                 }
               }
 
-              //$callOnce('mtf_initalAttr_comments');
-              //$callOnce('mtf_initalAttr_playlist');
-              // $callOnce('mtf_checkDescriptionLoaded');
             }
 
           }
@@ -2148,19 +2249,15 @@
     
         (async () => {
 
-
           FP.mtf_initalAttr_chatroom();
           FP.mtf_initalAttr_engagement_panel();
-          
-          //$callOnce('mtf_initalAttr_chatroom');
-         // $callOnce('mtf_initalAttr_engagement_panel');
 
           mtf_forceCheckLiveVideo();
-            mtf_append_comments();
-            mtf_liveChatBtnF();
-            fixTabs();
-            mtf_AfterFixTabs();
-            mtf_append_playlist();
+          mtf_append_comments();
+          mtf_liveChatBtnF();
+          fixTabs();
+          mtf_AfterFixTabs();
+          mtf_append_playlist();
 
         })()
 
@@ -2200,21 +2297,18 @@
 
     // *** consider this can happen immediately after pop state. timeout / interval might clear out.
 
-    if(time_preventImmHidden>Date.now()) return setTimeout(immHidden,400); // avoid timeline reset due to change of video
+    if(t_preheat_ImmHidden>Date.now()) return setTimeout(immHidden,400); // avoid timeline reset due to change of video
     
-    //console.log(136)
     let comments = document.querySelector('ytd-comments#comments')
 
     if(!comments.hasAttribute('hidden')) return;   // visible comments content
 
     mtc_nr_comments=maxUInt(mtc_nr_comments, Date.now()+1470)
-    //console.log(7052)
 
     if(!deferredVarYTDHidden && Q.comments_section_loaded>0){
 
       scheduledCommentRefresh = false;
       emptyCommentSection();
-
 
     }
 
@@ -2225,20 +2319,22 @@
       let ytdFlexyElm = kRef(ytdFlexy);
       if (!scriptEnable || !ytdFlexyElm) return;
 
-      //console.log(137)
       if(!mtc_cid) mtc_cid=timeline.setInterval(()=>{
         if(mtc_nr_comments>Date.now()) return;
-        //console.log(137.5, `se ${!!scriptEnable}, ye ${!!kRef(ytdFlexy)}`)
         
+        timeline.clearInterval(mtc_cid)
+        mtc_cid=0;
+
         let ytdFlexyElm = kRef(ytdFlexy);
         if (!scriptEnable || !ytdFlexyElm) return;
-        //console.log(138)
-        //console.log(78,3)
-          timeline.clearInterval(mtc_cid)
-          mtc_cid=0;
-          if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
+        if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
 
+        if(deferredVarYTDHidden){
+          emptyCommentSection();
+        }else{
+          //emptyCommentSection();
           _disableComments();
+        }
   
       },80)
 
@@ -2495,7 +2591,7 @@
         akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K'); 
 
 
-        time_preventImmHidden= maxUInt(time_preventImmHidden, Date.now()+120);
+        t_preheat_ImmHidden= maxUInt(t_preheat_ImmHidden, Date.now()+120);
         
 
 
@@ -2535,7 +2631,7 @@
         let isCollapsed = !!chatBlock.hasAttribute('collapsed');
         wAttr(cssElm, 'userscript-chat-collapsed', isCollapsed);
 
-        if (cssElm.hasAttribute('userscript-chatblock') && !isCollapsed) lastShowTab = '#chatroom';
+        if (cssElm.hasAttribute('userscript-chatblock') && !isCollapsed) lstTab.lastPanel = '#chatroom';
 
         if (!isCollapsed && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()) {
           switchTabActivity(null);
@@ -2607,7 +2703,7 @@
 
           let b = false;
           if (previousValue != nextValue && nextValue > 0) {
-            lastShowTab = `#engagement-panel-${nextValue}`;
+            lstTab.lastPanel = `#engagement-panel-${nextValue}`;
             b = true;
             storeLastPanel = mWeakRef( shownRes[0])
             //console.log(9999, shownRes[0])
@@ -2626,14 +2722,6 @@
 
 
 
-    },
-
-    mtf_initalAttr_playlist: () => {
-      
-    },
-
-    mtf_initalAttr_comments: () => {
-      
     },
 
     mtf_initalAttr_chatroom: () => {
@@ -2719,24 +2807,6 @@
       }
     },
 
-    
-
-    //comments
-/*
-    mtf_advancedComments: () => {
-      // once per {ytd-comments#comments #continuations} detection
-
-      //let ytdFlexyElm = kRef(ytdFlexy);
-      //if (!scriptEnable || !ytdFlexyElm) return true;
-
-      //const rootElement = Q.mutationTarget || ytdFlexyElm;
-      //const continuations = document.querySelector("ytd-comments#comments #continuations");
-      //if (!continuations) return true;
-      //requestingComments = document.querySelector('ytd-comments#comments');
-      //scrollForComments();
-      return false;
-    }
-    */
 
 
   }
@@ -2753,13 +2823,21 @@
 
   let scriptEnable = false;
   let scriptEC = 0;
-  let lastShowTab = null;
+  let lstTab = null;
+  
+  function lstTabInit(){
+    lstTab = 
+    {
+      lastTab: null,
+      lastPanel: null,
+      last: null
+    };
+  }
 
   let _cachedLastVideo = null;
   let videoListBeforeSearch = null;
-  let no_fix_contents_until = 0;
-  let no_fix_playlist_until = 0;
-  let statusCollasped = 0;
+  let t_preheat_TabInfo_FixContents = 0;
+  let t_preheat_TabList_FixPlaylist = 0;
 
   /** @type {WeakRef | null} */ 
   let ytdFlexy = null;
@@ -2780,16 +2858,15 @@
     //console.log(8001)
 
     videoListBeforeSearch = null;
-    statusCollasped = 0;
     _cachedLastVideo = null;
-    lastShowTab = null;
+    lstTabInit()
     displayedPlaylist = null;
     scrollingVideosList = null;
     scriptEnable = false;
     scriptEC++;
     if (scriptEC > 788888888) scriptEC = 188888888;
     ytdFlexy = null;
-    wls.layoutStatus = null;
+    wls.layoutStatus = 0;
 
     //console.log('unc01')
 
@@ -2812,14 +2889,6 @@
     
     mtoMutation_body.clear(true)
     mtoMutation_watchFlexy.clear(true)
-    //FOnce.mtf_checkFlexy = null;
-    //FOnce.mtf_initalAttr_comments = null;
-    //FOnce.mtf_initalAttr_playlist = null;
-    //FOnce.mtf_initalAttr_chatroom = null;
-    //FOnce.mtf_initalAttr_engagement_panel = null;
-    //FOnce.mtf_advancedComments = null;
-    //FOnce.mtf_checkDescriptionLoaded = null;
-    //FOnce.mtf_forceCheckLiveVideo = null;
     Q.mtf_chatBlockQ = null;
 
 
@@ -2926,13 +2995,15 @@
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
     
-    no_fix_contents_until = 0;
-    no_fix_playlist_until = 0;
+    t_preheat_TabInfo_FixContents = 0;
+    t_preheat_TabList_FixPlaylist = 0;
     
     document.documentElement.setAttribute('youtube-ready','')
     
     script_inject_js1.inject();
     document.documentElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+
+    //document.dispatchEvent(new CustomEvent('tabview-youtube-comments-check'))
 
     forceConfig();
     /*
@@ -2941,6 +3012,7 @@
     window.ytcfg.set({
       "EXPERIMENT_FLAGS": {"kevlar_watch_metadata_refresh":false}})
     }catch(e){}
+    // ytcfg.set({EXPERIMENT_FLAGS:{"kevlar_watch_metadata_refresh":true}})
     */
 
     newVideoPageCheck(); // required for init
@@ -2973,8 +3045,8 @@
         scriptEnable = true;
         scriptEC++;
 
-        no_fix_contents_until = 0;
-        no_fix_playlist_until = 0;
+        t_preheat_TabInfo_FixContents = 0;
+        t_preheat_TabList_FixPlaylist = 0;
 
         ytdFlexy = mWeakRef(ytdFlexyElm)
 
@@ -2996,19 +3068,6 @@
           }
           promise.then(runAfterTabAppended)
         }
-
-        /*
-        setTimeout(() => {
-          for (const s of document.querySelectorAll('#right-tabs [userscript-scrollbar-render]')) {
-            Promise.resolve(s).then(s => {
-              if (s && s.scrollTop > 0) s.scrollTop = 0;
-              let child = s.firstElementChild;
-              if (child && child.scrollTop > 0) child.scrollTop = 0;
-            });
-          }
-        }, 90)
-        */
-
 
       }
 
@@ -3046,17 +3105,13 @@
     }
 
 
-
     function disableCommentsBytimeout(){
-
 
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]')
 
-        
       let ytdFlexyElm = kRef(ytdFlexy)
 
-
-      if(tabBtn && ytdFlexyElm && isNullCommentsDeep() && isCommentsK(ytdFlexyElm) ){
+      if(tabBtn && ytdFlexyElm && isNullCommentsDeep() && isCommentsK(ytdFlexyElm) && !deferredVarYTDHidden ){
 
         let comment_content = document.querySelector('ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld')
         if(comment_content){
@@ -3065,18 +3120,27 @@
             // bug to be fixed for tab-content-hidden (comments reloading after loaded)      
           //  }else{
 
-              emptyCommentSection();
-              _disableComments();
+              //emptyCommentSection();
+             // **  _disableComments();
               //tabBtn.classList.add("tab-btn-hidden")
           //  }  
+
+
+          let comments = querySelectorFromAnchor.call(comment_content, 'ytd-comments#comments')
+          if(!comments || /^[\n\x20]*$/g.test(comments.textContent)){
+            
+            _disableComments();
+          }
+
+         // document.dispatchEvent(new CustomEvent("tabview-youtube-comments-not-exist"));
+
+
+
         }
     
       } 
 
-
-
     }
-
 
 
     if(scriptEnable) {
@@ -3099,15 +3163,9 @@
         if(rc_nav_end<20){ // <=15s
 
           let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
-
-          //Object.keys($0.data)
-
-          if(playlist){
-            
+          if(playlist){    
             playlist.dispatchEvent(new CustomEvent("userscript-fix-playlist-display", { detail: {} }))
           }
-
-
   
           let chatroomBtn = document.querySelector('ytd-live-chat-frame#chat #show-hide-button.ytd-live-chat-frame')
           if(chatroomBtn){
@@ -3118,22 +3176,22 @@
         }
 
         
+        let clearTimer = false;
         if(rc_nav_end<80){ // <=63s
-
-
           let cTime = Date.now();
           if(cTime - mtc_nr_comments<2700) return;
           if(!mtc_nr_comments || cTime - mtc_nr_comments>4700){
-            clearInterval(cid_nav_end)
-            cid_nav_end = 0;
-            // last check
+            clearTimer = true; // last check
           }
-
-
           disableCommentsBytimeout();
-
+        }else{
+          clearTimer = true;
         }
-
+        
+        if(clearTimer && cid_nav_end>0) {
+          clearInterval(cid_nav_end)
+          cid_nav_end = 0;
+        }
 
       },800)
     }
@@ -3161,8 +3219,8 @@
     
     if(scriptEnable){
 
-      no_fix_contents_until = 0;
-      no_fix_playlist_until = 0;
+      t_preheat_TabInfo_FixContents = 0;
+      t_preheat_TabList_FixPlaylist = 0;
       Q.mutationTarget =null;
       regularCheck(1, 0, null);
       
@@ -3189,64 +3247,12 @@
     if(!ytdFlexyElm) return;
     if (!ytdFlexyElm.hasAttribute('tabview-selection')) ytdFlexyElm.setAttribute('tabview-selection', '')
 
-    
-
-    
-    //console.log('unc02')
-
     // append the next videos 
     // it exists as "related" is already here
     fixTabs();
 
-    // just switch to the default tab
-    setToActiveTab();
-
-
+    setToActiveTab(); // just switch to the default tab
     prepareTabBtn();
-
-
-    // append the detailed meta contents to the tab-info
-    // ** FOnce.mtf_checkDescriptionLoaded = FP.mtf_checkDescriptionLoaded;
-    // ** if (Q.mutationTarget === null) $callOnceAsync('mtf_checkDescriptionLoaded');
-
-    // force window scroll when #continuations is first detected and #comments still [hidden]
-    //FOnce.mtf_advancedComments = FP.mtf_advancedComments;
-    //if (Q.mutationTarget === null) $callOnceAsync('mtf_advancedComments');
-
-    // use video player's element to detect the live-chat situation (no commenting section)
-    // this would be very useful if the live chat is collapsed, i.e. iframe has no indication on the where it is live or replay
-    //FOnce.mtf_forceCheckLiveVideo = FP.mtf_forceCheckLiveVideo;
-    //if (Q.mutationTarget === null) $callOnceAsync('mtf_forceCheckLiveVideo');
-    //mtf_forceCheckLiveVideo();
-
-
-    // Attr Mutation Observer - #playlist - hidden
-    //clearMutationObserver(mtoVs, 'mtoVisibility_Playlist')
-    // Attr Mutation Observer callback - #playlist - hidden
-
-    // pending for #playlist and set Attribute Observer
-    // ** FOnce.mtf_initalAttr_playlist = FP.mtf_initalAttr_playlist
-    // ** if (Q.mutationTarget === null) $callOnceAsync('mtf_initalAttr_playlist');
-
-    // Attr Mutation Observer - ytd-comments#comments - hidden
-    //clearMutationObserver(mtoVs, 'mtoVisibility_Comments')
-    // Attr Mutation Observer callback - ytd-comments#comments - hidden
-
-    // pending for #comments and set Attribute Observer
-    // ** FOnce.mtf_initalAttr_comments = FP.mtf_initalAttr_comments;
-    // ** if (Q.mutationTarget === null) $callOnceAsync('mtf_initalAttr_comments');
-
-
-    //clearMutationObserver(mtoVs, 'mtoVisibility_Chatroom');
-    //FOnce.mtf_initalAttr_chatroom = FP.mtf_initalAttr_chatroom
-    //if (Q.mutationTarget === null) $callOnceAsync('mtf_initalAttr_chatroom');
-
-    // clearMutationObserver(mtoVs, 'mtoVisibility_EngagementPanel');
-    // for (const engagement_panel of document.querySelectorAll('ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([tabview-attr-checked])')) {
-    //   engagement_panel.removeAttribute('tabview-attr-checked');
-    // }
-    //FOnce.mtf_initalAttr_engagement_panel = FP.mtf_initalAttr_engagement_panel
-    //if (Q.mutationTarget === null) $callOnceAsync('mtf_initalAttr_engagement_panel');
 
 
     mtoFlexyAttr.clear(true)
@@ -3335,7 +3341,7 @@
 
 
   function _disableComments() {
-    time_preventImmHidden = 0;
+    t_preheat_ImmHidden = 0;
     
     //requestingComments = null;
     mtc_cid && timeline.clearInterval(mtc_cid)
@@ -3354,7 +3360,6 @@
 
     if(Q.comments_section_loaded>0) return; //already displayed / disabled
 
-
     scheduledCommentRefresh=false;
     setCommentSection(2);
 
@@ -3362,10 +3367,14 @@
 
     let tabBtn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]');
     if(tabBtn) {
+      let span = querySelectorFromAnchor.call(tabBtn,'span#tab3-txt-loader');
       tabBtn.removeAttribute('loaded-comment')
       if (!tabBtn.classList.contains('tab-btn-hidden')) {
         //console.log('hide', comments, comments && comments.hasAttribute('hidden'))
         hideTabBtn(tabBtn)
+      }
+      if(span){
+        span.textContent='';
       }
     }
 
@@ -3399,29 +3408,32 @@
   }
 
 
+  
+  let cid_chatFrameCheck1=0;
+  let cid_chatFrameCheck2=0;
 
   function runAfterExpandChat() {
 
 
-    if(runAfterExpandChat.cid_chatFrameCheck1) timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck1);
-    if(runAfterExpandChat.cid_chatFrameCheck2) timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck2);
-    runAfterExpandChat.cid_chatFrameCheck1=0;
-    runAfterExpandChat.cid_chatFrameCheck2=0;
+    if(cid_chatFrameCheck1) timeline.clearInterval(cid_chatFrameCheck1);
+    if(cid_chatFrameCheck2) timeline.clearInterval(cid_chatFrameCheck2);
+    cid_chatFrameCheck1=0;
+    cid_chatFrameCheck2=0;
 
     new Promise(resolve => {
 
       let chatFrame_st = Date.now();
-      runAfterExpandChat.cid_chatFrameCheck1 = 0;
+      cid_chatFrameCheck1 = 0;
 
       let sEF = new ScriptEF();
-      runAfterExpandChat.cid_chatFrameCheck1 = timeline.setInterval(() => {
-        if (!sEF.isValid()) return runAfterExpandChat.cid_chatFrameCheck1 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck1);
+      cid_chatFrameCheck1 = timeline.setInterval(() => {
+        if (!sEF.isValid()) return cid_chatFrameCheck1 = timeline.clearInterval(cid_chatFrameCheck1);
         let cDoc = chatFrameContentDocument();
         if (cDoc) {
-          runAfterExpandChat.cid_chatFrameCheck1 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck1);
+          cid_chatFrameCheck1 = timeline.clearInterval(cid_chatFrameCheck1);
           resolve();
         } else if (!scriptEnable || !isChatExpand() || Date.now() - chatFrame_st > 6750) {
-          runAfterExpandChat.cid_chatFrameCheck1 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck1);
+          cid_chatFrameCheck1 = timeline.clearInterval(cid_chatFrameCheck1);
         }
       }, 60);
 
@@ -3430,17 +3442,17 @@
 
 
       let chatFrame_st = Date.now();
-      runAfterExpandChat.cid_chatFrameCheck2 = 0;
+      cid_chatFrameCheck2 = 0;
 
       let sEF = new ScriptEF();
-      runAfterExpandChat.cid_chatFrameCheck2 = timeline.setInterval(() => {
-        if (!sEF.isValid()) return runAfterExpandChat.cid_chatFrameCheck2 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck2);
+      cid_chatFrameCheck2 = timeline.setInterval(() => {
+        if (!sEF.isValid()) return cid_chatFrameCheck2 = timeline.clearInterval(cid_chatFrameCheck2);
         let app = chatFrameElement('yt-live-chat-app');
         if (app) {
-          runAfterExpandChat.cid_chatFrameCheck2 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck2);
+          cid_chatFrameCheck2 = timeline.clearInterval(cid_chatFrameCheck2);
           resolve(app);
         } else if (!scriptEnable || !isChatExpand() || Date.now() - chatFrame_st > 6750*3) {
-          runAfterExpandChat.cid_chatFrameCheck2 = timeline.clearInterval(runAfterExpandChat.cid_chatFrameCheck2);
+          cid_chatFrameCheck2 = timeline.clearInterval(cid_chatFrameCheck2);
         }
       }, 60);
 
@@ -3613,9 +3625,7 @@
   }
 
   function flexyAttr_toggleFlag(mFlag, b, flag) {
-    if (b) mFlag = mFlag | flag;
-    else mFlag = mFlag & ~flag;
-    return mFlag;
+    return b ? (mFlag | flag) : (mFlag & ~flag) ;
   }
 
   function flexAttr_toLayoutStatus(nls, attributeName) {
@@ -3623,7 +3633,8 @@
     let attrElm, b, v;
     switch (attributeName) {
       case 'theater':
-        nls = flexyAttr_toggleFlag(nls, isTheater(), LAYOUT_THEATER);
+        b = isTheater();
+        nls = flexyAttr_toggleFlag(nls, b, LAYOUT_THEATER);
         break;
       case 'userscript-chat-collapsed':
       case 'userscript-chatblock':
@@ -3636,21 +3647,25 @@
         }
         break;
       case 'is-two-columns_':
-        nls = flexyAttr_toggleFlag(nls, isWideScreenWithTwoColumns(), LAYOUT_TWO_COLUMNS);
+        b = isWideScreenWithTwoColumns();
+        nls = flexyAttr_toggleFlag(nls, b, LAYOUT_TWO_COLUMNS);
         break;
 
       case 'tabview-selection':
-        b = isNonEmptyString(kRef(ytdFlexy).getAttribute('tabview-selection'));
+        attrElm = kRef(ytdFlexy);
+        b = isNonEmptyString(attrElm.getAttribute('tabview-selection'));
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_TAB_EXPANDED);
         break;
 
       case 'fullscreen':
-        b = isNonEmptyString(kRef(ytdFlexy).getAttribute('fullscreen'));
+        attrElm = kRef(ytdFlexy);
+        b = attrElm.hasAttribute('fullscreen');
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_FULLSCREEN);
         break;
 
       case 'userscript-engagement-panel':
-        v = kRef(ytdFlexy).getAttribute('userscript-engagement-panel');
+        attrElm = kRef(ytdFlexy);
+        v = attrElm.getAttribute('userscript-engagement-panel');
         b = (+v > 0)
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_ENGAGEMENT_PANEL_EXPAND);
         break;
@@ -3683,7 +3698,7 @@
     ytdFlexyHiddenCheck(mutations);
 
     const old_layoutStatus = wls.layoutStatus
-    if (old_layoutStatus === null) return;
+    if (old_layoutStatus === 0) return;
     let new_layoutStatus = old_layoutStatus;
 
     let checkedChat = false;
@@ -3728,6 +3743,9 @@
       }
     }
 
+    new_layoutStatus = fixLayoutStatus(new_layoutStatus);
+
+
     if (new_layoutStatus !== old_layoutStatus) wls.layoutStatus = new_layoutStatus
 
   }
@@ -3739,7 +3757,7 @@
     if (!scriptEnable || !ytdFlexyElm) return true;
 
 
-    wls.layoutStatus = null;
+    wls.layoutStatus = 0;
 
     let isFlexyHidden = (deferredVarYTDHidden = ytdFlexyElm.hasAttribute('hidden'));
 
@@ -3773,7 +3791,7 @@
     //else wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
     else if(rEP.value>0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
 
-    let ls = 0;
+    let ls = LAYOUT_VAILD;
     ls = flexAttr_toLayoutStatus(ls, 'theater')
     ls = flexAttr_toLayoutStatus(ls, 'userscript-chat-collapsed')
     ls = flexAttr_toLayoutStatus(ls, 'userscript-chatblock')
@@ -3781,6 +3799,9 @@
     ls = flexAttr_toLayoutStatus(ls, 'tabview-selection')
     ls = flexAttr_toLayoutStatus(ls, 'fullscreen')
     ls = flexAttr_toLayoutStatus(ls, 'userscript-engagement-panel')
+
+    fixLayoutStatus(ls)
+
 
     wls.layoutStatus = ls
 
@@ -3903,7 +3924,7 @@
 
     if (activeLink && activeLink.classList.contains('tab-btn-hidden')) return; // not allow to switch to hide tab
 
-    if (isTheater() && isWideScreenWithTwoColumns()) activeLink = null;
+    //if (isTheater() && isWideScreenWithTwoColumns()) activeLink = null;
 
 
     function runAtEnd() {
@@ -3911,21 +3932,24 @@
       
     //console.log(12312)
 
-      if (activeLink) lastShowTab = activeLink.getAttribute('userscript-tab-content')
+      if (activeLink) {
+        lstTab.lastTab = activeLink.getAttribute('userscript-tab-content')
+        lstTab.lastPanel = null;
+      }
 
       displayedPlaylist = null;
       scrollingVideosList = null;
 
-      if (activeLink && lastShowTab == '#tab-list') {
+      if (activeLink && lstTab.lastTab == '#tab-list') {
         setDisplayedPlaylist();
-      } else if (activeLink && lastShowTab == '#tab-videos') {
+      } else if (activeLink && lstTab.lastTab == '#tab-videos') {
         scrollingVideosList = mWeakRef(document.querySelector('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]'));
       }
 
 
-      ytdFlexyElm.setAttribute('tabview-selection', activeLink ? lastShowTab : '')
+      ytdFlexyElm.setAttribute('tabview-selection', activeLink ? lstTab.lastTab : '')
 
-      if (lastShowTab == '#tab-comments' && (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').lastIndexOf('S') >= 0) {
+      if (activeLink && lstTab.lastTab == '#tab-comments' && (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').lastIndexOf('S') >= 0) {
 
         
         if(mtf_forceCheckLiveVideo_disable===2) {}
@@ -3942,7 +3966,7 @@
 
     const links = document.querySelectorAll('#material-tabs a[userscript-tab-content]');
 
-
+    //console.log(701, activeLink)
 
     for (const link of links) {
       let content = document.querySelector(link.getAttribute('userscript-tab-content'));
@@ -3951,6 +3975,7 @@
           link.classList.remove("active");
           content.classList.add("tab-content-hidden");
         } else {
+          //console.log(3343)
           link.classList.add("active");
           content.classList.remove("tab-content-hidden");
           //timeline.setTimeout(()=>content.focus(),400);
@@ -4039,7 +4064,37 @@
 
             let isActiveAndVisible = this.classList.contains('tab-btn') && this.classList.contains('active') && !this.classList.contains('tab-btn-hidden')
 
-            if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
+            if( isFullScreen() ){
+
+              console.log(isActiveAndVisible, this)
+              if(isActiveAndVisible){
+                timeline.setTimeout(unlock, 80);
+                switchTabActivity(null);
+              }else{
+
+                if (isChatExpand() && isWideScreenWithTwoColumns()) {
+                  ytBtnCollapseChat();
+                } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
+                  ytBtnCloseEngagementPanels();
+                } 
+
+
+                timeline.setTimeout(() => {
+                  let scrollElement = document.querySelector('ytd-app[scrolling]')
+                  if(!scrollElement) return;
+                  // single column view; click button; scroll to tab content area 100%
+                  let rightTabs = document.querySelector('#right-tabs');
+                  if (rightTabs && rightTabs.offsetTop > 0 && this.classList.contains('active')) {
+                    scrollElement.scrollTo(0, rightTabs.offsetTop);
+                  }
+                }, 60)
+
+                timeline.setTimeout(unlock, 80);
+                switchTabActivity(this)
+              }
+
+              
+            } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
               //optional
               timeline.setTimeout(unlock, 80);
               switchTabActivity(null);
@@ -4048,34 +4103,31 @@
               timeline.setTimeout(unlock, 80);
               switchTabActivity(null);
             } else {
-              let pInterval = 60;
+
               if (isChatExpand() && isWideScreenWithTwoColumns()) {
                 ytBtnCollapseChat();
               } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
                 ytBtnCloseEngagementPanels();
               } else if (isWideScreenWithTwoColumns() && isTheater() && !isFullScreen()) {
                 ytBtnCancelTheater();
-              } else {
-                pInterval = 20;
               }
-              //console.log(8518)
+
               timeline.setTimeout(() => {
-                timeline.setTimeout(makeBodyScroll, 20); // this is to make the image render
+                // single column view; click button; scroll to tab content area 100%
+                let rightTabs = document.querySelector('#right-tabs');
+                if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && this.classList.contains('active')) {
+                  let tabButtonBar = document.querySelector('#material-tabs');
+                  let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
+                  window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
+                }
+              }, 60)
+              // console.log(8519)
 
-                timeline.setTimeout(() => {
-                  let rightTabs = document.querySelector('#right-tabs');
-                  if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && this.classList.contains('active')) {
-                    let tabButtonBar = document.querySelector('#material-tabs');
-                    let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
-                    window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
-                  }
-                }, 60)
-               // console.log(8519)
+              timeline.setTimeout(unlock, 80)
+              switchTabActivity(this)
 
-                timeline.setTimeout(unlock, 80)
-                switchTabActivity(this)
+              
 
-              }, pInterval);
             }
 
 
@@ -4188,6 +4240,14 @@
   })
   document.addEventListener("yt-navigate-redirect",()=>{
     console.log('yt-navigate-redirect')
+
+
+    t_preheat_TabInfo_FixContents = 0;
+    t_preheat_TabList_FixPlaylist = 0;
+
+    script_inject_js1.inject();
+
+    
   })
 
   function onReady(){
@@ -4230,8 +4290,8 @@
   document.addEventListener("yt-navigate-start",()=>{
     console.log('yt-navigate-start') // not always trigger before navigate-end
     
-    no_fix_contents_until = 0;
-    no_fix_playlist_until = 0;
+    t_preheat_TabInfo_FixContents = 0;
+    t_preheat_TabList_FixPlaylist = 0;
 
     script_inject_js1.inject();
     forceConfig();
@@ -4393,7 +4453,7 @@
     
     mtoInterval = mtoInterval1;
     
-    time_preventImmHidden = Date.now()+800;
+    t_preheat_ImmHidden = Date.now()+800;
     
     
     //console.log('newVideoPage-', 150, location.href)
@@ -4406,8 +4466,8 @@
     timeline.reset();
     mtc_cid=0;
     cid_render_section=0;
-    runAfterExpandChat.cid_chatFrameCheck1=0;
-    runAfterExpandChat.cid_chatFrameCheck2=0;
+    cid_chatFrameCheck1=0;
+    cid_chatFrameCheck2=0;
     layoutStatusMutex = new Mutex();
 
     //console.log('newVideoPage-', 350, location.href)
@@ -4454,23 +4514,14 @@
           pendingOne = document.querySelectorAll(`ytd-watch-flexy ytd-comments#comments [tabview-cache-time]`).length>1;
         }
 
-        /*
-        // try to omit in 2.5.x
-        timeline.setTimeout(()=>{
-          Q.mutationTarget=null;
-          console.log(87101)
-          FP.mtf_attrComments()
-        },2870)
-        */
     
         if(pageInit_attrComments) hookSection();
 
 
-
-
-
         
         let new_layoutStatus = wls.layoutStatus 
+
+        new_layoutStatus & (LAYOUT_CHATROOM_COLLASPED | LAYOUT_CHATROOM) 
 
         const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
         const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
@@ -4493,8 +4544,8 @@
 
       }
 
-      //no_fix_contents_until = 0;
-      //no_fix_playlist_until = 0;
+      //t_preheat_TabInfo_FixContents = 0;
+      //t_preheat_TabList_FixPlaylist = 0;
       //scriptEnable = true;
       //regularCheck(1,0,null); // mutation happens when the page is not ready; call again as the page is ready.
 
@@ -4829,18 +4880,6 @@
 
 
   }
-
-
-  /*
-
-  To be implement: timeline
-
-  timeline.setTimeout
-  timeline.clearTimeout
-  timeline.setInterval
-  timeline.clearInterval
-
-  */
 
 
 

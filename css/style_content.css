@@ -1316,7 +1316,7 @@ html:not(.style-scope) {
     #related #related, /* youtube coding bug */
     *:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer,  /* hide videos list & play list before script loading */
     #related > #related-skeleton, #related > #player-ads,
-    *:not(#ytd-userscript-playlist):not(#card) > ytd-playlist-panel-renderer#playlist,  /* hide videos list & play list before script loading */
+    *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer),  /* hide videos list & play list before script loading */
     #primary #primary #info ~ #meta #meta-contents ytd-expander /* meta-contents relocated */
     {
         position: absolute;
@@ -2474,4 +2474,4 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy div#scroll-container.style-scope.yt-chip-cloud-renderer {
         user-select: none !important;
     }
-    
+     
