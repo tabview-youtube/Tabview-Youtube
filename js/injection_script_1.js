@@ -1413,6 +1413,78 @@ function injection_script_1() {
   updateStreamingTime();
 
 
+  function isTabViewCSI(cm_flexy){
+    let isProp = false
+
+    let contents = null;
+    try{
+      contents = cm_flexy.data.contents.twoColumnWatchNextResults.results.results.contents
+    }catch(e){}
+
+      
+    if(contents && contents.length>-1){
+
+        for(const contentEntry of contents){
+
+          if(contentEntry && typeof contentEntry == 'object'){
+
+            for(let rendererKey in contentEntry){
+
+              let renderer = contentEntry[rendererKey]
+
+              if(renderer && typeof renderer == 'object' && typeof renderer.sectionIdentifier === 'string' && 
+              (renderer.sectionIdentifier.indexOf('comments-')>=0 || renderer.sectionIdentifier.indexOf('comment-')>=0) ){
+
+                //comments-  for comment list
+                //comment-   for disable message
+
+                isProp =true;
+                break;
+
+              }
+
+            }
+            if(isProp) break;
+  
+
+          }
+        }
+
+
+
+    }
+    return isProp
+  }
+
+  let cm_ut_c = 0;
+  let cm_ut_e = null;
+  let cm_flexy = null;
+  setInterval(()=>{
+    
+    cm_ut_c++;
+
+    if(cm_ut_c%4===1) {
+      cm_ut_e = document.querySelector('ytd-comments#comments');
+      cm_flexy = document.querySelector('ytd-watch-flexy')
+    }
+
+    if(cm_ut_e && cm_flexy){
+      let isProp = isTabViewCSI(cm_flexy);
+      let isAttr = cm_ut_e.hasAttribute('tabview-csi');
+
+      if(isProp && !isAttr) cm_ut_e.setAttribute('tabview-csi','')
+      else if(!isProp && isAttr) cm_ut_e.removeAttribute('tabview-csi')
+
+
+    }
+
+
+
+  },200)
+
+
+
+
   document.documentElement.setAttribute('tabview-injection-js-1-ready','2')
 
 

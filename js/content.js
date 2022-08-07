@@ -3179,11 +3179,28 @@
         let clearTimer = false;
         if(rc_nav_end<80){ // <=63s
           let cTime = Date.now();
-          if(cTime - mtc_nr_comments<2700) return;
-          if(!mtc_nr_comments || cTime - mtc_nr_comments>4700){
+
+          let isAttrCsi = false;
+
+
+          if(mtc_nr_comments>0 && cTime - mtc_nr_comments>1270 && cTime - mtc_nr_comments<2870 && Q.comments_section_loaded !== 2 ){
+
+            let commentsElement = document.querySelector('ytd-comments#comments');
+            if(commentsElement){
+              isAttrCsi = commentsElement.hasAttribute('tabview-csi')
+            }
+            if(!isAttrCsi) disableCommentsBytimeout();
+
+          }
+
+          if(cTime - mtc_nr_comments<1270) return;
+          if(!mtc_nr_comments || cTime - mtc_nr_comments>2270){
             clearTimer = true; // last check
           }
-          disableCommentsBytimeout();
+
+          
+      
+
         }else{
           clearTimer = true;
         }
