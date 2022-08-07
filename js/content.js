@@ -2329,6 +2329,7 @@
         if (!scriptEnable || !ytdFlexyElm) return;
         if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
 
+        let isAttrCsi = false;
 
         let commentsElement = document.querySelector('ytd-comments#comments');
         if(commentsElement){
