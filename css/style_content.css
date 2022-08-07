@@ -2222,9 +2222,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
         background:transparent;
     } 
+
+    ytd-transcript-segment-renderer{
+        --tabview-transcript-segment-span-display: block;
+    }
     
     ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
-        display:block;
+        display: var(--tabview-transcript-segment-span-display);
     }
 
 
