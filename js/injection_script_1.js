@@ -1336,6 +1336,8 @@ function injection_script_1() {
   
   let _streamTime_cache = null;
 
+  let resetUpdateStreamingTime = null;
+
   function updateStreamingTime(){
     //ytd-video-primary-info-renderer
 
@@ -1349,6 +1351,12 @@ function injection_script_1() {
     let tf;
 
     let skip_until = 0;
+
+    resetUpdateStreamingTime=()=>{
+      skip_until = 0;
+      counter = 0;
+      _streamTime_cache = null;
+    };
 
     setInterval(function(){
 
@@ -1497,6 +1505,8 @@ function injection_script_1() {
 
 
     t_v_change = Date.now();
+
+    if(resetUpdateStreamingTime) resetUpdateStreamingTime();
 
 
   })
