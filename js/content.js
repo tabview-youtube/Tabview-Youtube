@@ -2329,7 +2329,13 @@
         if (!scriptEnable || !ytdFlexyElm) return;
         if(mtf_forceCheckLiveVideo_disable===2 || !isNullComments())return;
 
-        if(deferredVarYTDHidden){
+
+        let commentsElement = document.querySelector('ytd-comments#comments');
+        if(commentsElement){
+          isAttrCsi = commentsElement.hasAttribute('tabview-csi')
+        }
+
+        if(deferredVarYTDHidden || isAttrCsi){
           emptyCommentSection();
         }else{
           //emptyCommentSection();
@@ -3194,7 +3200,7 @@
           }
 
           if(cTime - mtc_nr_comments<1270) return;
-          if(!mtc_nr_comments || cTime - mtc_nr_comments>2270){
+          if(!mtc_nr_comments || cTime - mtc_nr_comments>2870){
             clearTimer = true; // last check
           }
 
