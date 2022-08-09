@@ -2478,4 +2478,41 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy div#scroll-container.style-scope.yt-chip-cloud-renderer {
         user-select: none !important;
     }
-     
+    
+    
+    /* 2022.08.09 for https://greasyfork.org/scripts/373005-super-fast-youtube-to-mp3-converter-online-video-downloader */
+
+    #meta-contents #subscribe-button.ytd-video-secondary-info-renderer > #punisher{
+        z-index: 0;
+    }
+
+    body #subscribe-button.ytd-video-secondary-info-renderer{
+        flex-direction: row;
+        align-items: center;
+    }
+
+    #subscribe-button.ytd-video-secondary-info-renderer > span#punisher > a[href*="https://convert2mp3s.com/api/widgetv2?url="] {
+        font-size: 1px !important;
+        color: transparent !important;
+        width: 24px !important;
+        height: 24px !important;
+        box-sizing: border-box;
+        padding: 0 !important;
+        display: inline-block;
+        background-color: var(--yt-spec-icon-inactive, #00ff00) !important;
+        --mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYAQMAAADaua+7AAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAADJJREFUCNdjYJBgIBrzSBgw8EkUMLBLPGBgnnmAgfF2AwPDf6BcHRDbgNXAAf//DyAMAEDqC3cE7mZwAAAAAElFTkSuQmCC);
+        mask-image: var(--mask-image);
+        -webkit-mask-image: var(--mask-image);
+        background-size: contain;
+        transform: scale(0.8);
+        transform-origin: center center;
+        user-select: none !important;
+        opacity:0.8;
+    }
+
+
+    #subscribe-button.ytd-video-secondary-info-renderer > span#punisher {
+        padding: 2px !important;
+        margin-top: 0 !important;
+        background-color: transparent !important;
+     }
