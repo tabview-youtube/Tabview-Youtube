@@ -17,9 +17,9 @@
       "https://www.youtube.com/*",
        "*://*/*"
     ],
-   "version": "2.7.0",
+   "version": "2.9.8",
    "web_accessible_resources": [{
-      "resources": ["images/*.png", "js/injection*.js"],
+      "resources": ["images/*.png", "js/injection*.js", "js/content.js"],
       "matches": ["<all_urls>"]
     }]
 }

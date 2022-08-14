@@ -11,6 +11,13 @@ function injection_script_1() {
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
 
+  /** @type {(o: Object | null) => WeakRef | null} */
+  const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
+
+  /** @type {(wr: Object | null) => Object | null} */
+  const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
+
+
   function setFST(fst, text){
     if(!fst) return;
     let textNode = fst.firstChild;
@@ -92,7 +99,8 @@ function injection_script_1() {
     else f.call(dom);
 
   }, true)
-  
+
+  /*
   document.addEventListener('userscript-call-dom-func-stacked', function (evt) {
 
     if (!evt || !evt.target || !evt.detail) return;
@@ -109,7 +117,7 @@ function injection_script_1() {
     }
 
   }, false)
-
+  */
 
   let calledOnce = false;
 
@@ -1223,74 +1231,6 @@ function injection_script_1() {
 
   },true);
 
-  /*
-  let s34 = Symbol();
-
-  Object.defineProperty(yt.config_,'wn_commentsTIMING_ACTION',{
-    get() {
-      console.log(786)
-      return this[s34];
-    },
-    set(nv) {
-      console.log(785)
-      this[s34] = nv;
-    },
-    enumerable: false,
-    configurable: false // if redefine by YouTube, error comes and change the coding
-  })
-  */
-  /*
-  document.addEventListener('tabview-youtube-comments-check',function(evt){
-  
-    let cm_ut_e = document.querySelector('ytd-comments#comments');
-    let isProp = !!(((cm_ut_e||0).$||0).sections||0).items_
-    isProp = isProp && isProp.length>=1
-    console.log(5675,isProp)
-
-    console.log(5677, yt.config_.wn_commentsTIMING_ACTION)
-
-  })
-
-
-  let cm_ut_c = 0;
-  let cm_ut_e = null;
-  setInterval(()=>{
-    
-    cm_ut_c++;
-
-    if(cm_ut_c%4===1) {
-      cm_ut_e = document.querySelector('ytd-comments#comments');
-    }
-
-    if(cm_ut_e){
-      let isProp = !!(((cm_ut_e||0).$||0).sections||0).items_
-      isProp = isProp && isProp.length>=1
-      let isAttr = cm_ut_e.hasAttribute('tabview-initCommentsCsi_');
-      if(isProp && !isAttr) cm_ut_e.setAttribute('tabview-initCommentsCsi_','')
-      else if(!isProp && isAttr) cm_ut_e.removeAttribute('tabview-initCommentsCsi_')
-    }
-
-
-  },200)
-  */
-
-  /*
-  document.addEventListener('tabview-youtube-comments-not-exist',function(evt){
-
-    
-              //emptyCommentSection();
-              _disableComments();
-              //tabBtn.classList.add("tab-btn-hidden")
-          //  }  
-
-    
-
-
-          //initCommentsCsi_
-
-  })
-  */
-
   document.addEventListener('tabview-fix-autocomplete',function(){
 
       // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
@@ -1338,8 +1278,16 @@ function injection_script_1() {
 
   let resetUpdateStreamingTime = null;
 
+  let _streamTime_cid = 0;
+
+  //let _streamTime_lastDateTextObject = null;
+
+  //let counter_dt = 0;
+
   function updateStreamingTime(){
     //ytd-video-primary-info-renderer
+    // DOM.data is the same
+    // DOM.data.dateText is changing
 
     let pir=null;
     let yfs=null;
@@ -1358,29 +1306,33 @@ function injection_script_1() {
       _streamTime_cache = null;
     };
 
-    setInterval(function(){
+    _streamTime_cid=setInterval(function(){
 
       let currentTime = Date.now()
-      if(skip_until>currentTime){
-        counter=0;
-        return;
-      }
+      if(skip_until>currentTime) return;
 
       if( (++counter) % 14 === 1 ){
         // 6.3s 
-        tf();
-        if(counter > 90000) counter = 1;
+        if(counter < 20) tf(); // no DOM change
+        else if(counter > 9000000) counter = 1000;
       }
 
-      let dom = pir;
-      let fst = yfs;
-      if(!dom || !fst) {
-        _streamTime_cache = null;
-        return;
+      let txt = null;
+
+      //if(counter>20 && (!dom || !fst)) clearInterval(_streamTime_cid)
+      // no update when document is not visible
+
+      //console.log(955, counter,counter_dt)
+
+      let dom = kRef(pir);
+      let fst = kRef(yfs);
+      if(dom && fst) {
+        let dateText = (((dom||0).data||0).dateText||0)
+        if(dateText) {
+          txt = dateText.simpleText
+        }  
       }
-
-      let txt = (((dom||0).data||0).dateText||0).simpleText
-
+      
       if(!txt) {
         _streamTime_cache = null;
         return;
@@ -1390,16 +1342,18 @@ function injection_script_1() {
 
         _streamTime_cache = txt;
 
-        if(counter%14 !== 1) tf(); // ensure dom is correct
+        if(counter%14 === 1 && counter < 20){}else tf(); // ensure dom is correct
           
-        let dom = pir;
-        let fst = yfs;
+        let dom = kRef(pir);
+        let fst = kRef(yfs);
 
         //console.log(txt, fst)
         if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
           setFST(fst, txt);
           skip_until = currentTime+55*1000;  //assume text update per minute (min duration)
+          counter = 40;
         }
+        
         
       }
 
@@ -1425,7 +1379,7 @@ function injection_script_1() {
       if(s.length===1){
         dom = s[0];
         if(dom){
-          fst = querySelectorFromAnchor.call(dom, '#count+#info-strings>span#dot:first-child+yt-formatted-string')
+          fst = querySelectorFromAnchor.call(dom, '#count+#info-strings > span#dot:first-child + yt-formatted-string')
         }
       }
 
@@ -1435,8 +1389,8 @@ function injection_script_1() {
         return;
       }
       
-      pir = dom;
-      yfs = fst;
+      pir = mWeakRef(dom);
+      yfs = mWeakRef(fst);
 
     };
 
@@ -1486,8 +1440,8 @@ function injection_script_1() {
   
 
   let cm_ut_c = -1;
-  let cm_ut_e = null;
-  let cm_flexy = null;
+  let cm_ut_e_ = null;
+  let cm_flexy_ = null;
   let cm_ut_tf = null;
   let cm_ut_cid = 0;
 
@@ -1506,7 +1460,8 @@ function injection_script_1() {
 
     t_v_change = Date.now();
 
-    if(resetUpdateStreamingTime) resetUpdateStreamingTime();
+    if(!_streamTime_cid) updateStreamingTime();
+    else if(resetUpdateStreamingTime) resetUpdateStreamingTime();
 
 
   })
@@ -1517,9 +1472,12 @@ function injection_script_1() {
     cm_ut_c++;
 
     if(cm_ut_c%4===1) {
-      cm_ut_e = document.querySelector('ytd-comments#comments');
-      cm_flexy = document.querySelector('ytd-watch-flexy')
+      cm_ut_e_ = mWeakRef(document.querySelector('ytd-comments#comments'));
+      cm_flexy_ = mWeakRef(document.querySelector('ytd-watch-flexy'));
     }
+
+    let cm_ut_e = kRef(cm_ut_e_)
+    let cm_flexy = kRef(cm_flexy_)
 
     if(cm_ut_e && cm_flexy){
       let isProp = isTabViewCSI(cm_flexy);

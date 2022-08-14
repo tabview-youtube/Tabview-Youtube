@@ -778,7 +778,7 @@
 
     const new_isExpandedChat = !(x & LAYOUT_CHATROOM_COLLASPED) && (x & LAYOUT_CHATROOM)
 
-    if(new_isExpandedChat) return x | LAYOUT_CHATROOM_EXPANDED ; else return x & ~LAYOUT_CHATROOM_EXPANDED;
+    return new_isExpandedChat ? (x | LAYOUT_CHATROOM_EXPANDED) : (x & ~LAYOUT_CHATROOM_EXPANDED);
 
   }
 
