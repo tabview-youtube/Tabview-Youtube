@@ -484,7 +484,7 @@ function injection_script_1() {
       }
 
 
-      console.log(7559, fRes)
+      //console.log(7559, fRes)
 
       return fRes;
 
@@ -1289,6 +1289,11 @@ function injection_script_1() {
     // DOM.data is the same
     // DOM.data.dateText is changing
 
+
+    // refer to handleUpdateDateTextAction
+    // f.fetchUpdatedMetadata => onYtAction_ => handleAction => f.handleUpdateDateTextAction => set => _setPendingPropertyOrPath => set
+
+
     let pir=null;
     let yfs=null;
 
@@ -1493,6 +1498,23 @@ function injection_script_1() {
       cm_ut_c=-1;
 
     }
+
+
+    if(cm_flexy && cm_ut_c < 16){
+
+      let liveChatMsg = document.querySelector('ytd-live-chat-frame#chat > ytd-message-renderer.ytd-live-chat-frame:not([style*="display: none"]) #message.ytd-message-renderer:not(:empty)');
+
+      let isLiveChatMsgAttred = cm_flexy.hasAttribute('tabview-livechat-msg')
+  
+      if(liveChatMsg && !isLiveChatMsgAttred){
+        cm_flexy.setAttribute('tabview-livechat-msg','')
+      }else if(!liveChatMsg && isLiveChatMsgAttred){
+        cm_flexy.removeAttribute('tabview-livechat-msg')
+      } 
+
+
+    }
+
 
 
 

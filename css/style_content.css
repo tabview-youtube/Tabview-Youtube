@@ -2516,3 +2516,16 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         margin-top: 0 !important;
         background-color: transparent !important;
      }
+
+
+     /* 2022.08.18 livechat reply disable */
+
+     /*
+     ytd-watch-flexy[tabview-livechat-msg]{
+         --tabview-livechat-show-hide-button-display: none;
+     }
+     */
+
+     ytd-watch-flexy[tabview-livechat-msg] ytd-live-chat-frame#chat > #show-hide-button{
+         display: none;
+     }
