@@ -2529,3 +2529,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      ytd-watch-flexy[tabview-livechat-msg] ytd-live-chat-frame#chat > #show-hide-button{
          display: none;
      }
+     
+     /*  2022/10/27 ; ytd-channel-name z-index:0 for scrolling not to overlay video */
+     #player ~ #below ytd-watch-metadata #upload-info.ytd-video-owner-renderer > ytd-channel-name.ytd-video-owner-renderer{
+         z-index: 0;
+     }
