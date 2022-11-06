@@ -320,7 +320,9 @@ html:not(.style-scope) {
     
     
     
-    
+    /* removed the old info styling since 2022/11/06 */
+
+    /*
     
     ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
         margin-left: calc(5% + var(--userscript-meta-default-outline-thickness));
@@ -354,15 +356,11 @@ html:not(.style-scope) {
         left: -18px;
         right: -18px;
         top: -12px;
-        /*bottom: -12px;*/
         bottom: 0px;
         background-color: inherit;
         border-radius: inherit;
         opacity: 0;
         z-index: -1;
-    }
-    ytd-watch-flexy[flexy] #primary #info > #info-contents > ytd-video-primary-info-renderer {
-       border-bottom-color: transparent;
     }
     ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
         border-radius: var(--border-radius-2t) var(--border-radius-2b);
@@ -375,18 +373,10 @@ html:not(.style-scope) {
         overflow: hidden;
     }
     
-    ytd-watch-flexy[flexy] #primary #info ~ #meta{
-        position: relative;
-        height: calc(var(--meta-contents-default-height-outer)); 
-        min-height: calc(var(--meta-contents-default-height-outer));  /* under flex */
-    }
     
     
-    /* ytd-watch-flexy #primary #info ~ #meta */
+    // ytd-watch-flexy #primary #info ~ #meta 
     
-    ytd-watch-flexy #primary #info ~ #meta ytd-expander{
-        display: none;
-    }
     
     ytd-watch-flexy #primary #info ~ #meta #meta-contents{
         position: absolute;
@@ -423,7 +413,7 @@ html:not(.style-scope) {
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row{
         padding: var(--meta-contents-padding-vertical);  
         
-        /* just ensure nowrap for (non-hover meta-content)'s flex layout */
+        // just ensure nowrap for (non-hover meta-content)'s flex layout 
         flex-wrap: nowrap;
         zoom: 0.95;
     }
@@ -461,21 +451,39 @@ html:not(.style-scope) {
         display: none;
     }
     
-    /* show button with smaller size (non-hover meta-content) -> (badge icon) */
+    // show button with smaller size (non-hover meta-content) -> (badge icon) 
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button{
         height: calc( var(--meta-contents-default-height-inner) );
         margin: 0px var(--ytd-margin-2x);
         padding: 10px 0;
         zoom: 0.9;
     }
-    /* margin for (non-hover meta-content) -> (badge icon) */
+    // margin for (non-hover meta-content) -> (badge icon)
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) ytd-badge-supported-renderer{
         margin: 0px var(--ytd-margin-2x);
     }
-    /* vertical center for (non-hover meta-content)'s (button text) */
+    // vertical center for (non-hover meta-content)'s (button text) 
     ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
         line-height: 100%;
     }
+
+    
+    ytd-watch-flexy[flexy] #primary #info > #info-contents > ytd-video-primary-info-renderer {
+       border-bottom-color: transparent;
+    }
+    
+    ytd-watch-flexy[flexy] #primary #info ~ #meta{
+        position: relative;
+        height: calc(var(--meta-contents-default-height-outer)); 
+        min-height: calc(var(--meta-contents-default-height-outer));  // under flex 
+    }
+    
+    ytd-watch-flexy #primary #info ~ #meta ytd-expander{
+        display: none;
+    }
+
+
+    */
     
     ytd-watch-flexy[is-two-columns_] #chat.ytd-watch-flexy,
     ytd-watch-flexy:not([is-two-columns_]) #chat.ytd-watch-flexy{
@@ -1939,14 +1947,6 @@ html:not(.style-scope) {
 
 
     /* contain 361 */
-
-
-    yt-icon-button, .ytp-button{
-        contain: layout paint;
-    }
-    yt-img-shadow{
-        contain: layout paint;
-    }
 
     yt-img-shadow[height][width]{
         contain: layout paint style; /* experimental */
