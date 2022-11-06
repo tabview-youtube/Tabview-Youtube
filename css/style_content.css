@@ -359,7 +359,7 @@ html:not(.style-scope) {
         background-color: inherit;
         border-radius: inherit;
         opacity: 0;
-        z-order: -1;
+        z-index: -1;
     }
     ytd-watch-flexy[flexy] #primary #info > #info-contents > ytd-video-primary-info-renderer {
        border-bottom-color: transparent;
@@ -1863,9 +1863,12 @@ html:not(.style-scope) {
         height: calc(100vh - var(--YouTubeLiveFilledUpView-header-height)) !important;
     } 
     
-    
-    /* rendering acceleration - `contain` */
 
+
+
+    
+    
+    /* contain 321 */
 
     #tab-comments ytd-comments, #tab-comments ytd-item-section-renderer, #tab-comments #contents,
     ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos], 
@@ -1885,12 +1888,16 @@ html:not(.style-scope) {
         contain: size layout paint style; /* experimental */
     }
 
-    ytd-comment-thread-renderer:not([can-reorder]):not([touch-persistent-drag-handle]), 
-    ytd-comment-renderer:not([can-reorder]):not([touch-persistent-drag-handle]), 
-    ytd-comment-replies-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
-    ytd-compact-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle]){
-        contain: layout paint;
-    }
+
+    /* contain 322 */
+
+
+
+
+
+
+    /* contain 341 */
+
 
     iframe[src][id]{ 
         contain: size layout paint style; /* experimental */
@@ -1903,16 +1910,14 @@ html:not(.style-scope) {
     #masthead-container, ytd-masthead#masthead{
         contain: layout style; /* experimental */
     }
-    
+
     ytd-masthead > #container{
         contain: size layout style; /* experimental */
     }
 
     ytd-masthead > #container .style-scope.ytd-masthead{
-       contain: layout style; /* experimental */
+        contain: layout style; /* experimental */
     }
- 
-    
 
     ytd-watch-flexy #player, ytd-player#ytd-player{
         contain: layout paint style;
@@ -1921,6 +1926,20 @@ html:not(.style-scope) {
         contain: layout paint;
     }
 
+    ytd-watch-flexy #right-tabs{
+        contain: none;
+    }
+    ytd-watch-flexy[is-two-columns_] #right-tabs{
+        contain: layout;
+    }
+
+    
+    /* contain 342 */
+
+
+
+    /* contain 361 */
+
 
     yt-icon-button, .ytp-button{
         contain: layout paint;
@@ -1928,7 +1947,7 @@ html:not(.style-scope) {
     yt-img-shadow{
         contain: layout paint;
     }
-    
+
     yt-img-shadow[height][width]{
         contain: layout paint style; /* experimental */
         content-visibility: auto;
@@ -1938,103 +1957,93 @@ html:not(.style-scope) {
         content-visibility: auto;
     }
 
+    /* contain 362 */
+
+
+
+
+
+
+
+
+
+
+
+    /* contain 851 */
+
+.tab-content-cld svg,
+.tab-content-cld yt-icon-button,
+.tab-content-cld button,
+.tab-content-cld yt-icon
+{
+    contain: size layout paint; /* removed in 2022/11/06 */
+    contain: layout; /* added in 2022/11/06 */
+}
+
+
+    /* contain 852 */
+
+
+
+
+    /* contain 871 */
+
+.tab-content-cld ytd-thumbnail-overlay-resume-playback-renderer,
+.tab-content-cld ytd-thumbnail-overlay-now-playing-renderer{
+    contain: strict; 
+    content-visibility: auto;
+}
+.tab-content-cld ytd-thumbnail-overlay-time-status-renderer{
+    contain: paint;
+    content-visibility: auto;        
+}
+
+.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
+    contain: size;
+}
+
+.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay:not([can-reorder]):not([touch-persistent-drag-handle]){
+    contain: size;
+}
+.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
+    contain: size;
+}
+
+    /* contain 872 */
     
-    ytd-watch-flexy #right-tabs{
-        contain: none;
-    }
-    ytd-watch-flexy[is-two-columns_] #right-tabs{
-        contain: layout;
-    }
-
-    .tab-content-cld ytd-button-renderer,
-    .tab-content-cld ytd-toggle-button-renderer,
-    .tab-content-cld yt-interaction,
-    .tab-content-cld tp-yt-paper-button,
-    .tab-content-cld ytd-comment-action-buttons-renderer,
-     .tab-content-cld tp-yt-paper-tooltip
-     
-     {
-        contain: layout paint;
-    }
-
-    .tab-content-cld ytd-toggle-button-renderer.ytd-menu-renderer,
-    .tab-content-cld ytd-button-renderer.ytd-playlist-loop-button-renderer
-    {
-        contain: layout;
-    }
 
 
+        /* contain 521 */
 
-     .tab-content-cld ytd-comment-action-buttons-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
-     .tab-content-cld ytd-compact-radio-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
-     .tab-content-cld ytd-compact-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle]),
-     .tab-content-cld ytd-playlist-panel-video-renderer:not([can-reorder]):not([touch-persistent-drag-handle])
-     
-     {
-        contain: layout style; /* experimental */
-    }
+ytd-watch-flexy .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
+    contain: layout paint;
+}
 
 
-    .tab-content-cld svg,
-    .tab-content-cld yt-icon-button,
-    .tab-content-cld button,
-    .tab-content-cld yt-icon
-    {
-       contain: size layout paint;
-   }
+ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
+    contain: layout paint style;
+}
 
 
+ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents,
+ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
+    content-visibility: auto;
+}
     
-    .tab-content-cld ytd-thumbnail-overlay-resume-playback-renderer,
-    .tab-content-cld ytd-thumbnail-overlay-now-playing-renderer{
-        contain: strict; 
-        content-visibility: auto;
-    }
-    .tab-content-cld ytd-thumbnail-overlay-time-status-renderer{
-        contain: paint;
-        content-visibility: auto;        
-    }
-
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
-        contain: size;
-    }
-
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay:not([can-reorder]):not([touch-persistent-drag-handle]){
-        contain: size;
-    }
-    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
-        contain: size;
-    }
-
-  
-    ytd-watch-flexy .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
-        contain: layout paint;
-    }
-
     
-    ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
-        contain: layout paint style;
-    }
-  
-    
-    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents,
-    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
-        content-visibility: auto;
-    }
+ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments, 
+ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related, 
+ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
+    visibility: collapse;
+}
+
+
+        /* contain 522 */
+
+
+        /* contain 631 */
+
         
-        
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments, 
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related, 
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
-        visibility: collapse;
-    }
-        
-        /*
-
-    
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #header ~ #contents > .ytd-item-section-renderer {
-        content-visibility: auto; /* experimental /
-    }*/
     
     
     /* experimental for drag & drop re-order */
@@ -2095,6 +2104,20 @@ html:not(.style-scope) {
     html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns #primary ytd-player#ytd-player {
         contain: initial !important;
     }
+
+
+
+        /* contain 632 */
+
+
+
+
+
+
+
+
+
+
     
     
     /* -webkit-box | -webkit-line-clamp | comment fix line clamp */
@@ -2296,6 +2319,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
+
     body > #lyricscontainer > #lyricsiframe {
         
         opacity: 0 !important;
@@ -2303,13 +2327,23 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 
+    
+    /* 9341 */
+
+
+    
     /*  contain-intrinsic-size - guess the size = 1.2 x SizeMax */
         
-    @supports (contain-intrinsic-size: 1px 1px){
+    @supports (contain-intrinsic-size: 1px 1px) and selector(:has(:hover)){
 
         ytd-comment-thread-renderer[style*="--tabview-cmt-height"]{
             content-visibility: auto;
             contain-intrinsic-size: 1px var(--tabview-cmt-height, 234px); /* 1.2 x SizeMax */
+        }
+        
+        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]:has(:hover){
+            content-visibility: visible;
+            contain-intrinsic-size: initial;
         }
 
     }
@@ -2390,6 +2424,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #player-theater-container{
         z-index:1; /* fix meta bar overlap */
     }
+
+
+    /* 9342 */
+
+    /*9361*/
 
     ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]){
         max-width: none; /* fix game content box width */
@@ -2486,6 +2525,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         z-index: 0;
     }
 
+    /* 9362*/
+
+    /* 9381 */
+
     body #subscribe-button.ytd-video-secondary-info-renderer{
         flex-direction: row;
         align-items: center;
@@ -2534,3 +2577,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      #player ~ #below ytd-watch-metadata #upload-info.ytd-video-owner-renderer > ytd-channel-name.ytd-video-owner-renderer{
          z-index: 0;
      }
+
+
+     /* 2022/11/06 */
+
+     ytd-comment-action-buttons-renderer  #toolbar #tooltip.style-scope.tp-yt-paper-tooltip,
+     [action-buttons-style="desktop-toolbar"] #toolbar #tooltip.style-scope.tp-yt-paper-tooltip
+     {
+        word-wrap: none;
+        white-space: nowrap;
+        word-break: keep-all;
+     }
+
+
+    /* 9382 */
