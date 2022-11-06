@@ -3012,13 +3012,24 @@
   function getLang(){
 
     let lang = 'en';
-
-    for(let k in langWords){
-      let m = langWords[k]['share'];
-      let elm = document.querySelector(`body button[title="${m}"]`);
-      if(elm) {
-        lang = k;
-        break;
+    let btn = document.querySelector('body button.ytp-share-button[title]');
+    if(btn){
+      let w = btn.getAttribute('title');
+      for(let k in langWords){
+        let m = langWords[k]['share'];
+        if(m === w) {
+          lang = k;
+          break;
+        }
+      }
+    }else{
+      for(let k in langWords){
+        let m = langWords[k]['share'];
+        let elm = document.querySelector(`body button[title="${m}"]`);
+        if(elm) {
+          lang = k;
+          break;
+        }
       }
     }
 
