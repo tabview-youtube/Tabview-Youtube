@@ -2907,11 +2907,57 @@
 
 
 
+
+  let pageLang = 'en';
+  const langWords ={
+    'en':{
+      'share':'Share',
+      'info':'Info',
+      'videos':'Videos',
+      'playlist':'Playlist'
+    },
+    'jp':{
+      'share':'共有',
+      'info':'情報',
+      'videos':'動画',
+      'playlist':'再生リスト'
+    },
+    'tw':{
+      'share':'分享',
+      'info':'資訊',
+      'videos':'影片',
+      'playlist':'播放清單'
+    },
+    'du':{
+      'share':'Teilen',
+      'info':'Info',
+      'videos':'Videos',
+      'playlist':'Playlist'
+    },
+    'fr':{
+      'share':'Partager',
+      'info':'Info',
+      'videos':'Vidéos',
+      'playlist':'Playlist'
+    },
+    'kr':{
+      'share':'공유',
+      'info':'정보',
+      'videos':'동영상',
+      'playlist':'재생목록'
+    }
+  };
+
+  function getWord(tag){
+    return langWords[pageLang][tag]||langWords['en'][tag]||'';
+  }
+
+
   function getTabsHTML() {
 
-    const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>Videos</span>`
-    const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>Info</span>`
-    const sTabBtnPlayList = `${svgElm(16,16,426.667,426.667,svgPlayList)}<span>Playlist</span>`
+    const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>${getWord('videos')}</span>`;
+    const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>${getWord('info')}</span>`;
+    const sTabBtnPlayList = `${svgElm(16,16,426.667,426.667,svgPlayList)}<span>${getWord('playlist')}</span>`;
 
     let str1 = `
         <paper-ripple class="style-scope yt-icon-button">
@@ -2934,14 +2980,14 @@
     </svg>
     </div>
     </div>
-    `.replace(/[\r\n]+/g,'')
+    `.replace(/[\r\n]+/g,'');
 
     const str_tabs = [
             `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
             `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}${str_fbtns}</a>`,
             `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
             `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
-        ].join('')
+        ].join('');
 
     let addHTML = `
         <div id="right-tabs">
@@ -2959,7 +3005,24 @@
         </div>
         `;
 
-    return addHTML
+    return addHTML;
+
+  }
+
+  function getLang(){
+
+    let lang = 'en';
+
+    for(let k in langWords){
+      let m = langWords[k]['share'];
+      let elm = document.querySelector(`body button[title="${m}"]`);
+      if(elm) {
+        lang = k;
+        break;
+      }
+    }
+
+    pageLang = lang;
 
   }
 
@@ -3071,6 +3134,7 @@
           let promise = Promise.resolve();
           if (!document.querySelector("#right-tabs")) {
             promise = promise.then(() => {
+              getLang();
               $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
             })
           }
