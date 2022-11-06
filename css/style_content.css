@@ -2589,5 +2589,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         word-break: keep-all;
      }
 
+     /* 2022/11/06 - margin bug for new layout */
+
+     ytd-watch-flexy[is-two-columns_][theater] > #columns.ytd-watch-flexy {
+        margin: 0;
+     }
 
     /* 9382 */
