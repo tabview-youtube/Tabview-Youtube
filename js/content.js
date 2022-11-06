@@ -376,7 +376,7 @@
 
 
   const stopIframePropagation = function(/** @type {Event} */ evt){
-    if(scriptEnable && evt && evt.target && evt.target.nodeName=='IFRAME'){
+    if(scriptEnable && ((evt||0).target||0).nodeName === 'IFRAME'){
       evt.stopImmediatePropagation();
       evt.stopPropagation();
     }
@@ -3049,6 +3049,10 @@
 
   }
 
+  function checkEvtTarget(evt, nodeNames){
+    return nodeNames.includes((((evt||0).target||0).nodeName||0));
+  }
+
 
   function onVideoChange() {
     // for popstate & next video
@@ -3118,10 +3122,28 @@
     if (mRet === 1) {
 
       document.addEventListener('loadedmetadata', function(evt) {
-        if (evt.target.matches('video[tabview-mainvideo]')) {
+        if ( checkEvtTarget(evt, ['VIDEO']) && evt.target.matches('video[tabview-mainvideo]') ) {
           setTimeout(onVideoChange, 30)
         }
       }, true)
+
+      document.addEventListener('load',function(evt){
+
+        if( checkEvtTarget(evt, ['IFRAME']) && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')){
+
+          setTimeout(()=>{
+
+            let cDoc = ((chatFrameElement('yt-live-chat-app')||0).ownerDocument||0)
+            
+            if(!cDoc) return;
+  
+            initChatIframeDoc(cDoc); 
+      
+          }, 30)
+
+        }
+      }, true)
+ 
 
       pluginUnhook(); // in case not triggered by popstate - say mini playing
 
@@ -3668,45 +3690,59 @@
   let _last_iframe = null;
 
   function callFind(cDoc){
-    
 
     _last_iframe = cDoc;
     if(!cDoc)return;
 
     if(addIframeStyle(cDoc)===false)return;
 
-      let frc= 0;
-      let fullReady = ()=>{
+    let frc= 0;
+    let fullReady = ()=>{
+      
+      if(!cDoc.documentElement.hasAttribute('style') && ++frc<900) return timeline.setTimeout(fullReady,10);
+      
+      if (!scriptEnable || !isChatExpand()) return;
 
-
-        if(!cDoc.documentElement.hasAttribute('style') && ++frc<900) return timeline.setTimeout(fullReady,10);
-        
-
-        if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
-          timeline.setTimeout(() => mtf_ChatExist(), 40);
-          $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded', '')
-        }
-
-        
-    //console.log(7991)
-
-
-        forceDisplayChatReplay();
-        
-
-        let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
-
-
-        iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
-
-
-
+      if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
+        timeline.setTimeout(() => mtf_ChatExist(), 40);
+        $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded', '')
       }
-      fullReady();
+
+      forceDisplayChatReplay();
+      let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
+      iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
+
+    }
+    fullReady();
 
 
 
     
+  }
+
+  function initChatIframeDoc(cDoc){
+
+    let ftDoc = cDoc; 
+
+    if(_last_iframe !== ftDoc){
+
+      callFind(ftDoc)
+
+      let zi=0;
+      let zid=setInterval(()=>{
+
+        if( _last_iframe !== ftDoc || zi++ > 470 ) return clearInterval(zid);
+
+        let tmp = ((chatFrameElement('yt-live-chat-app')||0).ownerDocument||0)
+        if(ftDoc!==tmp) {
+          callFind(tmp);
+          return clearInterval(zid);
+        }
+
+      },17)
+
+    }
+
   }
 
   function runAfterExpandChat() {
@@ -3759,32 +3795,9 @@
 
     })).then(app => {
 
-      if (!scriptEnable || !isChatExpand()) return;
-
-
       let cDoc = app.ownerDocument;
 
-      let ftDoc = cDoc; 
-
-      if(_last_iframe !== ftDoc){
-
-        callFind(ftDoc)
-  
-        let zi=0;
-        let zid=setInterval(()=>{
-
-          if( _last_iframe !== ftDoc || zi++ > 470 ) return clearInterval(zid);
- 
-          let tmp = ((chatFrameElement('yt-live-chat-app')||0).ownerDocument||0)
-          if(ftDoc!==tmp) {
-            callFind(tmp);
-            return clearInterval(zid);
-          }
-
-        },17)
-
-      }
-
+      initChatIframeDoc(cDoc)
 
     })
 
@@ -4470,7 +4483,7 @@
 
 
   document.addEventListener("loadstart", (evt) => {
-    if (!evt || !evt.target || evt.target.nodeName !== "VIDEO") return;
+    if (((evt||0).target||0).nodeName !== "VIDEO") return;
     let elm = evt.target;
     if (!elm.matches('#player video, #movie_player video, video[tabview-mainvideo]')) return;
 
