@@ -817,6 +817,9 @@ html:not(.style-scope) {
     body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
         --userscript-chat-max-height: calc(100vh - 40px - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x));
     }
+    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
+        --userscript-chat-max-height: calc( 100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x) );
+    }
     
     
     
@@ -826,6 +829,11 @@ html:not(.style-scope) {
     
     ytd-watch-flexy[is-two-columns_]{
         --userscript-tab-content-height: calc(var(--userscript-base-height) - var(--userscript-tab-content-vertical-offset, 0px));
+    }
+
+    /* 2022/11/07 */
+    ytd-watch-flexy[is-two-columns_][fullscreen]{
+        --userscript-tab-content-height: calc(var(--userscript-base-height) - var(--userscript-tab-content-vertical-offset, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x));
     }
     
     ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]){
@@ -2716,4 +2724,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     body ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
         min-width: calc(40% - 6px);
+    }
+
+    /* 2022/11/07 - playlist no round radius */
+    body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer{
+        border-radius: 0;
     }
