@@ -3679,6 +3679,9 @@
     }
  
  
+    #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button{
+      margin-right: var(--ytd-margin-12x);
+    }
  
      
              `, cDoc.documentElement).id='userscript-tabview-chatroom-css'

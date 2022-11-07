@@ -503,7 +503,8 @@ html:not(.style-scope) {
         position: relative;
         display: flex;
         padding: 0; 
-        outline: 1px solid var(--userscript-border-color);
+        /*outline: 1px solid var(--userscript-border-color);*/
+        outline: 1px solid var(--ytd-searchbox-legacy-border-color);
     }
 /*
     ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] #material-tabs{
@@ -515,7 +516,7 @@ html:not(.style-scope) {
     }   
 
     #right-tabs{
-        --userscript-border-color: var(--yt-spec-10-percent-layer);
+        /*--userscript-border-color: var(--yt-spec-10-percent-layer);*/
     }
      
     
@@ -535,7 +536,7 @@ html:not(.style-scope) {
         text-align: center;
         padding: 14px 2px 10px 2px;
         border: 0;
-        border-bottom: 4px transparent solid;
+        border-bottom: 4px solid transparent;
         font-weight: 500;
         font-size: 12px;
         line-height: 18px;
@@ -640,7 +641,8 @@ html:not(.style-scope) {
         box-sizing: border-box;
         display: block;
         --yt-spec-brand-background-primary:var(--yt-spec-general-background-a);
-        outline: 1px solid var(--userscript-border-color);
+        /*outline: 1px solid var(--userscript-border-color);*/
+        outline: 1px solid var(--ytd-searchbox-legacy-border-color);
         position: relative;
         top: 0;
         display: flex;
@@ -1695,7 +1697,8 @@ html:not(.style-scope) {
     
      ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary #right-tabs #material-tabs{
         outline: 0;
-        border: 1px solid var(--userscript-border-color);
+        border: 1px solid var(--ytd-searchbox-legacy-border-color);
+        /*border: 1px solid var(--userscript-border-color);*/
         /* use border instead due to overflow:hidden */
     }
     
@@ -2836,3 +2839,20 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     html:has(style#ytlctn-style-for-native-control) #columns #below{
         transform: initial;
     }
+
+    /* 2022/11/07 - fix comment emoji box size */
+
+    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs #emojis.ytd-commentbox {
+        max-width: calc(var(--ytd-watch-flexy-sidebar-width) - var(--ytd-margin-8x) * 5);
+    }
+
+    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs #emojis.ytd-commentbox yt-emoji-picker-renderer.style-scope.ytd-commentbox#emoji{
+        min-height: calc(60vh - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) * 2 - var(--userscript-top-bar-height));
+    }
+
+    
+    /* 2022/11/07 - integrate with cinematics background */
+    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs > header {
+        background:transparent;
+    }
+    
