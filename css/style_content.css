@@ -1412,52 +1412,56 @@ html:not(.style-scope) {
     
     
     /* <<< sticky right-tabs header --- */
-    
-        /* keep the single column view css as simple as possible */
-        /* use js coding to make it like sticky */
-        /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
-        #right-tabs > header{
-            position: relative;
-            box-sizing:border-box;
-        }
-        ytd-watch-flexy[flexy] #right-tabs > header{
-            background-color: var(--yt-spec-general-background-a);
-        }
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] > header{
-            z-index: 2;
-            position: fixed;
-            top: var(--ytd-watch-flexy-masthead-height);
-            width: var(--userscript-sticky-width, 100%);
-        }
-    
-        @supports (top: var(--ytd-watch-flexy-masthead-height-xs-x)){
-            
-        }
-    
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
-            padding-top: var(--userscript-sticky);
-        }
-    
-    
+
+    /* keep the single column view css as simple as possible */
+    /* use js coding to make it like sticky */
+    /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
+    #right-tabs > header{
+        position: relative;
+        box-sizing:border-box;
+    }
+    ytd-watch-flexy[flexy] #right-tabs > header{
+        background-color: var(--yt-spec-general-background-a);
+    }
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] > header{
+        z-index: 2;
+        position: fixed;
+        top: var(--ytd-watch-flexy-masthead-height);
+        width: var(--userscript-sticky-width, 100%);
+    }
+
+    @supports (top: var(--ytd-watch-flexy-masthead-height-xs-x)){
         
+    }
+
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+        padding-top: var(--userscript-sticky);
+    }
+    
     
     /* --- sticky right-tabs header >>> */
     
+
+
+    /* k002 */
+        
+    
+
     /* << whole page scroll bar (original-type) */
     
-        /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
-        /* siginificant empty at the right side (vertical bar) in the dark mode */
-        html.tabview-mini-player body {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        /*
-        html.tabview-normal-player body::-webkit-scrollbar {
-            display: none; /.* Blink and Webkit *./
-        }*/
-        html.tabview-normal-player body {
-            overflow-y: auto; /* override body { overflow-y: scroll } */
-        }
+    /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
+    /* siginificant empty at the right side (vertical bar) in the dark mode */
+    html.tabview-mini-player body {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    /*
+    html.tabview-normal-player body::-webkit-scrollbar {
+        display: none; /.* Blink and Webkit *./
+    }*/
+    html.tabview-normal-player body {
+        overflow-y: auto; /* override body { overflow-y: scroll } */
+    }
     
     /* whole page scroll bar (original-type) >> */
     
@@ -1468,35 +1472,61 @@ html:not(.style-scope) {
     
     
     /* <<< page height setting - two-column-normal ---  */
+
+
+
+
+
+
+
+    /* k005 */
+
+
     
-        /* two column height = 100vh */
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #columns.ytd-watch-flexy {
-            margin-bottom: 0;
-            /* max-height: none; */
-            height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
-            padding-bottom: 0;
-            overflow: auto;
-        }
+    /* two column height = 100vh */
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #columns.ytd-watch-flexy {
+        margin-bottom: 0;
+        /* max-height: none; */
+        height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
+        padding-bottom: 0;
+    }
+
+    /* it is possible that #info is too height, make it overflow: auto with no scroll-bar */
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
+        max-height: 100%;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner::-webkit-scrollbar {
+        display: none; /* Blink and Webkit */
+    }
+
+
+    /* video player sticky at the top */
+
+    /* 2022/11/07 - conflict with modern layout cinema */
+
+    /*
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
+        top: 0;
+        position: sticky; // as the parent is scrollable, the player can be sticky to the top //
+        z-index: 1;
+    }
+    */
+
+    /*
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
+        top: 0;
+        position: sticky; 
+        z-index: 0;
+    }
     
-        /* it is possible that #info is too height, make it overflow: auto with no scroll-bar */
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
-            overflow: auto;
-            max-height: 100%;
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner::-webkit-scrollbar {
-            display: none; /* Blink and Webkit */
-        }
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child #player-container-outer {
+        z-index: 1;
+    }
+    */
     
-        /* video player sticky at the top */
-    
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
-            top: 0;
-            position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
-            z-index: 1;
-        }
-    
+
     
     /* --- page height setting - two-column-normal >>>  */
     
@@ -1504,29 +1534,29 @@ html:not(.style-scope) {
     
     /* <<< page height setting - two-column-theater ---  */
     
-    
-        /* theater mode: the player is extracted from two column view */
-        /* only set padding & margin */
-        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
-            margin-bottom: 0;
-            padding-bottom: 0; 
-        }
-    
-        /* theater mode same mechanism */
-        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]){
-            height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
-            overflow: auto;
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])::-webkit-scrollbar {
-            display: none;
-        }
-        /* video player sticky at the top */
-        ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) > #player-theater-container {
-            top: 0;
-            position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
-        }
+
+    /* theater mode: the player is extracted from two column view */
+    /* only set padding & margin */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
+        margin-bottom: 0;
+        padding-bottom: 0; 
+    }
+
+    /* theater mode same mechanism */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]){
+        height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
+        overflow: auto;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])::-webkit-scrollbar {
+        display: none;
+    }
+    /* video player sticky at the top */
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) > #player-theater-container {
+        top: 0;
+        position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
+    }
     
     
     /* --- page height setting - two-column-theater >>>  */
@@ -1537,6 +1567,10 @@ html:not(.style-scope) {
         padding-bottom: 0; 
     }
     
+
+
+
+    /* k006 */
     
     
     
@@ -1620,7 +1654,7 @@ html:not(.style-scope) {
     
     
     
-    
+    /* k003 */
     
     
     
@@ -1945,12 +1979,10 @@ html:not(.style-scope) {
         contain: layout style; /* experimental */
     }
 
-    ytd-watch-flexy #player, ytd-player#ytd-player{
-        contain: layout paint style;
-    }
-    .ytp-caption-window-container .caption-window, .ytp-caption-window-container .captions-text, .ytp-caption-window-container .caption-visual-line, .ytp-caption-window-container .ytp-caption-segment{
-        contain: layout paint;
-    }
+    
+    /* contain 342 */
+
+    /* contain 351 */
 
     ytd-watch-flexy #right-tabs{
         contain: none;
@@ -1959,8 +1991,22 @@ html:not(.style-scope) {
         contain: layout;
     }
 
-    
-    /* contain 342 */
+
+    /* contain 352 */
+
+    /* contain 791 - be careful */
+
+
+    ytd-watch-flexy #player, ytd-player#ytd-player{
+        /*contain: layout paint style;*/ /* removed in 2022/11/07 - conflict with YouTubeLiveClock and modern layout #cinematics */
+        contain: layout style; /* added in 2022/11/07 */
+    }
+    .ytp-caption-window-container .caption-window, .ytp-caption-window-container .captions-text, 
+    .ytp-caption-window-container .caption-visual-line, .ytp-caption-window-container .ytp-caption-segment{
+        contain: layout paint;
+    }
+
+    /* contain 792 */
 
 
 
@@ -2353,6 +2399,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     /*  contain-intrinsic-size - guess the size = 1.2 x SizeMax */
         
     @supports (contain-intrinsic-size: 1px 1px) and selector(:has(:hover)){
+        /* layout.css.has-selector.enabled = true OR chrome only */
 
         ytd-comment-thread-renderer[style*="--tabview-cmt-height"]{
             content-visibility: auto;
@@ -2662,6 +2709,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      
     @supports (content-visibility: hidden) and selector(#tag.cls:has(>#id:only-child)){
         
+        /* Firefox: layout.css.has-selector.enabled = true */
+
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy:has(#description-inner:only-child){
             margin-top:3px;
         }
@@ -2713,10 +2762,29 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         display: none;
     }
 
-     /* 2022/11/06 - adjust spacing */
+     /* 2022/11/07 - adjust spacing */
+     /*
      #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
         margin-top:8px;        
+    }*/
+    
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
+        margin-top:0px;        
     }
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
+        margin-top:2px;        
+    }
+
+    #primary-inner #player~#below.style-scope.ytd-watch-flexy{
+        overflow-y: auto;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        margin-top: 6px;
+    }
+    #primary-inner #player~#below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
+        display: none;
+    }
+
      
     /* 2022/11/06 - adjust width for new layout (modern-metapanel) */
     body ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
@@ -2729,4 +2797,25 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     /* 2022/11/07 - playlist no round radius */
     body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer{
         border-radius: 0;
+    }
+
+    /* 2022/11/07 - specific fix for YouTubeLiveClock - chrome only */
+    html:has(style#ytlctn-style-for-native-control) #columns #player::after{
+        content: "";
+        background-color: transparent;
+        border-color: transparent;
+        color:transparent;
+        box-sizing: border-box;
+        border-style: dotted;
+        display: flex;
+        height:0px;
+        margin:0;
+        border:0;
+        margin-top:51px;
+        width: calc( 100% - 4px );
+        position: relative;
+        pointer-events: none;
+    }
+    html:has(style#ytlctn-style-for-native-control) #columns #below{
+        transform: initial;
     }
