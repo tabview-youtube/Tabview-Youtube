@@ -2476,9 +2476,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         max-width: none;
     }
 
+    /*
+    
+    // obsoleted code since 2022.11.07
     ytd-watch-flexy #columns #primary #player{
-        background-color: var(--yt-spec-general-background-a); /* prevent transparent */
+        background-color: var(--yt-spec-general-background-a); // prevent transparent //
     }
+    */
 
     @supports not (zoom: 0.5) {
         #right-tabs .font-size-btn {
@@ -2486,9 +2490,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
     }
 
+    /*
+    // obsoleted code since 2022.11.07
     #player-theater-container{
-        z-index:1; /* fix meta bar overlap */
+        z-index:1; // fix meta bar overlap //
     }
+    */
 
 
     /* 9342 */
@@ -2688,9 +2695,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      {
         border:0;
         border-radius: 0;
-        border: 2px solid var(--yt-spec-base-background);
-        border-left: 0;
-        border-right: 0;
      }
      
 
@@ -2699,7 +2703,20 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      /* 2022/11/06 - show hide button background fix */
 
      ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame{
-        background-color: var(--yt-spec-black-2);
+        /*background-color: var(--yt-spec-black-2);*/
+        background-color: var(--ytd-searchbox-legacy-button-color);
+        color: var(--yt-spec-text-secondary);
+     }
+
+     ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame yt-button-shape{
+        outline: 1px solid var(--yt-spec-10-percent-layer);
+     }
+
+     /* 2022/11/07 - chat room border 1px */
+
+
+     body ytd-live-chat-frame#chat[class]{
+        outline:1px solid var(--yt-spec-10-percent-layer);
      }
 
 
