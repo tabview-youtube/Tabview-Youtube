@@ -2968,7 +2968,7 @@
       'share':'分享',
       'info':'资讯',
       'videos':'视频',
-      'playlist':'播放清单'
+      'playlist':'播放列表'
     },
     'du':{
       'share':'Teilen',

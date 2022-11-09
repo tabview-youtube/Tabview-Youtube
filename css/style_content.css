@@ -2435,6 +2435,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             contain-intrinsic-size: initial;
         }
 
+        /* 2022/11/09 fix chrome layout sizing bug for content-visibility: auto (colored comment) */
+        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]:has(#comment[style*="--ytd-comment-paid-background-color"]){
+            content-visibility: visible;
+        }
+        
+
     }
 
 
@@ -2917,8 +2923,32 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
     
-    yt-chip-cloud-renderer.yt-related-chip-cloud-renderer #container.style-scope.yt-chip-cloud-renderer #left-arrow,
-        yt-chip-cloud-renderer.yt-related-chip-cloud-renderer #container.style-scope.yt-chip-cloud-renderer #right-arrow{
+    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme]  #container.style-scope.yt-chip-cloud-renderer #left-arrow,
+    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow{
 
-opacity:0.9;
+            opacity:0.9;
     }
+
+    /* 2022/11/09 added coloring css to make the super title looks better */
+
+    html[darker-dark-theme][dark] #title.style-scope.ytd-watch-metadata{
+        --yt-spec-call-to-action-clone: var(--yt-spec-call-to-action);
+    }
+
+    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata{
+        /*
+        --yt-spec-call-to-action: var(--yt-live-interactivity-component-background-color);
+        */
+        --yt-spec-call-to-action: var(--yt-live-chat-tertiary-text-color);
+    }
+    
+    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata a:hover{
+        /*
+        --yt-spec-call-to-action: var(--yt-spec-call-to-action-clone);*/
+        --yt-spec-call-to-action: var(--yt-spec-mono-filled-hover);
+        
+    }
+
+     body ytd-message-renderer{
+        padding: 8px 16px; /* inline with button size */
+     }
