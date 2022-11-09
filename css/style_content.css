@@ -640,7 +640,7 @@ html:not(.style-scope) {
         padding: 0;
         box-sizing: border-box;
         display: block;
-        --yt-spec-brand-background-primary:var(--yt-spec-general-background-a);
+        /*--yt-spec-brand-background-primary:var(--yt-spec-general-background-a);*/
         /*outline: 1px solid var(--userscript-border-color);*/
         outline: 1px solid var(--ytd-searchbox-legacy-border-color);
         position: relative;
@@ -1278,6 +1278,7 @@ html:not(.style-scope) {
         
     }
     
+    
     #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description, 
     #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description yt-formatted-string[class]{
         height: auto;
@@ -1285,22 +1286,36 @@ html:not(.style-scope) {
         white-space: normal;
     }
     
+
+    
+
+    /* <-- playlist css changed in 2022/11/09 -- */
+
     #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer {
         cursor: default;
-    }
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #publisher-container, 
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #playlist-actions{
-        display: none;
-    }
-    
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #publisher-container{
-        display: flex; /* since 2022/07/17 */
+        position: relative;
+        z-index: 1;
+        padding: 12px 6px 8px 16px;
+        --tabview-playlist-header-zindex: -1;
+        /*--tabview-playlist-header-display: none;*/
+        --tabview-playlist-header-position: absolute;
+        --tabview-playlist-header-transform: translate(-100vw,0);
     }
 
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #playlist-actions{
-        display: flex; /* since 2022/07/17 */
+
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover{
+        /*--tabview-playlist-header-display: flex;*/
+        
+        --tabview-playlist-header-position: relative;
+        --tabview-playlist-header-transform: initial;
+
+        --tabview-playlist-header-height: calc( 36px + 4px );
+        
     }
     
+
+
+    /* changed in 2022/11/09 */
     
     /* #tab-list ytd-playlist-panel-renderer#playlist #container */
     
@@ -1308,30 +1323,36 @@ html:not(.style-scope) {
         border: 0; /* hide playlist default border */
     }
     
-    #tab-list ytd-playlist-panel-renderer#playlist #container > .header{
-        box-sizing: border-box;
-        position: absolute;
-        width: 100%;
-        z-index: 1;
-        min-height: var(--ytd-subheadline-one-line-ellipsis_-_max-height);
-        max-height: none;
-        padding: 10px 16px;
-        box-shadow:0 2px 4px 0 var(--ytd-searchbox-border-color, rgba(0,0,0,.22)), 0px -2px 1px var(--yt-spec-general-background-b);
-        margin-top: 1px; /* as tab use outline 1px */
-        background-color: var(--yt-spec-general-background-b);
-    }
     
     #tab-list ytd-playlist-panel-renderer#playlist #container > .header yt-icon-button{
         background-color: transparent;
     }
     
-    #tab-list ytd-playlist-panel-renderer#playlist #container > .header + #items{
-        /*margin-top: calc(var(--ytd-subheadline-one-line-ellipsis_-_max-height, 0px) + 42px);  */
-        margin-top: 50px;
-    }
-            
+         
+    #tab-list ytd-playlist-panel-renderer#playlist #container > .header #header-contents{
+
+        position: relative;
+        contain: none;
+    }   
+ 
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #header-top-row + #playlist-actions{
+        /* display: var(--tabview-playlist-header-display);*/
+        position: var(--tabview-playlist-header-position);
+        transform: var(--tabview-playlist-header-transform);
+        height: var(--tabview-playlist-header-height);
+        align-items: center;
+     }
+ 
+
+
+ 
+    #tab-list ytd-playlist-panel-renderer#playlist #container > .header.ytd-playlist-panel-renderer:hover{
+        --tabview-playlist-shift: calc( -80px + var(--tabview-playlist-header-height) );
+        margin-bottom: var(--tabview-playlist-shift);
+    }   
+
     
-    
+    /* -- playlist css changed in 2022/11/09 --> */
     
     /* hide playlist border & toggle button */
     
@@ -2856,3 +2877,48 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         background:transparent;
     }
     
+
+
+    /* 2022/11/09 - cinematic background integration */
+    
+    
+    body .playlist-items.ytd-playlist-panel-renderer{
+        background-color: initial; /* remove YouTube default background background */
+    }
+
+    body:has(#cinematics > div) #right-tabs{
+        --tabview-tab-container-background: rgba(255,255,255,0.04);
+    }
+
+
+    .tab-content-cld{
+        background-color: var(--tabview-tab-container-background);
+    }
+
+    /* remove YouTube constant will-change */
+    body .yt-spec-touch-feedback-shape__fill, body .yt-spec-touch-feedback-shape__stroke, body tp-yt-iron-list, body #items.tp-yt-iron-list>*, body #onRadio.tp-yt-paper-radio-button, body .toggle-button.tp-yt-paper-toggle-button, body .fill.yt-interaction, body .stroke.yt-interaction, body #items.ytd-post-multi-image-renderer, body #items.ytd-horizontal-card-list-renderer, body #items.yt-horizontal-list-renderer,
+    body #left-arrow.yt-horizontal-list-renderer, body #right-arrow.yt-horizontal-list-renderer, body #items.ytd-video-description-music-section-renderer, body #chips.yt-chip-cloud-renderer, body #items.ytd-merch-shelf-renderer, body #items.ytd-product-details-image-carousel-renderer,
+    body #chips.ytd-feed-filter-chip-bar-renderer, ytd-miniplayer[enabled] {
+        will-change: auto; /* constant value will slow down the performance; default auto */
+    }
+
+    body:has(#cinematics > div) .header.ytd-playlist-panel-renderer{
+        background-color: rgba(32.5, 32.5,32.5, 0.875);
+    }
+
+    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer{
+
+
+        background: var(--yt-spec-raised-background);
+        border-radius: 12px;
+        padding:0px 8px;
+        --yt-spec-base-background: var(--yt-spec-raised-background);
+        opacity:0.8;
+
+    }
+    
+    yt-chip-cloud-renderer.yt-related-chip-cloud-renderer #container.style-scope.yt-chip-cloud-renderer #left-arrow,
+        yt-chip-cloud-renderer.yt-related-chip-cloud-renderer #container.style-scope.yt-chip-cloud-renderer #right-arrow{
+
+opacity:0.9;
+    }

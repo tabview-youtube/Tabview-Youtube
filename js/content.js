@@ -78,6 +78,11 @@
   const elementInsertBefore = HTMLElement.prototype.insertBefore; // since 2022/07/12
   const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
+  const querySelectorFromAnchorFizzy = (root, id, selector)=>{
+    if(root.id===id && root.matches(selector))return root;
+    return querySelectorFromAnchor.call(root, selector) || null;
+  }
+
 
   function maxUInt(s, d){
     let t = (d>s?d:s);
@@ -942,10 +947,15 @@
 
   function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */  s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
-    let btn = querySelectorFromAnchor.call(s,'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button > ytd-button-renderer');
-    if (btn) {
-      btn.click();
+    let button = querySelectorFromAnchor.call(s,'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button');
+
+    if (button){
+      button = 
+        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') || 
+        querySelectorFromAnchor.call(button, 'ytd-button-renderer');
+      if(button) button.click();
     }
+
   }
 
   function ytBtnCloseEngagementPanels() {
@@ -1437,14 +1447,21 @@
     })
   }
 */
-  const mutation_target_id_list = ['ytp-caption-window-container', 'items', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
+
+/* items - > special case (2022/11/09) */
+  const mutation_target_id_list = ['ytp-caption-window-container', 'button', 'movie_player', 'player-ads', 'hover-overlays', 'replies'];
   const mutation_target_class_list = ['ytp-panel-menu', 'ytp-endscreen-content'];
 
   function isMtoOverallSkip(dTarget) {
 
     if (!dTarget || dTarget.nodeType !== 1) return true;
 
-    if (mutation_target_id_list.includes(dTarget.id)) return true;
+    if(dTarget.id === 'items'){
+      if(dTarget.classList.contains('ytd-playlist-panel-renderer')) return false;
+      return true;
+    } if (mutation_target_id_list.includes(dTarget.id)){
+      return true;
+    } 
 
     for (const c of dTarget.classList) {
       if (mutation_target_class_list.includes(c)) return true;
@@ -1583,7 +1600,7 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let comments = querySelectorFromAnchor.call(rootElement,'#primary ytd-watch-metadata ~ ytd-comments#comments');
+    let comments = querySelectorFromAnchorFizzy(rootElement,'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
   }
 
@@ -1631,11 +1648,15 @@
     /** @type {HTMLElement | null} */
     const rootElement = Q.mutationTarget || ytdFlexyElm;
 
-    let ple1 = querySelectorFromAnchor.call(rootElement,"*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
 /* 
 <ytd-playlist-panel-renderer id="playlist" hide-header-text="" within-miniplayer="" class="style-scope ytd-miniplayer" docked-panel-next="" js-panel-height="" chevron-tap-target-size="" is-dark-theme="" has-playlist-buttons="" has-toolbar="" playlist-type="RDCL">
 */
+
+    let ple1 = querySelectorFromAnchorFizzy(rootElement, 'items', "*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
+    
+
     if (ple1) { 
+      
       let ct = Date.now();
 
       let truePlaylist = closestDOM.call(ple1, 'ytd-playlist-panel-renderer#playlist');
@@ -2416,6 +2437,7 @@
       let _last_mto_target = null;
       let _last_mto_target_valid = null;
 
+
       for (const mutation of mutations) {
         if (!mutation || !mutation.target || !mutation.target.parentNode) continue;
 
@@ -2476,6 +2498,9 @@
 
       if (!ch) return; // dTarget must be true OR HTMLElement
 
+      
+      //console.log(175, ch, dTarget, dTarget? isMtoOverallSkip(dTarget):null)
+
       if (dTarget === true) dTarget = kRef(ytdFlexy); // major mutation occurance
       else if (dTarget === kRef(comments_section_loaded_elm) && wAddP > wRemoveP) return true; // ignore if comments are loaded (adding comments)
       else if (isMtoOverallSkip(dTarget)) return; // allow for multiple mutations at the same time - determinated after looping
@@ -2493,7 +2518,6 @@
       //console.log(prettyElm(dTarget), wAddP , wRemoveP, mtoInterval)
       //console.log(prettyElm(dTarget), reg.map(m=>prettyElm(m.target)))
       //console.log(7015, performance.now())
-
 
 
       Q.mtoNav_requestNo++;
@@ -3024,28 +3048,46 @@
   function getLang(){
 
     let lang = 'en';
-    let btn = document.querySelector('body button.ytp-share-button[title]');
-    if(btn){
-      let w = btn.getAttribute('title');
-      for(let k in langWords){
-        let m = langWords[k]['share'];
-        if(m === w) {
-          lang = k;
-          break;
-        }
-      }
-    }else{
-      for(let k in langWords){
-        let m = langWords[k]['share'];
-        let elm = document.querySelector(`body button[title="${m}"]`);
-        if(elm) {
-          lang = k;
-          break;
-        }
-      }
+    let htmlLang;
+    try{
+      htmlLang = document.documentElement.lang
+    }catch(e){}
+    switch (htmlLang) {
+      case 'en':
+      case 'en-GB':
+        lang = 'en';
+        break;
+      case 'de':
+      case 'de-DE':
+        lang = 'du';
+        break;
+      case 'fr':
+      case 'fr-CA':
+      case 'fr-FR':
+        lang = 'fr';
+        break;
+      case 'zh-Hant':
+      case 'zh-Hant-HK':
+      case 'zh-Hant-TW':
+        lang = 'tw';
+        break;
+      case 'zh-Hans':
+      case 'zh-Hans-CN':
+        lang = 'cn';
+        break;
+      case 'ja':
+      case 'ja-JP':
+        lang = 'jp';
+        break;
+      case 'ko':
+      case 'ko-KR':
+        lang = 'kr';
+        break;
+      default:
+        lang = 'en';
     }
-
-    pageLang = lang;
+    
+    if(langWords[lang]) pageLang = lang; else pageLang = 'en';
 
   }
 
