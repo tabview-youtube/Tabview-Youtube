@@ -624,14 +624,42 @@ html:not(.style-scope) {
     ytd-watch-flexy{
         --userscript-loading-content-letter-spacing: 2px;
     }
+
+
+    html{   
+        --tabview-text-loading:"Loading";
+        --tabview-text-fetching:"Fetching";
+    }
     
+    html[lang|="ja"][lang^="ja"]{   
+        --tabview-text-loading:"読み込み中..";
+        --tabview-text-fetching:"フェッチ..";
+    }
+    
+    html[lang|="ko"][lang^="ko"]{   
+        --tabview-text-loading:"로딩..";
+        --tabview-text-fetching:"가져오기..";
+    }
+
+    html[lang|="zh-Hant"][lang^="zh-Hant"]{   
+        --tabview-text-loading:"加載中";
+        --tabview-text-fetching:"抓取中";
+    }
+    html[lang|="zh-Hans"][lang^="zh-Hans"]{   
+        --tabview-text-loading:"加载中";
+        --tabview-text-fetching:"抓取中";
+    }
+    
+
+     
+
     ytd-watch-flexy[tabview-youtube-comments^="-"] #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
-        content: "Loading";
+        content: var(--tabview-text-loading);
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
     ytd-watch-flexy:not([tabview-youtube-comments^="-"]) #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
-        content: "Fetching";
+        content: var(--tabview-text-fetching);
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
     
@@ -704,6 +732,18 @@ html:not(.style-scope) {
         content-visibility: auto; /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
+
+    /* <-- 2022/11/12 fix for single column mode */
+    
+    ytd-watch-flexy[tabview-youtube-comments*="K"]:not([is-two-columns_]) #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
+        position: fixed;
+        top: 4vh;
+        left: 0;
+        height: 80vh;
+    }
+
+    /* 2022/11/12 fix for single column mode --> */
+
     ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
         display: block;
         position: absolute;
@@ -2107,9 +2147,13 @@ ytd-watch-flexy .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-n
     contain: layout paint;
 }
 
-
+/*
 ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
     contain: layout paint style;
+}*/
+
+ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents {
+    contain: layout style; /* 2022/11/11 colored comments background padding */
 }
 
 
@@ -2822,8 +2866,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         margin-top:2px;        
     }
 
-    #primary-inner #player~#below.style-scope.ytd-watch-flexy{
-        overflow-y: auto;
+    ytd-watch-flexy[flexy][is-two-columns_] #primary-inner #player~#below.style-scope.ytd-watch-flexy{
+        overflow-y: auto; /* note: overlapped the tooltips */
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
         margin-top: 6px;
@@ -2863,9 +2907,36 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         position: relative;
         pointer-events: none;
     }
+    /*
+    html:has(style#ytlctn-style-for-native-control) #player-theater-container > #player-container.ytd-watch-flexy > #ytd-player::after{
+        content: "";
+        background-color: transparent;
+        border-color: transparent;
+        color:transparent;
+        box-sizing: border-box;
+        border-style: dotted;
+        display: flex;
+        height:0px;
+        margin:0;
+        border:0;
+        margin-top:51px;
+        width: calc( 100% - 4px );
+        position: relative;
+        pointer-events: none;
+    }*/
+
     html:has(style#ytlctn-style-for-native-control) #columns #below{
         transform: initial;
     }
+    
+    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater] #columns{
+        margin-top:51px;
+    }
+
+    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns #secondary #secondary-inner > *{
+        transform: initial;
+    }
+
 
     /* 2022/11/07 - fix comment emoji box size */
 
@@ -2892,7 +2963,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         background-color: initial; /* remove YouTube default background background */
     }
 
-    body:has(#cinematics > div) #right-tabs{
+    ytd-watch-flexy[cinematics-enabled] #right-tabs{
         --tabview-tab-container-background: rgba(255,255,255,0.04);
     }
 
@@ -2908,11 +2979,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         will-change: auto; /* constant value will slow down the performance; default auto */
     }
 
-    body:has(#cinematics > div) .header.ytd-playlist-panel-renderer{
+    ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer{
         background-color: rgba(32.5, 32.5,32.5, 0.875);
     }
 
-    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer{
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer{
 
 
         background: var(--yt-spec-raised-background);
@@ -2923,8 +2994,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
     
-    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme]  #container.style-scope.yt-chip-cloud-renderer #left-arrow,
-    body:has(#cinematics > div) yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow{
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme]  #container.style-scope.yt-chip-cloud-renderer #left-arrow,
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow{
 
             opacity:0.9;
     }
@@ -2952,3 +3023,163 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      body ytd-message-renderer{
         padding: 8px 16px; /* inline with button size */
      }
+
+
+     /* 2022/11/11 video ratio 0.418945 */
+     /*
+
+     380px; 0.418945
+
+     https://www.youtube.com/watch?v=E_0AOHXcw_8
+         CHANMINA - Don't go (feat. ASH ISLAND) (Official Music Video) - - YouTube
+
+         
+     380px; 0.46
+
+        https://www.youtube.com/watch?v=yK2Cdi6R43c
+         涙することは疎か、息も出来ない。 / HACHI 【Official MV】 - YouTube
+
+        */
+
+
+        ytd-watch-flexy{
+            
+            --tabview-widescreen-primary-ml: '-NULL-';
+            --tabview-widescreen-primary-mr: '-NULL-';
+            --tabview-widescreen-primary-pl: '-NULL-';
+            --tabview-widescreen-primary-pr: '-NULL-';
+
+            --tabview-widescreen-column-mw: '-NULL-';
+            --tabview-widescreen-transform: '-NULL-';
+        }
+
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-column-mw: 0;
+            --tabview-widescreen-primary-ml: var(--ytd-margin-5x);
+            --tabview-widescreen-primary-mr: var(--ytd-margin-5x);
+            --tabview-widescreen-primary-pl: 0;
+            --tabview-widescreen-primary-pr: 0;
+        }
+
+
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.45"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-transform: scale(0.99);
+        }
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.44"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-transform: scale(0.98);
+        }
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.43"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-transform: scale(0.97);
+        }
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.42"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-transform: scale(0.96);
+        }
+        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.41"][is-two-columns_]:not([theater]):not([fullscreen]){
+            --tabview-widescreen-transform: scale(0.95);
+        }
+
+        /*
+
+        ytd-watch-flexy #columns.style-scope.ytd-watch-flexy{
+            min-width:var(--tabview-widescreen-column-mw);
+        }
+
+        */
+
+        /*
+        body ytd-watch-flexy[flexy] #primary.ytd-watch-flexy{
+            margin-left: var(--tabview-widescreen-primary-ml);
+            margin-right: var(--tabview-widescreen-primary-mr);
+            
+            padding-left: var(--tabview-widescreen-primary-pl);
+            padding-right: var(--tabview-widescreen-primary-pr);
+        }*/
+
+        body ytd-watch-flexy[flexy] #secondary.ytd-watch-flexy{
+            transform: var(--tabview-widescreen-transform);
+            transform-origin: 0 0;
+        }
+        
+
+        /*
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .ytd-menu-renderer[style-target=button]{
+
+                --yt-icon-button-icon-width: 16px;
+                --yt-icon-button-icon-height: 16px;
+            }
+        */
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default {
+
+
+            width:24px;
+            height:24px;
+            
+            --yt-icon-button-icon-width: 16px;
+            --yt-icon-button-icon-height: 16px;
+        }
+
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer [class*="yt"]{
+
+                align-items: center;
+                display: flex;
+
+        }
+
+
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer .yt-spec-button-shape-next__icon{
+
+            width:auto;
+
+        }
+
+
+
+
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default yt-icon{
+
+
+            width:16px !important;
+            height:16px !important;
+            
+        }
+
+
+
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-menu-renderer .ytd-menu-renderer[style-target="button"] {
+
+
+            --yt-icon-width: 23px;
+            --yt-icon-height: 23px; 
+            
+        --yt-icon-button-icon-width: 16px;
+        --yt-icon-button-icon-height: 16px;
+        }
+
+     
+        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-comments#comments.style-scope.ytd-watch-flexy ytd-comments-header-renderer.ytd-item-section-renderer > #title.style-scope.ytd-comments-header-renderer > #count{
+          
+            margin-right: 16px;
+            
+        }
+    
+
+        #left-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon,
+        #right-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon{
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+
+     /* 2022/11/11 comments colored background padding fix */
+     
+    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld{
+        --tab-content-padding: var(--ytd-margin-2x);
+    }
+
+    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld ytd-item-section-renderer#sections.style-scope.ytd-comments{
+        --tab-content-padding-2: var(--ytd-margin-2x);
+        padding: var(--tab-content-padding-2);
+    }

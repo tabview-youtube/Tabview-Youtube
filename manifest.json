@@ -1,7 +1,7 @@
 {
    "content_scripts": [ {
       "css": [ "css/style_content.css" ],
-      "js": [ "js/cash-8.1.0.min.js", "js/content.js" ],
+      "js": [ "js/cash-8.1.1.min.js", "js/content.js" ],
       "matches": [ "https://www.youtube.com/*" ],
       "run_at": "document_start",
       "all_frames": false
@@ -17,7 +17,7 @@
       "https://www.youtube.com/*",
        "*://*/*"
     ],
-   "version": "2.9.8",
+   "version": "3.0.1",
    "web_accessible_resources": [{
       "resources": ["images/*.png", "js/injection*.js", "js/content.js"],
       "matches": ["<all_urls>"]

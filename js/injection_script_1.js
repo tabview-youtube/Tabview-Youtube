@@ -900,23 +900,7 @@ function injection_script_1() {
       configurable: false // if redefine by YouTube, error comes and change the coding
     });
 
-
-    /*
-    let s33 = Symbol();
-    Object.defineProperty(customElements.get('ytd-comments').prototype, 'cachedCommentIds_', {
-      get() {
-        console.log(7511)
-        return this[s33];
-      },
-      set(nv) {
-        console.log(7512)
-        this[s33] = nv;
-      },
-      enumerable: false,
-      configurable: false // if redefine by YouTube, error comes and change the coding
-    });
-    */
-    
+ 
 
 
   }
@@ -1523,6 +1507,19 @@ function injection_script_1() {
   
   cm_ut_c=0;
   cm_ut_cid=setInterval(cm_ut_tf, 200); 
+
+
+  // initial paging -> yt-page-data-fetched
+  // page changing ->  yt-page-type-changed + yt-page-data-fetched
+  document.addEventListener('yt-page-type-changed',(evt)=>{
+    window.postMessage({
+      tabview:{
+        eventType: evt.type,
+        eventDetail:evt.detail // in order to get the object detail
+      }
+    },location.origin);
+  },false)
+
 
 
 
