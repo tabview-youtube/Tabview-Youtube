@@ -2877,7 +2877,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
      
-    /* 2022/11/06 - adjust width for new layout (modern-metapanel) */
+    /* 2022/11/06 - adjust width for new layout (modern-metapanel)
+    YouTube Bug: Darker Dark Mode forgot to consider Japanese Layout Issue
+    */
     body ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
         min-width: calc(60% - 6px);
     }
@@ -3041,136 +3043,67 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         */
 
-
-        ytd-watch-flexy{
-            
-            --tabview-widescreen-primary-ml: '-NULL-';
-            --tabview-widescreen-primary-mr: '-NULL-';
-            --tabview-widescreen-primary-pl: '-NULL-';
-            --tabview-widescreen-primary-pr: '-NULL-';
-
-            --tabview-widescreen-column-mw: '-NULL-';
-            --tabview-widescreen-transform: '-NULL-';
-        }
-
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-column-mw: 0;
-            --tabview-widescreen-primary-ml: var(--ytd-margin-5x);
-            --tabview-widescreen-primary-mr: var(--ytd-margin-5x);
-            --tabview-widescreen-primary-pl: 0;
-            --tabview-widescreen-primary-pr: 0;
-        }
-
-
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.45"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-transform: scale(0.99);
-        }
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.44"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-transform: scale(0.98);
-        }
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.43"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-transform: scale(0.97);
-        }
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.42"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-transform: scale(0.96);
-        }
-        ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.41"][is-two-columns_]:not([theater]):not([fullscreen]){
-            --tabview-widescreen-transform: scale(0.95);
-        }
-
-        /*
-
-        ytd-watch-flexy #columns.style-scope.ytd-watch-flexy{
-            min-width:var(--tabview-widescreen-column-mw);
-        }
-
-        */
-
-        /*
-        body ytd-watch-flexy[flexy] #primary.ytd-watch-flexy{
-            margin-left: var(--tabview-widescreen-primary-ml);
-            margin-right: var(--tabview-widescreen-primary-mr);
-            
-            padding-left: var(--tabview-widescreen-primary-pl);
-            padding-right: var(--tabview-widescreen-primary-pr);
-        }*/
-
-        body ytd-watch-flexy[flexy] #secondary.ytd-watch-flexy{
-            transform: var(--tabview-widescreen-transform);
-            transform-origin: 0 0;
-        }
+        /* 
+        // 2022/11/12 Layout Bug Fixed By YouTube
         
+            ytd-watch-flexy {
+                --tabview-widescreen-primary-ml: '-NULL-';
+                --tabview-widescreen-primary-mr: '-NULL-';
+                --tabview-widescreen-primary-pl: '-NULL-';
+                --tabview-widescreen-primary-pr: '-NULL-';
+            }
 
-        /*
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .ytd-menu-renderer[style-target=button]{
+            ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) {
+                --tabview-widescreen-primary-ml: var(--ytd-margin-5x);
+                --tabview-widescreen-primary-mr: var(--ytd-margin-5x);
+                --tabview-widescreen-primary-pl: 0;
+                --tabview-widescreen-primary-pr: 0;
+            }
 
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default {
+                width: 24px;
+                height: 24px;
                 --yt-icon-button-icon-width: 16px;
                 --yt-icon-button-icon-height: 16px;
             }
-        */
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default {
 
-
-            width:24px;
-            height:24px;
-            
-            --yt-icon-button-icon-width: 16px;
-            --yt-icon-button-icon-height: 16px;
-        }
-
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer [class*="yt"]{
-
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer [class*="yt"] {
                 align-items: center;
                 display: flex;
+            }
 
-        }
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer .yt-spec-button-shape-next__icon {
+                width: auto;
+            }
 
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default yt-icon {
+                width: 16px !important;
+                height: 16px !important;
+            }
 
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer .yt-spec-button-shape-next__icon{
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-menu-renderer .ytd-menu-renderer[style-target="button"] {
+                --yt-icon-width: 24px;
+                --yt-icon-height: 24px;
+                --yt-icon-button-icon-width: 16px;
+                --yt-icon-button-icon-height: 16px;
+            }
 
-            width:auto;
+            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-comments#comments.style-scope.ytd-watch-flexy ytd-comments-header-renderer.ytd-item-section-renderer>#title.style-scope.ytd-comments-header-renderer>#count {
+                margin-right: 16px;
+            }
 
-        }
+            */
 
+            /* fix button size due to transform:scale*/
+            /* kept as default setting */
+            #left-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon,
+            #right-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
 
-
-
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default yt-icon{
-
-
-            width:16px !important;
-            height:16px !important;
             
-        }
-
-
-
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-menu-renderer .ytd-menu-renderer[style-target="button"] {
-
-
-            --yt-icon-width: 23px;
-            --yt-icon-height: 23px; 
-            
-        --yt-icon-button-icon-width: 16px;
-        --yt-icon-button-icon-height: 16px;
-        }
-
-     
-        ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-comments#comments.style-scope.ytd-watch-flexy ytd-comments-header-renderer.ytd-item-section-renderer > #title.style-scope.ytd-comments-header-renderer > #count{
-          
-            margin-right: 16px;
-            
-        }
-    
-
-        #left-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon,
-        #right-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon{
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-        }
 
 
      /* 2022/11/11 comments colored background padding fix */

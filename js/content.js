@@ -2353,43 +2353,43 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let pageLang = 'en';
   const langWords ={
     'en':{
-      'share':'Share',
+      //'share':'Share',
       'info':'Info',
       'videos':'Videos',
       'playlist':'Playlist'
     },
     'jp':{
-      'share':'共有',
+      //'share':'共有',
       'info':'情報',
       'videos':'動画',
       'playlist':'再生リスト'
     },
     'tw':{
-      'share':'分享',
+      //'share':'分享',
       'info':'資訊',
       'videos':'影片',
       'playlist':'播放清單'
     },
     'cn':{
-      'share':'分享',
+      //'share':'分享',
       'info':'资讯',
       'videos':'视频',
       'playlist':'播放列表'
     },
     'du':{
-      'share':'Teilen',
+      //'share':'Teilen',
       'info':'Info',
       'videos':'Videos',
       'playlist':'Playlist'
     },
     'fr':{
-      'share':'Partager',
+      //'share':'Partager',
       'info':'Info',
       'videos':'Vidéos',
       'playlist':'Playlist'
     },
     'kr':{
-      'share':'공유',
+      //'share':'공유',
       'info':'정보',
       'videos':'동영상',
       'playlist':'재생목록'
