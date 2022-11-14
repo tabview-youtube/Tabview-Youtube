@@ -1381,6 +1381,7 @@ html:not(.style-scope) {
         transform: var(--tabview-playlist-header-transform);
         height: var(--tabview-playlist-header-height);
         align-items: center;
+        min-height: var(--tabview-playlist-header-height);
      }
  
 
@@ -1393,6 +1394,19 @@ html:not(.style-scope) {
 
     
     /* -- playlist css changed in 2022/11/09 --> */
+
+
+    /* 2022/11/14 fix playlist display issue */
+
+    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] #playlist-actions.ytd-playlist-panel-renderer{
+        display: flex;
+    }
+    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] .playlist-items.ytd-playlist-panel-renderer{
+        display: block;
+    }
+
+
+
     
     /* hide playlist border & toggle button */
     
@@ -3121,3 +3135,4 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         --tab-content-padding-2: var(--ytd-margin-2x);
         padding: var(--tab-content-padding-2);
     }
+
