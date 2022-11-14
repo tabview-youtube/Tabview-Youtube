@@ -2480,9 +2480,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /* 2022/11/09 fix chrome layout sizing bug for content-visibility: auto (colored comment) */
+        /*
+        // https://www.youtube.com/watch?v=Ewnt9o7c1vo
         ytd-comment-thread-renderer[style*="--tabview-cmt-height"]:has(#comment[style*="--ytd-comment-paid-background-color"]){
             content-visibility: visible;
         }
+        */
+
         
 
     }
@@ -2791,6 +2795,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
      body ytd-live-chat-frame#chat[class]{
         outline:1px solid var(--yt-spec-10-percent-layer);
+        margin:1px;
      }
 
 

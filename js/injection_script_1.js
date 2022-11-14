@@ -496,6 +496,7 @@ function injection_script_1() {
   }
 
 
+  //const round = x => x + 0.5 << 0
   function getInsObserver(){
 
 
@@ -510,24 +511,40 @@ function injection_script_1() {
         for (const entry of entries) {
 
             let h = entry.boundingClientRect.height
-            if(h>10){
+            let threadRenderer = entry.target;
+            if(!threadRenderer) continue;
+
+            let b1 = h>10;
+            let b2 = !entry.isIntersecting;
+            if(!b1 && !b2) continue;
+
+            let m = cmtWM.get(threadRenderer);
+            // m:string -> css for --tabview-cmt-height
+            // m===-1: not intialized
+            // m===-2: disabled
+            if(m===-2) continue;
+
+
+            if(b1){
               // possible to get height even it is not intersecting
 
-              let m = cmtWM.get(entry.target);
-              let t= `${h}px`
+              let t= `${h.toFixed(3)}px` //123.456px
               if(m!==t){
-                cmtWM.set(entry.target, t)
+                cmtWM.set(threadRenderer, t)
               }
+              m=t;
 
             }
+
+            // m:string -> css for --tabview-cmt-height
+
+            if(m===-1)continue; // h is not available
             
-            if(!entry.isIntersecting){
+            if(b2){
               // set CSS rule when it leaves the visible region
 
-              let m = cmtWM.get(entry.target);
               if(m && entry.target.style.getPropertyValue("--tabview-cmt-height")!==m){
-
-                entry.target.style.setProperty("--tabview-cmt-height",m)
+                  entry.target.style.setProperty("--tabview-cmt-height",m)
               }
 
             }
@@ -541,17 +558,21 @@ function injection_script_1() {
 
 
       insObserver = new IntersectionObserver(function (entries, observer) {
-        let count = 0
         for (const entry of entries) {
-          if (entry.isIntersecting && ++count){
-            /*let cHeight = (entry.boundingClientRect.height);
-            let newSize = `${cHeight}px`
-            if(entry.target.style['containIntrinsicHeight']!==newSize)
-            entry.target.style['containIntrinsicHeight']=newSize; 
-            */
-            let pElm = null;
-            if(pElm=entry.target.closest('ytd-comment-thread-renderer')){
-              if(!cmtWM.has(pElm)) cmtObserver.observe(pElm)
+          /// entry.target -> ytd-expander
+          if (entry.isIntersecting){
+            let pElm = entry.target.closest('ytd-comment-thread-renderer');
+            if(pElm && !cmtWM.has(pElm)){
+              let flag = -1;
+
+              let cmRendererBGOFFSETED = entry.target.closest('ytd-comment-renderer#comment.ytd-comment-thread-renderer[style*="--ytd-decorated-comment-background-offset-"]');
+              if(cmRendererBGOFFSETED){
+                // colored comment - https://www.youtube.com/watch?v=Ewnt9o7c1vo
+                flag=-2;
+              }
+              
+              cmtWM.set(pElm,flag);
+              cmtObserver.observe(pElm)
             }
             entry.target.calculateCanCollapse();
           }
