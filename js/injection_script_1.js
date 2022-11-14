@@ -543,10 +543,13 @@ function injection_script_1() {
             if(b2){
               // set CSS rule when it leaves the visible region
 
-              if(m && entry.target.style.getPropertyValue("--tabview-cmt-height")!==m){
+              if(entry.target.style.getPropertyValue("--tabview-cmt-height")!==m){
                   entry.target.style.setProperty("--tabview-cmt-height",m)
               }
 
+            }else{
+              //invisible -> visible
+              entry.target.style.removeProperty("--tabview-cmt-height")
             }
             
         }
