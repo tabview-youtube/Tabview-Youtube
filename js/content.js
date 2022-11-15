@@ -1,5 +1,6 @@
 -(function() {
-
+  'use strict';
+  
   function inIframe() {
     try {
       return window.self !== window.top;
@@ -2039,7 +2040,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const FP = {
 
-    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */ observer) => {
+    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations, /** @type {MutationObserver} */ observer) => {
       //subtree DOM mutation checker - {body} \single \subtree
 
       if (!scriptEnable) return;
