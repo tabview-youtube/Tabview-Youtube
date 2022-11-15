@@ -1,6 +1,6 @@
 -(function() {
   'use strict';
-  
+
   function inIframe() {
     try {
       return window.self !== window.top;
@@ -824,8 +824,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-
-  const wls = new Proxy({
+  let wls = new Proxy({
     /** @type {number | null} */
     layoutStatus:undefined
   }, {
@@ -837,9 +836,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           
         if (value === 0) {
           target[prop] = value;
-          return;
+          return true;
         }else if(target[prop]===value){
-          return;
+          return true;
         }else{
           if (!target.layoutStatus_pending) {
             target.layoutStatus_pending = true;
@@ -850,11 +849,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               layoutStatusChanged((old_layoutStatus), (target[prop]));
               timeline.setTimeout(unlock, 40)
             })
-            return;
+            return true;
           }
         }
       }
       target[prop] = value;
+      return true;
     },
     has: function(target, prop) {
       return (prop in target);
