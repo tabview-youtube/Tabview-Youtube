@@ -2733,7 +2733,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
      }
      */
 
-     ytd-watch-flexy[tabview-livechat-msg] ytd-live-chat-frame#chat > #show-hide-button{
+     ytd-watch-flexy:not(.tv-chat-toggleable) ytd-live-chat-frame#chat > #show-hide-button{
          display: none;
      }
      

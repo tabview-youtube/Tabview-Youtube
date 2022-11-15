@@ -785,8 +785,69 @@ function injection_script_1() {
     };
     let _lastPT = 0;
     let activeFlag = 0;
+    
+
+
+
+    function resetChatroomFlags(){
+      activeFlag = 0;
+      _lastPT = 0;
+    }
+
+    
+    document.addEventListener('yt-page-data-updated', resetChatroomFlags)
+    document.addEventListener('yt-page-data-fetched', resetChatroomFlags)
+    document.addEventListener('yt-player-updated', resetChatroomFlags)
+    document.addEventListener('yt-navigate', resetChatroomFlags)
+    document.addEventListener('yt-navigate-finish', resetChatroomFlags)
+
+
+
+    let cnpCID = 0;
+    document.addEventListener('tabview-chatroom-newpage', function(evt){
+
+      if(cnpCID) clearTimeout(cnpCID);
+      cnpCID=0;
+
+      //console.log(12399,2)
+      let nodeName =(( evt||0).target||0).nodeName
+      if(nodeName!=='YTD-LIVE-CHAT-FRAME') return;
+      
+      //console.log(12399,3)
+      let chat = evt.target 
+      let iframe = chat.querySelector('iframe#chatframe[src]')
+      if(!iframe) return;
+      
+
+      //let cc=3;
+      cnpCID = setTimeout(function(){
+
+        cnpCID=0;
+
+
+        //console.log(12399,4)
+        let cDoc = iframe.contentDocument
+        if(!cDoc) return;
+        
+        //console.log(12399,5, chat.isFrameReady , chat.isListeningForPlayerProgress, cDoc.querySelector('body:empty'))
+        
+        if(chat.isFrameReady && chat.isListeningForPlayerProgress && cDoc.querySelector('body:empty')){
+          chat.urlChanged();
+
+        } 
+  
+        //console.log(12399,6)
+
+      },46); // delay in case empty body cannot be detected
+
+      
+
+
+    }, true)
+
     const g_postToContentWindow = function () { 
       //console.log(1723,8,arguments)
+
       if(activeFlag>0) return;
       if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
       
@@ -795,11 +856,16 @@ function injection_script_1() {
 
         //console.log(1723,9,ptcBusy)
         let pt = arguments[0]['yt-player-video-progress'];
+        let isRefreshRequired = false;
+        
         let lastPT = _lastPT
         _lastPT = pt;
+        isRefreshRequired = pt<lastPT && lastPT-pt>0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        
 
-        let isRefreshRequired = pt<lastPT && lastPT-pt>0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        
         if(isRefreshRequired){
+          //console.log(9371,2)
           let taf= Date.now();
           activeFlag=taf;
           ptcBusy = true;
@@ -840,7 +906,7 @@ function injection_script_1() {
 
         afArg=[{'yt-player-video-progress':pt}];
       
-        let curTime = 0;
+        //let curTime = 0;
         
         if(rfaId>0 && (curTime=Date.now())>refreshAt){
           //console.log(1723,1)
@@ -1157,199 +1223,6 @@ function injection_script_1() {
   }
 
   
-  document.addEventListener('userscript-fix-playlist-display',function(evt){
- 
-    if(!evt || !evt.target) return;
-    let playlist = evt.target;
-    if(playlist.nodeType!==1) return;
-
-    if(playlist.hasAttribute('hidden')){
-      // fix youtube bug
-      let up = null;
-      try{
-        up=new URLSearchParams(location.href);
-      }catch(e){}
-      let q_list = up ? up.get('list') : null
-      if(q_list && typeof q_list == 'string' && q_list.length>0){
-
-        if(!playlist.data || Object.keys(playlist.data).length===0){
-
-
-          try{
-              const url = new URL(window.document.URL);
-              if(url.pathname==='/watch' && url.searchParams.has('v')){
-                if(url.searchParams.has('list')){
-                  url.searchParams.delete('list');
-                  url.searchParams.delete('index');
-                }
-                window.history.replaceState(null, "", url.toString());
-              }
-          }catch(e){}
-        
-          
-
-
-        }else{
-
-          playlist.removeAttribute('hidden');
-
-        }
-
-      }
-    }
-
-    
-  },true)
-
-
-  let lf_crb = 0;
-
-
-  document.addEventListener('userscript-fix-chatroombtn-text',function(evt){
-
-    //console.log('t10')
-    if(!evt || !evt.target) return;
-    let chatroomBtn = evt.target;
-    if(chatroomBtn.nodeType!==1) return;
-
-    requestAnimationFrame(()=>{
-
-      // check in visible state
-
-      let cDate = Date.now()
-
-      if(cDate-lf_crb>600){
-
-      }else{
-        return;
-      }
-
-      lf_crb = cDate;
-
-
-
-      //console.log('t12')
-      let chatFrame = closestFromAnchor.call(chatroomBtn, 'ytd-live-chat-frame#chat');
-
-      if(!chatFrame) return;
-      //console.log('t15')
-
-      let lcr = ((chatFrame||0).data||0).liveChatRenderer
-
-      let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
-
-      if(!lcr || !data_shb) return;
-      //console.log('t22')
-
-      let txt_expand = null, txt_collapse = null, default_display_state ='';
-      //txt_expand: EXPAND
-      //txt_collapse: COLLAPSE
-
-      if(data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
-
-        if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
-
-
-          if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
-
-            default_display_state = lcr.initialDisplayState
-              
-            txt_collapse=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
-
-            txt_expand=(data_shb.toggledText.runs[0]||0).text  // expand the area
-
-          }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
-            default_display_state = lcr.initialDisplayState
-
-            txt_expand=(data_shb.defaultText.runs[0]||0).text  // expand the area
-
-            txt_collapse=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
-          }
-
-
-
-          if(typeof txt_expand=='string' && typeof txt_collapse=='string' && txt_expand.length>0 && txt_collapse.length>0){
-
-          }else{
-            txt_expand=null;
-            txt_collapse=null;
-          }
-        }
-
-      }
-
-      let video = document.querySelector('ytd-watch-flexy ytd-player#ytd-player video');
-      //ensure it is called when it is playing normally (not hidden page or minimized page)
-      if(txt_expand && txt_collapse && video && isDOMVisible(video)){
-
-        //console.log('t33')
-
-        let iframe=querySelectorFromAnchor.call(chatFrame, 'iframe#chatframe.style-scope.ytd-live-chat-frame');
-        let fst = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer tp-yt-paper-button yt-formatted-string#text')
-  
-        if( iframe && isDOMVisible(iframe)){
-          // in case adblock by user
-
-          if(fst && fst.textContent.trim()===txt_expand.trim()){
-            // change expand to collapse
-            let tbr = null;
-            try{
-              tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-            }catch(e){}
-
-            if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_EXPANDED" && tbr && tbr.isToggled === true){
-              tbr.isToggled = false;
-            }
-            else if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_COLLAPSED" && tbr && tbr.isToggled === false){
-              tbr.isToggled = true;
-            }
-
-            setFST(fst, txt_collapse);
-
-          }
-
-
-          chatFrame.removeAttribute('collapsed')
-
-        }else{
-
-          if(fst && fst.textContent.trim()===txt_collapse.trim()){
-            // change collapse to expand
-            let tbr = null;
-            try{
-              tbr= chatFrame.__data.data.liveChatRenderer.showHideButton.toggleButtonRenderer;
-            }catch(e){}
-
-            if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_EXPANDED" && tbr && tbr.isToggled === false){
-              tbr.isToggled = true;
-            }
-            else if( default_display_state ===  "LIVE_CHAT_DISPLAY_STATE_COLLAPSED" && tbr && tbr.isToggled === true){
-              tbr.isToggled = false;
-            }
-
-            setFST(fst, txt_expand);
-            
-          }
-
-          chatFrame.setAttribute('collapsed','')
-
-
-
-        }
-
-      }
-
-
-
-
-    })
-
-
-
-
-
-
-  },true);
 
   document.addEventListener('tabview-fix-autocomplete',function(){
 
@@ -1391,274 +1264,30 @@ function injection_script_1() {
       }
 
   }, false);
-
-  //injectionScript_fixAutoComplete();
+ 
   
-  let _streamTime_cache = null;
-
-  let resetUpdateStreamingTime = null;
-
-  let _streamTime_cid = 0;
-
-  //let _streamTime_lastDateTextObject = null;
-
-  //let counter_dt = 0;
-
-  function updateStreamingTime(){
-    //ytd-video-primary-info-renderer
-    // DOM.data is the same
-    // DOM.data.dateText is changing
-
-
-    // refer to handleUpdateDateTextAction
-    // f.fetchUpdatedMetadata => onYtAction_ => handleAction => f.handleUpdateDateTextAction => set => _setPendingPropertyOrPath => set
-
-
-    let pir=null;
-    let yfs=null;
-
-    // this is looping function to update the "Started streaming XX minutes ago "
-    // seems a bug for new code to old layout
-
-    let counter = 0;
-    let tf;
-
-    let skip_until = 0;
-
-    resetUpdateStreamingTime=()=>{
-      skip_until = 0;
-      counter = 0;
-      _streamTime_cache = null;
-    };
-
-    _streamTime_cid=setInterval(function(){
-
-      let currentTime = Date.now()
-      if(skip_until>currentTime) return;
-
-      if( (++counter) % 14 === 1 ){
-        // 6.3s 
-        if(counter < 20) tf(); // no DOM change
-        else if(counter > 9000000) counter = 1000;
-      }
-
-      let txt = null;
-
-      //if(counter>20 && (!dom || !fst)) clearInterval(_streamTime_cid)
-      // no update when document is not visible
-
-      //console.log(955, counter,counter_dt)
-
-      let dom = kRef(pir);
-      let fst = kRef(yfs);
-      if(dom && fst) {
-        let dateText = (((dom||0).data||0).dateText||0)
-        if(dateText) {
-          txt = dateText.simpleText
-        }  
-      }
-      
-      if(!txt) {
-        _streamTime_cache = null;
-        return;
-      }
-
-      if(txt !== _streamTime_cache){
-
-        _streamTime_cache = txt;
-
-        if(counter%14 === 1 && counter < 20){}else tf(); // ensure dom is correct
-          
-        let dom = kRef(pir);
-        let fst = kRef(yfs);
-
-        //console.log(txt, fst)
-        if(dom && fst && typeof txt == 'string' && fst.textContent !== txt){
-          setFST(fst, txt);
-          skip_until = currentTime+55*1000;  //assume text update per minute (min duration)
-          counter = 40;
-        }
-        
-        
-      }
-
-
-  
-    },450);
-
-
-    tf = function(){
-
-      let s = [...document.querySelectorAll('ytd-video-primary-info-renderer')]
-
-      s=s.filter(e=>{
-        if(!e||!e.data|!e.data.dateText||!e.data.dateText.simpleText) return false;
-        let str = e.data.dateText.simpleText;
-        if(typeof str !=='string') return false;
-        return true;
-      })
-
-      let fst = null;
-      let dom = null;
-
-      if(s.length===1){
-        dom = s[0];
-        if(dom){
-          fst = querySelectorFromAnchor.call(dom, '#count+#info-strings > span#dot:first-child + yt-formatted-string')
-        }
-      }
-
-      if(!fst){
-        pir = null;
-        yfs = null;
-        return;
-      }
-      
-      pir = mWeakRef(dom);
-      yfs = mWeakRef(fst);
-
-    };
-
-
-  }
-
-  updateStreamingTime();
-
-
-  function isTabViewCSI(cm_flexy){
-    let isProp = false
-
-    let contents = null;
-    try{
-      contents = cm_flexy.data.contents.twoColumnWatchNextResults.results.results.contents
-    }catch(e){}
-
-      
-    if(contents && contents.length>-1){
-
-        for(const contentEntry of contents){
-
-          if(contentEntry && typeof contentEntry == 'object'){
-            for(let rendererKey in contentEntry){
-
-              let renderer = contentEntry[rendererKey]
-
-              if(renderer && typeof renderer == 'object' && typeof renderer.sectionIdentifier === 'string' && 
-              (renderer.sectionIdentifier.indexOf('comments-')>=0 || renderer.sectionIdentifier.indexOf('comment-')>=0) ){
-
-                //comments-  for comment list
-                //comment-   for disable message
-
-                isProp =true;
-                break;
-
-              }
-
-            }
-            if(isProp) break;
-          }
-        }
-
-    }
-    return isProp
-  }
-  
-
-  let cm_ut_c = -1;
-  let cm_ut_e_ = null;
-  let cm_flexy_ = null;
-  let cm_ut_tf = null;
-  let cm_ut_cid = 0;
-
-  let t_v_change = Date.now();
-
-  document.addEventListener('tabview-v-change',function(){
-
-
-    if(cm_ut_c<0){
-      cm_ut_c=0;
-      cm_ut_cid=setInterval(cm_ut_tf, 200);
-    }else if(cm_ut_c>0){
-      cm_ut_c=0;
-    }
-
-
-    t_v_change = Date.now();
-
-    if(!_streamTime_cid) updateStreamingTime();
-    else if(resetUpdateStreamingTime) resetUpdateStreamingTime();
-
-
-  })
-
-  cm_ut_tf = ()=>{
-    // only for 3200ms once video detected.
-
-    cm_ut_c++;
-
-    if(cm_ut_c%4===1) {
-      cm_ut_e_ = mWeakRef(document.querySelector('ytd-comments#comments'));
-      cm_flexy_ = mWeakRef(document.querySelector('ytd-watch-flexy'));
-    }
-
-    let cm_ut_e = kRef(cm_ut_e_)
-    let cm_flexy = kRef(cm_flexy_)
-
-    if(cm_ut_e && cm_flexy){
-      let isProp = isTabViewCSI(cm_flexy);
-      let isAttr = cm_ut_e.hasAttribute('tabview-csi');
-
-      if(isProp && !isAttr) cm_ut_e.setAttribute('tabview-csi','')
-      else if(!isProp && isAttr) cm_ut_e.removeAttribute('tabview-csi')
-    }
-
-    if(cm_ut_c>16){
-      clearInterval(cm_ut_cid)
-      cm_ut_cid=0;
-      cm_ut_c=-1;
-
-    }
-
-
-    if(cm_flexy && cm_ut_c < 16){
-
-      let liveChatMsg = document.querySelector('ytd-live-chat-frame#chat > ytd-message-renderer.ytd-live-chat-frame:not([style*="display: none"]) #message.ytd-message-renderer:not(:empty)');
-
-      let isLiveChatMsgAttred = cm_flexy.hasAttribute('tabview-livechat-msg')
-  
-      if(liveChatMsg && !isLiveChatMsgAttred){
-        cm_flexy.setAttribute('tabview-livechat-msg','')
-      }else if(!liveChatMsg && isLiveChatMsgAttred){
-        cm_flexy.removeAttribute('tabview-livechat-msg')
-      } 
-
-
-    }
-
-
-
-
-  }
-
-  
-  cm_ut_c=0;
-  cm_ut_cid=setInterval(cm_ut_tf, 200); 
 
 
   // initial paging -> yt-page-data-fetched
   // page changing ->  yt-page-type-changed + yt-page-data-fetched
-  document.addEventListener('yt-page-type-changed',(evt)=>{
+  document.addEventListener('yt-page-type-changed', (evt) => {
     window.postMessage({
-      tabview:{
+      tabview: {
         eventType: evt.type,
-        eventDetail:evt.detail // in order to get the object detail
+        eventDetail: evt.detail // in order to get the object detail
       }
-    },location.origin);
-  },false)
+    }, location.origin);
+  }, false)
 
+ /*
+  document.addEventListener('tabview-button-toggle', (evt) => {
+    try{
 
-
-
+      evt.target.data.isToggled=!evt.target.data.isToggled
+    }catch(e){}
+  }, true)*/
+ 
+    
 
   document.documentElement.setAttribute('tabview-injection-js-1-ready','2')
 

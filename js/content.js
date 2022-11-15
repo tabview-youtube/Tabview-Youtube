@@ -58,13 +58,18 @@
   const LAYOUT_THEATER = 4;
   const LAYOUT_FULLSCREEN = 8;
   const LAYOUT_CHATROOM = 16;
-  const LAYOUT_CHATROOM_COLLASPED = 32;
+  const LAYOUT_CHATROOM_COLLAPSED = 32;
   const LAYOUT_TAB_EXPANDED = 64;
   const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 128;
   const LAYOUT_CHATROOM_EXPANDED = 256;
 
  
   let pageType = null;
+  
+  //let toggleBtnDC = null; //DOM or number
+  
+  let chatroomDetails = null;
+
 
   /*
 
@@ -507,6 +512,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return window.dispatchEvent(new Event('resize'));
   }
 
+  
+  function setToggleBtnTxt(){
+          
+    if(chatroomDetails){
+      _console.log(124234,'c=== ')
+
+      let chat = document.querySelector('ytd-live-chat-frame#chat');
+      if(!chat) return;
+      let txt = querySelectorFromAnchor.call(chat, 'span.yt-core-attributed-string[role="text"]');
+      let c = txt.textContent;
+      
+      if(typeof c ==='string' && c.length>2){
+
+        if(chat.hasAttribute('collapsed')){
+          _console.log(124234,'collapsed show expand ',chatroomDetails.txt_expand)
+          if(c!==chatroomDetails.txt_expand)
+          txt.textContent= chatroomDetails.txt_expand
+        }else{
+          
+        _console.log(124234,'not collapsed show collapse ',chatroomDetails.txt_collapse)
+        if(c!==chatroomDetails.txt_collapse)
+          txt.textContent= chatroomDetails.txt_collapse
+           }
+      }
+    }
+  }
+
 
 
   function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
@@ -521,6 +553,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const BF_TWOCOL_N_THEATER = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER
 
     let new_isExpandedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_EXPANDED)
+    let new_isCollapsedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_COLLAPSED) && !!(new_layoutStatus & LAYOUT_CHATROOM)
 
     let new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
     let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
@@ -570,21 +603,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    const statusCollaspedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED))
-    const statusCollaspedTrue = !statusCollaspedFalse
+    const statusCollapsedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED))
+    const statusCollapsedTrue = !statusCollapsedFalse
     
 
     let changes = (old_layoutStatus & LAYOUT_VAILD) ? old_layoutStatus ^ new_layoutStatus : 0;
 
-    let chat_collasped_changed = !!(changes & LAYOUT_CHATROOM_COLLASPED)
+    let chat_collapsed_changed = !!(changes & LAYOUT_CHATROOM_COLLAPSED)
     let chat_expanded_changed = !!(changes & LAYOUT_CHATROOM_EXPANDED)
     let tab_expanded_changed = !!(changes & LAYOUT_TAB_EXPANDED)
     let theater_mode_changed = !!(changes & LAYOUT_THEATER)
     let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
     let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
     let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
+ 
 
-    
+    //console.log(169, 1, chat_collapsed_changed, tab_expanded_changed)
+    //console.log(169, 2, new_isExpandedChat, new_isCollapsedChat, new_isTabExpanded)
     
     let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND))
     let tab_change = BF_LayoutCh_Panel;
@@ -598,7 +633,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let requestVideoResize = false;
 
     // two column; not theater; tab collapse; chat expand; ep expand
-    const IF_01a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const IF_01a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
     const IF_01b = LAYOUT_TWO_COLUMNS|0|0|LAYOUT_CHATROOM|0|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
 
     
@@ -607,12 +642,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_02b = LAYOUT_TWO_COLUMNS;
 
     // two column; not theater; tab expand; chat expand; 
-    const IF_03a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED;
+    const IF_03a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED;
     const IF_03b = LAYOUT_TWO_COLUMNS|0|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
 
     
     // two column; tab expand; chat expand; 
-    const IF_06a = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLASPED;
+    const IF_06a = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED;
     const IF_06b = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
 
     
@@ -629,7 +664,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if(new_isFullScreen){
 
 
-      if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_06a) === IF_06b && statusCollaspedFalse && !column_mode_changed) {
+      if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_06a) === IF_06b && statusCollapsedFalse && !column_mode_changed) {
 
         // two column; tab expand; chat expand; 
     
@@ -687,17 +722,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       
 
-      if( !new_isFullScreen && statusCollaspedTrue && isWideScreenWithTwoColumns() && !isTheater()){
+      if( !new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()){
         showTabOrChat();
         requestVideoResize = true;
-      } else if( !new_isFullScreen && statusCollaspedFalse && isWideScreenWithTwoColumns() && isTheater()){
+      } else if( !new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()){
         ytBtnCancelTheater();
         requestVideoResize = true;
       }
 
+    }/*else if ( !fullscreen_mode_changed && !epanel_expanded_changed && !column_mode_changed && !theater_mode_changed && (chat_collapsed_changed||tab_expanded_changed) && !new_isExpandedChat && !new_isTabExpanded && new_isCollapsedChat ){
 
+    // switch between live play video and replay video
+    // force chat room display
 
-    } else if((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change==LAYOUT_CHATROOM_EXPANDED || tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND) ){
+    //if(lstTab){
+      //if(lstTab.lastPanel!='#chatroom')
+      //lstTab.lastPanel = '#chatroom';
+      showTabOrChat();
+
+    //}
+
+    }*/ else if((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change==LAYOUT_CHATROOM_EXPANDED || tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND) ){
 
     // two column; not theater; tab collapse; chat expand; ep expand
 
@@ -708,7 +753,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           ytBtnCollapseChat();
           setTimeout(unlock,13)
         })
-      }else if(chat_collasped_changed){
+      }else if(chat_collapsed_changed){
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCloseEngagementPanels();
           setTimeout(unlock,13)
@@ -724,24 +769,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       showTabOrChat();
       requestVideoResize = true;
 
-    } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollaspedFalse && !column_mode_changed) {
+    } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollapsedFalse && !column_mode_changed) {
 
     // two column; not theater; tab expand; chat expand; 
 
       switchTabActivity(null);
       requestVideoResize = true;
 
-    } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollaspedFalse && (changes & BF_TWOCOL_N_THEATER) === 0 ) {
+    } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse && (changes & BF_TWOCOL_N_THEATER) === 0 ) {
 
       ytBtnCancelTheater();
       requestVideoResize = true;
 
-    } else if ((new_layoutStatus & IF_04a) === IF_04b && statusCollaspedFalse) {
+    } else if ((new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse) {
 
       hideTabAndChat();
       requestVideoResize = true;
 
-    } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue && !column_mode_changed) {
+    } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue && !column_mode_changed) {
 
       if(tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND){
 
@@ -776,7 +821,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       requestVideoResize = true;
 
-    } else if (!tab_change && !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue) {
+    } else if (!tab_change && !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue) {
 
       showTabOrChat();
       requestVideoResize = true;
@@ -818,13 +863,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function fixLayoutStatus(x){
 
 
-    const new_isExpandedChat = !(x & LAYOUT_CHATROOM_COLLASPED) && (x & LAYOUT_CHATROOM)
+    const new_isExpandedChat = !(x & LAYOUT_CHATROOM_COLLAPSED) && (x & LAYOUT_CHATROOM)
 
     return new_isExpandedChat ? (x | LAYOUT_CHATROOM_EXPANDED) : (x & ~LAYOUT_CHATROOM_EXPANDED);
 
   }
 
-  let wls = new Proxy({
+  const wls = new Proxy({
     /** @type {number | null} */
     layoutStatus:undefined
   }, {
@@ -1292,7 +1337,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       function getVideoListHash() {
 
         let res = [...document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')].map(renderer => {
-          return querySelectorFromAnchor.call(renderer,'a[href*="watch"][href*="v="]').getAttribute('href')
+          let a = querySelectorFromAnchor.call(renderer,'a[href*="watch"][href*="v="]')
+          if(!a) return ''; //???
+          return a.getAttribute('href')||''
 
         }).join('|')
         // /watch?v=XXXXX|/watch?v=XXXXXX|/watch?v=XXXXXX
@@ -1374,7 +1421,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // 1) Detection of #continuations inside iframe
     // iframe ownerDocument is accessible due to same origin
-    // if the chatroom is collasped, no determination of live chat or replay (as no #continuations and somehow a blank iframe doc)
+    // if the chatroom is collapsed, no determination of live chat or replay (as no #continuations and somehow a blank iframe doc)
 
     // 2) Detection of meta tag
     // This is fastest but not reliable. It is somehow a bug that the navigation might not update the meta tag content
@@ -1394,7 +1441,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let s = 0;
       if (elmCont) {
-        //not found if it is collasped.
+        //not found if it is collapsed.
         s |= querySelectorFromAnchor.call(elmCont,'yt-timed-continuation') ? 1 : 0;
         s |= querySelectorFromAnchor.call(elmCont,'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
         //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
@@ -2142,9 +2189,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       //attr mutation checker - {ytd-live-chat-frame#chat} \single
       //::attr ~ collapsed
 
+
+
       let ytdFlexyElm = kRef(ytdFlexy);
       if (!scriptEnable || !ytdFlexyElm) return;
       if (pageType!=='watch') return;
+
+
+      setToggleBtnTxt();
+
 
       layoutStatusMutex.lockWith(unlock => {
 
@@ -2278,6 +2331,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           //console.log(124,chatroom)
           if(mtoVisibility_Chatroom.bindElement(chatroom)){
             mtoVisibility_Chatroom.observer.check(9)
+            
           }
 
           chatroom = null
@@ -2572,7 +2626,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let m_teaser_info = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])')
     if(m_teaser_info) cssOnceFunc_teaserInfo(m_teaser_info)
     
-    FP.mtf_initalAttr_chatroom(); 
     
     mtf_append_comments();
     mtf_liveChatBtnF();
@@ -2594,8 +2647,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const nodeName = evt.target.nodeName.toUpperCase();
     const node = evt.target
-    _console.log(evt.target.nodeName,905, evt.type)
+    _console.log(evt.target.nodeName,905, evt.type, document.querySelector('ytd-live-chat-frame#chat'));
+/*
+    if(toggleBtnDC>0){
 
+    }else if(toggleBtnDC){
+
+      fixChatFrameToggleButton();
+      toggleBtnDC=2;
+    }*/
     
     if(!S_GENERAL_RENDERERS.includes(nodeName)){
 
@@ -2610,6 +2670,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           _console.log(782,1, nodeName)
           pageCheck();
       }
+    }else if(nodeName=='YTD-TOGGLE-BUTTON-RENDERER'){
+      _console.log(933,0)
+      //fixChatFrameToggleButton();
     }
 
     
@@ -2734,6 +2797,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
     
     pageCheck();
+    //fixChatFrameToggleButton();
 
     (async ()=>{
       
@@ -2765,12 +2829,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   })
 
 
+  let foundIframe=()=>{
+    
+    FP.mtf_initalAttr_chatroom(); 
+    
+    if(document.querySelector('ytd-watch-flexy[theater]')&&document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')){
+      document.querySelector('ytd-live-chat-frame#chat').setAttribute('collapsed','')
+    }
+
+    setToggleBtnTxt()
+  }
+
   
   globalHook('yt-page-data-updated',(evt)=>{
 
     if(!evt || !evt.target || evt.target.nodeType !== 1) return;
 
     _console.log(evt.target.nodeName,904, evt.type);
+
 
 
     mtc_nr_comments = Date.now();
@@ -2785,6 +2861,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     pageCheck();
+    //fixChatFrameToggleButton();
+
+    //if(document.querySelector('ytd-live-chat-frame#chat')){
+
+
+    let siw=10;
+    let sic=0;
+    let sif = ()=>{
+
+      let iframe = document.querySelector('ytd-live-chat-frame#chat')
+      if(iframe){
+        foundIframe(iframe);
+        clearInterval(sic)
+        sic=0;
+        return;
+      } 
+
+      if(--siw===1){
+        clearInterval(sic)
+        sic=0;
+      }
+    };
+    sic= setInterval(sif,46);
+    sif();
+
+
+    //}
+    
 
     (async ()=>{
 
@@ -2819,6 +2923,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       
       mtf_fix_details();
+
+
+
     })();
 
     
@@ -2854,11 +2961,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     dispatchWindowResize(); // player control positioning
     
 
+    let liveChatRenderer = null;
+    try {
+
+      liveChatRenderer = evt.detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
+    } catch (e) { }
+    
+
+    chatroomDetails = liveChatRenderer?extractInfoFromLiveChatRenderer(liveChatRenderer):null;
+
+    document.querySelector('ytd-watch-flexy').classList.toggle( 'tv-chat-toggleable', !!chatroomDetails);
+
+
+
     (async ()=>{
       
       await initializerLock;
       
-      _console.log(nodeName,905, evt.type);
+      _console.log(nodeName,905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
 
       _console.log(2344,evt.type, document.querySelector('ytd-live-chat-frame#chat')?5:2)
 
@@ -2868,7 +2988,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
     })();
-    
+    //fixChatFrameToggleButton();
 
 
   })
@@ -2880,7 +3000,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     mtc_nr_comments = Date.now();
 
     let nodeName = evt.target.nodeName.toUpperCase()
-    _console.log(nodeName,904, evt.type, evt.detail);
+    _console.log(nodeName,904, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
 
     
     //fetchCommentsFinished();
@@ -2892,7 +3012,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     (async ()=>{
       
       await initializerLock;
-      _console.log(nodeName,905, evt.type);
+      _console.log(nodeName,905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
         
 
       if(nodeName==='YTD-WATCH-FLEXY'){
@@ -3211,6 +3331,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
       }
+/*
+      if(nodeName==='YTD-TOGGLE-BUTTON-RENDERER'){
+
+
+        if(toggleBtnDC===1){
+          toggleBtnDC = evt.target;
+
+          fixChatFrameToggleButton();
+
+          requestAnimationFrame(()=>{
+  
+            fixChatFrameToggleButton();
+  
+          })
+
+        } 
+        
+      }*/
 
 
     })
@@ -3428,20 +3566,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // regular check for different issues with UI display status
         // until the initialization of the page finished + 4700ms
 
-        if(rc_nav_end<20){ // <=15s
-
-          let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
-          if(playlist){    
-            playlist.dispatchEvent(new CustomEvent("userscript-fix-playlist-display", { detail: {} }))
-          }
-  
-          let chatroomBtn = document.querySelector('ytd-live-chat-frame#chat #show-hide-button.ytd-live-chat-frame')
-          if(chatroomBtn){
-            // in case text is different from the visual state
-            chatroomBtn.dispatchEvent(new CustomEvent("userscript-fix-chatroombtn-text", { detail: {} }))
-          }
-
-        }
 
         
         let clearTimer = false;
@@ -3850,10 +3974,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       case 'userscript-chatblock':
         attrElm = kRef(ytdFlexy);
         if (hasAttribute(attrElm, 'userscript-chat-collapsed')) {
-          nls = flexyAttr_toggleFlag(nls, true, LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLASPED);
+          nls = flexyAttr_toggleFlag(nls, true, LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED);
         } else {
           nls = flexyAttr_toggleFlag(nls, hasAttribute(attrElm, 'userscript-chatblock'), LAYOUT_CHATROOM);
-          nls = flexyAttr_toggleFlag(nls, false, LAYOUT_CHATROOM_COLLASPED);
+          nls = flexyAttr_toggleFlag(nls, false, LAYOUT_CHATROOM_COLLAPSED);
         }
         break;
       case 'is-two-columns_':
@@ -4539,10 +4663,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let new_layoutStatus = wls.layoutStatus
 
-    new_layoutStatus & (LAYOUT_CHATROOM_COLLASPED | LAYOUT_CHATROOM)
+    new_layoutStatus & (LAYOUT_CHATROOM_COLLAPSED | LAYOUT_CHATROOM)
 
-    const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
-    const new_isCollaspedChat = (new_layoutStatus & LAYOUT_CHATROOM_COLLASPED) && (new_layoutStatus & LAYOUT_CHATROOM)
+    const new_isExpandedChat = !(new_layoutStatus & LAYOUT_CHATROOM_COLLAPSED) && !!(new_layoutStatus & LAYOUT_CHATROOM)
+    const new_isCollapsedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_COLLAPSED) && !!(new_layoutStatus & LAYOUT_CHATROOM)
 
     const new_isTwoColumns = new_layoutStatus & LAYOUT_TWO_COLUMNS;
     const new_isTheater = new_layoutStatus & LAYOUT_THEATER;
@@ -4562,7 +4686,148 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  
+  function extractInfoFromLiveChatRenderer(liveChatRenderer){
+
+    let lcr = liveChatRenderer
+
+    let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
+
+    let default_display_state=null, txt_collapse=null, txt_expand=null;
+
+    
+    if(data_shb && data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
+
+      if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
+
+        if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
+
+          default_display_state = lcr.initialDisplayState
+            
+          txt_collapse=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
+
+          txt_expand=(data_shb.toggledText.runs[0]||0).text  // expand the area
+
+        }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
+          default_display_state = lcr.initialDisplayState
+
+          txt_expand=(data_shb.defaultText.runs[0]||0).text  // expand the area
+
+          txt_collapse=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
+        }
+
+
+
+        if(typeof txt_expand=='string' && typeof txt_collapse=='string' && txt_expand.length>0 && txt_collapse.length>0){
+
+        }else{
+          txt_expand=null;
+          txt_collapse=null;
+        }
+      }
+
+    }
+
+    return {default_display_state, txt_collapse, txt_expand}
+
+  }
+
+ // function fixChatFrameToggleButton(){
+    /*
+return;
+    if(toggleBtnDC>0) return;
+    if(!toggleBtnDC) return;
+    if(!chatroomDetails) return;
+    
+    let {
+      txt_collapse,
+      txt_expand
+    } = chatroomDetails;
+
+    _console.log(933,1)
+*/
+    /*
+
+    _console.log(933,1 );
+        
+    // fix default display state
+    if(initialDisplayState==='LIVE_CHAT_DISPLAY_STATE_EXPANDED'){
+      let p = document.querySelector('ytd-live-chat-frame#chat[collapsed]');
+      if(p) p.removeAttribute('collapsed')
+
+    }else if(initialDisplayState==='LIVE_CHAT_DISPLAY_STATE_COLLAPSED'){
+      let p = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])');
+      if(p) p.setAttribute('collapsed','')
+    }
+
+    _console.log(933,2);
+
+  let chatroomBtn = document.querySelector('ytd-live-chat-frame#chat #show-hide-button.ytd-live-chat-frame')
+
+  if(chatroomBtn){
+
+    _console.log(933,3 );
+    let textElm = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer span.yt-core-attributed-string[role="text"]')
+
+    if(textElm){
+
+
+      _console.log(933,4, txt_expand, txt_collapse );
+      // fix default display state
+      if(initialDisplayState==='LIVE_CHAT_DISPLAY_STATE_EXPANDED'){
+        textElm.textContent = txt_collapse
+
+      }else if(initialDisplayState==='LIVE_CHAT_DISPLAY_STATE_COLLAPSED'){
+        textElm.textContent = txt_expand
+      }
+
+    }
+
+    
+  }
+  */
+
+/*
+
+  let chatroomBtn = document.querySelector('ytd-live-chat-frame#chat #show-hide-button.ytd-live-chat-frame')
+
+  if(chatroomBtn){
+ 
+    _console.log(933,2)
+    let textElm = querySelectorFromAnchor.call(chatroomBtn, 'ytd-toggle-button-renderer span.yt-core-attributed-string[role="text"]')
+
+    if(textElm){
+
+      _console.log(933,3)
+
+      //_console.log(933,4, textElm.textContent, txt_expand, txt_collapse, document.querySelector('ytd-live-chat-frame#chat').hasAttribute('collapsed') );
+      // fix default display state
+      let p = document.querySelector('ytd-live-chat-frame#chat') 
+      if(p){
+
+        let iscollapsed = p.hasAttribute('collapsed')
+        if(!iscollapsed && textElm.textContent !== txt_collapse){
+          textElm.textContent = txt_collapse
+          toggleBtnDC.dispatchEvent(new CustomEvent("tabview-button-toggle"))
+          toggleBtnDC= 2;
+        }else if(iscollapsed && textElm.textContent !== txt_expand){
+          textElm.textContent = txt_expand
+          toggleBtnDC.dispatchEvent(new CustomEvent("tabview-button-toggle"))
+          toggleBtnDC=2;
+        }
+
+      }
+
+    }
+
+    
+  }*/
+
+ // }
+
   function newVideoPage(evt_detail) {
+
+    toggleBtnDC = 1;
 
     console.log('newVideoPage')
     pendingFetch = null
@@ -4617,6 +4882,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
+
+
     let f = () => {
 
       _console.log(932, 1, 1)
@@ -4628,13 +4895,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       _console.log(932, 1, 3)
 
-      if (Q.mtf_chatBlockQ !== chatBlockR) {
+
+
+
+      let attr_chatblock = chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false;
+      let attr_chatcollapsed = false;
+
+      if(attr_chatblock){
+        let p = document.querySelector('ytd-live-chat-frame#chat')
+        if(p){
+          attr_chatcollapsed = p.hasAttribute('collapsed'); 
+          if(!attr_chatcollapsed){
+
+            //nativeFunc(p,'setupPlayerProgressRelay')
+            //if(!p.isFrameReady)
+            //nativeFunc(p, "urlChanged")
+            //console.log(12399,1)
+            p.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
+
+          }
+        }else{
+          attr_chatcollapsed = initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false;
+        }
+      }
+ 
+
+
+
+      let chatTypeChanged = Q.mtf_chatBlockQ !== chatBlockR
+
+      if (chatTypeChanged) {
         Q.mtf_chatBlockQ = chatBlockR
 
-        let [attr_chatblock, attr_chatcollapsed] = (chatBlockR & 1) ? [
-          chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false,
-          initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false
-        ] : [false, false];
+
 
         _console.log(932, 2, attr_chatblock, attr_chatcollapsed)
 
@@ -4646,12 +4939,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         _console.log(932, 3, ytdFlexyElm.hasAttribute('userscript-chatblock'))
 
 
+      }
 
 
-        if (pageType === 'watch') { // reset info when hidden
-          checkVisibleEngagementPanel();
-        }
+        
 
+
+      if (pageType === 'watch') { // reset info when hidden
+        checkVisibleEngagementPanel();
+      }
+
+      if(chatTypeChanged){
+        
         if (attr_chatblock == 'chat-live') {
 
           _console.log(932, 4)
@@ -4689,11 +4988,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         // restore Fetching only
 
-
-        let [attr_chatblock, attr_chatcollapsed] = (chatBlockR & 1) ? [
-          chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false,
-          initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false
-        ] : [false, false];
 
         if (mtf_forceCheckLiveVideo_disable !== 2 && (attr_chatblock === false || attr_chatblock === 'chat-playback')) {
 
