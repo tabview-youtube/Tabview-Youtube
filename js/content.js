@@ -48,10 +48,6 @@
   const svgPlayList = `<path d="M0 64h256v42.667H0zm0 85.333h256V192H0zm0 85.334h170.667v42.667H0zm341.333 
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
-  // --- Youtube Video Testing : 
-  // Square Video: https://www.youtube.com/watch?v=L0RXVnRbFg8 
-  // Square Video: https://www.youtube.com/watch?v=bK_rKhMIotU
-  // ---
 
   const DEBUG_LOG = false
 
@@ -68,7 +64,6 @@
 
  
   let pageType = null;
-  //let data_changed_list = [];
 
   /*
 
@@ -107,11 +102,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   });
 
+  const isPassiveArgSupport = (typeof IntersectionObserver==='function');
+  // https://caniuse.com/?search=observer
+  // https://caniuse.com/?search=addEventListener%20passive
+
+  const bubblePassive = isPassiveArgSupport?{capture:false, passive:true}:false;
+  const capturePassive = isPassiveArgSupport?{capture:true, passive:true}:true;
+
+
   
   _console.log(38489)
 
 
-  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;  // nodeType==1 // since 2022/07/12
+  const querySelectorFromAnchor = HTMLElement.prototype.querySelector; // nodeType==1 // since 2022/07/12
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
   const elementRemove = HTMLElement.prototype.remove;
@@ -655,8 +658,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       
       
 
-      
-      if( !!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel  ){
+
+      if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel) {
         
         timeline.setTimeout(() => {
           let scrollElement = document.querySelector('ytd-app[scrolling]')
@@ -772,7 +775,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       requestVideoResize = true;
 
-    } else if (!tab_change &&  !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue) {
+    } else if (!tab_change && !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollaspedTrue) {
 
       showTabOrChat();
       requestVideoResize = true;
@@ -976,7 +979,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */  s) {
+  function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */ s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
     let button = querySelectorFromAnchor.call(s,'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button');
 
@@ -1578,6 +1581,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })();
     }
 
+    let strcturedInfo=document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
+    if(strcturedInfo){
+
+      (()=>{
+
+        strcturedInfo.removeAttribute('hidden');
+      })();
+    }
+
+/*
+    let inlineInfoExpander = document.querySelector('ytd-watch-flexy #description.ytd-watch-metadata ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
+    let vsInfoExpander = document.querySelector('#tab-info ytd-expander.ytd-video-secondary-info-renderer #description.ytd-video-secondary-info-renderer yt-formatted-string[split-lines].ytd-video-secondary-info-renderer')
+    console.log(23234, inlineInfoExpander, vsInfoExpander, inlineInfoExpander.textContent, vsInfoExpander.textContent)
+    if(inlineInfoExpander && vsInfoExpander && inlineInfoExpander.textContent===vsInfoExpander.textContent){
+
+      inlineInfoExpander.classList.add('tabview-hidden-info')
+
+    }*/
 
 
 
@@ -1895,7 +1916,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let newFound = innerCommentsLoaderRet.newFound;
 
-    b=innerCommentsLoaderRet
+    let b = innerCommentsLoaderRet
 
     _console.log(980, 2, !newFound)
 
@@ -1959,7 +1980,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  const cssOnceFunc_teaserInfo = ()=>{
+  const cssOnceFunc_teaserInfo = (teaserInfo)=>{
     //obsolete?
 
       // for Teaser UI
@@ -2005,7 +2026,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     
     let comments = document.querySelector('ytd-comments#comments')
 
-    if(!comments.hasAttribute('hidden')) return;   // visible comments content
+    if(!comments.hasAttribute('hidden')) return; // visible comments content
 
 
     if(pageType==='watch' && Q.comments_section_loaded===1){
@@ -2018,14 +2039,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const FP = {
 
-    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */   observer) => {
+    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */ observer) => {
       //subtree DOM mutation checker - {body} \single \subtree
 
       if (!scriptEnable) return;
       if (pageType!=='watch') return;
 
       for (const mutation of mutations) {
-        for (const addedNode of mutation.addedNodes)
+        for (const addedNode of mutation.addedNodes){
           if (addedNode.nodeType === 1) {
             if (addedNode.nodeName == "DIV" && addedNode.matches('.autocomplete-suggestion:not([autocomplete-disable-updatesc])') ) {
               mtf_fixAutoCompletePosition(addedNode)
@@ -2035,6 +2056,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             }
           }
+        }
       }
 
     },
@@ -2164,7 +2186,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     },
 
-    mtf_attrEngagementPanel: ( /** @type {MutationRecord[]} */ mutations,  /** @type {MutationObserver} */   observer) => {
+    mtf_attrEngagementPanel: ( /** @type {MutationRecord[]} */ mutations, /** @type {MutationObserver} */ observer) => {
       //attr mutation checker - {ytd-engagement-panel-section-list-renderer} \mutiple
       //::attr ~ visibility
 
@@ -2524,7 +2546,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       })
 
-    },true)
+    },capturePassive)
 
   }
 
@@ -2540,6 +2562,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   function pageCheck(){
+    // yt-rendererstamper-finished
+    // yt-player-updated
+    // yt-page-data-updated
+    // yt-watch-comments-ready
+    // [is-two-columns_] attr changed
     
     let m_teaser_info = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])')
     if(m_teaser_info) cssOnceFunc_teaserInfo(m_teaser_info)
@@ -2609,7 +2636,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       else if (m_playlist){
 
         if(mtoVisibility_Playlist.bindElement(m_playlist)){
-          mtoVisibility_Playlist.observer.check(9)  //delay check required for browser bug - hidden changed not triggered 
+          mtoVisibility_Playlist.observer.check(9); //delay check required for browser bug - hidden changed not triggered 
         }
         m_playlist = null;
 
@@ -2656,7 +2683,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
       let ytdFlexyElm = kRef(ytdFlexy);
-      if (scriptEnable  && ytdFlexyElm) {
+      if (scriptEnable && ytdFlexyElm) {
 
 
         let match = node.matches(`ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}])`);
@@ -2828,7 +2855,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     (async ()=>{
       
-      
       await initializerLock;
       
       _console.log(nodeName,905, evt.type);
@@ -2836,23 +2862,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(2344,evt.type, document.querySelector('ytd-live-chat-frame#chat')?5:2)
 
       if(nodeName==='YTD-APP'){ 
-        
-        try{
-          global_page_url = evt.detail.pageData.url;
-
-        }catch(e){
-          
-        global_page_url =null;
-        }
         _console.log(2554, nodeName, evt.type, evt.detail )
-          newVideoPage();
-
-
-
-
-          
-
-
+          newVideoPage(evt.detail);
       }
 
     })();
@@ -3058,7 +3069,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         console.log(37192,evt)
 
       }
-    }, false);
+    }, bubblePassive);
 /*
   document.addEventListener('yt-page-type-changed',(evt)=>{
 
@@ -3071,7 +3082,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if(!evt || !evt.target /*|| evt.target.nodeType !== 1*/) return;
       _console.log(evt.target.nodeName||'', evt.type)
 
-      _console.log(2784, evt.type,  kRef(ytdFlexy).hasAttribute('hidden'),evt.detail)
+      _console.log(2784, evt.type, kRef(ytdFlexy).hasAttribute('hidden'),evt.detail)
       _console.log(evt.detail)
 
 
@@ -3184,45 +3195,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(2327, evt.target.nodeName, evt.type)
     })
 
-    /*
-    window.addEventListener('resize',function(evt){
-      
-      if(!evt || !evt.target ) return;
-      _console.log(7413, 1, evt.target.nodeName||null, evt.type, evt.detail)
-
-      let lastTime = 0;
-      layoutStatusMutex.lockWith(unlock=>{
-        
-        let thisTime = Date.now();
-        if(thisTime-lastTime>16){
-          _console.log(782,2)
-          pageCheck();
-        }
-        requestAnimationFrame(()=>{
-          let thisTime = Date.now();
-          if(thisTime-lastTime<16){
-            if(unlock){
-              unlock();
-              unlock=null;
-            }
-          }else{
-            if(unlock){
-              setTimeout(unlock,17)
-              unlock=null;
-            }
-          }
-          lastTime=thisTime;
-        })
-        if(unlock){
-          setTimeout(unlock,300)
-          unlock=null;
-        }
-      })
-
-
-    },true)
-*/
-
 
     
     globalHook('data-changed',(evt)=>{
@@ -3258,41 +3230,41 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     })
-    document.addEventListener('yt-dismissible-item-undismissed',function(evt){
+    globalHook('yt-dismissible-item-undismissed',function(evt){
 
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
-    },true)
+    })
 
     
-    document.addEventListener('yt-load-next-continuation',function(evt){
+    globalHook('yt-load-next-continuation',function(evt){
 
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
-    },true)
+    })
 
     
-    document.addEventListener('yt-load-reload-continuation',function(evt){
+    globalHook('yt-load-reload-continuation',function(evt){
 
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
-    },true)
+    })
     
 
     
-    document.addEventListener('yt-toggle-button',function(evt){
+    globalHook('yt-toggle-button',function(evt){
 
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
-    },true)
+    })
 
     document.dispatchEvent(new CustomEvent('tabview-v-change')) //possible duplicated
     
@@ -3369,7 +3341,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         }
-      }, true)
+      }, capturePassive)
  
 
       pluginUnhook(); // in case not triggered by popstate - say mini playing
@@ -3616,7 +3588,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if(mtf_forceCheckLiveVideo_disable===2){
       // earlier than DOM change
     }else{
-      if(comments && !comments.hasAttribute('hidden')) return;   // visible comments content)
+      if(comments && !comments.hasAttribute('hidden')) return; // visible comments content)
     }
       
     if(Q.comments_section_loaded===2) return; //already disabled
@@ -4332,14 +4304,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         
         let ytdFlexyElm = kRef(ytdFlexy);
         if(ytdFlexyElm){
-          if(store['font-size-#tab-info'])
-          ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
-          if(store['font-size-#tab-comments'])
-          ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
-          if(store['font-size-#tab-videos'])
-          ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
-          if(store['font-size-#tab-list'])
-          ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
+          if(store['font-size-#tab-info']) ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
+          if(store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
+          if(store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
+          if(store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
         }
 
       }
@@ -4382,7 +4350,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   // ---------------------------------------------------------------------------------------------
-  document.addEventListener("yt-navigate-finish", onNavigationEnd)
+  document.addEventListener("yt-navigate-finish", onNavigationEnd, bubblePassive)
   //yt-navigate-redirect
   //"yt-page-data-fetched"
   //yt-navigate-error
@@ -4393,7 +4361,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   document.addEventListener("yt-navigate-cache",()=>{
     console.log('yt-navigate-cache')
-  })
+  },bubblePassive)
   document.addEventListener("yt-navigate-redirect",()=>{
     console.log('yt-navigate-redirect')
 
@@ -4402,7 +4370,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     script_inject_js1.inject();
 
     
-  })
+  },bubblePassive)
 
   function onReady(){
     //might be earlier than yt-navigation-finish
@@ -4413,7 +4381,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   if(document.readyState!=='loading'){
     onReady();
   }else{
-    document.addEventListener('DOMContentLoaded', onReady)
+    document.addEventListener('DOMContentLoaded', onReady, bubblePassive)
   }
 
   function forceConfig(){
@@ -4428,12 +4396,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     script_inject_js1.inject();
     forceConfig();
-  })
+  },bubblePassive)
 
   document.addEventListener("yt-page-manager-navigate-start",()=>{
     console.log('yt-page-manager-navigate-start')
     forceConfig();
-  })
+  },bubblePassive)
 
 
 
@@ -4441,7 +4409,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let scrolling_lastD = 0;
 
-  const singleColumnScrolling = function(/** @type {boolean} */  scrolling_lastF) {
+  const singleColumnScrolling = function(/** @type {boolean} */ scrolling_lastF) {
     
     if (!scriptEnable || pageType!=='watch') return;
 
@@ -4532,10 +4500,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   window.addEventListener("scroll", function() {
     singleColumnScrolling(false)
-  }, {
-    capture: false,
-    passive: true
-  })
+  }, bubblePassive)
 
   //let lastResizeAt = 0;
   window.addEventListener('resize', function() {
@@ -4553,10 +4518,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-  }, {
-    capture: false,
-    passive: true
-  })
+  }, bubblePassive)
 
 
 
@@ -4599,7 +4561,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function newVideoPage() {
+  function newVideoPage(evt_detail) {
 
     console.log('newVideoPage')
     pendingFetch = null
@@ -4641,7 +4603,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let isReplay = null;
     try {
 
-      liveChatRenderer = evt.detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
+      liveChatRenderer = evt_detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
     } catch (e) { }
     if (liveChatRenderer) {
 
@@ -4685,8 +4647,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-        if (pageType === 'watch') {  // reset info when hidden
-
+        if (pageType === 'watch') { // reset info when hidden
           checkVisibleEngagementPanel();
         }
 
@@ -4765,7 +4726,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       evt.stopPropagation();
       evt.stopImmediatePropagation();
     }
-  }, { capture: true, passive: true });
+  }, capturePassive);
 
 
   function setVideosTwoColumns(/** @type {number} */ flag, /** @type {boolean} */ bool) {
@@ -4884,7 +4845,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  }, { passive: true })
+  }, bubblePassive)
  
 
   let fetchPendings = [];

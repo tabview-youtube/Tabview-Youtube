@@ -11,6 +11,9 @@ function injection_script_1() {
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
 
+  const $requestAnimationFrame = window.requestAnimationFrame.bind(window);
+  const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
+
   /** @type {(o: Object | null) => WeakRef | null} */
   const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
 
@@ -736,6 +739,7 @@ function injection_script_1() {
 
   }
 
+  /*
   const pageStatus = {
     hasFocus: null,
     visibilityState: null,
@@ -754,7 +758,112 @@ function injection_script_1() {
       pageStatus.vState= pageStatus.hasFocus?1:pageStatus.visibilityState=='visible'?2:4;
     }
   }
+  */
 
+
+  let ptcBusy= false;
+
+  function getFunc_postToContentWindow(){
+    let afArg = null;
+    const symbol_gtcw=Symbol();
+    let refreshAt = 0;
+    let rfaId=0;
+    const tf_gtcw=function(x){
+      if(rfaId > 0){
+        if(activeFlag)return;
+        //console.log(1723,3,x)
+        rfaId = 0;
+        refreshAt = Date.now()+460;
+        // Promise to allow unknown runtime error (not to block the coding)
+        Promise.resolve({args:afArg, f:this.__$$postToContentWindow$$__, ths:this}).then((obj)=>{
+          //arg is object reference.
+          const {args, f, ths} = obj;
+          f.apply(ths,args);
+          //console.log(5422, args)
+        })
+      }
+    };
+    let _lastPT = 0;
+    let activeFlag = 0;
+    const g_postToContentWindow = function () { 
+      //console.log(1723,8,arguments)
+      if(activeFlag>0) return;
+      if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
+      
+      //console.log(1723,6)
+      if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
+
+        //console.log(1723,9,ptcBusy)
+        let pt = arguments[0]['yt-player-video-progress'];
+        let lastPT = _lastPT
+        _lastPT = pt;
+
+        let isRefreshRequired = pt<lastPT && lastPT-pt>0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        if(isRefreshRequired){
+          let taf= Date.now();
+          activeFlag=taf;
+          ptcBusy = true;
+          
+          setTimeout(()=>{
+            if(taf!==activeFlag) return;
+            
+            // this.urlChanged()
+            // this.detached();
+            // this.attached();
+            
+            this.currentPageUrl = "";//  necessary
+            this.isListeningForPlayerProgress = false;
+            this.setPlayer(null);
+            this.isFrameReady = false
+            this.currentPageUrl = window.location.href;
+            this.setupPlayerProgressRelay()
+
+            let ptcF=()=>{
+              
+              if(taf!==activeFlag) return;
+              if(this.isFrameReady===true){
+                ptcBusy = false;
+                activeFlag=false;
+              }else{
+                setTimeout(ptcF,46);
+              }
+            };
+            setTimeout(ptcF,46); //just some delay - allow page loading
+          },460); //just some delay - allow user operation
+          if(this.isFrameReady===true) this.isFrameReady=false;
+          return; // skip update and wait for page refresh
+        }else if(ptcBusy === true) return;
+        else{
+          ptcBusy = true;
+        }
+        
+
+        afArg=[{'yt-player-video-progress':pt}];
+      
+        let curTime = 0;
+        
+        if(rfaId>0 && (curTime=Date.now())>refreshAt){
+          //console.log(1723,1)
+          $cancelAnimationFrame(rfaId);
+          if(this[symbol_gtcw]) this[symbol_gtcw](); // this[symbol_gtcw] always return function
+        }else if (rfaId === 0) {
+          //console.log(1723,2)
+          if(!this[symbol_gtcw]) this[symbol_gtcw]=tf_gtcw.bind(this)
+          rfaId=$requestAnimationFrame(this[symbol_gtcw]);
+        }
+        
+        ptcBusy = false;
+        
+
+      } else {
+        this.__$$postToContentWindow$$__.apply(this, arguments)
+      } 
+    }
+    return g_postToContentWindow;
+  }
+  
+
+  /*
 
 
   function getFunc_postToContentWindow(){
@@ -779,6 +888,7 @@ function injection_script_1() {
           afm = 0;
           refreshAt = curTime+800;
         } 
+        //console.log(4548)
         afm++;
         if (afm === 1) {
           pageStatus.check();
@@ -809,6 +919,8 @@ function injection_script_1() {
     }
     return g_postToContentWindow;
   }
+
+  */
 
   let _ceHack_calledOnce = false;
   
