@@ -4827,7 +4827,7 @@ return;
 
   function newVideoPage(evt_detail) {
 
-    toggleBtnDC = 1;
+    //toggleBtnDC = 1;
 
     console.log('newVideoPage')
     pendingFetch = null
