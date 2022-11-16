@@ -2010,15 +2010,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   };
 
 
-  let mtc_nr_comments=0;
-  const cssOnceFunc_comments = (comments)=>{
+  const domInit_comments = ()=>{
+
+    
+    let comments = document.querySelector(`ytd-comments#comments:not([o3r-${sa_comments}])`);
+    if(!comments) return;
       
     // once per {ytd-comments#comments} detection
 
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
-    if (!comments) return;
     _console.log(3901)
 
     if(mtoVisibility_Comments.bindElement(comments)){
@@ -2028,8 +2030,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  const cssOnceFunc_teaserInfo = (teaserInfo)=>{
+  const domInit_teaserInfo = ()=>{
     //obsolete?
+
+    let teaserInfo = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])');
+
+    if(!teaserInfo) return;
 
       // for Teaser UI
       // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
@@ -2591,8 +2597,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // yt-watch-comments-ready
     // [is-two-columns_] attr changed
     
-    let m_teaser_info = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])')
-    if(m_teaser_info) cssOnceFunc_teaserInfo(m_teaser_info)
+    domInit_teaserInfo() // YouTube obsoleted feature? 
     
     
     mtf_append_comments();
@@ -2737,23 +2742,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 /** @type {WeakSet<HTMLIFrameElement>} */
 let iframe_set = new WeakSet();
 
-
-  let foundIframe=(iframe,trials)=>{
-    
-    if(!iframe) return;
-    if(!trials) return;
-    if(!document.body.contains(iframe)) return foundIframe(iframe, traisl-1);
-    if(iframe_set.has(iframe)) return;
-    iframe_set.add(iframe);
+  let _foundIframe = ()=>{
 
     FP.mtf_initalAttr_chatroom(); 
-    
+      
     if(document.querySelector('ytd-watch-flexy[theater]')&&document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')){
       document.querySelector('ytd-live-chat-frame#chat').setAttribute('collapsed','')
     }
 
     setToggleBtnTxt() //button might not yet be rendered
     requestAnimationFrame(setToggleBtnTxt)
+  }
+
+  let foundIframe=(iframe,trials,forceRun)=>{
+    
+    if(!iframe) return;
+    if(!trials) return;
+    if(!document.body.contains(iframe)) return foundIframe(iframe, traisl-1, false);
+    if(!forceRun && iframe_set.has(iframe)) return;
+    iframe_set.add(iframe);
+
+    _foundIframe();
   }
 
   document.addEventListener('load',(evt)=>{
@@ -2799,9 +2808,7 @@ let iframe_set = new WeakSet();
   globalHook('yt-page-data-fetched',(evt)=>{
 
     if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-
-    mtc_nr_comments = Date.now();
-
+ 
     let nodeName = evt.target.nodeName.toUpperCase()
 
     _console.log(nodeName,904, evt.type);
@@ -2870,8 +2877,7 @@ let iframe_set = new WeakSet();
       }*/
       
       if(!S_GENERAL_RENDERERS.includes(nodeName)){
-  
-        mtc_nr_comments = Date.now();
+   
         
   
         switch(nodeName){
@@ -3003,8 +3009,7 @@ let iframe_set = new WeakSet();
       _console.log(evt.target.nodeName,904, evt.type);
   
   
-  
-      mtc_nr_comments = Date.now();
+   
   
   
       
@@ -3027,7 +3032,7 @@ let iframe_set = new WeakSet();
   
         let iframe = document.querySelector('ytd-live-chat-frame#chat')
         if(iframe){
-          foundIframe(iframe,1);
+          foundIframe(iframe,1, true);
           clearInterval(sic)
           sic=0;
           return;
@@ -3092,8 +3097,7 @@ let iframe_set = new WeakSet();
   
       
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-  
-      mtc_nr_comments = Date.now();
+   
   
       _console.log(evt.target.nodeName,904, evt.type);
       
@@ -3120,10 +3124,9 @@ let iframe_set = new WeakSet();
   
           _console.log(2554, nodeName, evt.type, evt.detail )
   
-          let m_comments = document.querySelector(`ytd-comments#comments:not([o3r-${sa_comments}])`);
-          if(m_comments) cssOnceFunc_comments(m_comments);
+          domInit_comments();
       
-          FP.mtf_initalAttr_chatroom(); 
+          _foundIframe();
   
         }
   
@@ -3137,8 +3140,7 @@ let iframe_set = new WeakSet();
     globalHook('yt-watch-comments-ready',(evt)=>{
       
       if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-  
-      mtc_nr_comments = Date.now();
+   
   
       let nodeName = evt.target.nodeName.toUpperCase()
       _console.log(nodeName,904, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
@@ -3157,8 +3159,7 @@ let iframe_set = new WeakSet();
   
         if(nodeName==='YTD-WATCH-FLEXY'){
           
-          let m_comments = document.querySelector(`ytd-comments#comments:not([o3r-${sa_comments}])`);
-          if(m_comments) cssOnceFunc_comments(m_comments);
+          domInit_comments();
   
   
   
@@ -3521,6 +3522,56 @@ let iframe_set = new WeakSet();
   }
 
 
+  const iframeLoadHookA = function (evt) {
+
+    if (checkEvtTarget(evt, ['IFRAME']) && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+
+      let iframe = evt.target;
+      new Promise(resolve => {
+
+        let k = 270
+        let cid = setInterval(() => {
+
+          if (k-- < 1) {
+            clearInterval(cid);
+            resolve(false);
+          }
+
+          let cDoc = iframe.contentDocument;
+          if (!cDoc) return null;
+          if (cDoc.readyState != 'complete') return;
+          if (!cDoc.querySelector('body')) {
+            clearInterval(cid);
+            resolve(false);
+          }
+
+          if (!cDoc.querySelector('yt-live-chat-app')) return;
+
+          clearInterval(cid);
+
+          if (!document.contains(iframe)) return resolve(false);
+
+          resolve(cDoc);
+
+
+
+        }, 17)
+
+
+      }).then((res) => {
+
+        if (res) {
+          callFind(res)
+        }
+
+      })
+
+
+
+    }
+  }
+
+
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
 
@@ -3565,132 +3616,105 @@ let iframe_set = new WeakSet();
       (/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href) ? 1 : 0) +
       (document.querySelector('ytd-watch-flexy[tabview-selection]') ? 2 : 0);
 
-    if (mRet === 1) {
+
+    let waitForInitial = new Promise(resolve => {
 
 
-      document.addEventListener('load',function(evt){
 
-        if( checkEvtTarget(evt, ['IFRAME']) && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')){
-
-          let iframe = evt.target;
-          new Promise(resolve=>{
-
-            let k = 270
-            let cid = setInterval(()=>{
-              
-              if(k--<1) {
-                clearInterval(cid);
-                resolve(false);
-              }
-
-              let cDoc = iframe.contentDocument; 
-              if (!cDoc) return null;
-              if (cDoc.readyState != 'complete') return;
-              if (!cDoc.querySelector('body')) {
-                clearInterval(cid);
-                resolve(false);
-              }
-
-              if(!cDoc.querySelector('yt-live-chat-app')) return;
-
-              clearInterval(cid);
-
-              if(!document.contains(iframe)) return resolve(false);
-
-              resolve(cDoc);
-          
+      if (mRet === 1) {
 
 
-            },17)
-            
+        document.addEventListener('load', iframeLoadHookA, capturePassive)
 
-          }).then((res)=>{
 
-            if(res){
-              callFind(res)
+        pluginUnhook(); // in case not triggered by popstate - say mini playing
+
+        let timeout = 4; // max. 4 animation frames
+
+        let tf = () => {
+
+          if (--timeout > 0 && !document.querySelector('#player video')) return requestAnimationFrame(tf);
+
+          let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+
+          if (!ytdFlexyElm) return;
+
+
+          scriptEnable = true;
+          scriptEC++;
+
+
+          ytdFlexy = mWeakRef(ytdFlexyElm)
+
+          let timeoutR_findRelated = new Timeout();
+          timeoutR_findRelated.set(function () {
+            let ytdFlexyElm = kRef(ytdFlexy);
+            if (!ytdFlexyElm) return true;
+            let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related");
+            if (!related) return true;
+            foundRelated(related);
+          }, 100, 10)
+
+          function foundRelated(related) {
+            let promise = Promise.resolve();
+            if (!document.querySelector("#right-tabs")) {
+              promise = promise.then(() => {
+                getLang();
+                $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
+                console.log('#right-tabs inserted')
+                resolve();
+              })
             }
-
-          })
-
-
-
-        }
-      }, capturePassive)
- 
-
-      pluginUnhook(); // in case not triggered by popstate - say mini playing
-
-      let timeout = 4; // max. 4 animation frames
-
-      let tf = () => {
-
-        if (--timeout > 0 && !document.querySelector('#player video')) return requestAnimationFrame(tf);
-
-        let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
-
-        if(!ytdFlexyElm) return;
-
-
-        scriptEnable = true;
-        scriptEC++;
-
-
-        ytdFlexy = mWeakRef(ytdFlexyElm)
-
-        let timeoutR_findRelated = new Timeout();
-        timeoutR_findRelated.set(function() {
-          let ytdFlexyElm = kRef(ytdFlexy);
-          if(!ytdFlexyElm) return true;
-          let related = querySelectorFromAnchor.call(ytdFlexyElm,"#related");
-          if (!related) return true;
-          foundRelated(related);
-        }, 100, 10)
-
-        function foundRelated(related) {
-          let promise = Promise.resolve();
-          if (!document.querySelector("#right-tabs")) {
-            promise = promise.then(() => {
-              getLang();
-              $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
-              console.log('#right-tabs inserted')
-            })
+            promise.then(runAfterTabAppended)
           }
-          promise.then(runAfterTabAppended)
+
         }
 
+        tf();
+
+      } else if (mRet === 3) {
+
+        if (!scriptEnable) return;
+
+        let elmComments = document.querySelector('ytd-comments#comments')
+
+        if (elmComments && querySelectorFromAnchor.call(elmComments, 'ytd-item-section-renderer#sections.style-scope.ytd-comments')) {
+          nativeFunc(elmComments, "loadComments")
+        }
+
+        resolve();
+
+      } else if (mRet === 0) {
+
+
+        pluginUnhook(); // in case not triggered by popstate - say mini playing
+
+        resolve();
+
+      } else {
+        resolve();
       }
 
-      tf();
 
-    } else if (mRet === 3) {
-
-      if(!scriptEnable) return;
-
-      let elmComments = document.querySelector('ytd-comments#comments')
-
-      if (elmComments && querySelectorFromAnchor.call(elmComments,'ytd-item-section-renderer#sections.style-scope.ytd-comments')){
-        nativeFunc(elmComments, "loadComments")
-      }
-
-    } else if (mRet === 0) {
-      
-
-      pluginUnhook(); // in case not triggered by popstate - say mini playing
-
-    }
+    });
 
 
 
 
-    if(scriptEnable) {
+
+    if (scriptEnable) {
 
 
-      let m_comments = document.querySelector(`ytd-comments#comments:not([o3r-${sa_comments}])`);
-      if(m_comments) cssOnceFunc_comments(m_comments);
- 
-      if(pageFetchedData!==null){ 
-        newVideoPage(pageFetchedData);
-      }
+      waitForInitial.then(() => {
+
+        domInit_comments();
+
+        if (pageFetchedData !== null) {
+          newVideoPage(pageFetchedData);
+        }
+
+      })
+
 
 
     }
@@ -4161,6 +4185,8 @@ let iframe_set = new WeakSet();
           if (cssElm.getAttribute('userscript-chatblock') === 'chat-live') {
             // assigned new attribute - "chat-live" => disable comments section
             
+            
+          //console.log(3712,2)
             _disableComments();
           }
 
@@ -5057,6 +5083,8 @@ return;
           _console.log(932, 4)
 
           mtf_forceCheckLiveVideo_disable = 2;
+
+          //console.log(3712,1)
 
           _disableComments();
 
