@@ -795,11 +795,13 @@ function injection_script_1() {
     }
 
     
-    document.addEventListener('yt-page-data-updated', resetChatroomFlags)
-    document.addEventListener('yt-page-data-fetched', resetChatroomFlags)
-    document.addEventListener('yt-player-updated', resetChatroomFlags)
     document.addEventListener('yt-navigate', resetChatroomFlags)
+    document.addEventListener('yt-navigate-start', resetChatroomFlags)
+    document.addEventListener('yt-player-updated', resetChatroomFlags)
+    document.addEventListener('yt-page-data-fetched', resetChatroomFlags)
     document.addEventListener('yt-navigate-finish', resetChatroomFlags)
+    
+    document.addEventListener('yt-page-data-updated', resetChatroomFlags) 
 
 
 
@@ -1131,9 +1133,11 @@ function injection_script_1() {
       let cTop = tabCommentsRect.top
       
       if (cTop - eTop > 0) {
-        tabComments.scrollTop -= cTop - eTop  + Math.max(cmRenderRect.left - tabCommentsRect.left, 0)
+        cmRender.scrollIntoView();
+        //tabComments.scrollTop -= cTop - eTop  + Math.max(cmRenderRect.left - tabCommentsRect.left, 0)
         //note: {cmRenderRect.left - tabCommentsRect.left} is larger for reply of comments
       }
+      
       //},30)
 
     }
