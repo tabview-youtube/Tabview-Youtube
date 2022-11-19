@@ -215,10 +215,10 @@
     return querySelectorFromAnchor.call(root, selector) || null;
   }
 
-  function maxUInt(s, d) {
-    let t = (d > s ? d : s);
-    return t > 0 ? t : 0;
-  }
+  // function maxUInt(s, d) {
+  //   let t = (d > s ? d : s);
+  //   return t > 0 ? t : 0;
+  // }
 
   /** @type {(o: Object | null) => WeakRef | null} */
   const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
@@ -228,16 +228,16 @@
 
 
 
-  function prettyElm(/** @type {Element} */ elm) {
-    if (!elm || !elm.nodeName) return null;
-    const eId = elm.id || null;
-    const eClsName = elm.className || null;
-    return [elm.nodeName.toLowerCase(), typeof eId == 'string' ? "#" + eId : '', typeof eClsName == 'string' ? '.' + eClsName.replace(/\s+/g, '.') : ''].join('').trim();
-  }
+  // function prettyElm(/** @type {Element} */ elm) {
+  //   if (!elm || !elm.nodeName) return null;
+  //   const eId = elm.id || null;
+  //   const eClsName = elm.className || null;
+  //   return [elm.nodeName.toLowerCase(), typeof eId == 'string' ? "#" + eId : '', typeof eClsName == 'string' ? '.' + eClsName.replace(/\s+/g, '.') : ''].join('').trim();
+  // }
 
-  function extractTextContent(/** @type {Node} */ elm) {
-    return elm.textContent.replace(/\s+/g, '').replace(/[^\da-zA-Z\u4E00-\u9FFF\u00C0-\u00FF\u00C0-\u02AF\u1E00-\u1EFF\u0590-\u05FF\u0400-\u052F\u0E00-\u0E7F\u0600-\u06FF\u0750-\u077F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\u3040-\u30FF\u31F0-\u31FF]/g, '')
-  }
+  // function extractTextContent(/** @type {Node} */ elm) {
+  //   return elm.textContent.replace(/\s+/g, '').replace(/[^\da-zA-Z\u4E00-\u9FFF\u00C0-\u00FF\u00C0-\u02AF\u1E00-\u1EFF\u0590-\u05FF\u0400-\u052F\u0E00-\u0E7F\u0600-\u06FF\u0750-\u077F\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\u3040-\u30FF\u31F0-\u31FF]/g, '')
+  // }
 
   function addScript(/** @type {string} */ scriptText) {
     const scriptNode = document.createElement('script');
@@ -1226,6 +1226,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (isRelocated) {
 
+      
+      _console.log(3202,2)
+
       let relocatedRelated = closestDOM.call(queryElement, '#related'); // NOT NULL
 
       let right_tabs = document.querySelector('#right-tabs'); // can be NULL
@@ -1233,6 +1236,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let tab_videos = right_tabs ? querySelectorFromAnchor.call(right_tabs, "#tab-videos") : null; // can be NULL
 
       if (tab_videos !== null) {
+        
+        _console.log(3202,4)
 
         for (const s of querySelectorAllFromAnchor.call(relocatedRelated, '#related')) {
           s.setAttribute('non-placeholder-videos', '')
@@ -1592,7 +1597,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let comments = querySelectorFromAnchorFizzy(rootElement, 'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
 
-      _console.log(3202)
+      _console.log(3202,6)
       $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
     }
   }
@@ -1614,11 +1619,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         console.log('parentNode failed')
       } else if (HTMLElement.prototype.prepend) {
         // using prepend
+        
+        _console.log(3202,7)
         HTMLElement.prototype.prepend.call(parentNode, button)
 
       } else {
         // using insertBefore
         try {
+          
+          _console.log(3202,8)
           elementInsertBefore.call(parentNode, button, parentNode.firstChild);
         } catch (e) {
           console.log('element insert failed in old browser CE')
@@ -1695,7 +1704,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable) return;
 
 
-    let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])')
+    let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])');
 
     if (contentToggleBtn) {
 
@@ -1904,11 +1913,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           res[ci].text = qmElm.textContent;
         }
 
-
         ci++;
 
       }
-
 
     }
     if (res.length > ci) res.length = ci;
@@ -1917,14 +1924,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       res[latest].isLatest = true;
     }
 
-
-
-
-
     _console.log(2908, res, Q.comments_section_loaded)
 
     return res;
-
 
   }
 
@@ -2474,9 +2476,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function checkEvtTarget(evt, nodeNames) {
-    return nodeNames.includes((((evt || 0).target || 0).nodeName || 0));
-  }
+  // function checkEvtTarget(evt, nodeNames) {
+  //   return nodeNames.includes((((evt || 0).target || 0).nodeName || 0));
+  // }
 
   function pageCheck() {
     // yt-rendererstamper-finished
@@ -2686,7 +2688,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _console.log(902)
 
-    let rendererPageCheck_id = 0;
+    //let rendererPageCheck_id = 0;
     globalHook('yt-rendererstamper-finished', (evt) => {
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -2703,24 +2705,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         //_console.log(evt.target.nodeName, 908, evt.type, document.querySelector('ytd-live-chat-frame#chat'));
 
-        if (tabsDeferred.resolved) {
+        // if (scriptEnable && tabsDeferred.resolved) {
 
-          //_console.log(782, 1, nodeName)
+        //   //_console.log(782, 1, nodeName)
 
 
-          rendererPageCheck_id++;
-          if (rendererPageCheck_id > 999) rendererPageCheck_id = 333;
-          let tmp_id = rendererPageCheck_id;
+        //   rendererPageCheck_id++;
+        //   if (rendererPageCheck_id > 999) rendererPageCheck_id = 333;
+        //   let tmp_id = rendererPageCheck_id;
 
-          requestAnimationFrame(() => {
-            if (tmp_id !== rendererPageCheck_id) return;
-            pageCheck();
-          })
+        //   requestAnimationFrame(() => {
+        //     if (tmp_id !== rendererPageCheck_id) return;
+        //     pageCheck();
+        //   })
 
-        }
+        // }
 
         return;
       }
+      
 
 
 
@@ -2840,6 +2843,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         FP.mtf_attrEngagementPanel();
 
+        _console.log(2178,3)
         pageCheck();
         //fixChatFrameToggleButton();
 
@@ -2940,6 +2944,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         //restoreFetching(); //yt-player-updated might happen after comments ready
 
+        
+        _console.log(2178,4)
         pageCheck();
         //fixChatFrameToggleButton();
 
@@ -3003,6 +3009,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           _console.log(9972, 'fetched = true')
         }
 
+        _console.log(2178,5)
         pageCheck();
 
         _console.log(nodeName, 905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));

@@ -192,13 +192,6 @@ function injection_script_1() {
       }
       mh1 = null;
 
-      function trim2(str) {
-        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
-      }
-
-      function ns2(str) {
-        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
-      }
 
       for (const text of Object.keys(res)) {
 
@@ -222,17 +215,16 @@ function injection_script_1() {
         }
       }
 
-      let fRes = initialSegments.filter(m => !map.has(m));
+      const fRes = initialSegments.filter(m => !map.has(m));
 
 
       let sj_start = 0;
-      let si_length = fRes.length;
-      let sj_length = initialSegments.length;
+      const si_length = fRes.length;
+      const sj_length = initialSegments.length;
 
 
       if (si_length === sj_length) {
         //no fix is required
-
         return fRes;
       }
 
@@ -274,15 +266,24 @@ function injection_script_1() {
       }
 
 
+      
+      function trim2(str) {
+        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
+      }
+
+      function ns2(str) {
+        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
+      }
+
       for (const segment of fRes) {
 
-        let snippet = segment.transcriptSegmentRenderer.snippet
+        const runs = segment.transcriptSegmentRenderer.snippet.runs;
 
-        let main_str = trim2(_snippetText(snippet.runs[0].text));
+        let main_str = trim2(_snippetText(runs[0].text));
 
-        snippet.runs[0].text = main_str
+        runs[0].text = main_str
 
-        if (snippet.runs.length > 1) continue;  // skip multi lines
+        if (runs.length > 1) continue;  // skip multi lines
 
         let obj = segment.transcriptSegmentRenderer[s7]
 
@@ -301,7 +302,7 @@ function injection_script_1() {
           let b = main_str
 
           //console.log(452, a,b,a===b)
-          if (a === b) snippet.runs.push({ text: trim2(rg[1].str) })
+          if (a === b) runs.push({ text: trim2(rg[1].str) })
         }
 
       }
