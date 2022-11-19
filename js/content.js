@@ -2593,7 +2593,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const nodeName = evt.target.nodeName.toUpperCase();
 
       //  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER','YTD-MENU-RENDERER']
-      if (!S_GENERAL_RENDERERS.includes(nodeName)) {
+      if (S_GENERAL_RENDERERS.includes(nodeName)) {
 
         //_console.log(evt.target.nodeName, 908, evt.type, document.querySelector('ytd-live-chat-frame#chat'));
 
