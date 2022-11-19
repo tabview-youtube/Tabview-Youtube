@@ -99,6 +99,9 @@
   
   let firstLoadStatus = 2|8;
 
+  
+  let m_last_count = '';
+
 
   /** @type {WeakRef | null} */
   let displayedPlaylist = null;
@@ -1258,7 +1261,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
         videos_related.setAttribute('placeholder-videos', '')
 
-        $('[placeholder-videos]').on("scroll", windowScroll);
+        $('[placeholder-videos]').on("scroll", windowScroll); // next videos - single column mode
 
       }
 
@@ -1692,7 +1695,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  let m_last_count = '';
   function getCountHText(elm){
     return `${((((pageFetchedData || 0).pageData || 0).playerResponse || 0).videoDetails || 0).videoId || 0}...${elm.textContent}`
   }
@@ -2555,6 +2557,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const _pageBeingInit = function () {
 
     pageSession.inc();
+    if(pageSession.sid>9e9) pageSession.sid=9; 
     fetchCounts = {
       base: null,
       new: null,
@@ -3477,7 +3480,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         mtoFlexyAttr.clear(true)
         mtf_checkFlexy()
 
-        document.querySelector("#right-tabs .tab-content").addEventListener('scroll', windowScroll, true);
+        //document.querySelector("#right-tabs .tab-content").addEventListener('scroll', windowScroll, true);
 
         // for automcomplete plugin or other userscript plugins
         // document.body for Firefox >= 60
@@ -4540,15 +4543,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  window.addEventListener("scroll", function () {
-    singleColumnScrolling(false)
-  }, bubblePassive)
 
   //let lastResizeAt = 0;
   window.addEventListener('resize', function () {
 
-    if (!scriptEnable) return;
-    if (pageType !== 'watch') return;
+    if (!scriptEnable || pageType !== 'watch') return;
     //lastResizeAt = Date.now();
 
     if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS) {
@@ -4903,12 +4902,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   window.addEventListener('scroll', function (evt) {
 
+
     //console.log(evt.target)
 
     if (!scriptEnable) return;
 
     let isTwoCol = (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS
     if (isTwoCol) return;
+    
+    singleColumnScrolling(false)
 
     if (!kRef(scrollingVideosList)) return;
     if (videoListBeforeSearch) return;
