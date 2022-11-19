@@ -50,7 +50,7 @@
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
 
-  const DEBUG_LOG = true
+  const DEBUG_LOG = false
 
   const LAYOUT_VAILD = 1;
 
@@ -731,6 +731,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
     let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
     let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
+
+    _console.log(8221, 1, chat_collapsed_changed,chat_expanded_changed,tab_expanded_changed,theater_mode_changed,column_mode_changed,fullscreen_mode_changed,epanel_expanded_changed )
 
 
     //console.log(169, 1, chat_collapsed_changed, tab_expanded_changed)
@@ -3402,15 +3404,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (pageType === 'watch') {
 
-      if (firstLoadStatus&8) {
+      let isFirstLoad = firstLoadStatus&8;
+
+      if (isFirstLoad) {
         firstLoadStatus -= 8;
         document.addEventListener('load', iframeLoadHookA, capturePassive)
         ytMicroEventsInit();
+          
       }
       variableResets();
 
-      document.documentElement.setAttribute('youtube-ready', '')
-      document.documentElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+      if(isFirstLoad){
+        let docElement = document.documentElement
+        if(docElement.hasAttribute('tabview-loaded')){
+          throw 'Tabview Youtube Duplicated';
+        }
+        docElement.setAttribute('tabview-loaded', '')
+        docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+      }
+      
+
  
 
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
@@ -3974,6 +3987,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     for (const mutation of mutations) {
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
+      _console.log(8221,18, mutation.attributeName )
       if (mutation.attributeName == 'userscript-chat-collapsed' || mutation.attributeName == 'userscript-chatblock') {
 
         if (!checkedChat) {
@@ -4269,7 +4283,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             let isActiveAndVisible = this.classList.contains('tab-btn') && this.classList.contains('active') && !this.classList.contains('tab-btn-hidden')
 
+            _console.log(8221,15, isActiveAndVisible)
+
             if (isFullScreen()) {
+              _console.log(8221,16,1)
 
               console.log(isActiveAndVisible, this)
               if (isActiveAndVisible) {
@@ -4301,21 +4318,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
             } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
+              
+              _console.log(8221,16,2)
               //optional
               timeline.setTimeout(unlock, 80);
               switchTabActivity(null);
               ytBtnSetTheater();
             } else if (isActiveAndVisible) {
+              
+              _console.log(8221,16,3)
               timeline.setTimeout(unlock, 80);
               switchTabActivity(null);
             } else {
+              
+              _console.log(8221,16,4)
 
               if (isChatExpand() && isWideScreenWithTwoColumns()) {
                 ytBtnCollapseChat();
               } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
                 ytBtnCloseEngagementPanels();
               } else if (isWideScreenWithTwoColumns() && isTheater() && !isFullScreen()) {
-                ytBtnCancelTheater();
+                ytBtnCancelTheater(); //ytd-watch-flexy attr [theater]
               }
 
               timeline.setTimeout(() => {

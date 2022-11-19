@@ -125,17 +125,22 @@ function injection_script_1() {
 
 
 
-  function getTranslate(){
+  function getTranslate() {
 
-      
+
     function _snippetText(str) {
-      return str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ')
+      // str can be underfinded
+      return str ? str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ') : ''
     }
 
     function snippetText(snippet) {
-      let res = [];
-      for (const s of snippet.runs) {
-        res.push(_snippetText(s.text||''))
+      let runs = snippet.runs;
+      if (runs.length === 1) return _snippetText(runs[0].text);
+
+      let res = new Array(runs.length);
+      let ci = 0;
+      for (const s of runs) {
+        res[ci++] = _snippetText(s.text);
       }
       return res.join('\n');
     }
@@ -150,29 +155,27 @@ function injection_script_1() {
       let res = {};
       let map = new WeakSet();
 
-      let subTexts = {};
+      let mh1 = {}
 
       for (const initialSegment of initialSegments) {
-        if (!initialSegment || !initialSegment.transcriptSegmentRenderer) continue;
+        let transcript = (initialSegment || 0).transcriptSegmentRenderer;
+        if (!transcript) continue;
 
-        let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
-        let endMs = (+initialSegment.transcriptSegmentRenderer.endMs || 0)
+        let startMs = (+transcript.startMs || 0)
+        let endMs = (+transcript.endMs || 0)
 
         if (startMs === endMs) {
           // effect text
           // https://www.youtube.com/watch?v=Ud73fm4Uoq0
           map.add(initialSegment)
-
-          let text = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
-          if (!subTexts[startMs]) subTexts[startMs] = [];
-          if (!subTexts[startMs].includes(text)) subTexts[startMs].push(text);
           continue;
         }
-        let text = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
 
+        let text = snippetText(transcript.snippet);
 
-        if (/^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
+        if (mh1[text] || /^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
           initialSegment[s8] = true;
+          mh1[text] = true;
           //effect only
           // https://www.youtube.com/watch?v=zLak0dxBKpM
           map.add(initialSegment)
@@ -187,13 +190,14 @@ function injection_script_1() {
         })
 
       }
+      mh1 = null;
 
       function trim2(str) {
-        return str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '');
+        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
       }
 
       function ns2(str) {
-        return str.replace(/[\xA0\u200b\s\n\t]+/g, '');
+        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
       }
 
       for (const text of Object.keys(res)) {
@@ -203,52 +207,67 @@ function injection_script_1() {
 
           if (lastEntry && entry) {
             // snippetText(lastEntry.initialSegment.transcriptSegmentRenderer.snippet) === snippetText(entry.initialSegment.transcriptSegmentRenderer.snippet)
-            if (entry.startMs - lastEntry.endMs < 5 && entry.startMs >= lastEntry.endMs) {
-
+            let timeDiff = entry.startMs - lastEntry.endMs;
+            let bool = (timeDiff < 5) ? entry.startMs >= lastEntry.endMs : (timeDiff < 180 && entry.startMs >= lastEntry.endMs && entry.endMs - entry.startMs < 800);
+            if (bool) {
               lastEntry.endMs = entry.endMs
               lastEntry.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs
               map.add(entry.initialSegment);
-
-              continue;
-            }
-            
-            if (entry.startMs - lastEntry.endMs < 180 && entry.startMs >= lastEntry.endMs && entry.endMs - entry.startMs < 800 ) {
-                
-              lastEntry.endMs = entry.endMs
-              lastEntry.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs
-              map.add(entry.initialSegment);
-
               continue;
             }
 
           }
-
           lastEntry = entry
 
         }
       }
 
-
-
-
       let fRes = initialSegments.filter(m => !map.has(m));
 
 
-      for (const segment of fRes) {
+      let sj_start = 0;
+      let si_length = fRes.length;
+      let sj_length = initialSegments.length;
+
+
+      if (si_length === sj_length) {
+        //no fix is required
+
+        return fRes;
+      }
+
+      for (let si = 0; si < si_length; si++) {
+        const segment = fRes[si];
+
         let main_startMs = (+segment.transcriptSegmentRenderer.startMs || 0)
         let main_endMs = (+segment.transcriptSegmentRenderer.endMs || 0)
         segment.transcriptSegmentRenderer[s7] = {};
-        for (const initialSegment of initialSegments) {
-          if (!initialSegment) continue;
-          if (initialSegment[s8]) continue;
+
+        for (let sj = sj_start; sj < sj_length; sj++) {
+          const initialSegment = initialSegments[sj]
+
+          if (!initialSegment || initialSegment[s8]) continue;
+          //console.log(8833, 100, si, sj)
 
           let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
+          let isStartValid = startMs >= main_startMs;
+          if (!isStartValid) continue;
+          if (startMs > main_endMs) {
+            sj_start = sj - 1; // ignore sj_start = -1
+            if (sj_start < si + 1) sj_start = si + 1; // next si is si+1;  sj>=si
+            break;
+          }
+
+          //console.log(8833,si,sj)
           let endMs = (+initialSegment.transcriptSegmentRenderer.endMs || 0)
 
-          if (startMs >= main_startMs && endMs <= main_endMs) {
+          if (isStartValid && endMs <= main_endMs) {
+
+            //console.log(8833, 102)
             let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
             segment.transcriptSegmentRenderer[s7][mt] = (segment.transcriptSegmentRenderer[s7][mt] || 0) + 1 + Math.abs(endMs - startMs);
           }
+
 
         }
 
@@ -259,18 +278,19 @@ function injection_script_1() {
 
         let snippet = segment.transcriptSegmentRenderer.snippet
 
-        let main_str = trim2(_snippetText(snippet.runs[0].text||''));
+        let main_str = trim2(_snippetText(snippet.runs[0].text));
 
         snippet.runs[0].text = main_str
 
         if (snippet.runs.length > 1) continue;  // skip multi lines
-
 
         let obj = segment.transcriptSegmentRenderer[s7]
 
         let rg = Object.keys(obj)
 
         if (rg.length <= 1) continue; // no second line
+
+        // https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
         rg = rg.map(k => ({ str: k, count: obj[k] }))
         rg.sort((a, b) => b.count - a.count)
@@ -765,6 +785,7 @@ function injection_script_1() {
 
           if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
             nv[s6] = true;
+            //console.log(955, 'translate')
             //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
             nv.initialSegments = translate(nv.initialSegments)
             //console.log(344,nv, nv.initialSegments.length)
@@ -1063,7 +1084,7 @@ function injection_script_1() {
   document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
 
 
-  if(document.documentElement.hasAttribute('youtube-ready'))ceHack();else
+  if(document.documentElement.hasAttribute('tabview-loaded'))ceHack();else
   document.addEventListener('tabview-ce-hack',ceHack, true)
 
   
