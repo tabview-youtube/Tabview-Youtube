@@ -1,4 +1,4 @@
--(function() {
+-(function mainBody() {
   'use strict';
 
   function inIframe() {
@@ -20,7 +20,7 @@
 
   const scriptVersionForExternal = '2022/05/07';
 
-  const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof((((window || 0).chrome || 0).runtime || 0).getURL) == 'function'
+  const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof ((((window || 0).chrome || 0).runtime || 0).getURL) == 'function'
 
   const svgComments = `<path d="M40.068 13.465l-34.138.07A5.94 5.94 0 0 0 0 19.465v21.141a5.94 5.94 0 0 0 5.93 5.929H12v10a1 
   1 0 0 0 1.74.673l9.704-10.675 16.626-.068A5.94 5.94 0 0 0 46 40.536V19.395a5.94 5.94 0 0 0-5.932-5.93zM10 23.465h13a1 
@@ -50,7 +50,7 @@
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
 
-  const DEBUG_LOG = false
+  const DEBUG_LOG = true
 
   const LAYOUT_VAILD = 1;
 
@@ -62,21 +62,23 @@
   const LAYOUT_TAB_EXPANDED = 64;
   const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 128;
   const LAYOUT_CHATROOM_EXPANDED = 256;
-  
+
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 
-  const nullFunc = function(){};
+  const nullFunc = function () { };
 
-  
-  
+
+
   let scriptEnable = false;
   let scriptEC = 0;
+
+  let comments_loader = 0;
 
   let cmTime = 0;
   let commentsReady_id = 0;
   let t_heated_BodyScroll = 0;
-  let mTime = Date.now()-152000000;
-  
+  let mTime = Date.now() - 152000000;
+
   let lastScrollFetch = 0;
   let lastOffsetTop = 0;
   let mtf_forceCheckLiveVideo_disable = 0;
@@ -86,88 +88,92 @@
   let pageType = null;
   let chatroomDetails = null;
   let switchTabActivity_lastTab = null
-  
+
   let lstTab = null;
 
   let _cachedLastVideo = null;
   let videoListBeforeSearch = null;
-  
+
   let storeLastPanel = null;
+
   
-  /** @type {WeakRef | null} */ 
+  let firstLoadStatus = 2|8;
+
+
+  /** @type {WeakRef | null} */
   let displayedPlaylist = null;
-  
-  /** @type {WeakRef | null} */ 
+
+  /** @type {WeakRef | null} */
   let scrollingVideosList = null;
 
-  /** @type {WeakRef | null} */ 
+  /** @type {WeakRef | null} */
   let ytdFlexy = null;
 
   const Q = {}
   const settings = {
     defaultTab: "#tab-videos"
   };
-  
+
   const STORE_VERSION = 1;
   const STORE_key = 'userscript-tabview-settings';
-  
+
   let fetchCounts = {
     base: null,
     new: null,
-    fetched : false,
+    fetched: false,
     count: null,
   }
 
   let pageLang = 'en';
-  const langWords ={
-    'en':{
+  const langWords = {
+    'en': {
       //'share':'Share',
-      'info':'Info',
-      'videos':'Videos',
-      'playlist':'Playlist'
+      'info': 'Info',
+      'videos': 'Videos',
+      'playlist': 'Playlist'
     },
-    'jp':{
+    'jp': {
       //'share':'共有',
-      'info':'情報',
-      'videos':'動画',
-      'playlist':'再生リスト'
+      'info': '情報',
+      'videos': '動画',
+      'playlist': '再生リスト'
     },
-    'tw':{
+    'tw': {
       //'share':'分享',
-      'info':'資訊',
-      'videos':'影片',
-      'playlist':'播放清單'
+      'info': '資訊',
+      'videos': '影片',
+      'playlist': '播放清單'
     },
-    'cn':{
+    'cn': {
       //'share':'分享',
-      'info':'资讯',
-      'videos':'视频',
-      'playlist':'播放列表'
+      'info': '资讯',
+      'videos': '视频',
+      'playlist': '播放列表'
     },
-    'du':{
+    'du': {
       //'share':'Teilen',
-      'info':'Info',
-      'videos':'Videos',
-      'playlist':'Playlist'
+      'info': 'Info',
+      'videos': 'Videos',
+      'playlist': 'Playlist'
     },
-    'fr':{
+    'fr': {
       //'share':'Partager',
-      'info':'Info',
-      'videos':'Vidéos',
-      'playlist':'Playlist'
+      'info': 'Info',
+      'videos': 'Vidéos',
+      'playlist': 'Playlist'
     },
-    'kr':{
+    'kr': {
       //'share':'공유',
-      'info':'정보',
-      'videos':'동영상',
-      'playlist':'재생목록'
+      'info': '정보',
+      'videos': '동영상',
+      'playlist': '재생목록'
     }
   };
-  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER','YTD-MENU-RENDERER']
+  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER', 'YTD-MENU-RENDERER']
 
   let globalHook_symbols = [];
   let globalHook_hashs = {};
-    
+
   /** @type {WeakSet<HTMLIFrameElement>} */
   let iframe_set = new WeakSet();
 
@@ -177,24 +183,24 @@
 
 
 
-  
+
   const _console = new Proxy(console, {
-    get(target, prop, receiver){
-      if(!DEBUG_LOG && prop==='log'){
+    get(target, prop, receiver) {
+      if (!DEBUG_LOG && prop === 'log') {
         return nullFunc
       }
       return Reflect.get(...arguments)
     }
   });
 
-  const isPassiveArgSupport = (typeof IntersectionObserver==='function');
+  const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
   // https://caniuse.com/?search=addEventListener%20passive
 
-  const bubblePassive = isPassiveArgSupport?{capture:false, passive:true}:false;
-  const capturePassive = isPassiveArgSupport?{capture:true, passive:true}:true;
-  
-  
+  const bubblePassive = isPassiveArgSupport ? { capture: false, passive: true } : false;
+  const capturePassive = isPassiveArgSupport ? { capture: true, passive: true } : true;
+
+
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector; // nodeType==1 // since 2022/07/12
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
@@ -203,17 +209,17 @@
   const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
 
-  const querySelectorFromAnchorFizzy = (root, id, selector)=>{
-    if(!root) return null;
-    if(root.id===id && root.matches(selector))return root;
+  const querySelectorFromAnchorFizzy = (root, id, selector) => {
+    if (!root) return null;
+    if (root.id === id && root.matches(selector)) return root;
     return querySelectorFromAnchor.call(root, selector) || null;
   }
 
-  function maxUInt(s, d){
-    let t = (d>s?d:s);
-    return t>0?t:0;
+  function maxUInt(s, d) {
+    let t = (d > s ? d : s);
+    return t > 0 ? t : 0;
   }
-  
+
   /** @type {(o: Object | null) => WeakRef | null} */
   const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
 
@@ -266,8 +272,8 @@
   }
 
 
-  const stopIframePropagation = function(/** @type {Event} */ evt){
-    if(scriptEnable && ((evt||0).target||0).nodeName === 'IFRAME'){
+  const stopIframePropagation = function (/** @type {Event} */ evt) {
+    if (scriptEnable && ((evt || 0).target || 0).nodeName === 'IFRAME') {
       evt.stopImmediatePropagation();
       evt.stopPropagation();
     }
@@ -317,11 +323,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     set(newValue) {
       this.sid = newValue;
     }
-    inc(){
+    inc() {
       this.sid++;
     }
   }
-  
+
   class Deferred {
     constructor() {
       this.reset();
@@ -341,7 +347,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       this._resolve(...arguments);
     }
   }
-  
+
 
   class Timeout {
 
@@ -372,8 +378,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-  
-  function timeout(f, d, repeatCount){
+
+  function timeout(f, d, repeatCount) {
     let res = new Timeout();
     res.set(f, d, repeatCount);
     return res;
@@ -397,21 +403,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let pageSession = new Session(0);
   let tabsDeferred = new Deferred();
+  tabsDeferred.resolve();
   let timeout_resize_for_layout_change = new Timeout();
-  
+
   let layoutStatusMutex = new Mutex();
 
 
-  function scriptInjector(script_id, url_chrome, response_id){
+  function scriptInjector(script_id, url_chrome, response_id) {
 
-    let res={
+    let res = {
       script_id: script_id,
-      inject: function(){
+      inject: function () {
 
         let res = this, script_id = this.script_id;
 
-        if(!document.querySelector(`script#${script_id}`)){
-          if (res.runtime_url){
+        if (!document.querySelector(`script#${script_id}`)) {
+          if (res.runtime_url) {
             addScriptByURL(res.runtime_url).id = script_id;
           } else {
             addScript(`${res.injection_script}`).id = script_id;
@@ -421,8 +428,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }
     res.script_id = script_id;
-    
-    if (isMyScriptInChromeRuntime()){
+
+    if (isMyScriptInChromeRuntime()) {
       res.runtime_url = window.chrome.runtime.getURL(url_chrome)
     } else {
       res.injection_script = GM_getResourceText(response_id);
@@ -438,52 +445,52 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     'userscript-tabview-injection-1',
     'js/injection_script_1.js',
     "injectionJS1");
-    
-   
 
-  function nonCryptoRandStr(/** @type {number} */ n){
+
+
+  function nonCryptoRandStr(/** @type {number} */ n) {
     const result = new Array(n);
     const baseStr = nonCryptoRandStr_base;
     const bLen = baseStr.length;
-    for ( let i = 0; i < n; i++ ) {
+    for (let i = 0; i < n; i++) {
       let t = null
       do {
         t = baseStr.charAt(Math.floor(Math.random() * bLen));
-      }while(i===0 && 10-t>0)
-      result[i]=t;
-   }
-   return result.join('');
+      } while (i === 0 && 10 - t > 0)
+      result[i] = t;
+    }
+    return result.join('');
   }
 
-/**
- * Class definition
- * @property {string} propName - propriety description
- * ...
- */
-  class ObserverRegister{
-    
-    constructor(/** @type {()=>MutationObserver | IntersectionObserver} */ observerCreator){
+  /**
+   * Class definition
+   * @property {string} propName - propriety description
+   * ...
+   */
+  class ObserverRegister {
+
+    constructor(/** @type {()=>MutationObserver | IntersectionObserver} */ observerCreator) {
       let uid = null;
       const uidStore = ObserverRegister.uidStore;
-      do{
+      do {
         uid = nonCryptoRandStr(5);
-      }while(uidStore[uid])
+      } while (uidStore[uid])
       uidStore[uid] = true;
-      
+
       /**
        * uid is the unique string for each observer
        * @type {string}
        * @public
        */
       this.uid = uid;
-      
+
       /**
        * observerCreator is a function to create the observer
        * @type {Function}
        * @public
        */
       this.observerCreator = observerCreator
-      
+
       /**
        * observer is the actual observer object
        * @type {MutationObserver | IntersectionObserver}
@@ -491,24 +498,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
        */
       this.observer = null;
     }
-    bindElement(/** @type {HTMLElement} */ elm, ...args){
-      if(elm.hasAttribute(`o3r-${this.uid}`))return false;
-      elm.setAttribute(`o3r-${this.uid}`,'')
-      if(this.observer===null){
-        this.observer=this.observerCreator();
+    bindElement(/** @type {HTMLElement} */ elm, ...args) {
+      if (elm.hasAttribute(`o3r-${this.uid}`)) return false;
+      elm.setAttribute(`o3r-${this.uid}`, '')
+      if (this.observer === null) {
+        this.observer = this.observerCreator();
       }
       this.observer.observe(elm, ...args)
       return true
     }
-    clear(/** @type {boolean} */ flag){
-      if(this.observer !== null){
+    clear(/** @type {boolean} */ flag) {
+      if (this.observer !== null) {
         //const uidStore = ObserverRegister.uidStore;
-        if(flag === true){
+        if (flag === true) {
           this.observer.takeRecords();
           this.observer.disconnect();
         }
         this.observer = null;
-        for(const s of document.querySelectorAll(`[o3r-${this.uid}]`)) s.removeAttribute(`o3r-${this.uid}`)
+        for (const s of document.querySelectorAll(`[o3r-${this.uid}]`)) s.removeAttribute(`o3r-${this.uid}`)
         //uidStore[this.uid]=false;
         //this.uid = null;
       }
@@ -522,27 +529,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   ObserverRegister.uidStore = {}; //backward compatible with FireFox 55.
 
 
-  const mtoMutation_body = new ObserverRegister(()=>{
+  const mtoMutation_body = new ObserverRegister(() => {
     return new MutationObserver(FP.mtoBodyF)
-  }); 
+  });
 
-  const mtoFlexyAttr = new ObserverRegister(()=>{
+  const mtoFlexyAttr = new ObserverRegister(() => {
     return new MutationObserver(mtf_attrFlexy)
-  }); 
+  });
 
-  const mtoVisibility_EngagementPanel = new ObserverRegister(()=>{
+  const mtoVisibility_EngagementPanel = new ObserverRegister(() => {
     return new MutationObserver(FP.mtf_attrEngagementPanel)
   });
   const sa_epanel = mtoVisibility_EngagementPanel.uid;
 
-  const mtoVisibility_Playlist = new ObserverRegister(()=>{
+  const mtoVisibility_Playlist = new ObserverRegister(() => {
     return new AttributeMutationObserver({
       "hidden": FP.mtf_attrPlaylist
     })
   })
   const sa_playlist = mtoVisibility_Playlist.uid;
 
-  const mtoVisibility_Comments = new ObserverRegister(()=>{
+  const mtoVisibility_Comments = new ObserverRegister(() => {
     return new AttributeMutationObserver({
       "hidden": FP.mtf_attrComments
     })
@@ -550,7 +557,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const sa_comments = mtoVisibility_Comments.uid;
 
 
-  const mtoVisibility_Chatroom = new ObserverRegister(()=>{
+  const mtoVisibility_Chatroom = new ObserverRegister(() => {
     return new AttributeMutationObserver({
       "collapsed": FP.mtf_attrChatroom
     })
@@ -591,8 +598,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //   document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
   // }
 
-  function isCommentsK(ytdFlexyElm){
-    return (ytdFlexyElm.getAttribute('tabview-youtube-comments')||'').indexOf('K')>=0
+  function isCommentsK(ytdFlexyElm) {
+    return (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').indexOf('K') >= 0
   }
 
   function akAttr(/** @type {HTMLElement} */ cssElm, /** @type {String} */ attrName, /** @type {boolean} */ isNegative, /** @type {string | any} */ flag) {
@@ -615,10 +622,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // 101, 102, ... 799, 101 
     }
 
-    cssElm.setAttribute(attrName, `${ isNegative ? -ak : ak }${ flag || '' }`)
+    cssElm.setAttribute(attrName, `${isNegative ? -ak : ak}${flag || ''}`)
   }
 
-  function dispatchWindowResize(){
+  function dispatchWindowResize() {
     // for youtube to detect layout resize for adjusting Player tools
     return window.dispatchEvent(new Event('resize'));
   }
@@ -658,7 +665,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!cssElm) return;
 
-    const BF_TWOCOL_N_THEATER = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER
+    const BF_TWOCOL_N_THEATER = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER
 
     let new_isExpandedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_EXPANDED)
     let new_isCollapsedChat = !!(new_layoutStatus & LAYOUT_CHATROOM_COLLAPSED) && !!(new_layoutStatus & LAYOUT_CHATROOM)
@@ -667,7 +674,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
     let new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
 
-    
+
 
 
     function showTabOrChat() {
@@ -687,7 +694,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         } else {
 
           if (new_isExpandedChat) ytBtnCollapseChat()
-          if (!new_isTabExpanded) {setToActiveTab();}
+          if (!new_isTabExpanded) { setToActiveTab(); }
 
         }
 
@@ -711,9 +718,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    const statusCollapsedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED))
+    const statusCollapsedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED))
     const statusCollapsedTrue = !statusCollapsedFalse
-    
+
 
     let changes = (old_layoutStatus & LAYOUT_VAILD) ? old_layoutStatus ^ new_layoutStatus : 0;
 
@@ -724,12 +731,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
     let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
     let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
- 
+
 
     //console.log(169, 1, chat_collapsed_changed, tab_expanded_changed)
     //console.log(169, 2, new_isExpandedChat, new_isCollapsedChat, new_isTabExpanded)
-    
-    let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND))
+
+    let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND))
     let tab_change = BF_LayoutCh_Panel;
     let isChatOrTabExpandTriggering = !!((new_layoutStatus) & BF_LayoutCh_Panel);
     let isChatOrTabCollaspeTriggering = !!((~new_layoutStatus) & BF_LayoutCh_Panel);
@@ -741,82 +748,82 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let requestVideoResize = false;
 
     // two column; not theater; tab collapse; chat expand; ep expand
-    const IF_01a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
-    const IF_01b = LAYOUT_TWO_COLUMNS|0|0|LAYOUT_CHATROOM|0|LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const IF_01a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED | LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const IF_01b = LAYOUT_TWO_COLUMNS | 0 | 0 | LAYOUT_CHATROOM | 0 | LAYOUT_ENGAGEMENT_PANEL_EXPAND;
 
-    
+
     // two column; not theater;
     const IF_02a = BF_TWOCOL_N_THEATER;
     const IF_02b = LAYOUT_TWO_COLUMNS;
 
     // two column; not theater; tab expand; chat expand; 
-    const IF_03a = LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED;
-    const IF_03b = LAYOUT_TWO_COLUMNS|0|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
+    const IF_03a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED;
+    const IF_03b = LAYOUT_TWO_COLUMNS | 0 | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | 0;
 
-    
+
     // two column; tab expand; chat expand; 
-    const IF_06a = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|LAYOUT_CHATROOM_COLLAPSED;
-    const IF_06b = LAYOUT_TWO_COLUMNS|LAYOUT_TAB_EXPANDED|LAYOUT_CHATROOM|0;
+    const IF_06a = LAYOUT_TWO_COLUMNS | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED;
+    const IF_06b = LAYOUT_TWO_COLUMNS | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | 0;
 
-    
+
     // two column; theater;
     const IF_04a = BF_TWOCOL_N_THEATER;
     const IF_04b = BF_TWOCOL_N_THEATER;
 
     // not fullscreen; two column; not theater; not tab expand; not EP expand; not expand chat
-    const IF_05a = LAYOUT_FULLSCREEN|LAYOUT_TWO_COLUMNS|LAYOUT_THEATER|LAYOUT_TAB_EXPANDED|LAYOUT_ENGAGEMENT_PANEL_EXPAND|LAYOUT_CHATROOM_EXPANDED;
-    const IF_05b = 0|LAYOUT_TWO_COLUMNS|0|0|0|0;
+    const IF_05a = LAYOUT_FULLSCREEN | LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED;
+    const IF_05b = 0 | LAYOUT_TWO_COLUMNS | 0 | 0 | 0 | 0;
 
 
 
-    if(new_isFullScreen){
+    if (new_isFullScreen) {
 
 
       if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_06a) === IF_06b && statusCollapsedFalse && !column_mode_changed) {
 
         // two column; tab expand; chat expand; 
-    
-          switchTabActivity(null);
+
+        switchTabActivity(null);
 
 
-          
+
       }
- 
-      if( !!(tab_change & LAYOUT_CHATROOM_EXPANDED) && new_isExpandedChat ){
+
+      if (!!(tab_change & LAYOUT_CHATROOM_EXPANDED) && new_isExpandedChat) {
         //tab_change = LAYOUT_CHATROOM_EXPANDED
         //tab_change = LAYOUT_CHATROOM_EXPANDED|LAYOUT_TAB_EXPANDED
-        
+
         timeline.setTimeout(() => {
           let scrollElement = document.querySelector('ytd-app[scrolling]')
-          if(!scrollElement) return;
+          if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
           let chatFrame = document.querySelector('ytd-live-chat-frame#chat');
           if (chatFrame && isChatExpand()) {
-            _console.log(7290,1)
+            _console.log(7290, 1)
             chatFrame.scrollIntoView(true);
           }
         }, 60)
 
       }
 
-      
-      
+
+
 
 
       if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel) {
-        
+
         timeline.setTimeout(() => {
           let scrollElement = document.querySelector('ytd-app[scrolling]')
-          if(!scrollElement) return;
+          if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
           let epPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
-          if (epPanel ) {
-            _console.log(7290,2)
+          if (epPanel) {
+            _console.log(7290, 2)
 
-            let pi=50;
-            let cid = setInterval(()=>{
-              if(--pi) epPanel.scrollIntoView(true); else clearInterval(cid)
-            },17)
+            let pi = 50;
+            let cid = setInterval(() => {
+              if (--pi) epPanel.scrollIntoView(true); else clearInterval(cid)
+            }, 17)
             //
           }
         }, 60)
@@ -825,15 +832,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-    }else if (fullscreen_mode_changed) {
+    } else if (fullscreen_mode_changed) {
 
 
-      
 
-      if( !new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()){
+
+      if (!new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()) {
         showTabOrChat();
         requestVideoResize = true;
-      } else if( !new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()){
+      } else if (!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()) {
         ytBtnCancelTheater();
         requestVideoResize = true;
       }
@@ -850,41 +857,41 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     //}
 
-    }*/ else if((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change==LAYOUT_CHATROOM_EXPANDED || tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND) ){
+    }*/ else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND)) {
 
-    // two column; not theater; tab collapse; chat expand; ep expand
+      // two column; not theater; tab collapse; chat expand; ep expand
 
 
 
-      if(epanel_expanded_changed){
+      if (epanel_expanded_changed) {
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCollapseChat();
-          setTimeout(unlock,13)
+          setTimeout(unlock, 13)
         })
-      }else if(chat_collapsed_changed){
+      } else if (chat_collapsed_changed) {
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCloseEngagementPanels();
-          setTimeout(unlock,13)
+          setTimeout(unlock, 13)
         })
 
       }
 
     } else if (!tab_change && column_mode_changed && (new_layoutStatus & IF_02a) === IF_02b && moreThanOneShown) {
 
-    // two column; not theater;
-    // moreThanOneShown
+      // two column; not theater;
+      // moreThanOneShown
 
       showTabOrChat();
       requestVideoResize = true;
 
     } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollapsedFalse && !column_mode_changed) {
 
-    // two column; not theater; tab expand; chat expand; 
+      // two column; not theater; tab expand; chat expand; 
 
       switchTabActivity(null);
       requestVideoResize = true;
 
-    } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse && (changes & BF_TWOCOL_N_THEATER) === 0 ) {
+    } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse && (changes & BF_TWOCOL_N_THEATER) === 0) {
 
       ytBtnCancelTheater();
       requestVideoResize = true;
@@ -896,32 +903,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue && !column_mode_changed) {
 
-      if(tab_change==LAYOUT_ENGAGEMENT_PANEL_EXPAND){
+      if (tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND) {
 
         lstTab.lastPanel = null;
 
-        if(new_isFullScreen){
+        if (new_isFullScreen) {
 
-        }else{
+        } else {
           showTabOrChat();
         }
-      }else if(tab_change==LAYOUT_CHATROOM_EXPANDED){
+      } else if (tab_change == LAYOUT_CHATROOM_EXPANDED) {
 
         lstTab.lastPanel = null;
 
-        if(new_isFullScreen){
+        if (new_isFullScreen) {
 
-        }else{
+        } else {
           showTabOrChat();
         }
-      }else{
+      } else {
 
-        
-        if(new_isFullScreen){
 
-        }else{
+        if (new_isFullScreen) {
 
-        ytBtnSetTheater();
+        } else {
+
+          ytBtnSetTheater();
 
         }
 
@@ -934,7 +941,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       showTabOrChat();
       requestVideoResize = true;
 
-    } else if ( (new_layoutStatus & IF_05a) === IF_05b ) {
+    } else if ((new_layoutStatus & IF_05a) === IF_05b) {
       // bug fix for restoring from mini player
 
       layoutStatusMutex.lockWith(unlock => {
@@ -959,27 +966,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function fixLayoutStatus(x){
+  function fixLayoutStatus(x) {
     const new_isExpandedChat = !(x & LAYOUT_CHATROOM_COLLAPSED) && (x & LAYOUT_CHATROOM)
     return new_isExpandedChat ? (x | LAYOUT_CHATROOM_EXPANDED) : (x & ~LAYOUT_CHATROOM_EXPANDED);
   }
 
   const wls = new Proxy({
     /** @type {number | null} */
-    layoutStatus:undefined
+    layoutStatus: undefined
   }, {
-    get: function(target, prop) {
+    get: function (target, prop) {
       return target[prop];
     },
-    set: function(target, prop, value) {
-      if(prop=='layoutStatus'){
-          
+    set: function (target, prop, value) {
+      if (prop == 'layoutStatus') {
+
         if (value === 0) {
           target[prop] = value;
           return true;
-        }else if(target[prop]===value){
+        } else if (target[prop] === value) {
           return true;
-        }else{
+        } else {
           if (!target.layoutStatus_pending) {
             target.layoutStatus_pending = true;
             const old_layoutStatus = target[prop];
@@ -996,19 +1003,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       target[prop] = value;
       return true;
     },
-    has: function(target, prop) {
+    has: function (target, prop) {
       return (prop in target);
     }
   });
 
   const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
 
-  function isVideoPlaying(video) {
-    return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
-  }
+  // function isVideoPlaying(video) {
+  //   return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
+  // }
 
   function wAttr(elm, attr, kv) {
-    if (!elm || kv === null) {} else if (kv === true) { elm.setAttribute(attr, '') } else if (kv === false) { elm.removeAttribute(attr) } else if (typeof kv == 'string') { elm.setAttribute(attr, kv) }
+    if (!elm || kv === null) { } else if (kv === true) { elm.setAttribute(attr, '') } else if (kv === false) { elm.removeAttribute(attr) } else if (typeof kv == 'string') { elm.setAttribute(attr, kv) }
   }
 
   function hideTabBtn(tabBtn) {
@@ -1061,10 +1068,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let v = 0,
       k = 1,
       count = 0;
-      
+
     for (const ePanel of document.querySelectorAll(
       `ytd-watch-flexy ytd-engagement-panel-section-list-renderer[o3r-${sa_epanel}]`
-      )) {
+    )) {
 
       let visibility = ePanel.getAttribute('visibility') //ENGAGEMENT_PANEL_VISIBILITY_EXPANDED //ENGAGEMENT_PANEL_VISIBILITY_HIDDEN
 
@@ -1095,7 +1102,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       panel_id = panel_id.replace('#engagement-panel-', '');
       panel_id = parseInt(panel_id);
     }
-    if (panel_id >= 0) {} else return false;
+    if (panel_id >= 0) { } else return false;
 
     let panels = engagement_panels_();
 
@@ -1111,13 +1118,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */ s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
-    let button = querySelectorFromAnchor.call(s,'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button');
+    let button = querySelectorFromAnchor.call(s, 'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button');
 
-    if (button){
-      button = 
-        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') || 
+    if (button) {
+      button =
+        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') ||
         querySelectorFromAnchor.call(button, 'ytd-button-renderer');
-      if(button) button.click();
+      if (button) button.click();
     }
 
   }
@@ -1126,7 +1133,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (isEngagementPanelExpanded()) {
       for (const s of document.querySelectorAll(
         `ytd-watch-flexy ytd-engagement-panel-section-list-renderer[o3r-${sa_epanel}]`
-        )) {
+      )) {
         if (s.getAttribute('visibility') == "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED") ytBtnCloseEngagementPanel(s);
       }
     }
@@ -1148,21 +1155,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function ytBtnExpandChat() {
     let button = document.querySelector('ytd-live-chat-frame#chat[collapsed] > .ytd-live-chat-frame#show-hide-button')
-    if (button){
-      button = 
-        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') || 
+    if (button) {
+      button =
+        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') ||
         querySelectorFromAnchor.call(button, 'ytd-toggle-button-renderer');
-      if(button) button.click();
+      if (button) button.click();
     }
   }
 
   function ytBtnCollapseChat() {
     let button = document.querySelector('ytd-live-chat-frame#chat:not([collapsed]) > .ytd-live-chat-frame#show-hide-button')
-    if (button){
-      button = 
-        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') || 
+    if (button) {
+      button =
+        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') ||
         querySelectorFromAnchor.call(button, 'ytd-toggle-button-renderer');
-      if(button) button.click();
+      if (button) button.click();
     }
   }
 
@@ -1172,14 +1179,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function chatFrameContentDocument() {
     // non-null if iframe exist && contentDocument && readyState = complete
-    /** @type {HTMLIFrameElement | null} */ 
+    /** @type {HTMLIFrameElement | null} */
     let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
     if (!iframe) return null; //iframe must be there
-    /** @type {Document | null} */ 
+    /** @type {Document | null} */
     let cDoc = null;
     try {
       cDoc = iframe.contentDocument;
-    } catch (e) {}
+    } catch (e) { }
     if (!cDoc) return null;
     if (cDoc.readyState != 'complete') return null; //we must wait for its completion
 
@@ -1190,7 +1197,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function chatFrameElement(/** @type {string} */ cssSelector) {
     let cDoc = chatFrameContentDocument();
     if (!cDoc) return null;
-    /** @type {HTMLElement | null} */ 
+    /** @type {HTMLElement | null} */
     let elm = null;
     try {
       elm = cDoc.querySelector(cssSelector)
@@ -1221,11 +1228,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let right_tabs = document.querySelector('#right-tabs'); // can be NULL
 
-      let tab_videos = right_tabs?querySelectorFromAnchor.call(right_tabs,"#tab-videos"):null; // can be NULL
+      let tab_videos = right_tabs ? querySelectorFromAnchor.call(right_tabs, "#tab-videos") : null; // can be NULL
 
-      if(tab_videos!==null){
+      if (tab_videos !== null) {
 
-        for (const s of querySelectorAllFromAnchor.call(relocatedRelated,'#related')) {
+        for (const s of querySelectorAllFromAnchor.call(relocatedRelated, '#related')) {
           s.setAttribute('non-placeholder-videos', '')
         }
 
@@ -1239,7 +1246,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue');
 
         tab_videos.appendChild(videos_related);
-        let videos_results_renderer = querySelectorFromAnchor.call(relocatedRelated,"ytd-watch-next-secondary-results-renderer");
+        let videos_results_renderer = querySelectorFromAnchor.call(relocatedRelated, "ytd-watch-next-secondary-results-renderer");
         if (videos_results_renderer) videos_results_renderer.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal);
         videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
         videos_related.setAttribute('placeholder-videos', '')
@@ -1247,12 +1254,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         $('[placeholder-videos]').on("scroll", windowScroll);
 
       }
-      
+
     }
 
 
 
-    /** @type {HTMLElement | null} */ 
+    /** @type {HTMLElement | null} */
     let chatroom = null;
     if (chatroom = document.querySelector('*:not([data-positioner="before|#chat"]) + ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')) {
 
@@ -1281,7 +1288,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function handlerAutoCompleteExist() {
 
 
-    /** @type {HTMLElement} */ 
+    /** @type {HTMLElement} */
     let autoComplete = this;
 
     autoComplete.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
@@ -1292,7 +1299,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!domId || !searchBox) return;
 
     let positioner = searchBox.nextSibling;
-    if (positioner && positioner.nodeName.toLowerCase() == "autocomplete-positioner") {} else if (positioner && positioner.nodeName.toLowerCase() != "autocomplete-positioner") {
+    if (positioner && positioner.nodeName.toLowerCase() == "autocomplete-positioner") { } else if (positioner && positioner.nodeName.toLowerCase() != "autocomplete-positioner") {
       $(positioner = document.createElement("autocomplete-positioner")).insertAfter(searchBox);
     } else {
       $(positioner = document.createElement("autocomplete-positioner")).prependTo(searchBox.parentNode);
@@ -1310,8 +1317,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
-    let tf = ()=>{
-      if(!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return setTimeout(tf, 300);
+    let tf = () => {
+      if (!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return setTimeout(tf, 300);
       document.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'))
     }
     tf();
@@ -1322,7 +1329,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function mtf_AfterFixTabs() {
 
 
-    /** @type {HTMLElement | null} */ 
+    /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
 
@@ -1331,7 +1338,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-    const autocomplete = querySelectorFromAnchor.call(rootElement,'[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
+    const autocomplete = querySelectorFromAnchor.call(rootElement, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
 
     if (autocomplete) {
 
@@ -1347,11 +1354,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (!searchBox.hasAttribute('is-set-click-to-toggle')) {
           searchBox.setAttribute('is-set-click-to-toggle', '')
-          searchBox.addEventListener('click', function() {
+          searchBox.addEventListener('click', function () {
 
 
             setTimeout(() => {
-              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${ this.getAttribute('data-autocomplete-results-id') }"]`)
+              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
 
               if (!autocomplete) return;
 
@@ -1371,11 +1378,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           })
 
           let timeoutOnce_searchbox_keyup = new Timeout();
-          searchBox.addEventListener('keyup', function() {
+          searchBox.addEventListener('keyup', function () {
 
             timeoutOnce_searchbox_keyup.set(() => {
 
-              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${ this.getAttribute('data-autocomplete-results-id') }"]`)
+              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
 
               if (!autocomplete) return;
 
@@ -1405,7 +1412,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-    let currentLastVideo = querySelectorFromAnchor.call(rootElement,'[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
+    let currentLastVideo = querySelectorFromAnchor.call(rootElement, '[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
     let prevLastVideo = kRef(_cachedLastVideo);
 
     if (prevLastVideo !== currentLastVideo && currentLastVideo) {
@@ -1420,9 +1427,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       function getVideoListHash() {
 
         let res = [...document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')].map(renderer => {
-          let a = querySelectorFromAnchor.call(renderer,'a[href*="watch"][href*="v="]')
-          if(!a) return ''; //???
-          return a.getAttribute('href')||''
+          let a = querySelectorFromAnchor.call(renderer, 'a[href*="watch"][href*="v="]')
+          if (!a) return ''; //???
+          return a.getAttribute('href') || ''
 
         }).join('|')
         // /watch?v=XXXXX|/watch?v=XXXXXX|/watch?v=XXXXXX
@@ -1454,7 +1461,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (videoListBeforeSearch) {
             //console.log('fromSearch', videoListBeforeSearch)
 
-            requestAnimationFrame(function() {
+            requestAnimationFrame(function () {
 
               let renderer = document.querySelector('[placeholder-videos] ytd-watch-next-secondary-results-renderer');
               if (searchBox && searchBox.parentNode) searchBox.blur();
@@ -1525,24 +1532,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let s = 0;
       if (elmCont) {
         //not found if it is collapsed.
-        s |= querySelectorFromAnchor.call(elmCont,'yt-timed-continuation') ? 1 : 0;
-        s |= querySelectorFromAnchor.call(elmCont,'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
+        s |= querySelectorFromAnchor.call(elmCont, 'yt-timed-continuation') ? 1 : 0;
+        s |= querySelectorFromAnchor.call(elmCont, 'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
         //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
         if (s == 1) {
           attr_chatblock = 'chat-live';
-        }else if (s == 2) attr_chatblock = 'chat-playback';
+        } else if (s == 2) attr_chatblock = 'chat-playback';
 
         if (s == 1) $("span#tab3-txt-loader").text('');
 
       } else if (!ytdFlexyElm.hasAttribute('userscript-chatblock')) {
         // live chat frame but type not known
-          
+
         attr_chatblock = '';
 
       }
       //keep unknown as original    
-      
-      
+
+
       let isCollapsed = !!elmChat.hasAttribute('collapsed');
       attr_chatcollapsed = isCollapsed;
 
@@ -1566,13 +1573,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     window.dispatchEvent(new Event("scroll")); // dispatch Scroll Event to Window for content display
   }
 
-/* items - > special case (2022/11/09) */ 
- 
+  /* items - > special case (2022/11/09) */
+
 
 
   // continuous check for element relocation
   function mtf_append_comments() {
-    
+
     /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
@@ -1580,17 +1587,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement | null} */
     const rootElement = ytdFlexyElm;
 
-    let comments = querySelectorFromAnchorFizzy(rootElement,'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
+    let comments = querySelectorFromAnchorFizzy(rootElement, 'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
-      
-      _console.log(3202) 
+
+      _console.log(3202)
       $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
     }
   }
 
   // continuous check for element relocation
   function mtf_liveChatBtnF() {
-    
+
     /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
@@ -1598,24 +1605,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement | null} */
     const rootElement = ytdFlexyElm;
 
-    let button = querySelectorFromAnchor.call(rootElement,'ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
-    if (button){
+    let button = querySelectorFromAnchor.call(rootElement, 'ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
+    if (button) {
       let parentNode = closestDOM.call(button, 'ytd-live-chat-frame#chat');
-      if (!parentNode){
+      if (!parentNode) {
         console.log('parentNode failed')
-      } else if( HTMLElement.prototype.prepend ){
+      } else if (HTMLElement.prototype.prepend) {
         // using prepend
         HTMLElement.prototype.prepend.call(parentNode, button)
 
-      } else{
+      } else {
         // using insertBefore
-        try{
+        try {
           elementInsertBefore.call(parentNode, button, parentNode.firstChild);
-        }catch(e){
+        } catch (e) {
           console.log('element insert failed in old browser CE')
         }
       }
-    } 
+    }
     //if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
   }
 
@@ -1628,36 +1635,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm || !playlist) return;
- 
+
 
     let ple1 = querySelectorFromAnchor.call(playlist, "*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
-    
 
-    if (ple1) { 
 
-      
+    if (ple1) {
+
+
       let ct = Date.now();
 
       let truePlaylist = closestDOM.call(ple1, 'ytd-playlist-panel-renderer#playlist');
-      if(!truePlaylist || truePlaylist.nodeType!==1) truePlaylist = null;
+      if (!truePlaylist || truePlaylist.nodeType !== 1) truePlaylist = null;
       else {
 
         let tab_list = document.querySelector("#tab-list");
 
-        if(!tab_list) return;
+        if (!tab_list) return;
 
         truePlaylist.setAttribute('tabview-true-playlist', ct)
 
 
-        for (const s of document.querySelectorAll(`ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)){
+        for (const s of document.querySelectorAll(`ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)) {
           s.removeAttribute('tabview-true-playlist')
         }
-  
+
         let $wrapper = getWrapper('ytd-userscript-playlist')
         $wrapper.append(truePlaylist).appendTo(tab_list);
         truePlaylist.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
         setDisplayedPlaylist(); // relocation after re-layout
-  
+
         requestAnimationFrame(() => {
           let ytdFlexyElm = kRef(ytdFlexy);
           if (!scriptEnable || !ytdFlexyElm) return;
@@ -1674,6 +1681,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+  let m_last_count = '';
+  function getCountHText(elm){
+    return `${((((pageFetchedData || 0).pageData || 0).playerResponse || 0).videoDetails || 0).videoId || 0}...${elm.textContent}`
+  }
+
   // content fix - info & playlist
   // fired at begining, and keep for in case any change
   function mtf_fix_details() {
@@ -1683,65 +1695,65 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])')
 
-    if(contentToggleBtn){
+    if (contentToggleBtn) {
 
-      (()=> {
+      (() => {
         const domElement = contentToggleBtn;
         contentToggleBtn = null;
         // if(!domElement.parentElement) return; // not working in pseudo custom element - parentNode = documentFragment
         const expander = closestDOM.call(domElement, 'ytd-watch-flexy #tab-info ytd-expander')
 
-        if(!expander || expander.nodeType!==1) return; // checking whether it is still on the page
-        
-        if(expander.style.getPropertyValue('--ytd-expander-collapsed-height')){
-          expander.style.setProperty('--ytd-expander-collapsed-height','')
+        if (!expander || expander.nodeType !== 1) return; // checking whether it is still on the page
+
+        if (expander.style.getPropertyValue('--ytd-expander-collapsed-height')) {
+          expander.style.setProperty('--ytd-expander-collapsed-height', '')
         }
         nativeCall(expander, [
-          {'property':'canToggleJobId','value':1}, // false disable calculateCanCollapse in childrenChanged
-          {'property':'alwaysToggleable','value':false}, // this is checked in childrenChanged
-          {'property':'recomputeOnResize','value':false}, // no need to check toggleable
-          {'property':'isToggled','value':true}, // show full content
-          {'property':'canToggle','value':false}, // hide show more or less btn
-          {'property':'collapsedHeight','value':999999} // disable collapsed height check
+          { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
+          { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
+          { 'property': 'recomputeOnResize', 'value': false }, // no need to check toggleable
+          { 'property': 'isToggled', 'value': true }, // show full content
+          { 'property': 'canToggle', 'value': false }, // hide show more or less btn
+          { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
         ])
 
       })();
     }
 
-    let strcturedInfo=document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
-    if(strcturedInfo){
+    let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
+    if (strcturedInfo) {
 
-      (()=>{
+      (() => {
 
         strcturedInfo.removeAttribute('hidden');
       })();
     }
 
-/*
-    let inlineInfoExpander = document.querySelector('ytd-watch-flexy #description.ytd-watch-metadata ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
-    let vsInfoExpander = document.querySelector('#tab-info ytd-expander.ytd-video-secondary-info-renderer #description.ytd-video-secondary-info-renderer yt-formatted-string[split-lines].ytd-video-secondary-info-renderer')
-    _console.log(23234, inlineInfoExpander, vsInfoExpander, inlineInfoExpander.textContent, vsInfoExpander.textContent)
-    if(inlineInfoExpander && vsInfoExpander && inlineInfoExpander.textContent===vsInfoExpander.textContent){
-
-      inlineInfoExpander.classList.add('tabview-hidden-info')
-
-    }*/
+    /*
+        let inlineInfoExpander = document.querySelector('ytd-watch-flexy #description.ytd-watch-metadata ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
+        let vsInfoExpander = document.querySelector('#tab-info ytd-expander.ytd-video-secondary-info-renderer #description.ytd-video-secondary-info-renderer yt-formatted-string[split-lines].ytd-video-secondary-info-renderer')
+        _console.log(23234, inlineInfoExpander, vsInfoExpander, inlineInfoExpander.textContent, vsInfoExpander.textContent)
+        if(inlineInfoExpander && vsInfoExpander && inlineInfoExpander.textContent===vsInfoExpander.textContent){
+    
+          inlineInfoExpander.classList.add('tabview-hidden-info')
+    
+        }*/
 
 
 
 
     // just in case the playlist is collapsed
     let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-    if(playlist && playlist.matches('[collapsed], [collapsible]')) {
-      
-      (()=> {
-        
+    if (playlist && playlist.matches('[collapsed], [collapsible]')) {
+
+      (() => {
+
         const domElement = playlist;
         playlist = null;
         // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
         const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
 
-        if(!tablist || tablist.nodeType!==1) return; // checking whether it is still on the page
+        if (!tablist || tablist.nodeType !== 1) return; // checking whether it is still on the page
 
         if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
         if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
@@ -1753,7 +1765,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  
+
   document.addEventListener('mouseover', stopIframePropagation, true)
   document.addEventListener('mouseout', stopIframePropagation, true)
   document.addEventListener('mousedown', stopIframePropagation, true)
@@ -1765,41 +1777,53 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  const innerCommentsFuncs=[
+  const innerCommentsFuncs = [
     // comments
-    function(){
-              
-      _console.log(2907,1)
+    function () {
+
+      let elm = kRef(this.elm);
+      _console.log(2907, 1,!!elm)
+      if(!elm) return;
 
       let span = document.querySelector("span#tab3-txt-loader")
       let r = '0';
-      let txt = this.elm.textContent
+      let txt = elm.textContent
       if (typeof txt == 'string') {
         let m = txt.match(/[\d\,\s]+/)
         if (m) {
           r = m[0].trim()
         }
       }
-      
-      if (span){
-        let tab_btn = closestDOM.call(span,'.tab-btn[userscript-tab-content="#tab-comments"]')
-        if(tab_btn)tab_btn.setAttribute('loaded-comment','normal')
+
+      if (span) {
+        let tab_btn = closestDOM.call(span, '.tab-btn[userscript-tab-content="#tab-comments"]')
+        if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal')
         span.textContent = r;
-      }  
-      
-      setCommentSection(1); 
+      }
+
+      setCommentSection(1);
+      m_last_count = getCountHText(elm);
+      _console.log(2907,2, m_last_count)
+      return true;
     },
     // message
-    function(){
-      _console.log(2907,2)
+    function () {
+
+      let elm = kRef(this.elm);
+      _console.log(2907, 2,!!elm)
+      if(!elm) return;
+
       let span = document.querySelector("span#tab3-txt-loader")
-      if (span){
-        let tab_btn = closestDOM.call(span,'.tab-btn[userscript-tab-content="#tab-comments"]')
-        if(tab_btn)tab_btn.setAttribute('loaded-comment','message')
-        span.textContent ='\u200B';
-      } 
-      
-      setCommentSection(1); 
+      if (span) {
+        let tab_btn = closestDOM.call(span, '.tab-btn[userscript-tab-content="#tab-comments"]')
+        if (tab_btn) tab_btn.setAttribute('loaded-comment', 'message')
+        span.textContent = '\u200B';
+      }
+
+      setCommentSection(1);
+      m_last_count = getCountHText(elm);
+      _console.log(2907,2, m_last_count)
+      return true;
     }
   ]
 
@@ -1813,7 +1837,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable || !ytdFlexyElm) return;
 
     _console.log(3434, pageType)
-    if (pageType!=='watch') return;
+    if (pageType !== 'watch') return;
 
 
 
@@ -1823,25 +1847,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let qmElms = [...document.querySelectorAll('ytd-comments#comments #count.ytd-comments-header-renderer, ytd-comments#comments ytd-item-section-renderer.ytd-comments#sections #header ~ #contents > ytd-message-renderer.ytd-item-section-renderer')]
 
 
-    let eTime = +`${Date.now()-mTime}00`; 
+    let eTime = +`${Date.now() - mTime}00`;
 
     let res = new Array(qmElms.length);
     res.newFound = false;
 
-    
+
 
     let ci = 0;
     let latest = -1;
 
     let retrival = cmTime;
     cmTime = eTime;
-  
-    for(const qmElm of qmElms){
+
+    for (const qmElm of qmElms) {
 
       let mgz = 0
       if (qmElm.id === 'count') {
         //#count.ytd-comments-header-renderer
         mgz = 1;
+
       } else if ((qmElm.textContent || '').trim()) {
         //ytd-message-renderer.ytd-item-section-renderer
         mgz = 2;
@@ -1850,40 +1875,43 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // sample link - https://www.youtube.com/watch?v=yz8AiQc1Bk8
       }
 
-      if(mgz>0){
+      if (mgz > 0) {
 
 
-        let lastUpdate = loadedCommentsDT.get(qmElm)||0;
-        let diff = retrival-lastUpdate
+        let lastUpdate = loadedCommentsDT.get(qmElm) || 0;
+        let diff = retrival - lastUpdate
         _console.log(2907, diff)
-        let isNew = (diff>4 || diff<-4);
-        if(!isNew){
-          loadedCommentsDT.set(qmElm,eTime);
-        }else{
-          loadedCommentsDT.set(qmElm,eTime+1);
+        let isNew = (diff > 4 || diff < -4);
+        if (!isNew) {
+          loadedCommentsDT.set(qmElm, eTime);
+        } else {
+          loadedCommentsDT.set(qmElm, eTime + 1);
           res.newFound = true;
           latest = ci;
         }
-        
-        res[ci]={
-          status: mgz,
-          text: qmElm.textContent,
-          elm: qmElm,
+
+        res[ci] = {
+          elm: mWeakRef(qmElm),
           isNew: isNew,
           isLatest: false, //set afterwards
-          f: innerCommentsFuncs[mgz-1]
+          f: innerCommentsFuncs[mgz - 1]
         }
 
-        
+        if(DEBUG_LOG){
+          res[ci].status = mgz;
+          res[ci].text = qmElm.textContent;
+        }
+
+
         ci++;
-        
+
       }
 
 
     }
-    if(res.length>ci) res.length=ci;
-    
-    if(latest>=0){
+    if (res.length > ci) res.length = ci;
+
+    if (latest >= 0) {
       res[latest].isLatest = true;
     }
 
@@ -1897,62 +1925,62 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-  
-  function restoreFetching(){
+
+  function restoreFetching() {
 
 
-    if(mtf_forceCheckLiveVideo_disable===2) return;
+    if (mtf_forceCheckLiveVideo_disable === 2) return;
 
 
     let ytdFlexyElm = kRef(ytdFlexy);
-    if(!ytdFlexyElm) return;
+    if (!ytdFlexyElm) return;
 
     _console.log(2901)
 
-    if(isCommentsK(ytdFlexyElm))return;
+    if (isCommentsK(ytdFlexyElm)) return;
 
     _console.log(2902)
 
     let visibleComments = querySelectorFromAnchor.call(ytdFlexyElm, 'ytd-comments#comments:not([hidden])')
-    if(!visibleComments) return;
+    if (!visibleComments) return;
 
-    _console.log(2903) 
+    _console.log(2903)
 
-    
+
 
     akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
 
     const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
-    let span = querySelectorFromAnchor.call(tabBtn,'span#tab3-txt-loader');
+    let span = querySelectorFromAnchor.call(tabBtn, 'span#tab3-txt-loader');
     tabBtn.removeAttribute('loaded-comment')
-    span.innerHTML='';
+    span.innerHTML = '';
 
-    if(tabBtn){
+    if (tabBtn) {
       tabBtn.classList.remove("tab-btn-hidden")
     }
-      
+
     _console.log(2905)
- 
+
 
 
   }
 
-  const comments_caching = (res) =>{
-    _console.log(2908,10, res)
-    if(!res) return;
+  const comments_caching = (res) => {
+    _console.log(2908, 10, res)
+    if (!res) return;
     fetchCounts.count = res.length;
-    _console.log(2908,11, fetchCounts.new)
-    if(fetchCounts.new) return;
-    let newFound =  res.newFound;
-    _console.log(2908,12, res.newFound)
+    //if(fetchCounts.new && !document.documentElement.contains(fetchCounts.new.elm)) fetchCounts.new = null;
+    //if(fetchCounts.base && !document.documentElement.contains(fetchCounts.base.elm)) fetchCounts.base = null;
+    if (fetchCounts.new) return;
+    let newFound = res.newFound;
     if (!newFound) {
       if (res.length === 1) {
         fetchCounts.base = res[0];
         return false;
       }
     } else if (res.length === 1) {
-        fetchCounts.new = res[0];
-        return true;
+      fetchCounts.new = res[0];
+      return true;
     } else if (res.length > 1) {
       for (const entry of res) {
         if (entry.isLatest === true && entry.isNew) {
@@ -1963,12 +1991,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  const domInit_comments = ()=>{
+  const domInit_comments = () => {
 
-    
+
     let comments = document.querySelector(`ytd-comments#comments:not([o3r-${sa_comments}])`);
-    if(!comments) return;
-      
+    if (!comments) return;
+
     // once per {ytd-comments#comments} detection
 
     let ytdFlexyElm = kRef(ytdFlexy);
@@ -1976,44 +2004,44 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _console.log(3901)
 
-    if(mtoVisibility_Comments.bindElement(comments)){
+    if (mtoVisibility_Comments.bindElement(comments)) {
       mtoVisibility_Comments.observer.check(9);
     }
-    
+
 
   };
 
-  const domInit_teaserInfo = ()=>{
+  const domInit_teaserInfo = () => {
     //obsolete?
 
     let teaserInfo = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])');
 
-    if(!teaserInfo) return;
+    if (!teaserInfo) return;
 
-      // for Teaser UI
-      // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
+    // for Teaser UI
+    // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
 
-      let ytdFlexyElm = kRef(ytdFlexy);
-      if (!scriptEnable || !ytdFlexyElm) return ;
-      let addedInfo = document.querySelector('#tab-info ytd-expander[tabview-info-expander]');
+    let ytdFlexyElm = kRef(ytdFlexy);
+    if (!scriptEnable || !ytdFlexyElm) return;
+    let addedInfo = document.querySelector('#tab-info ytd-expander[tabview-info-expander]');
 
-      if(!addedInfo) return;
+    if (!addedInfo) return;
 
-      if(!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return;
+    if (!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return;
 
-      _console.log(3903)
+    _console.log(3903)
 
-      teaserInfo.setAttribute('tabview-removed-duplicate','')
+    teaserInfo.setAttribute('tabview-removed-duplicate', '')
 
 
-      teaserInfo.dispatchEvent(new CustomEvent('tabview-no-duplicate-info'))
-      //console.log(56)
+    teaserInfo.dispatchEvent(new CustomEvent('tabview-no-duplicate-info'))
+    //console.log(56)
 
 
 
   }
 
-  function setOnlyOneEPanel(ePanel){
+  function setOnlyOneEPanel(ePanel) {
 
     layoutStatusMutex.lockWith(unlock => {
 
@@ -2027,37 +2055,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function immHidden(){
- 
-    //if(t_preheat_ImmHidden>Date.now()) return setTimeout(immHidden,400); // avoid timeline reset due to change of video
-    
-    let comments = document.querySelector('ytd-comments#comments')
-
-    if(!comments.hasAttribute('hidden')) return; // visible comments content
-
-
-    if(pageType==='watch' && Q.comments_section_loaded===1){
- 
-      emptyCommentSection();
-
-    }
-
-  }
-
   const FP = {
 
     mtoBodyF: ( /** @type {MutationRecord[]} */ mutations, /** @type {MutationObserver} */ observer) => {
       //subtree DOM mutation checker - {body} \single \subtree
 
       if (!scriptEnable) return;
-      if (pageType!=='watch') return;
+      if (pageType !== 'watch') return;
 
       for (const mutation of mutations) {
-        for (const addedNode of mutation.addedNodes){
+        for (const addedNode of mutation.addedNodes) {
           if (addedNode.nodeType === 1) {
-            if (addedNode.nodeName == "DIV" && addedNode.matches('.autocomplete-suggestion:not([autocomplete-disable-updatesc])') ) {
+            if (addedNode.nodeName == "DIV" && addedNode.matches('.autocomplete-suggestion:not([autocomplete-disable-updatesc])')) {
               mtf_fixAutoCompletePosition(addedNode)
-            }else if(addedNode.nodeName == "DIV" && (addedNode.id==='lyricscontainer' || addedNode.id==='showlyricsbutton')){
+            } else if (addedNode.nodeName == "DIV" && (addedNode.id === 'lyricscontainer' || addedNode.id === 'showlyricsbutton')) {
 
               goYoutubeGeniusLyrics();
 
@@ -2075,7 +2086,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       _console.log(21311)
       if (!scriptEnable) return;
-      if (pageType!=='watch') return;
+      if (pageType !== 'watch') return;
       let cssElm = kRef(ytdFlexy);
       if (!cssElm) return;
 
@@ -2105,7 +2116,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // *** consider this can happen immediately after pop state. timeout / interval might clear out.
 
-      if (pageType!=='watch') return;
+      _innerCommentsLoader();
+
+      if (pageType !== 'watch') return;
 
       let comments = document.querySelector('ytd-comments#comments')
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
@@ -2113,30 +2126,28 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let isCommentHidden = comments.hasAttribute('hidden')
       //console.log('attr comments changed')
 
-      
-      
 
-      
       let ytdFlexyElm = kRef(ytdFlexy);
       if (!scriptEnable || !ytdFlexyElm) return;
 
-      if( mtf_forceCheckLiveVideo_disable === 2 ){
+      if (mtf_forceCheckLiveVideo_disable === 2) {
 
-      }else if (!isCommentHidden) {
+      } else if (!isCommentHidden) {
 
- 
-
-          akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+        akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+        if(!fetchCounts.fetched){
           emptyCommentSection();
-          tabBtn.classList.remove("tab-btn-hidden") //if contains
-
-        
+        }
+        //_console.log(9360, 71);
+        tabBtn.classList.remove("tab-btn-hidden") //if contains
 
       } else if (isCommentHidden) {
-        
 
-        akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K'); 
-        immHidden();
+        akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K');
+        if (pageType === 'watch' && Q.comments_section_loaded === 1) {
+          emptyCommentSection();
+          _console.log(9360, 72);
+        }
 
       }
 
@@ -2152,7 +2163,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let ytdFlexyElm = kRef(ytdFlexy);
       if (!scriptEnable || !ytdFlexyElm) return;
-      if (pageType!=='watch') return;
+      if (pageType !== 'watch') return;
 
 
       setToggleBtnTxt();
@@ -2168,14 +2179,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           return;
         }
 
-        if (pageType!=='watch') {
+        if (pageType !== 'watch') {
           unlock();
           return;
         }
 
         if (!cssElm.hasAttribute('userscript-chatblock')) wAttr(cssElm, 'userscript-chatblock', true);
-        
-        _console.log(332,ytdFlexyElm.hasAttribute('userscript-chatblock'))
+
+        _console.log(332, ytdFlexyElm.hasAttribute('userscript-chatblock'))
         let isCollapsed = !!chatBlock.hasAttribute('collapsed');
         wAttr(cssElm, 'userscript-chat-collapsed', isCollapsed);
 
@@ -2216,7 +2227,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         }
       }
-      if (pageType!=='watch') return;
+      if (pageType !== 'watch') return;
 
       layoutStatusMutex.lockWith(unlock => {
 
@@ -2235,7 +2246,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         if (nextCount == 0 && cssElm.hasAttribute('userscript-engagement-panel')) {
-          storeLastPanel=null;
+          storeLastPanel = null;
           wAttr(cssElm, 'userscript-engagement-panel', false);
           unlock();
         } else {
@@ -2251,7 +2262,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (previousValue != nextValue && nextValue > 0) {
             lstTab.lastPanel = `#engagement-panel-${nextValue}`;
             b = true;
-            storeLastPanel = mWeakRef( shownRes[0])
+            storeLastPanel = mWeakRef(shownRes[0])
             //console.log(9999, shownRes[0])
           }
 
@@ -2272,7 +2283,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     mtf_initalAttr_chatroom: () => {
       // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
-      
+
       let ytdFlexyElm = kRef(ytdFlexy);
       if (!scriptEnable || !ytdFlexyElm) return true;
 
@@ -2283,14 +2294,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         mtoVisibility_Chatroom.clear(true);
 
-        let chatroom = querySelectorFromAnchor.call(rootElement,`ytd-live-chat-frame#chat:not([${sa_chatroom}]`)
+        let chatroom = querySelectorFromAnchor.call(rootElement, `ytd-live-chat-frame#chat:not([${sa_chatroom}]`)
         if (chatroom) {
           mgChatFrame.setVar(chatroom);
 
           //console.log(124,chatroom)
-          if(mtoVisibility_Chatroom.bindElement(chatroom)){
+          if (mtoVisibility_Chatroom.bindElement(chatroom)) {
             mtoVisibility_Chatroom.observer.check(9)
-            
+
           }
 
           chatroom = null
@@ -2299,7 +2310,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return true;
 
     },
- 
+
 
 
 
@@ -2309,9 +2320,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  
-  function lstTabInit(){
-    lstTab = 
+
+  function lstTabInit() {
+    lstTab =
     {
       lastTab: null,
       lastPanel: null,
@@ -2320,16 +2331,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  
-
-  function pluginUnhook() {
-    _pluginUnhook();
-    emptyCommentSection();
-  }
-
-  function _pluginUnhook() {
-
-    //console.log(8001)
+  function variableResets() {
 
     videoListBeforeSearch = null;
     _cachedLastVideo = null;
@@ -2342,8 +2344,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     ytdFlexy = null;
     wls.layoutStatus = 0;
 
-    //console.log('unc01')
-
     mtoVisibility_EngagementPanel.clear(true)
     mtoVisibility_Playlist.clear(true)
     mtoVisibility_Comments.clear(true)
@@ -2352,36 +2352,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     mtoVisibility_Chatroom.clear(true)
     mtoFlexyAttr.clear(true)
 
-    
 
     for (const elem of document.querySelectorAll(
       ['ytd-expander[tabview-info-expander]'].join(', ')
-      )) {
-        elem.removeAttribute('tabview-info-expander');
+    )) {
+      elem.removeAttribute('tabview-info-expander');
     }
 
-    
     mtoMutation_body.clear(true)
     Q.mtf_chatBlockQ = null;
 
-
-    
-
   }
 
-  
 
 
-  function getWord(tag){
-    return langWords[pageLang][tag]||langWords['en'][tag]||'';
+
+
+  function getWord(tag) {
+    return langWords[pageLang][tag] || langWords['en'][tag] || '';
   }
 
 
   function getTabsHTML() {
 
-    const sTabBtnVideos = `${svgElm(16,16,298,298,svgVideos)}<span>${getWord('videos')}</span>`;
-    const sTabBtnInfo = `${svgElm(16,16,23.625,23.625,svgInfo)}<span>${getWord('info')}</span>`;
-    const sTabBtnPlayList = `${svgElm(16,16,426.667,426.667,svgPlayList)}<span>${getWord('playlist')}</span>`;
+    const sTabBtnVideos = `${svgElm(16, 16, 298, 298, svgVideos)}<span>${getWord('videos')}</span>`;
+    const sTabBtnInfo = `${svgElm(16, 16, 23.625, 23.625, svgInfo)}<span>${getWord('info')}</span>`;
+    const sTabBtnPlayList = `${svgElm(16, 16, 426.667, 426.667, svgPlayList)}<span>${getWord('playlist')}</span>`;
 
     let str1 = `
         <paper-ripple class="style-scope yt-icon-button">
@@ -2404,14 +2400,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     </svg>
     </div>
     </div>
-    `.replace(/[\r\n]+/g,'');
+    `.replace(/[\r\n]+/g, '');
 
     const str_tabs = [
-            `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
-            `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16,16,60,60,svgComments)}<span id="tab3-txt-loader"></span>${str1}${str_fbtns}</a>`,
-            `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
-            `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
-        ].join('');
+      `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16, 16, 60, 60, svgComments)}<span id="tab3-txt-loader"></span>${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
+    ].join('');
 
     let addHTML = `
         <div id="right-tabs">
@@ -2433,10 +2429,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function getLang(){
+  function getLang() {
 
     let lang = 'en';
-    let htmlLang = ((document||0).documentElement||0).lang||'';
+    let htmlLang = ((document || 0).documentElement || 0).lang || '';
     switch (htmlLang) {
       case 'en':
       case 'en-GB':
@@ -2471,25 +2467,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       default:
         lang = 'en';
     }
-    
-    if(langWords[lang]) pageLang = lang; else pageLang = 'en';
+
+    if (langWords[lang]) pageLang = lang; else pageLang = 'en';
 
   }
 
-  function checkEvtTarget(evt, nodeNames){
-    return nodeNames.includes((((evt||0).target||0).nodeName||0));
+  function checkEvtTarget(evt, nodeNames) {
+    return nodeNames.includes((((evt || 0).target || 0).nodeName || 0));
   }
 
-  function pageCheck(){
+  function pageCheck() {
     // yt-rendererstamper-finished
     // yt-player-updated
     // yt-page-data-updated
     // yt-watch-comments-ready
     // [is-two-columns_] attr changed
-    
+
     domInit_teaserInfo() // YouTube obsoleted feature? 
-    
-    
+
+
     mtf_append_comments();
     mtf_liveChatBtnF();
     fixTabs();
@@ -2497,46 +2493,46 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function globalHook(eventType, func){
-    if(!func) return;
+  function globalHook(eventType, func) {
+    if (!func) return;
 
-    const count =(globalHook_hashs[eventType]||0) +1;
+    const count = (globalHook_hashs[eventType] || 0) + 1;
 
     globalHook_hashs[eventType] = count;
 
-    const s = globalHook_symbols[count-1] || (globalHook_symbols[count-1] = Symbol());
-    
-    document.addEventListener(eventType,function(evt){
-      if(evt[s])return;
-      evt[s]=true;
-      new Promise(()=>{
+    const s = globalHook_symbols[count - 1] || (globalHook_symbols[count - 1] = Symbol());
+
+    document.addEventListener(eventType, function (evt) {
+      if (evt[s]) return;
+      evt[s] = true;
+      new Promise(() => {
         func(evt);
       })
 
-    },capturePassive)
+    }, capturePassive)
 
   }
 
 
-  
-  let _foundIframe = ()=>{
 
-    FP.mtf_initalAttr_chatroom(); 
-      
-    if(document.querySelector('ytd-watch-flexy[theater]')&&document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')){
-      document.querySelector('ytd-live-chat-frame#chat').setAttribute('collapsed','')
+  let _foundIframe = () => {
+
+    FP.mtf_initalAttr_chatroom();
+
+    if (document.querySelector('ytd-watch-flexy[theater]') && document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')) {
+      document.querySelector('ytd-live-chat-frame#chat').setAttribute('collapsed', '')
     }
 
     setToggleBtnTxt() //button might not yet be rendered
     requestAnimationFrame(setToggleBtnTxt)
   }
 
-  let foundIframe=(iframe,trials,forceRun)=>{
-    
-    if(!iframe) return;
-    if(!trials) return;
-    if(!document.body.contains(iframe)) return foundIframe(iframe, traisl-1, false);
-    if(!forceRun && iframe_set.has(iframe)) return;
+  let foundIframe = (iframe, trials, forceRun) => {
+
+    if (!iframe) return;
+    if (!trials) return;
+    if (!document.body.contains(iframe)) return foundIframe(iframe, traisl - 1, false);
+    if (!forceRun && iframe_set.has(iframe)) return;
     iframe_set.add(iframe);
 
     _foundIframe();
@@ -2546,49 +2542,157 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  let generalLog901 = !DEBUG_LOG ?0: (evt)=>{
-    _console.log(901,evt.type)
+  let generalLog901 = !DEBUG_LOG ? 0 : (evt) => {
+    _console.log(901, evt.type)
   }
 
 
 
+  const _pageBeingInit = function () {
 
-  const pageBeingInit = function(){
-    if(tabsDeferred.resolved) {
+    pageSession.inc();
+    fetchCounts = {
+      base: null,
+      new: null,
+      fetched: false,
+      count: null
+    }
+    pageFetchedData = null;
+    chatroomDetails = null;
+  }
+
+  const pageBeingInit = function () {
+    if (tabsDeferred.resolved) {
+      comments_loader = 1;
       tabsDeferred.reset();
-      if(commentsReady_id>999)commentsReady_id=333;
-      pageSession.inc();
-      _innerCommentsLoader();
-      fetchCounts = {
-        base:null,
-        new:null,
-        fetched:false,
-        count:null
+      if(!(firstLoadStatus&8)){
+        if (commentsReady_id > 999) commentsReady_id = 333;
+        _innerCommentsLoader();
+        _pageBeingInit();
+      }else if(firstLoadStatus&2){
+        firstLoadStatus-=2;
+        script_inject_js1.inject();
       }
-      pageFetchedData=null;
-      chatroomDetails=null;
+      _console.log('pageBeingInit', firstLoadStatus)
     }
   };
 
-  const advanceFetch=function(){
-    if(!fetchCounts.new && !fetchCounts.fetched){
+  const advanceFetch = function () {
+    if (!fetchCounts.new && !fetchCounts.fetched) {
       comments_caching(_innerCommentsLoader());
-      if(!fetchCounts.new) window.dispatchEvent(new Event("scroll")); 
+      if (!fetchCounts.new) {
+        window.dispatchEvent(new Event("scroll"));
+      }
     }
   };
+
+
+  function getFinalComments() {
+
+    if ((comments_loader & 3) === 3) { } else return;
+    comments_loader = 0;
+
+    if (fetchCounts.fetched) return;
+
+
+    let ret = _innerCommentsLoader();
+    comments_caching(ret);
+
+    if (fetchCounts.new && !fetchCounts.fetched) {
+      
+      _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
+      if(fetchCounts.new.f()){
+        fetchCounts.fetched = true;
+        _console.log(9972, 'fetched = true')
+        fetchCommentsFinished();
+      }
+    } else {
+
+      _console.log(4512, 8, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
+
+      let ei = 0;
+      timeout(() => {
+        if (Q.comments_section_loaded !== 0) return;
+
+        //if(tmp_id!==commentsReady_id) return;
+
+
+        ret = _innerCommentsLoader()
+
+        _console.log(4555, 'fetch comments', fetchCounts, ret)
+
+        comments_caching(ret);
+
+        _console.log(4556, 1, !!fetchCounts.new, !!fetchCounts.fetched, !!fetchCounts.base, fetchCounts.count)
+
+
+        ei++;
+
+        if (fetchCounts.new && !fetchCounts.fetched) {
+
+          if(fetchCounts.new.f()){
+            fetchCounts.fetched = true;
+            _console.log(9972, 'fetched = true')
+            fetchCommentsFinished();
+          }
+
+        } else if (fetchCounts.base && !fetchCounts.new && !fetchCounts.fetched && fetchCounts.count === 1) {
+
+
+          let elm = kRef(fetchCounts.base.elm);
+          let txt = elm ? getCountHText(elm):null;
+          let condi1 = ei>7;
+          let condi2 = txt === m_last_count;
+          if(condi1 || condi2){
+
+            if(fetchCounts.base.f()){
+              fetchCounts.fetched = true;
+              _console.log(9972, 'fetched = true')
+              //return true;
+              fetchCommentsFinished();
+            }
+
+          }
+
+        }
+        
+        if(!fetchCounts.fetched){
+          if(ei>7){
+            let elm = ret.length === 1?kRef(ret[0].elm):null;
+            let txt = elm?getCountHText(elm):null;
+            if (elm && txt !== m_last_count) {
+              fetchCounts.base = null;
+              fetchCounts.new = ret[0];
+              fetchCounts.new.f();
+              fetchCounts.fetched = true;
+              _console.log(9979, 'fetched = true')
+              fetchCommentsFinished();
+            }
+            return;
+          }
+          return true;
+        }
+
+      }, 420, 9)
+
+    }
+
+  }
 
 
   function ytMicroEventsInit() {
 
     _console.log(902)
 
-    let rendererPageCheck_id=0;
+    let rendererPageCheck_id = 0;
     globalHook('yt-rendererstamper-finished', (evt) => {
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
       // might occur before initialization
 
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
 
-      _console.log(evt.target.nodeName, 904, evt.type, evt.detail);
+
 
       const nodeName = evt.target.nodeName.toUpperCase();
 
@@ -2601,13 +2705,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           //_console.log(782, 1, nodeName)
 
-          
+
           rendererPageCheck_id++;
-          if(rendererPageCheck_id>999) rendererPageCheck_id =333;
+          if (rendererPageCheck_id > 999) rendererPageCheck_id = 333;
           let tmp_id = rendererPageCheck_id;
 
-          requestAnimationFrame(()=>{
-            if(tmp_id!==rendererPageCheck_id)return;
+          requestAnimationFrame(() => {
+            if (tmp_id !== rendererPageCheck_id) return;
             pageCheck();
           })
 
@@ -2616,8 +2720,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         return;
       }
 
-      tabsDeferred.debounce(() => {
 
+
+      _console.log(evt.target.nodeName, 904, evt.type, evt.detail);
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+
+        if (!tabsDeferredSess.isValid) return;
 
         const nodeName = evt.target.nodeName.toUpperCase();
         const node = evt.target
@@ -2653,26 +2764,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         } else if (nodeName === 'YTD-COMMENTS-HEADER-RENDERER') {
 
+          comments_loader = comments_loader | 4;
 
           if (!fetchCounts.new && !fetchCounts.fetched) {
 
 
-            _console.log(3205, 1, 'fetch comments')
 
             comments_caching(_innerCommentsLoader());
 
-            _console.log(3205, 3, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
+            _console.log(3205, 2, 'fetch comments', Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
 
 
             if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
               fetchCounts.new.f();
               fetchCounts.fetched = true;
+              fetchCommentsFinished();
             }
-            _console.log(3205, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
-
-            _console.log(3205, 8, 'fetch comments')
 
           }
+          getFinalComments();
 
 
         } else if (nodeName === 'YTD-ENGAGEMENT-PANEL-SECTION-LIST-RENDERER') {
@@ -2700,273 +2810,266 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     });
-  
-    
-    globalHook('yt-page-data-updated',(evt)=>{
-  
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-  
-      _console.log(evt.target.nodeName,904, evt.type);
-  
+
+
+    globalHook('yt-page-data-updated', (evt) => {
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+      _console.log(evt.target.nodeName, 904, evt.type);
+
       advanceFetch();
-  
-      tabsDeferred.debounce(()=>{
-  
-        if(Q.comments_section_loaded===0 && fetchCounts.new && !fetchCounts.fetched){
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+
+        if (!tabsDeferredSess.isValid) return;
+
+        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
-          fetchCounts.fetched= true;
+          fetchCounts.fetched = true;
+
+          fetchCommentsFinished();
+          _console.log(9972, 'fetched = true')
         }
-          
-        
+
+
         FP.mtf_attrEngagementPanel();
 
         pageCheck();
         //fixChatFrameToggleButton();
-    
+
         //if(document.querySelector('ytd-live-chat-frame#chat')){
-    
-        let siw=10;
-        let sic=0;
-        let sif = ()=>{
-    
+
+        let siw = 10;
+        let sic = 0;
+        let sif = () => {
+
           let iframe = document.querySelector('ytd-live-chat-frame#chat')
-          if(iframe){
-            foundIframe(iframe,1, true);
+          if (iframe) {
+            foundIframe(iframe, 1, true);
             clearInterval(sic)
-            sic=0;
+            sic = 0;
             return;
-          } 
-    
-          if(--siw===1){
+          }
+
+          if (--siw === 1) {
             clearInterval(sic)
-            sic=0;
+            sic = 0;
           }
         };
-        sic= setInterval(sif,46);
+        sic = setInterval(sif, 46);
         sif();
-    
-    
+
+
         //}
 
 
-        
-        _console.log(evt.target.nodeName,905, evt.type)
-  
-        
+
+        _console.log(evt.target.nodeName, 905, evt.type)
+
+
         _console.log(2774, !!document.querySelector('ytd-live-chat-frame#chat'))
-  
-        _console.log(2344,evt.type, document.querySelector('ytd-live-chat-frame#chat')?5:2)
-        
+
+        _console.log(2344, evt.type, document.querySelector('ytd-live-chat-frame#chat') ? 5 : 2)
+
         _console.log(544, document.querySelectorAll('#meta-contents'))
         _console.log(546, document.querySelectorAll('#meta-contents ytd-expander'))
         let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])')
-        if(expander){
-          
-  
+        if (expander) {
+
+
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
-  
-          let ytdFlexyElm = kRef(ytdFlexy);
-          if (!scriptEnable || !ytdFlexyElm) return ;
-  
-          if (!expander) return ;
-          expander.setAttribute('tabview-info-expander','')
-          $(expander).appendTo("#tab-info").attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
-  
-  
-  
-        }
-        
-        mtf_fix_details();
-  
-  
-  
-      });
-  
-      
-  
-  
-    });
-  
-    globalHook('yt-player-updated',(evt)=>{
-  
-  
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-   
-  
-      _console.log(evt.target.nodeName,904, evt.type);
-      
-  
-      advanceFetch();
-      
-      tabsDeferred.debounce(()=>{
 
-            
-        if(Q.comments_section_loaded===0 && fetchCounts.new && !fetchCounts.fetched){
-          fetchCounts.new.f();
-          fetchCounts.fetched= true;
+          let ytdFlexyElm = kRef(ytdFlexy);
+          if (!scriptEnable || !ytdFlexyElm) return;
+
+          if (!expander) return;
+          expander.setAttribute('tabview-info-expander', '')
+          $(expander).appendTo("#tab-info").attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
+
+
+
         }
-        
+
+        mtf_fix_details();
+
+
+
+      });
+
+
+
+
+    });
+
+
+
+    globalHook('yt-player-updated', (evt) => {
+
+
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+
+      _console.log(evt.target.nodeName, 904, evt.type);
+
+
+      advanceFetch();
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+
+        if (!tabsDeferredSess.isValid) return;
+
+
+        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+          fetchCounts.new.f();
+          fetchCounts.fetched = true;
+
+          fetchCommentsFinished();
+          _console.log(9972, 'fetched = true')
+        }
+
         //restoreFetching(); //yt-player-updated might happen after comments ready
-        
+
         pageCheck();
         //fixChatFrameToggleButton();
 
-        
+
         let nodeName = evt.target.nodeName.toUpperCase()
-        
-        _console.log(nodeName,905, evt.type)
-  
-        _console.log(2344,evt.type, document.querySelector('ytd-live-chat-frame#chat')?5:2)
-  
-  
-        if(nodeName === 'YTD-PLAYER'){
-  
-          _console.log(2554, nodeName, evt.type, evt.detail )
-  
+
+        _console.log(nodeName, 905, evt.type)
+
+        _console.log(2344, evt.type, document.querySelector('ytd-live-chat-frame#chat') ? 5 : 2)
+
+
+        if (nodeName === 'YTD-PLAYER') {
+
+          _console.log(2554, nodeName, evt.type, evt.detail)
+
           domInit_comments();
-      
+
           _foundIframe();
-  
+
         }
-  
+
       });
-  
-      
-  
-  
+
+
+
+
     });
 
-  
-    globalHook('yt-watch-comments-ready',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-   
-  
+    globalHook('yt-watch-comments-ready', (evt) => {
+
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+
       let nodeName = evt.target.nodeName.toUpperCase()
-      _console.log(nodeName,904, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
-  
+      _console.log(nodeName, 904, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
+
       advanceFetch();
-  
-      commentsReady_id++;
 
-      let tmp_id=commentsReady_id;
-  
-      tabsDeferred.debounce(()=>{
+      //commentsReady_id++;
 
-        if(tmp_id!==commentsReady_id) return;
+      //let tmp_id=commentsReady_id;
 
-        if(Q.comments_section_loaded===0 && fetchCounts.new && !fetchCounts.fetched){
+      comments_loader = comments_loader | 2;
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+
+        if (!tabsDeferredSess.isValid) return;
+
+
+        //if(tmp_id!==commentsReady_id) return;
+
+        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
-          fetchCounts.fetched= true;
+          fetchCounts.fetched = true;
+
+          fetchCommentsFinished();
+          _console.log(9972, 'fetched = true')
         }
-        
+
         pageCheck();
-        
-        _console.log(nodeName,905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
-          
-  
-        if(nodeName==='YTD-WATCH-FLEXY'){
-          
+
+        _console.log(nodeName, 905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
+
+
+        if (nodeName === 'YTD-WATCH-FLEXY') {
+
           domInit_comments();
-  
-  
-  
-          if(mtf_forceCheckLiveVideo_disable===2){
-  
-          }else{
-  
-            
-  
+
+
+
+          if (mtf_forceCheckLiveVideo_disable === 2) {
+
+          } else {
+
+
+
             _console.log(3713, Q.comments_section_loaded, fetchCounts.fetched, 'fetch comments')
-  
-            if(document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')){
-  
+
+
+
+            if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
+
               //unavailable apart from live chat
-  
+
               _disableComments();
-              
-            _console.log(3713, 3, 'comments hidden')
-  
-  
-            }else if(Q.comments_section_loaded===0 ){
 
-              
-              _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new , !fetchCounts.fetched)
-                      
-              comments_caching(_innerCommentsLoader());
-
-              if(fetchCounts.new && !fetchCounts.fetched){
-                fetchCounts.new.f();
-                fetchCounts.fetched = true;
-              }else{
+              _console.log(3713, 3, 'comments hidden')
 
 
-                _console.log(4512, 8, Q.comments_section_loaded, fetchCounts.new , !fetchCounts.fetched)
-                      
 
-                timeout(()=>{
-                  if(Q.comments_section_loaded!==0) return;
-                  if(tmp_id!==commentsReady_id) return;
+            } else if (Q.comments_section_loaded === 0) {
 
-                  _console.log(4512, 9, Q.comments_section_loaded, fetchCounts.new , !fetchCounts.fetched)
-                      
-                  _console.log(4555, 'fetch comments')
 
-                  comments_caching(_innerCommentsLoader());
-  
-                  if(fetchCounts.new && !fetchCounts.fetched){
-                    
-                    fetchCounts.new.f();
-                    fetchCounts.fetched = true;
-                    fetchCommentsFinished();
-                  }else if(fetchCounts.base && !fetchCounts.new && !fetchCounts.fetched && fetchCounts.count===1){
-  
-                    fetchCounts.base.f();
-                    fetchCounts.fetched = true;
-                    fetchCommentsFinished();
-  
-                  }else {
-  
-                    return true;
-  
-                  }
-                  
-                },420,9)
+              getFinalComments();
 
-              }
-               
+
             }
-          
+
           }
-  
+
         }
-  
+
       });
-  
+
     })
 
 
-    
+
 
     window.addEventListener("message", (evt) => {
-      if(evt.origin === location.origin && evt.data.tabview){
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
+      if (evt.origin === location.origin && evt.data.tabview) {
 
         let data = evt.data.tabview;
 
-        if(data.eventType=== "yt-page-type-changed"){
+        if (data.eventType === "yt-page-type-changed") {
           let detail = data.eventDetail
-          let {newPageType, oldPageType} = detail;
-          if(newPageType && oldPageType ){
+          let { newPageType, oldPageType } = detail;
+          if (newPageType && oldPageType) {
 
             let bool = false;
-            if(newPageType == 'ytd-watch-flexy'){
+            if (newPageType == 'ytd-watch-flexy') {
               bool = true;
 
               pageType = 'watch';
-            }else if(newPageType=='ytd-browse'){
-              
+            } else if (newPageType == 'ytd-browse') {
+
               pageType = 'browse';
             }
 
@@ -2974,29 +3077,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             //}
             document.documentElement.classList.toggle('tabview-normal-player', bool)
-            
+
             dispatchWindowResize(); // player control positioning
-            
+
           }
         }
 
-        _console.log(37192,evt)
+        _console.log(37192, evt)
 
       }
     }, bubblePassive);
 
-  // document.addEventListener('yt-page-type-changed',(evt)=>{
-  //   _console.log(3553,evt,evt.detail,evt.target.data)
-  // },false);
+    // document.addEventListener('yt-page-type-changed',(evt)=>{
+    //   _console.log(3553,evt,evt.detail,evt.target.data)
+    // },false);
 
-    DEBUG_LOG && globalHook('data-changed',(evt)=>{
+    DEBUG_LOG && globalHook('data-changed', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-      
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+
       let nodeName = evt.target.nodeName.toUpperCase()
       _console.log(nodeName, evt.type)
 
-      if(nodeName==='YTD-ITEM-SECTION-RENDERER' || nodeName==='YTD-COMMENTS'){
+      if (nodeName === 'YTD-ITEM-SECTION-RENDERER' || nodeName === 'YTD-COMMENTS') {
 
         _console.log(344)
 
@@ -3004,48 +3107,48 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })
 
-    DEBUG_LOG && globalHook('yt-navigate',(evt)=>{
+    DEBUG_LOG && globalHook('yt-navigate', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
     })
-    
-    DEBUG_LOG && globalHook('ytd-playlist-lockup-now-playing-active',(evt)=>{
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-      _console.log(evt.target.nodeName, evt.type)
+    DEBUG_LOG && globalHook('ytd-playlist-lockup-now-playing-active', (evt) => {
 
-
-    })
-    
-    DEBUG_LOG && globalHook('yt-service-request-completed',(evt)=>{
-
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    DEBUG_LOG && globalHook('yt-commerce-action-done',(evt)=>{
+    DEBUG_LOG && globalHook('yt-service-request-completed', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    DEBUG_LOG && globalHook('yt-navigate',(evt)=>{
+    DEBUG_LOG && globalHook('yt-commerce-action-done', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+      _console.log(evt.target.nodeName, evt.type)
+
+
+    })
+
+    DEBUG_LOG && globalHook('yt-navigate', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
     })
 
 
-    DEBUG_LOG && globalHook('yt-execute-service-endpoint',(evt)=>{
+    DEBUG_LOG && globalHook('yt-execute-service-endpoint', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
@@ -3055,31 +3158,31 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-    DEBUG_LOG && globalHook('yt-request-panel-mode-change',(evt)=>{
+    DEBUG_LOG && globalHook('yt-request-panel-mode-change', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    
 
-    
-    DEBUG_LOG && globalHook('yt-visibility-refresh',(evt)=>{
 
-      if(!evt || !evt.target /*|| evt.target.nodeType !== 1*/) return;
-      _console.log(evt.target.nodeName||'', evt.type)
 
-      _console.log(2784, evt.type, kRef(ytdFlexy).hasAttribute('hidden'),evt.detail)
+    DEBUG_LOG && globalHook('yt-visibility-refresh', (evt) => {
+
+      if (!evt || !evt.target /*|| evt.target.nodeType !== 1*/) return;
+      _console.log(evt.target.nodeName || '', evt.type)
+
+      _console.log(2784, evt.type, kRef(ytdFlexy).hasAttribute('hidden'), evt.detail)
       _console.log(evt.detail)
 
 
     })
-    
-    DEBUG_LOG && globalHook('yt-request-panel-mode-change',(evt)=>{
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-request-panel-mode-change', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
@@ -3087,131 +3190,129 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })
 
-    DEBUG_LOG && globalHook('app-reset-layout',(evt)=>{
+    DEBUG_LOG && globalHook('app-reset-layout', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
 
 
     })
-    DEBUG_LOG && globalHook('yt-guide-close',(evt)=>{
+    DEBUG_LOG && globalHook('yt-guide-close', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
 
 
     })
-    DEBUG_LOG && globalHook('yt-page-data-will-change',(evt)=>{
+    DEBUG_LOG && globalHook('yt-page-data-will-change', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    DEBUG_LOG && globalHook('yt-retrieve-location',(evt)=>{
+    DEBUG_LOG && globalHook('yt-retrieve-location', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    DEBUG_LOG && globalHook('yt-refit',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-refit', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
-      
+
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
     })
 
-    DEBUG_LOG && globalHook('addon-attached',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('addon-attached', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
-      
+
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
     })
 
-    DEBUG_LOG && globalHook('yt-live-chat-context-menu-opened',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-live-chat-context-menu-opened', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
-      
+
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
     })
 
-    DEBUG_LOG && globalHook('yt-live-chat-context-menu-closed',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-live-chat-context-menu-closed', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
-      
+
       _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
     })
 
-    DEBUG_LOG && globalHook('yt-commentbox-resize',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-commentbox-resize', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
     })
-    
-    DEBUG_LOG && globalHook('yt-rich-grid-layout-refreshed',(evt)=>{
-      
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+    DEBUG_LOG && globalHook('yt-rich-grid-layout-refreshed', (evt) => {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(2327, evt.target.nodeName, evt.type)
     })
 
-    DEBUG_LOG && globalHook('animationend',(evt)=>{
+    DEBUG_LOG && globalHook('animationend', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-      _console.log(evt.target.nodeName, evt.type)
- 
-
-    })
-
-    DEBUG_LOG && globalHook('yt-dismissible-item-dismissed',(evt)=>{
-
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    DEBUG_LOG && globalHook('yt-dismissible-item-undismissed',function(evt){
+    DEBUG_LOG && globalHook('yt-dismissible-item-dismissed', (evt) => {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    
-    DEBUG_LOG && globalHook('yt-load-next-continuation',function(evt){
+    DEBUG_LOG && globalHook('yt-dismissible-item-undismissed', function (evt) {
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
 
-    
-    DEBUG_LOG && globalHook('yt-load-reload-continuation',function(evt){
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-load-next-continuation', function (evt) {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
     })
-    
 
-    
-    DEBUG_LOG && globalHook('yt-toggle-button',function(evt){
 
-      if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    DEBUG_LOG && globalHook('yt-load-reload-continuation', function (evt) {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+      _console.log(evt.target.nodeName, evt.type)
+
+
+    })
+
+    DEBUG_LOG && globalHook('yt-toggle-button', function (evt) {
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
       _console.log(evt.target.nodeName, evt.type)
 
 
@@ -3223,7 +3324,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const iframeLoadHookA = function (evt) {
 
-    if (checkEvtTarget(evt, ['IFRAME']) && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+    
+    let isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
+    if(isIframe) foundIframe(evt.target, 2);
+
+    if (isIframe && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
 
       let iframe = evt.target;
       new Promise(resolve => {
@@ -3274,31 +3379,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
 
-    
-
     //globalHook('yt-navigate-finish',(evt)=>{
 
-      // if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-      // _console.log(evt.target.nodeName, evt.type)
+    // if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+    // _console.log(evt.target.nodeName, evt.type)
 
-      // _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
-
-      
+    // _console.log(2774, evt.type, !!document.querySelector('ytd-live-chat-frame#chat'))
 
     //})
 
-    ytMicroEventsInit();
 
-
-    document.dispatchEvent(new CustomEvent('tabview-v-change')) //possible duplicated
-    
-    
-    document.documentElement.setAttribute('youtube-ready','')
-    
-    script_inject_js1.inject();
-    document.documentElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
-
-    //document.dispatchEvent(new CustomEvent('tabview-youtube-comments-check'))
 
     // forceConfig();
     /*
@@ -3310,93 +3400,87 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // ytcfg.set({EXPERIMENT_FLAGS:{"kevlar_watch_metadata_refresh":true}})
     */
 
+    if (pageType === 'watch') {
 
-    let mRet =
-      (/^https?\:\/\/(\w+\.)*youtube\.com\/watch\?(\w+\=[^\/\?\&]+\&|\w+\=?\&)*v=[\w\-\_]+/.test(window.location.href) ? 1 : 0) +
-      (document.querySelector('ytd-watch-flexy[tabview-selection]') ? 2 : 0);
-
-      // 1: new Set
-      // 3: old Set
-
-
-
-
-
-
-      if (mRet === 1) {
-
-
+      if (firstLoadStatus&8) {
+        firstLoadStatus -= 8;
         document.addEventListener('load', iframeLoadHookA, capturePassive)
+        ytMicroEventsInit();
+      }
+      variableResets();
 
+      document.documentElement.setAttribute('youtube-ready', '')
+      document.documentElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+ 
 
-        pluginUnhook(); // in case not triggered by popstate - say mini playing
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
-        let timeout = 4; // max. 4 animation frames
+      if (!ytdFlexyElm) return;
 
-        let tf = () => {
+      scriptEnable = true;
+      scriptEC++;
 
-          if (--timeout > 0 && !document.querySelector('#player video')) return requestAnimationFrame(tf);
+      ytdFlexy = mWeakRef(ytdFlexyElm)
 
-          let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+      new Promise(frResolve=>{
 
-          if (!ytdFlexyElm) return;
+        let timeoutR_findRelated = new Timeout();
+        timeoutR_findRelated.set(function () {
+          let ytdFlexyElm = kRef(ytdFlexy);
+          if (!ytdFlexyElm) return true;
+          let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related");
+          if (!related) return true;
+          frResolve(related);
+        }, 100, 10)
 
+      }).then(related=>{
 
-          scriptEnable = true;
-          scriptEC++;
-
-
-          ytdFlexy = mWeakRef(ytdFlexyElm)
-
-          let timeoutR_findRelated = new Timeout();
-          timeoutR_findRelated.set(function () {
-            let ytdFlexyElm = kRef(ytdFlexy);
-            if (!ytdFlexyElm) return true;
-            let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related");
-            if (!related) return true;
-            foundRelated(related);
-          }, 100, 10)
-
-          function foundRelated(related) {
-            let promise = Promise.resolve();
-            if (!document.querySelector("#right-tabs")) {
-              promise = promise.then(() => {
-                getLang();
-                $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
-                console.log('#right-tabs inserted')
-              })
-            }
-            promise.then(runAfterTabAppended);
-          }
-
+        if (!document.querySelector("#right-tabs")) {
+          getLang();
+          $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
+          console.log('#right-tabs inserted')
         }
+            
+        document.documentElement.setAttribute('plugin-tabview-youtube', '')
 
-        tf();
+        const ytdFlexyElm = kRef(ytdFlexy)
+        if (!ytdFlexyElm) return;
+        if (!ytdFlexyElm.hasAttribute('tabview-selection')) ytdFlexyElm.setAttribute('tabview-selection', '')
 
-      } else if (mRet === 3) {
+        // append the next videos 
+        // it exists as "related" is already here
+        fixTabs();
 
-        if (!scriptEnable) return;
+        setToActiveTab(); // just switch to the default tab
+        prepareTabBtn();
 
-        let elmComments = document.querySelector('ytd-comments#comments')
+        mtoFlexyAttr.clear(true)
+        mtf_checkFlexy()
 
-        if (elmComments && querySelectorFromAnchor.call(elmComments, 'ytd-item-section-renderer#sections.style-scope.ytd-comments')) {
-          nativeFunc(elmComments, "loadComments")
-        }
+        document.querySelector("#right-tabs .tab-content").addEventListener('scroll', windowScroll, true);
+
+        // for automcomplete plugin or other userscript plugins
+        // document.body for Firefox >= 60
+        mtoMutation_body.bindElement(document.querySelector('body'), {
+          childList: true,
+          subtree: false,
+          attributes: false
+        })
 
         tabsDeferred.resolve();
 
-      } else if (mRet === 0) {
+      })
+ 
+    } else {
 
+      variableResets();
+      emptyCommentSection();
+      _console.log(9360, 75);
+      tabsDeferred.reset();
+      _pageBeingInit();
+      tabsDeferred.resolve(); // for page initialization
 
-        pluginUnhook(); // in case not triggered by popstate - say mini playing
-
-      } 
-
-
-
-
-
-
+    }
 
 
   }
@@ -3405,7 +3489,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function setToActiveTab(defaultTab) {
     if (isTheater() && isWideScreenWithTwoColumns()) return;
     const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
-      document.querySelector(`a[userscript-tab-content="${(defaultTab||settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
+      document.querySelector(`a[userscript-tab-content="${(defaultTab || settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
       document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
       null;
     switchTabActivity(jElm);
@@ -3418,235 +3502,171 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return $wrapper.first();
   }
 
-
-  function runAfterTabAppended() {
-
-    document.documentElement.setAttribute('plugin-tabview-youtube', '')
-
-    const ytdFlexyElm = kRef(ytdFlexy)
-    if(!ytdFlexyElm) return;
-    if (!ytdFlexyElm.hasAttribute('tabview-selection')) ytdFlexyElm.setAttribute('tabview-selection', '')
-
-    // append the next videos 
-    // it exists as "related" is already here
-    fixTabs();
-
-    setToActiveTab(); // just switch to the default tab
-    prepareTabBtn();
-
-
-    mtoFlexyAttr.clear(true)
-    mtf_checkFlexy()
-
-
-    document.querySelector("#right-tabs .tab-content").addEventListener('scroll', windowScroll, true);
- 
-
-
-    // for automcomplete plugin or other userscript plugins
-    // document.body for Firefox >= 60
-    mtoMutation_body.bindElement(document.querySelector('body'), {
-      childList: true,
-      subtree: false,
-      attributes: false
-    })
-
-
-
-    tabsDeferred.resolve();
-
-
-    
-
-
-
-  }
-
-
   function fetchCommentsFinished() {
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
-    if(mtf_forceCheckLiveVideo_disable===2) return;
-    akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'LS') 
-    _console.log(2909,1)
+    if (mtf_forceCheckLiveVideo_disable === 2) return;
+    akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'LS')
+    _console.log(2909, 1)
   }
 
   function setCommentSection( /** @type {number} */ value) {
 
     Q.comments_section_loaded = value;
+    if (value === 0 && fetchCounts) {
+      fetchCounts.fetched = false; // unknown bug
+    }
 
   }
 
 
-  function emptyCommentSection(){
-    
-
+  function emptyCommentSection() {
     let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
-
-
-    if(tab_btn){
-
-      let span = querySelectorFromAnchor.call(tab_btn,'span#tab3-txt-loader');
-
+    if (tab_btn) {
+      let span = querySelectorFromAnchor.call(tab_btn, 'span#tab3-txt-loader');
       tab_btn.removeAttribute('loaded-comment')
-        
-      if(span){
-        span.textContent='';
+      if (span) {
+        span.textContent = '';
       }
     }
-
-
     setCommentSection(0);
     _console.log(7233, 'comments_section_loaded = 0')
-
-
   }
 
 
 
   function _disableComments() {
-     
 
-    _console.log(2909,1)
+
+    _console.log(2909, 1)
     if (!scriptEnable) return;
     let cssElm = kRef(ytdFlexy);
     if (!cssElm) return;
 
-    _console.log(2909,2)
+    _console.log(2909, 2)
 
-    
+
     let comments = document.querySelector('ytd-comments#comments')
-    if(mtf_forceCheckLiveVideo_disable===2){
+    if (mtf_forceCheckLiveVideo_disable === 2) {
       // earlier than DOM change
-    }else{
-      if(comments && !comments.hasAttribute('hidden')) return; // visible comments content)
+    } else {
+      if (comments && !comments.hasAttribute('hidden')) return; // visible comments content)
     }
-      
-    if(Q.comments_section_loaded===2) return; //already disabled
-    
 
+    _console.log(2909, 4)
+    if (Q.comments_section_loaded === 2) return; //already disabled
 
-    _console.log(2909,3)
-    
-
-    _console.log(2909,4) 
     setCommentSection(2);
 
-    _console.log(2909,5) 
+    _console.log(2909, 5)
 
     let tabBtn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]');
-    if(tabBtn) {
-      let span = querySelectorFromAnchor.call(tabBtn,'span#tab3-txt-loader');
+    if (tabBtn) {
+      let span = querySelectorFromAnchor.call(tabBtn, 'span#tab3-txt-loader');
       tabBtn.removeAttribute('loaded-comment')
       if (!tabBtn.classList.contains('tab-btn-hidden')) {
         //console.log('hide', comments, comments && comments.hasAttribute('hidden'))
         hideTabBtn(tabBtn)
       }
-      if(span){
-        span.textContent='';
+      if (span) {
+        span.textContent = '';
       }
     }
 
     akAttr(cssElm, 'tabview-youtube-comments', true, 'D');
-    
-    _console.log(2909,10)
+
+    _console.log(2909, 10)
 
 
   }
 
 
 
-  document.addEventListener('load',(evt)=>{
-    if(((evt||0).target||0).nodeName==='IFRAME') foundIframe(evt.target,2);
-  }, true)
 
 
-  globalHook('yt-page-data-fetched',generalLog901)
-  
-  globalHook('yt-rendererstamper-finished',generalLog901)
-  
-  globalHook('yt-page-data-updated',generalLog901)
-  
-  globalHook('yt-player-updated',generalLog901)
+  globalHook('yt-page-data-fetched', generalLog901)
 
-  globalHook('yt-watch-comments-ready',generalLog901)
+  //globalHook('yt-rendererstamper-finished',generalLog901)
 
-  globalHook('yt-page-type-changed',generalLog901)
+  globalHook('yt-page-data-updated', generalLog901)
 
-  globalHook('data-changed',generalLog901)
-  
-  globalHook('yt-navigate-finish',generalLog901)
+  globalHook('yt-player-updated', generalLog901)
 
-  globalHook('yt-navigate-redirect',generalLog901)
+  globalHook('yt-watch-comments-ready', generalLog901)
 
-  globalHook('yt-navigate-error',generalLog901)
+  globalHook('yt-page-type-changed', generalLog901)
 
-  globalHook('yt-navigate-start',generalLog901)
+  globalHook('data-changed', generalLog901)
 
-  globalHook('yt-page-manager-navigate-start',generalLog901)
+  globalHook('yt-navigate-finish', generalLog901)
 
-  globalHook('yt-navigate',generalLog901)
-  globalHook('yt-navigate-cache',generalLog901)
+  globalHook('yt-navigate-redirect', generalLog901)
+
+  globalHook('yt-navigate-error', generalLog901)
+
+  globalHook('yt-navigate-start', generalLog901)
+
+  globalHook('yt-page-manager-navigate-start', generalLog901)
+
+  globalHook('yt-navigate', generalLog901)
+  globalHook('yt-navigate-cache', generalLog901)
 
 
-  globalHook('yt-navigate', (evt)=>{
+  let pageStartLoad =  (evt) => {
     pageBeingInit();
-  });
-  globalHook('yt-navigate-start', (evt)=>{
-    pageBeingInit();
-  });
-  globalHook('yt-navigate-cache', (evt)=>{
-    pageBeingInit();
-  });
+  }
 
-  globalHook('yt-page-data-fetched',(evt)=>{
+  globalHook('yt-navigate',pageStartLoad);
+  globalHook('yt-navigate-start', pageStartLoad);
+  globalHook('yt-navigate-cache',pageStartLoad);  
+  globalHook('yt-navigate-redirect', pageStartLoad);
 
-    if(!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+  globalHook('yt-page-data-fetched', (evt) => {
+
+    if (!evt || !evt.target || evt.target.nodeType !== 1) return;
     let nodeName = evt.target.nodeName.toUpperCase()
-    if(nodeName!=='YTD-APP') return;
-    
+    if (nodeName !== 'YTD-APP') return;
+
+    let d_page = ((evt.detail || 0).pageData || 0).page;
+    if (!d_page) return;
+
     //in case yt-navigate-xxx not called.
     pageBeingInit();
 
     advanceFetch();
- 
 
-    _console.log(nodeName,904, evt.type);
-    
-
-    let d_page = ((evt.detail||0).pageData||0).page;
+    _console.log(nodeName, 904, evt.type);
 
     pageType = d_page;
-    if(d_page=='watch'){
-      
+    if (d_page == 'watch') {
       document.documentElement.classList.toggle('tabview-normal-player', true)
-    }else{
+    } else {
       document.documentElement.classList.toggle('tabview-normal-player', false)
-
     }
- 
-    
+
     dispatchWindowResize(); // player control positioning
-    
- 
+
     let liveChatRenderer = null;
     try {
       liveChatRenderer = evt.detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
     } catch (e) { }
-     
 
-    chatroomDetails = liveChatRenderer?extractInfoFromLiveChatRenderer(liveChatRenderer):null;
+    chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
 
     let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
-    if(ytdFlexyElm){
-      ytdFlexyElm.classList.toggle( 'tv-chat-toggleable', !!chatroomDetails);
+    if (ytdFlexyElm) {
+      ytdFlexyElm.classList.toggle('tv-chat-toggleable', !!chatroomDetails);
     }
 
-
-
     pageFetchedData = evt.detail
+    _console.log(601, pageFetchedData)
 
-    tabsDeferred.debounce(() => {
+    let tabsDeferredSess = pageSession.session();
+    if (!scriptEnable && tabsDeferred.resolved) { }
+    else tabsDeferred.debounce(() => {
+
+      if (!tabsDeferredSess.isValid) return;
 
       domInit_comments();
 
@@ -3654,9 +3674,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         newVideoPage(pageFetchedData);
       }
 
-    })
+    });
 
-    
+
 
 
   })
@@ -3668,7 +3688,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let ytd_player = document.querySelector('ytd-player#ytd-player');
     if (!ytd_player) return;
-    let videoElm = querySelectorFromAnchor.call(ytd_player,'video');
+    let videoElm = querySelectorFromAnchor.call(ytd_player, 'video');
     if (!videoElm) return;
 
     let video = videoElm;
@@ -3682,172 +3702,165 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-
-  function addIframeStyle(cDoc){
-
-
-    
-    if(cDoc.querySelector('#userscript-tabview-chatroom-css')) return false; 
-
-    addStyle(`     
-
-
+  const iframeCSS = (()=>{
+    return `
     body #input-panel.yt-live-chat-renderer::after {
-         background: transparent;
-    }
-     .style-scope.yt-live-chat-item-list-renderer{
-         box-sizing: border-box;
-     }
- 
-     yt-live-chat-text-message-renderer:nth-last-child(-n+30):hover #menu.yt-live-chat-text-message-renderer{
-         transition-delay: 87ms;
-    }
- 
-     yt-live-chat-text-message-renderer #menu.yt-live-chat-text-message-renderer{
-         transition-delay: 1ms;
-    }
- 
-     #item.style-scope.yt-live-chat-item-list-renderer, #item-scroller.style-scope.yt-live-chat-item-list-renderer{
-         transition-delay: 42ms;
-    }
- 
-     yt-live-chat-item-list-renderer img[alt] {
-         pointer-events: auto;
-    }
- 
-     body yt-live-chat-item-list-renderer img[alt] ~ tp-yt-paper-tooltip, body yt-live-chat-item-list-renderer #image ~ tp-yt-paper-tooltip {
-         --paper-tooltip-delay-in: 120ms !important;
-         white-space: nowrap;
-    }
- 
-    #items.style-scope.yt-live-chat-item-list-renderer > yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer{
+      background: transparent;
+  }
+  
+  .style-scope.yt-live-chat-item-list-renderer {
+      box-sizing: border-box;
+  }
+  
+  yt-live-chat-text-message-renderer:nth-last-child(-n+30):hover #menu.yt-live-chat-text-message-renderer {
+      transition-delay: 87ms;
+  }
+  
+  yt-live-chat-text-message-renderer #menu.yt-live-chat-text-message-renderer {
+      transition-delay: 1ms;
+  }
+  
+  #item.style-scope.yt-live-chat-item-list-renderer,
+  #item-scroller.style-scope.yt-live-chat-item-list-renderer {
+      transition-delay: 42ms;
+  }
+  
+  yt-live-chat-item-list-renderer img[alt] {
+      pointer-events: auto;
+  }
+  
+  body yt-live-chat-item-list-renderer img[alt]~tp-yt-paper-tooltip,
+  body yt-live-chat-item-list-renderer #image~tp-yt-paper-tooltip {
+      --paper-tooltip-delay-in: 120ms !important;
+      white-space: nowrap;
+  }
+  
+  #items.style-scope.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer {
       --tabview-chat-message-display: block;
       --tabview-chat-message-mt: 2px;
       --tabview-chat-message-mb: 4px;
-    }
- 
-    #message.yt-live-chat-text-message-renderer {
-     display: var(--tabview-chat-message-display);
-     margin-top: var(--tabview-chat-message-mt);
-     margin-bottom: var(--tabview-chat-message-mb);
-   }
- 
-   [collapsed] #message.yt-live-chat-text-message-renderer{
-     --tabview-chat-message-display: 'VOID';
-     --tabview-chat-message-mt: 'VOID';
-     --tabview-chat-message-mb: 'VOID';
-   }
- 
- 
- 
- 
-    @supports (contain: layout paint style){
- 
-     
-     body yt-live-chat-app{
-           contain: size layout paint style;
-           content-visibility: auto;
-           transform: translate3d(0,0,0);
-           overflow: hidden;
-     }
- 
- 
-     #items.style-scope.yt-live-chat-item-list-renderer, 
-     #item-offset.style-scope.yt-live-chat-item-list-renderer {      
-       contain: layout paint style;      
-     }
- 
-     #item-scroller.style-scope.yt-live-chat-item-list-renderer{
-       contain: size style;
-     }
- 
-     #contents.style-scope.yt-live-chat-item-list-renderer, 
-     #chat.style-scope.yt-live-chat-renderer, 
-     img.style-scope.yt-img-shadow[width][height]{
-         contain: size layout paint style;
-    }
-      
-         .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label], 
-         .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label] > #container {
-             contain: layout paint style;
-        }
- 
- 
-        yt-img-shadow#author-photo.style-scope{
-            contain: layout paint style;
-            content-visibility: auto;
-            contain-intrinsic-size: 24px 24px;
-       }
- 
-         yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer, yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer{
-             pointer-events: none;
-        }
- 
-         yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer > img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
-             cursor: default;
-        }
- 
-        
-        yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer, 
-        yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
-         yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer, 
-         yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer, 
-         yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer, 
-         yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer, 
-         yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer, 
-         yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer, 
-         yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
-             cursor: default;
-             pointer-events: none;
-        }
- 
-         yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer, 
-         yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer, 
-         yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-         yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
-             contain: layout style;
-        }
- 
-         tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
-             contain: layout paint style;
-        }
-             
- 
-    }
- 
- 
-    #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button{
+  }
+  
+  #message.yt-live-chat-text-message-renderer {
+      display: var(--tabview-chat-message-display);
+      margin-top: var(--tabview-chat-message-mt);
+      margin-bottom: var(--tabview-chat-message-mb);
+  }
+  
+  [collapsed] #message.yt-live-chat-text-message-renderer {
+      --tabview-chat-message-display: 'VOID';
+      --tabview-chat-message-mt: 'VOID';
+      --tabview-chat-message-mb: 'VOID';
+  }
+  
+  
+  @supports (contain: layout paint style) {
+  
+      body yt-live-chat-app {
+          contain: size layout paint style;
+          content-visibility: auto;
+          transform: translate3d(0, 0, 0);
+          overflow: hidden;
+      }
+  
+  
+      #items.style-scope.yt-live-chat-item-list-renderer,
+      #item-offset.style-scope.yt-live-chat-item-list-renderer {
+          contain: layout paint style;
+      }
+  
+      #item-scroller.style-scope.yt-live-chat-item-list-renderer {
+          contain: size style;
+      }
+  
+      #contents.style-scope.yt-live-chat-item-list-renderer,
+      #chat.style-scope.yt-live-chat-renderer,
+      img.style-scope.yt-img-shadow[width][height] {
+          contain: size layout paint style;
+      }
+  
+      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label],
+      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label]>#container {
+          contain: layout paint style;
+      }
+  
+  
+      yt-img-shadow#author-photo.style-scope {
+          contain: layout paint style;
+          content-visibility: auto;
+          contain-intrinsic-size: 24px 24px;
+      }
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
+          pointer-events: none;
+      }
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
+          cursor: default;
+      }
+  
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
+      yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer,
+      yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer,
+      yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
+      yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
+      yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
+      yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
+          cursor: default;
+          pointer-events: none;
+      }
+  
+      yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
+          contain: layout style;
+      }
+  
+      tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
+          contain: layout paint style;
+      }
+  
+  }
+  
+  
+  #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button {
       margin-right: var(--ytd-margin-12x);
-    }
- 
-     
-             `, cDoc.documentElement).id='userscript-tabview-chatroom-css'
+  }
+    `.trim();
+  });
 
-             return true;
-
+  function addIframeStyle(cDoc) {
+    if (cDoc.querySelector('#userscript-tabview-chatroom-css')) return false;
+    addStyle(iframeCSS(), cDoc.documentElement).id = 'userscript-tabview-chatroom-css'
+    return true;
   }
 
-  function callFind(cDoc){
+  function callFind(cDoc) {
 
-    if(!cDoc)return;
+    if (!cDoc) return;
 
-    if(addIframeStyle(cDoc)===false)return;
+    if (addIframeStyle(cDoc) === false) return;
 
-    let frc= 0;
+    let frc = 0;
     let cid = 0;
-    
-    let fullReady = ()=>{
-      
-      if(!cDoc.documentElement.hasAttribute('style') && ++frc<900) return;
+
+    let fullReady = () => {
+
+      if (!cDoc.documentElement.hasAttribute('style') && ++frc < 900) return;
       clearInterval(cid);
-      
+
       if (!scriptEnable || !isChatExpand()) return;
 
       let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
 
-      if(!document.contains(iframe)) return;
+      if (!document.contains(iframe)) return;
 
-      if (cDoc.querySelector('yt-live-chat-renderer #continuations')) { 
+      if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
         $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded', '')
       }
 
@@ -3855,17 +3868,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
 
     }
-    cid = setInterval(fullReady,10)
+    cid = setInterval(fullReady, 10)
     fullReady();
-    
 
 
 
-    
+
+
   }
 
   function flexyAttr_toggleFlag(mFlag, b, flag) {
-    return b ? (mFlag | flag) : (mFlag & ~flag) ;
+    return b ? (mFlag | flag) : (mFlag & ~flag);
   }
 
   function flexAttr_toLayoutStatus(nls, attributeName) {
@@ -3963,14 +3976,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
       if (mutation.attributeName == 'userscript-chat-collapsed' || mutation.attributeName == 'userscript-chatblock') {
 
-        if(!checkedChat){
+        if (!checkedChat) {
           checkedChat = true; // avoid double call
 
           if (cssElm.getAttribute('userscript-chatblock') === 'chat-live') {
             // assigned new attribute - "chat-live" => disable comments section
-            
-            
-          //console.log(3712,2)
+
+
+            //console.log(3712,2)
             _disableComments();
           }
 
@@ -3980,10 +3993,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         }
 
-      }else if(mutation.attributeName == 'userscript-engagement-panel'){
+      } else if (mutation.attributeName == 'userscript-engagement-panel') {
         // assume any other active component such as tab content and chatroom
-        
-        if (+(cssElm.getAttribute('userscript-engagement-panel')||0)===0 && +mutation.oldValue>0) {
+
+        if (+(cssElm.getAttribute('userscript-engagement-panel') || 0) === 0 && +mutation.oldValue > 0) {
           timeline.setTimeout(mtf_attrFlexy_functions['userscript-engagement-panel'], 240);
         }
       }
@@ -4003,7 +4016,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         })
       }
 
-    } 
+    }
 
   }
 
@@ -4028,27 +4041,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           attr_chatcollapsed = false;
         }
         wAttr(ytdFlexyElm, 'userscript-chatblock', attr_chatblock)
-        
-        _console.log(322,ytdFlexyElm.hasAttribute('userscript-chatblock'))
+
+        _console.log(322, ytdFlexyElm.hasAttribute('userscript-chatblock'))
         wAttr(ytdFlexyElm, 'userscript-chat-collapsed', attr_chatcollapsed)
       }
     }
 
-    let rTabSelection = [...querySelectorAllFromAnchor.call(ytdFlexyElm,'.tab-btn[userscript-tab-content]')]
+    let rTabSelection = [...querySelectorAllFromAnchor.call(ytdFlexyElm, '.tab-btn[userscript-tab-content]')]
       .map(elm => ({ elm, hidden: elm.classList.contains('tab-btn-hidden') }));
 
-    if(rTabSelection.length === 0){
+    if (rTabSelection.length === 0) {
       wAttr(ytdFlexyElm, 'tabview-selection', false);
-    }else{
-      rTabSelection=rTabSelection.filter(entry => entry.hidden !== true); // all available tabs
+    } else {
+      rTabSelection = rTabSelection.filter(entry => entry.hidden !== true); // all available tabs
       if (rTabSelection.length === 0) wAttr(ytdFlexyElm, 'tabview-selection', '');
     }
     rTabSelection = null;
-      
+
     let rEP = engagement_panels_();
     if (rEP && rEP.count > 0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', false);
     //else wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
-    else if(rEP.value>0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
+    else if (rEP.value > 0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
 
     let ls = LAYOUT_VAILD;
     ls = flexAttr_toLayoutStatus(ls, 'theater')
@@ -4064,7 +4077,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     wls.layoutStatus = ls
 
-    mtoFlexyAttr.bindElement(ytdFlexyElm,{
+    mtoFlexyAttr.bindElement(ytdFlexyElm, {
       attributes: true,
       attributeFilter: ['userscript-chat-collapsed', 'userscript-chatblock', 'theater', 'is-two-columns_', 'tabview-selection', 'fullscreen', 'userscript-engagement-panel', 'hidden'],
       attributeOldValue: true
@@ -4079,16 +4092,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     return false;
   }
-  
 
-  function checkVisibleEngagementPanel(){
-    
-    if(storeLastPanel){
+
+  function checkVisibleEngagementPanel() {
+
+    if (storeLastPanel) {
 
       let elm_storeLastPanel = kRef(storeLastPanel);
 
-      if(elm_storeLastPanel && !isDOMVisible(elm_storeLastPanel) ){
-        storeLastPanel=null;
+      if (elm_storeLastPanel && !isDOMVisible(elm_storeLastPanel)) {
+        storeLastPanel = null;
         ytBtnCloseEngagementPanels();
       }
 
@@ -4096,7 +4109,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
- 
+
 
 
 
@@ -4109,7 +4122,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  
+
 
   function switchTabActivity(activeLink) {
     if (!scriptEnable) return;
@@ -4125,8 +4138,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     function runAtEnd() {
 
-      
-    //console.log(12312)
+
+      //console.log(12312)
 
       if (activeLink) {
         lstTab.lastTab = activeLink.getAttribute('userscript-tab-content')
@@ -4147,12 +4160,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (activeLink && lstTab.lastTab == '#tab-comments' && (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').lastIndexOf('S') >= 0) {
 
-        
-        if(mtf_forceCheckLiveVideo_disable===2) {}
-        else{
+
+        if (mtf_forceCheckLiveVideo_disable === 2) { }
+        else {
           akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'L');
-          
-    _console.log(2909,3)
+
+          _console.log(2909, 3)
 
         }
 
@@ -4188,33 +4201,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  
-  function getStore(){
+
+  function getStore() {
     let s = localStorage[STORE_key];
-    function resetStore(){
+    function resetStore() {
       let ret = {
         version: 1,
       };
-      localStorage[STORE_key]=JSON.stringify(ret);
+      localStorage[STORE_key] = JSON.stringify(ret);
       return ret;
     }
-    if(!s) return resetStore();
+    if (!s) return resetStore();
     let obj = null;
-    try{
+    try {
       obj = JSON.parse(s);
-    }catch(e){}
+    } catch (e) { }
     return obj && obj.version === STORE_VERSION ? obj : resetStore();
   }
 
-  function setStore(obj){
-    if(!obj || typeof obj !=='object') return false;
-    if(obj.version !== STORE_VERSION) return false;
-    localStorage[STORE_key]=JSON.stringify(obj);
+  function setStore(obj) {
+    if (!obj || typeof obj !== 'object') return false;
+    if (obj.version !== STORE_VERSION) return false;
+    localStorage[STORE_key] = JSON.stringify(obj);
     return true;
   }
 
 
-  
+
 
   function prepareTabBtn() {
 
@@ -4223,12 +4236,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let noActiveTab = !!document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')
 
-    const activeLink = querySelectorFromAnchor.call(materialTab,'a[userscript-tab-content].active:not(.tab-btn-hidden)')
+    const activeLink = querySelectorFromAnchor.call(materialTab, 'a[userscript-tab-content].active:not(.tab-btn-hidden)')
     if (activeLink) switchTabActivity(noActiveTab ? null : activeLink)
 
     if (!tabsUiScript_setclick) {
       tabsUiScript_setclick = true;
-      $(materialTab).on("click", "a", function(evt) {
+      $(materialTab).on("click", "a", function (evt) {
 
         //console.log(8510)
         let ytdFlexyElm = kRef(ytdFlexy);
@@ -4242,7 +4255,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         evt.preventDefault();
 
         //console.log(8511)
- 
+
 
         //console.log(8513)
         new Promise(requestAnimationFrame).then(() => {
@@ -4256,28 +4269,28 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             let isActiveAndVisible = this.classList.contains('tab-btn') && this.classList.contains('active') && !this.classList.contains('tab-btn-hidden')
 
-            if( isFullScreen() ){
+            if (isFullScreen()) {
 
               console.log(isActiveAndVisible, this)
-              if(isActiveAndVisible){
+              if (isActiveAndVisible) {
                 timeline.setTimeout(unlock, 80);
                 switchTabActivity(null);
-              }else{
+              } else {
 
                 if (isChatExpand() && isWideScreenWithTwoColumns()) {
                   ytBtnCollapseChat();
                 } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
                   ytBtnCloseEngagementPanels();
-                } 
+                }
 
 
                 timeline.setTimeout(() => {
                   let scrollElement = document.querySelector('ytd-app[scrolling]')
-                  if(!scrollElement) return;
+                  if (!scrollElement) return;
                   // single column view; click button; scroll to tab content area 100%
                   let rightTabs = document.querySelector('#right-tabs');
                   let pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
-                  if (rightTabs && pTop > 0 && this.classList.contains('active')) { 
+                  if (rightTabs && pTop > 0 && this.classList.contains('active')) {
                     rightTabs.scrollIntoView(true);
                   }
                 }, 60)
@@ -4286,7 +4299,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 switchTabActivity(this)
               }
 
-              
+
             } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
               //optional
               timeline.setTimeout(unlock, 80);
@@ -4319,7 +4332,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               timeline.setTimeout(unlock, 80)
               switchTabActivity(this)
 
-              
+
 
             }
 
@@ -4331,39 +4344,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-      }); 
+      });
 
-      function updateCSS_fontsize(){
+      function updateCSS_fontsize() {
 
         let store = getStore();
-        
+
         let ytdFlexyElm = kRef(ytdFlexy);
-        if(ytdFlexyElm){
-          if(store['font-size-#tab-info']) ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
-          if(store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
-          if(store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
-          if(store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
+        if (ytdFlexyElm) {
+          if (store['font-size-#tab-info']) ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
+          if (store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
+          if (store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
+          if (store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
         }
 
       }
 
-      $(materialTab).on("click", ".font-size-btn", function(evt){
+      $(materialTab).on("click", ".font-size-btn", function (evt) {
 
         evt.preventDefault();
         evt.stopPropagation();
         evt.stopImmediatePropagation();
 
-        let value = evt.target.matches('.font-size-plus')?1: evt.target.matches('.font-size-minus')?-1 :0;
+        let value = evt.target.matches('.font-size-plus') ? 1 : evt.target.matches('.font-size-minus') ? -1 : 0;
 
-        let active_tab_content = closestDOM.call(evt.target,'[userscript-tab-content]').getAttribute('userscript-tab-content'); 
+        let active_tab_content = closestDOM.call(evt.target, '[userscript-tab-content]').getAttribute('userscript-tab-content');
 
         let store = getStore();
         let settingKey = `font-size-${active_tab_content}`
-        if(!store[settingKey]) store[settingKey] = 1.0;
-        if(value<0) store[settingKey] -= 0.05;
-        else if(value>0) store[settingKey] += 0.05;
-        if(store[settingKey]<0.1) store[settingKey] = 0.1;
-        else if(store[settingKey]>10) store[settingKey] = 10.0;
+        if (!store[settingKey]) store[settingKey] = 1.0;
+        if (value < 0) store[settingKey] -= 0.05;
+        else if (value > 0) store[settingKey] += 0.05;
+        if (store[settingKey] < 0.1) store[settingKey] = 0.1;
+        else if (store[settingKey] > 10) store[settingKey] = 10.0;
         setStore(store);
 
 
@@ -4397,49 +4410,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //"yt-navigate"
   //"yt-navigate-cache
 
-  document.addEventListener("yt-navigate-cache",()=>{
-    console.log('yt-navigate-cache')
-  },bubblePassive)
-  document.addEventListener("yt-navigate-redirect",()=>{
-    console.log('yt-navigate-redirect')
-
-
-
-    script_inject_js1.inject();
-
-    
-  },bubblePassive)
-
-  function onReady(){
-    //might be earlier than yt-navigation-finish
-    console.log('html-onReady')
-    if(location.pathname=='/watch') script_inject_js1.inject();
-  }
-
-  if(document.readyState!=='loading'){
-    onReady();
-  }else{
-    document.addEventListener('DOMContentLoaded', onReady, bubblePassive)
-  }
-
-  // function forceConfig(){
-    
-    
-    
-  // }
-
-  document.addEventListener("yt-navigate-start",()=>{
-    console.log('yt-navigate-start') // not always trigger before navigate-end
-    
-
-    script_inject_js1.inject();
-    // forceConfig();
-  },bubblePassive)
-
-  document.addEventListener("yt-page-manager-navigate-start",()=>{
+  document.addEventListener("yt-page-manager-navigate-start", () => {
     console.log('yt-page-manager-navigate-start')
     // forceConfig();
-  },bubblePassive)
+  }, bubblePassive)
 
 
 
@@ -4447,32 +4421,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let scrolling_lastD = 0;
 
-  const singleColumnScrolling = function(/** @type {boolean} */ scrolling_lastF) {
-    
-    if (!scriptEnable || pageType!=='watch') return;
+  const singleColumnScrolling = function (/** @type {boolean} */ scrolling_lastF) {
+
+    if (!scriptEnable || pageType !== 'watch') return;
 
     let pageY = 0;
 
-    if(scrolling_lastD === 0){
-      if( (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS){
+    if (scrolling_lastD === 0) {
+      if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
         return;
       }
       pageY = scrollY;
       if (pageY < 10 && !scrolling_lastF) return;
-    }else{
+    } else {
       pageY = scrollY;
     }
 
     let targetElm, header, navElm;
-    
 
-    _console.log(7891,'scrolling')
+
+    _console.log(7891, 'scrolling')
 
     Promise.resolve().then(() => {
 
       targetElm = document.querySelector("#right-tabs");
       if (!targetElm) return;
-      header = querySelectorFromAnchor.call(targetElm,"header");
+      header = querySelectorFromAnchor.call(targetElm, "header");
       if (!header) return;
       navElm = document.querySelector('#masthead-container, #masthead')
       if (!navElm) return;
@@ -4536,18 +4510,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  window.addEventListener("scroll", function() {
+  window.addEventListener("scroll", function () {
     singleColumnScrolling(false)
   }, bubblePassive)
 
   //let lastResizeAt = 0;
-  window.addEventListener('resize', function() {
+  window.addEventListener('resize', function () {
 
     if (!scriptEnable) return;
-    if (pageType!=='watch') return;
+    if (pageType !== 'watch') return;
     //lastResizeAt = Date.now();
 
-    if((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS){
+    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS) {
 
       requestAnimationFrame(() => {
         singleColumnScrolling(true)
@@ -4562,7 +4536,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function resetBuggyLayoutForNewVideoPage() {
 
-    
+
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!ytdFlexyElm) return;
 
@@ -4599,49 +4573,49 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  
-  function extractInfoFromLiveChatRenderer(liveChatRenderer){
+
+  function extractInfoFromLiveChatRenderer(liveChatRenderer) {
 
     let lcr = liveChatRenderer
 
-    let data_shb = ((lcr||0).showHideButton||0).toggleButtonRenderer
+    let data_shb = ((lcr || 0).showHideButton || 0).toggleButtonRenderer
 
-    let default_display_state=null, txt_collapse=null, txt_expand=null;
+    let default_display_state = null, txt_collapse = null, txt_expand = null;
 
-    
-    if(data_shb && data_shb.defaultText&&data_shb.toggledText&&data_shb.defaultText.runs&&data_shb.toggledText.runs){
 
-      if(data_shb.defaultText.runs.length===1&&data_shb.toggledText.runs.length===1){
+    if (data_shb && data_shb.defaultText && data_shb.toggledText && data_shb.defaultText.runs && data_shb.toggledText.runs) {
 
-        if(lcr.initialDisplayState== "LIVE_CHAT_DISPLAY_STATE_EXPANDED"){
+      if (data_shb.defaultText.runs.length === 1 && data_shb.toggledText.runs.length === 1) {
+
+        if (lcr.initialDisplayState == "LIVE_CHAT_DISPLAY_STATE_EXPANDED") {
 
           default_display_state = lcr.initialDisplayState
-            
-          txt_collapse=(data_shb.defaultText.runs[0]||0).text // COLLAPSE the area
 
-          txt_expand=(data_shb.toggledText.runs[0]||0).text // expand the area
+          txt_collapse = (data_shb.defaultText.runs[0] || 0).text // COLLAPSE the area
 
-        }else if(lcr.initialDisplayState =="LIVE_CHAT_DISPLAY_STATE_COLLAPSED"){
+          txt_expand = (data_shb.toggledText.runs[0] || 0).text // expand the area
+
+        } else if (lcr.initialDisplayState == "LIVE_CHAT_DISPLAY_STATE_COLLAPSED") {
           default_display_state = lcr.initialDisplayState
 
-          txt_expand=(data_shb.defaultText.runs[0]||0).text // expand the area
+          txt_expand = (data_shb.defaultText.runs[0] || 0).text // expand the area
 
-          txt_collapse=(data_shb.toggledText.runs[0]||0).text // COLLAPSE the area
+          txt_collapse = (data_shb.toggledText.runs[0] || 0).text // COLLAPSE the area
         }
 
 
 
-        if(typeof txt_expand=='string' && typeof txt_collapse=='string' && txt_expand.length>0 && txt_collapse.length>0){
+        if (typeof txt_expand == 'string' && typeof txt_collapse == 'string' && txt_expand.length > 0 && txt_collapse.length > 0) {
 
-        }else{
-          txt_expand=null;
-          txt_collapse=null;
+        } else {
+          txt_expand = null;
+          txt_collapse = null;
         }
       }
 
     }
 
-    return {default_display_state, txt_collapse, txt_expand}
+    return { default_display_state, txt_collapse, txt_expand }
 
   }
 
@@ -4650,8 +4624,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //toggleBtnDC = 1;
 
     console.log('newVideoPage')
-
-    document.dispatchEvent(new CustomEvent('tabview-v-change')) //possible duplicated
 
 
 
@@ -4710,11 +4682,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let attr_chatblock = chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false;
       let attr_chatcollapsed = false;
 
-      if(attr_chatblock){
+      if (attr_chatblock) {
         let p = document.querySelector('ytd-live-chat-frame#chat')
-        if(p){
-          attr_chatcollapsed = p.hasAttribute('collapsed'); 
-          if(!attr_chatcollapsed){
+        if (p) {
+          attr_chatcollapsed = p.hasAttribute('collapsed');
+          if (!attr_chatcollapsed) {
 
             //nativeFunc(p,'setupPlayerProgressRelay')
             //if(!p.isFrameReady)
@@ -4723,11 +4695,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             p.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
 
           }
-        }else{
+        } else {
           attr_chatcollapsed = initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false;
         }
       }
- 
+
 
 
 
@@ -4751,15 +4723,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-        
+
 
 
       if (pageType === 'watch') { // reset info when hidden
         checkVisibleEngagementPanel();
       }
 
-      if(chatTypeChanged){
-        
+      if (chatTypeChanged) {
+
         if (attr_chatblock == 'chat-live') {
 
           _console.log(932, 4)
@@ -4773,21 +4745,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         } else {
 
- 
+
 
           const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"].tab-btn-hidden')
           if (tabBtn) {
             emptyCommentSection();
+            _console.log(9360, 74);
             tabBtn.classList.remove("tab-btn-hidden")
+          }else{
+            setCommentSection(0);
           }
- 
+
           mtf_forceCheckLiveVideo_disable = 0;
-          setCommentSection(0);
-          
+
           _console.log(7234, 'comments_section_loaded = 0')
           restoreFetching();
-
-          _console.log(932, 6)
 
 
         }
@@ -4801,9 +4773,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (mtf_forceCheckLiveVideo_disable !== 2 && (attr_chatblock === false || attr_chatblock === 'chat-playback')) {
 
           emptyCommentSection();
-
+          _console.log(9360, 77);
           mtf_forceCheckLiveVideo_disable = 0;
-          setCommentSection(0);
           _console.log(7235, 'comments_section_loaded = 0')
           restoreFetching();
 
@@ -4813,10 +4784,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
-        
-      if(Q.comments_section_loaded===0 && fetchCounts.new && !fetchCounts.fetched){
+
+      if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
         fetchCounts.new.f();
-        fetchCounts.fetched= true;
+        fetchCounts.fetched = true;
+        _console.log(9972, 'fetched = true')
+
+        fetchCommentsFinished();
       }
 
     }
@@ -4829,9 +4803,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
- 
 
-  document.addEventListener('wheel', function(evt) {
+
+  document.addEventListener('wheel', function (evt) {
 
     if (!scriptEnable) return;
     const displayedPlaylist_element = kRef(displayedPlaylist);
@@ -4897,14 +4871,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  window.addEventListener('scroll', function(evt) {
+  window.addEventListener('scroll', function (evt) {
 
     //console.log(evt.target)
 
     if (!scriptEnable) return;
 
     let isTwoCol = (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS
-    if(isTwoCol) return;
+    if (isTwoCol) return;
 
     if (!kRef(scrollingVideosList)) return;
     if (videoListBeforeSearch) return;
@@ -4955,9 +4929,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }, bubblePassive)
- 
 
-  
+
+
 
 
 
@@ -4973,64 +4947,64 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let elm = mgChatFrame.getVar();
       if (!elm) return false;
       let ytdFlexyElm = kRef(ytdFlexy);
-      if(!ytdFlexyElm) return false;
+      if (!ytdFlexyElm) return false;
       return elementContains.call(ytdFlexyElm, elm)
     }
   };
 
   const timeline = {
     // after initialized (initObserver)
-    cn1:{},
-    cn2:{},
-    setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d){
-      let cid = setTimeout(f,d)
-      timeline.cn1[cid]=true
+    cn1: {},
+    cn2: {},
+    setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d) {
+      let cid = setTimeout(f, d)
+      timeline.cn1[cid] = true
       return cid;
     },
-    clearTimeout(/** @type {number} */ cid){
-      timeline.cn1[cid]=false; return clearTimeout(cid)
+    clearTimeout(/** @type {number} */ cid) {
+      timeline.cn1[cid] = false; return clearTimeout(cid)
     },
-    setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d){
-      let cid = setInterval(f,d);
-      timeline.cn2[cid]=true
+    setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d) {
+      let cid = setInterval(f, d);
+      timeline.cn2[cid] = true
       return cid;
     },
-    clearInterval(/** @type {number} */ cid){
-      timeline.cn2[cid]=false; return clearInterval(cid)
+    clearInterval(/** @type {number} */ cid) {
+      timeline.cn2[cid] = false; return clearInterval(cid)
     },
-    reset(){
-      for(let cid in timeline.cn1) timeline.cn1[cid] && clearTimeout(cid)
-      for(let cid in timeline.cn2) timeline.cn2[cid] && clearInterval(cid)
-      timeline.cn1={}
-      timeline.cn2={}
+    reset() {
+      for (let cid in timeline.cn1) timeline.cn1[cid] && clearTimeout(cid)
+      for (let cid in timeline.cn2) timeline.cn2[cid] && clearInterval(cid)
+      timeline.cn1 = {}
+      timeline.cn2 = {}
     }
   }
 
   class AttributeMutationObserver extends MutationObserver {
-    constructor(flist){
-      super((mutations, observer)=>{
-        for(const mutation of mutations){
+    constructor(flist) {
+      super((mutations, observer) => {
+        for (const mutation of mutations) {
           if (mutation.type === 'attributes') {
             this.checker(mutation.target, mutation.attributeName)
           }
         }
       })
-      this.flist=flist;
-      this.res={}
+      this.flist = flist;
+      this.res = {}
     }
-    
-    takeRecords(){
+
+    takeRecords() {
       super.takeRecords();
     }
-    disconnect(){
+    disconnect() {
       this._target = null;
       super.disconnect();
     }
-    observe(/** @type {Node} */ target){
-      if(this._target) return; 
+    observe(/** @type {Node} */ target) {
+      if (this._target) return;
       //console.log(123124, target)
       this._target = mWeakRef(target);
-      
+
       //console.log(123125, kRef(this._target))
       const options = {
         attributes: true,
@@ -5040,29 +5014,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       super.observe(target, options)
     }
-    checker(/** @type {Node} */ target,/** @type {string} */ attributeName){
+    checker(/** @type {Node} */ target,/** @type {string} */ attributeName) {
       let nv = target.getAttribute(attributeName);
-      if(this.res[attributeName]!==nv){
+      if (this.res[attributeName] !== nv) {
         this.res[attributeName] = nv
         let f = this.flist[attributeName];
-        if(f) f(attributeName, nv);
+        if (f) f(attributeName, nv);
 
       }
     }
-    check(delay = 0){
-      setTimeout(()=>{
+    check(delay = 0) {
+      setTimeout(() => {
         let target = kRef(this._target)
-        if(target!==null){
-          for(const key of Object.keys(this.flist)){
-            this.checker(target,key)
+        if (target !== null) {
+          for (const key of Object.keys(this.flist)) {
+            this.checker(target, key)
           }
-        }else{
+        } else {
           console.log('target is null') //disconnected??
         }
         target = null;
-      },delay)
+      }, delay)
     }
-  } 
+  }
 
   function goYoutubeGeniusLyrics() {
 
@@ -5079,6 +5053,55 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+
+  function nestedObjectFlatten(prefix, obj) {
+    let ret = {};
+    let _prefix = prefix ? `${prefix}.` : '';
+    let isObject = (obj && typeof obj == 'object' && obj.constructor.name == 'Object');
+    let isArray = (obj && typeof obj == 'object' && obj.constructor.name == 'Array');
+    const f = (k, v) => {
+      let isObject = (v && typeof v == 'object' && v.constructor.name == 'Object');
+      let isArray = (v && typeof v == 'object' && v.constructor.name == 'Array');
+
+      if (isObject || isArray) {
+
+        let r = nestedObjectFlatten(k, v)
+        for (const w in r) {
+          ret[`${_prefix}${w}`] = r[w];
+        }
+      } else {
+        ret[`${_prefix}${k}`] = v;
+      }
+    }
+    if (isObject) {
+
+      for (const k in obj) {
+        let v = obj[k];
+        f(k, v);
+      }
+
+    } else if (isArray) {
+
+      let idx = 0;
+
+      for (const v of obj) {
+        let k = `[${idx}]`;
+        f(k, v);
+
+
+        idx++;
+      }
+    }
+    return ret;
+  }
+
+  /*
+
+  for(const p of document.querySelectorAll('ytd-watch-flexy *')){ let m = p.data; if(!m)continue; console.log(m)}
+
+  function objec
+
+  */
 
 
   //Object.keys($0).filter(key=>!(key in $0.constructor.prototype))

@@ -14,19 +14,18 @@ function injection_script_1() {
   const $requestAnimationFrame = window.requestAnimationFrame.bind(window);
   const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
 
-  /** @type {(o: Object | null) => WeakRef | null} */
-  const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
+  // /** @type {(o: Object | null) => WeakRef | null} */
+  // const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
 
-  /** @type {(wr: Object | null) => Object | null} */
-  const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
+  // /** @type {(wr: Object | null) => Object | null} */
+  // const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
+  
+  let calledOnce = false;
+  let ptcBusy= false;
+  let _ceHack_calledOnce = false;
+  let cid_teaserInfo = 0;
 
 
-  function setFST(fst, text){
-    if(!fst) return;
-    let textNode = fst.firstChild;
-    if(textNode && textNode.nodeType===3) textNode.nodeValue = text;
-    else fst.textContent = text;
-  }
 
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready',function(evt){
@@ -122,207 +121,8 @@ function injection_script_1() {
   }, false)
   */
 
-  let calledOnce = false;
-
-  document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
-  
-    function getEPC(ep) {
-
-      if (!ep) return null;
-      let epc = querySelectorFromAnchor.call(ep,'#content');
-      if (!epc) return null;
-
-      let epc1 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer #content')
-      let epc2 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer')
-
-      return epc1 || epc2 || epc;
-
-    }
-
-    if (calledOnce) return;
-    calledOnce = true
 
 
-    // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
-
-    function createPanel(){
-
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
-      if(!ytdFlexyElm) return null;
-
-
-      /** @type {HTMLElement} */
-      let newPanel = ytdFlexyElm.createComponent_({
-        "component": "ytd-engagement-panel-section-list-renderer",
-        "params": {
-          "isWatch": true
-        }
-      }, "ytd-engagement-panel-section-list-renderer", true);
-
-      newPanel.data = {
-        "panelIdentifier": "engagement-panel-genius-transcript",
-        "header": {
-          "engagementPanelTitleHeaderRenderer": {
-            "title": {
-              "runs": [
-                {
-                  "text": "Genius Lyrics"
-                }
-              ]
-            },
-            "visibilityButton": {
-              "buttonRenderer": {
-                "icon": {
-                  "iconType": "CLOSE"
-                },
-                "accessibility": {
-                  "label": "Close Genius Lyrics"
-                },
-                "accessibilityData": {
-                  "accessibilityData": {
-                    "label": "Close Genius Lyrics"
-                  }
-                },
-                "command": {
-                  "changeEngagementPanelVisibilityAction": {
-                    "targetId": "engagement-panel-genius-transcript",
-                    "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "content": {
-          "adsEngagementPanelContentRenderer": {
-          //"engagementPanelGeniusTranscriptRenderer":{
-
-          }
-        },
-        "targetId": "engagement-panel-genius-transcript",
-        "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
-        "loggingDirectives": {
-        }
-      }
-
-      newPanel.classList.add('style-scope','ytd-watch-flexy')
-
-      querySelectorFromAnchor.call(ytdFlexyElm,'#panels').appendChild(newPanel)
-
-      return newPanel;
-
-
-    }
-
-    let count = 0;
-    function $f() {
-
-      if (++count > 30) return;
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
-      if (!ytdFlexyElm) return setTimeout($f, 100);
-
-      
-
-      function closeBtn() {
-        return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
-      }
-
-      const visObserver = new MutationObserver(function (mutations, observer) {
-
-        if (!mutations || !mutations[0]) return;
-        /** @type {HTMLElement} */
-        let panel = mutations[0].target;
-        if (!panel) return;
-        if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
-          setTimeout(function(){
-
-            let hideBtn = closeBtn();
-            if (hideBtn) hideBtn.dispatchEvent(new Event("click"));
-          },30);
-          //panel.querySelector('#lyricsiframe').remove();
-        }
-
-      })
-
-      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
-      
-      let isLoading = false
-
-      let tf = null;
-      const closeClick = function(){
-        let panel = document.querySelector(panel_cssSelector)
-        if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
-          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
-        }
-      }
-      setInterval(tf=()=>{
-
-        if(!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')){
-          let newPanel = createPanel();
-          visObserver.takeRecords();
-          visObserver.disconnect();
-
-          visObserver.observe(newPanel, {
-            attributes: true,
-            attributeFilter: ['visibility']
-          })
-        }
-
-        
-        let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
-
-        if(isLoading!==isLoading_current){
-          isLoading = isLoading_current;
-          
-          let panel = document.querySelector(panel_cssSelector)
-          if(panel){
-            panel.classList.toggle('epanel-lyrics-loading', isLoading);
-          }
-        
-        }
-
-
-
-        let elm = null;
-        if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
-
-          let panel = document.querySelector(panel_cssSelector)
-          if(panel) {
-              
-            let epc = getEPC(panel);
-            if(epc) {
-
-              epc.innerHTML = '';
-              epc.appendChild(elm)
-              panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
-            }
-
-          }
-        }
-
-        
-  
-        for(const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')){
-          let lctc = clickable.textContent.toLocaleLowerCase()
-          clickable.setAttribute('lctc', lctc)
-          if(/\bhide\b/.test(lctc)){
-            clickable.classList.add('lctc-hide')
-            clickable.addEventListener('click',closeClick,false)
-          }
-        }
-
-
-      },250)
-      tf();
-      
-
-    }
-    $f();
-
-  })
-  document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
-
-  //https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
 
   function getTranslate(){
@@ -739,29 +539,6 @@ function injection_script_1() {
 
   }
 
-  /*
-  const pageStatus = {
-    hasFocus: null,
-    visibilityState: null,
-    vState:0,
-    lastCheck: 0,
-    check: ()=>{
-      let d = Date.now();
-      if(d>pageStatus.lastCheck+300){
-        
-      }else{
-        return;
-      }
-      pageStatus.lastCheck = d;
-      pageStatus.hasFocus=document.hasFocus();
-      pageStatus.visibilityState=document.visibilityState;
-      pageStatus.vState= pageStatus.hasFocus?1:pageStatus.visibilityState=='visible'?2:4;
-    }
-  }
-  */
-
-
-  let ptcBusy= false;
 
   function getFunc_postToContentWindow(){
     let afArg = null;
@@ -929,68 +706,7 @@ function injection_script_1() {
     }
     return g_postToContentWindow;
   }
-  
 
-  /*
-
-
-  function getFunc_postToContentWindow(){
-    let afm = 0;
-    let afArg = null;
-    const symbol_gtcw=Symbol();
-    let refreshAt = 0;
-    const tf_gtcw=function(){
-      if(afm > 0){
-        afm = 0;
-        refreshAt = Date.now()+800;
-        this.__$$postToContentWindow$$__.apply(this, afArg)
-      }
-    };
-    const g_postToContentWindow = function () {
-      if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
-      if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
-
-        afArg = [...arguments];
-        let curTime = 0;
-        if(afm>0 && (curTime=Date.now())>refreshAt){
-          afm = 0;
-          refreshAt = curTime+800;
-        } 
-        //console.log(4548)
-        afm++;
-        if (afm === 1) {
-          pageStatus.check();
-          if(!this[symbol_gtcw]) this[symbol_gtcw]=tf_gtcw.bind(this)
-          
-          switch(pageStatus.vState){
-            case 1:
-              requestAnimationFrame(this[symbol_gtcw]);
-              break;
-
-            case 2:
-              setTimeout(() => {
-                requestAnimationFrame(this[symbol_gtcw]);
-              },370)
-              break;
-
-            default:
-              setTimeout(() => {
-                afm = 0;
-              },800)
-          }
-
-        }
-
-      } else {
-        this.__$$postToContentWindow$$__.apply(this, arguments)
-      }
-    }
-    return g_postToContentWindow;
-  }
-
-  */
-
-  let _ceHack_calledOnce = false;
   
   function ceHack(evt){
 
@@ -1109,6 +825,243 @@ function injection_script_1() {
 
   }
 
+  function textsMatch(runs1,runs2){
+
+    let i=runs1.length-runs2.length;
+    if(i<0) return false;
+    let j=0;
+    while(i<runs1.length && j<runs2.length){
+      if(runs1[i].text!==runs2[j].text)return false;
+      i++;
+      j++;
+    }
+    return true;
+
+  }
+
+
+  function teaserInfoMatchCondition (lineExpander){
+
+    if(!lineExpander) return null;
+    let watch_metadata = lineExpander.__dataHost;
+    if(!watch_metadata || watch_metadata === lineExpander) return null;
+    if(!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer ) return null;
+
+
+
+    let full = watch_metadata.__data.descriptionText.runs
+    let detail = watch_metadata.__data.videoSecondaryInfoRenderer.description.runs
+    let content = lineExpander.text.runs
+
+    return [ watch_metadata, full, detail, content]
+
+
+  }
+
+  function isDOMVisible(/** @type {HTMLElement} */ elem) {
+    // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
+    return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
+  }
+
+  
+  document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
+  
+    function getEPC(ep) {
+
+      if (!ep) return null;
+      let epc = querySelectorFromAnchor.call(ep,'#content');
+      if (!epc) return null;
+
+      let epc1 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer #content')
+      let epc2 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer')
+
+      return epc1 || epc2 || epc;
+
+    }
+
+    if (calledOnce) return;
+    calledOnce = true
+
+
+    // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
+
+    function createPanel(){
+
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      if(!ytdFlexyElm) return null;
+
+
+      /** @type {HTMLElement} */
+      let newPanel = ytdFlexyElm.createComponent_({
+        "component": "ytd-engagement-panel-section-list-renderer",
+        "params": {
+          "isWatch": true
+        }
+      }, "ytd-engagement-panel-section-list-renderer", true);
+
+      newPanel.data = {
+        "panelIdentifier": "engagement-panel-genius-transcript",
+        "header": {
+          "engagementPanelTitleHeaderRenderer": {
+            "title": {
+              "runs": [
+                {
+                  "text": "Genius Lyrics"
+                }
+              ]
+            },
+            "visibilityButton": {
+              "buttonRenderer": {
+                "icon": {
+                  "iconType": "CLOSE"
+                },
+                "accessibility": {
+                  "label": "Close Genius Lyrics"
+                },
+                "accessibilityData": {
+                  "accessibilityData": {
+                    "label": "Close Genius Lyrics"
+                  }
+                },
+                "command": {
+                  "changeEngagementPanelVisibilityAction": {
+                    "targetId": "engagement-panel-genius-transcript",
+                    "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "content": {
+          "adsEngagementPanelContentRenderer": {
+          //"engagementPanelGeniusTranscriptRenderer":{
+
+          }
+        },
+        "targetId": "engagement-panel-genius-transcript",
+        "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
+        "loggingDirectives": {
+        }
+      }
+
+      newPanel.classList.add('style-scope','ytd-watch-flexy')
+
+      querySelectorFromAnchor.call(ytdFlexyElm,'#panels').appendChild(newPanel)
+
+      return newPanel;
+
+
+    }
+
+    let count = 0;
+    function $f() {
+
+      if (++count > 30) return;
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      if (!ytdFlexyElm) return setTimeout($f, 100);
+
+      
+
+      function closeBtn() {
+        return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
+      }
+
+      const visObserver = new MutationObserver(function (mutations, observer) {
+
+        if (!mutations || !mutations[0]) return;
+        /** @type {HTMLElement} */
+        let panel = mutations[0].target;
+        if (!panel) return;
+        if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
+          setTimeout(function(){
+
+            let hideBtn = closeBtn();
+            if (hideBtn) hideBtn.dispatchEvent(new Event("click"));
+          },30);
+          //panel.querySelector('#lyricsiframe').remove();
+        }
+
+      })
+
+      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
+      
+      let isLoading = false
+
+      let tf = null;
+      const closeClick = function(){
+        let panel = document.querySelector(panel_cssSelector)
+        if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
+          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
+        }
+      }
+      setInterval(tf=()=>{
+
+        if(!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')){
+          let newPanel = createPanel();
+          visObserver.takeRecords();
+          visObserver.disconnect();
+
+          visObserver.observe(newPanel, {
+            attributes: true,
+            attributeFilter: ['visibility']
+          })
+        }
+
+        
+        let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
+
+        if(isLoading!==isLoading_current){
+          isLoading = isLoading_current;
+          
+          let panel = document.querySelector(panel_cssSelector)
+          if(panel){
+            panel.classList.toggle('epanel-lyrics-loading', isLoading);
+          }
+        
+        }
+
+
+
+        let elm = null;
+        if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
+
+          let panel = document.querySelector(panel_cssSelector)
+          if(panel) {
+              
+            let epc = getEPC(panel);
+            if(epc) {
+
+              epc.innerHTML = '';
+              epc.appendChild(elm)
+              panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
+            }
+
+          }
+        }
+
+        
+  
+        for(const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')){
+          let lctc = clickable.textContent.toLocaleLowerCase()
+          clickable.setAttribute('lctc', lctc)
+          if(/\bhide\b/.test(lctc)){
+            clickable.classList.add('lctc-hide')
+            clickable.addEventListener('click',closeClick,false)
+          }
+        }
+
+
+      },250)
+      tf();
+      
+
+    }
+    $f();
+
+  })
+  document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
+
 
   if(document.documentElement.hasAttribute('youtube-ready'))ceHack();else
   document.addEventListener('tabview-ce-hack',ceHack, true)
@@ -1143,45 +1096,6 @@ function injection_script_1() {
     }
 
   }, true);
-
-
-
-  function textsMatch(runs1,runs2){
-
-    let i=runs1.length-runs2.length;
-    if(i<0) return false;
-    let j=0;
-    while(i<runs1.length && j<runs2.length){
-      if(runs1[i].text!==runs2[j].text)return false;
-      i++;
-      j++;
-    }
-    return true;
-
-  }
-
-  let cid_teaserInfo = 0;
-
-  //console.log(78)
-
-
-  function teaserInfoMatchCondition (lineExpander){
-
-    if(!lineExpander) return null;
-    let watch_metadata = lineExpander.__dataHost;
-    if(!watch_metadata || watch_metadata === lineExpander) return null;
-    if(!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer ) return null;
-
-
-
-    let full = watch_metadata.__data.descriptionText.runs
-    let detail = watch_metadata.__data.videoSecondaryInfoRenderer.description.runs
-    let content = lineExpander.text.runs
-
-    return [ watch_metadata, full, detail, content]
-
-
-  }
 
 
   document.addEventListener('tabview-no-duplicate-info',function(evt){
@@ -1221,13 +1135,6 @@ function injection_script_1() {
   },true);
   
   
-  function isDOMVisible(/** @type {HTMLElement} */ elem) {
-    // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
-    return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
-  }
-
-  
-
   document.addEventListener('tabview-fix-autocomplete',function(){
 
       // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
@@ -1242,7 +1149,7 @@ function injection_script_1() {
               s.setAttribute('data-autocomplete-results-id',id);
               sc.setAttribute('data-autocomplete-input-id', id);
               
-              if(window.WeakRef){
+              if(typeof WeakRef === 'function'){
                   s._sc=new WeakRef(sc);
                   s.sc=null;
                   delete s.sc;
@@ -1270,8 +1177,6 @@ function injection_script_1() {
   }, false);
  
   
-
-
   // initial paging -> yt-page-data-fetched
   // page changing ->  yt-page-type-changed + yt-page-data-fetched
   document.addEventListener('yt-page-type-changed', (evt) => {
@@ -1283,18 +1188,10 @@ function injection_script_1() {
     }, location.origin);
   }, false)
 
- /*
-  document.addEventListener('tabview-button-toggle', (evt) => {
-    try{
-
-      evt.target.data.isToggled=!evt.target.data.isToggled
-    }catch(e){}
-  }, true)*/
- 
-    
 
   document.documentElement.setAttribute('tabview-injection-js-1-ready','2')
 
+  //effected subtitle - https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
 }
 
