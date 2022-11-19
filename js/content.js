@@ -1261,7 +1261,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
         videos_related.setAttribute('placeholder-videos', '')
 
-        $('[placeholder-videos]').on("scroll", windowScroll); // next videos - single column mode
+        $('[placeholder-videos]').on("scroll", windowScroll); // videos - single column mode
 
       }
 
@@ -4543,11 +4543,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
+  window.addEventListener("scroll", function () {
+    singleColumnScrolling(false)
+  }, bubblePassive)
 
   //let lastResizeAt = 0;
   window.addEventListener('resize', function () {
 
-    if (!scriptEnable || pageType !== 'watch') return;
+    if (!scriptEnable) return;
+    if (pageType !== 'watch') return;
     //lastResizeAt = Date.now();
 
     if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS) {
@@ -4902,15 +4906,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   window.addEventListener('scroll', function (evt) {
 
-
     //console.log(evt.target)
 
     if (!scriptEnable) return;
 
     let isTwoCol = (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS
     if (isTwoCol) return;
-    
-    singleColumnScrolling(false)
 
     if (!kRef(scrollingVideosList)) return;
     if (videoListBeforeSearch) return;
