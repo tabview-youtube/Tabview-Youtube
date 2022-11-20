@@ -1013,31 +1013,50 @@ function injection_script_1() {
     });
 
 
-    //let s65 = Symbol();
     ((P) => {
+
       let _refit = P.refit;
+      let refitFunc = function () {
+        if (this.horizontalAlign || this.verticalAlign) {
+          if ((this.__restoreFocusNode || 0).matches) {
+            let node = this.__restoreFocusNode
+            let nodeName = node.nodeName.toUpperCase();
+            if (nodeName === 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') {
+              if (node.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')) {
+                if (this.horizontalAlign) this.horizontalAlign = false;
+                if (this.verticalAlign) this.verticalAlign = false;
+              }
+            }
+          }
+        }
+        if(this.__refit) return this.__refit();
+      };
       if (_refit) {
 
         // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
         // reproduction: click watch later without login 
         // without this, the layout coordinates and size (height) of container will become incorrect.
 
+        console.log(12355)
         P.__refit = _refit;
-        P.refit = function () {
-          if (this.horizontalAlign || this.verticalAlign) {
-            if ((this.__restoreFocusNode || 0).matches) {
-              let node = this.__restoreFocusNode
-              let nodeName = node.nodeName.toUpperCase();
-              if (nodeName === 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') {
-                if (node.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')) {
-                  if (this.horizontalAlign) this.horizontalAlign = false;
-                  if (this.verticalAlign) this.verticalAlign = false;
-                }
-              }
-            }
-          }
-          return this.__refit();
-        };
+        P.refit = refitFunc;
+
+      }else{
+        
+        //let s65 = Symbol();
+        
+        console.log(12356)
+
+        Object.defineProperty(P, 'refit', {
+          get() {
+            return refitFunc;
+          },
+          set(nv) {
+            this.__refit = nv;
+          },
+          enumerable: false,
+          configurable: false // if redefine by YouTube, error comes and change the coding
+        })
 
       }
     })(customElements.get('tp-yt-iron-dropdown').prototype);
