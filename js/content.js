@@ -3933,15 +3933,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return `
 
     body {
-      tabview-msg-cursor: default;
-      tabview-msg-pointer-events: none;
-      tabview-img-pointer-events: auto;
+      --tabview-msg-cursor: default;
+      --tabview-msg-pointer-events: none;
+      --tabview-img-pointer-events: auto;
     }
 
     body.tabview-allow-pointer-events{
-      tabview-msg-cursor: '-NULL-';
-      tabview-msg-pointer-events: '-NULL-';
-      tabview-img-pointer-events: '-NULL-';
+      --tabview-msg-cursor: '-NULL-';
+      --tabview-msg-pointer-events: '-NULL-';
+      --tabview-img-pointer-events: '-NULL-';
     }
 
     body #input-panel.yt-live-chat-renderer::after {
@@ -4033,11 +4033,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   
       yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
       yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
-          pointer-events: var(tabview-msg-pointer-events);
+          pointer-events: var(--tabview-msg-pointer-events);
       }
   
       yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
-          cursor: var(tabview-msg-cursor);
+          cursor: var(--tabview-msg-cursor);
       }
   
   
@@ -4050,8 +4050,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
       yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
       yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
-          cursor: var(tabview-msg-cursor);
-          pointer-events: var(tabview-msg-pointer-events);
+          cursor: var(--tabview-msg-cursor);
+          pointer-events: var(--tabview-msg-pointer-events);
       }
   
       yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
