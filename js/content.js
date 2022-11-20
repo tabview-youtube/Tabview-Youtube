@@ -5161,7 +5161,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     pageFetchedData = evt.detail
-    console.log(601, pageFetchedData)
+    _console.log(601, pageFetchedData)
 
     let tabsDeferredSess = pageSession.session();
     if (!scriptEnable && tabsDeferred.resolved) { }
