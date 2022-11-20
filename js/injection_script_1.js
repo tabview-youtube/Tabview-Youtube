@@ -127,12 +127,23 @@ function injection_script_1() {
 
 
   function getTranslate() {
+    let snCache = new Map();
+
+    if (TRANSLATE_DEBUG) {
+      console.log(11)
+    }
 
 
     /** @type {(str: string?) => string} */
     function _snippetText(str) {
       // str can be underfinded
-      return (str ? str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ') : '').trim().replace(/\s*\n\s*/,'\n');
+      if (!str) return '';
+      let res = snCache.get(str);
+      if (res) return res;
+      res = str.replace(/\u200b/g, '').replace(/[\xA0\x20]+/g, ' ').trim().replace(/\s*\n\s*/, '\n');
+      snCache.set(str, res);
+      snCache.set(res, res);
+      return res;
     }
 
 
@@ -149,7 +160,6 @@ function injection_script_1() {
       return res.join('\n');
     }
 
-    const s8 = Symbol();
 
     function szz(t) {
 
@@ -163,6 +173,10 @@ function injection_script_1() {
     function translate(initialSegments) {
 
       if (!initialSegments) return initialSegments;
+
+      if (TRANSLATE_DEBUG) {
+        console.log(12)
+      }
 
 
 
@@ -198,16 +212,18 @@ function injection_script_1() {
 
       const fRes = [];
 
+      const s8 = Symbol();
+
       for (const initialSegment of initialSegments) {
         const transcript = (initialSegment || 0).transcriptSegmentRenderer;
         if (!transcript) continue;
-        
+
         const runs = transcript.snippet.runs
-        if(!runs){
-          initialSegment[s8]=true;
+        if (!runs || runs.length === 0) {
+          initialSegment[s8] = true;
           continue;
-        } 
-          
+        }
+
 
         let startMs = (+transcript.startMs || 0); //integer
         let endMs = (+transcript.endMs || 0); //integer
@@ -313,7 +329,6 @@ function injection_script_1() {
 
 
       }
-      mh1 = null;
 
 
 
@@ -324,6 +339,13 @@ function injection_script_1() {
       const sj_length = initialSegments.length;
 
 
+      Promise.resolve(0).then(()=>{
+        cacheTexts.clear();
+        cacheTexts=null;
+        mh1.clear();
+        mh1 = null;
+      });
+
       if (si_length === sj_length) {
         //no fix is required
         // ignore spacing fix
@@ -333,20 +355,11 @@ function injection_script_1() {
 
 
 
-      /** @type {(str: string?) => string} */
-      function trim2(str) {
-        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
-      }
-
-      /** @type {(str: string?) => string} */
-      function ns2(str) {
-        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
-      }
 
 
       // collect the abandon text to become second subtitle
 
-      let invalid_sj=-1;
+      let invalid_sj = -1;
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
         const transcript = segment.transcriptSegmentRenderer;
@@ -355,6 +368,9 @@ function injection_script_1() {
         let main_endMs = (+transcript.endMs || 0);
         /** @type {Map<string, number>} */
         const tMap = new Map(); // avoid duplicate with javascript object properties
+
+        const runs = segment.transcriptSegmentRenderer.snippet.runs;
+        if (runs.length > 1 || runs[0].text.includes('\n')) continue;  // skip multi lines
 
         // assume that it is asc-ordered array of key startMs;
         for (let sj = sj_start; sj < sj_length; sj++) {
@@ -366,11 +382,11 @@ function injection_script_1() {
           let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
           let isStartValid = startMs >= main_startMs;
           if (!isStartValid) {
-            invalid_sj=sj;
+            invalid_sj = sj;
             continue;
           }
           if (startMs > main_endMs) {
-            sj_start = invalid_sj+1;
+            sj_start = invalid_sj + 1;
             break;
           }
 
@@ -391,8 +407,6 @@ function injection_script_1() {
 
 
 
-        const runs = segment.transcriptSegmentRenderer.snippet.runs;
-        if (runs.length > 1) continue;  // skip multi lines
 
 
         if (tMap.size <= 1) continue; // no second line
@@ -403,24 +417,42 @@ function injection_script_1() {
 
         rg.sort((a, b) => b[1] - a[1]) //descending order of number
 
-        if (rg[1][1] > 4 && ns2(rg[1][0]) !== ns2(rg[0][0]) && rg[1][1] > rg.reduce((a, entry, idx) => (idx > 1 ? (a + entry[1]) : 0), 0)) {
+        let targetZ = rg[1][1];
+        if (targetZ > 4) {
 
-
-          let a = trim2(rg[0][0])
-          let b = trim2(_snippetText(runs[0].text))
-
-          //console.log(452, a,b,a===b)
-          if (a === b) {
-            runs.push({ text: trim2(rg[1][0]) })
+          let az = 0;
+          let fail = false;
+          for (let idx = 2; idx < rg.length; idx++) {
+            az += rg[idx][1];
+            if (az >= targetZ) {
+              fail = true;
+              break;
+            }
           }
-        }
+          if (!fail) {
+            let nonSame = rg[1][0].replace(/\s/g, '') !== rg[0][0].replace(/\s/g, '');
+            if (nonSame) {
 
+
+              let a = rg[0][0];
+              let b = _snippetText(runs[0].text);
+
+              //console.log(452, a,b,a===b)
+              if (a === b) {
+                runs.push({ text: (rg[1][0]) })
+              }
+
+            }
+          }
+
+
+        }
 
       }
 
 
 
-      
+
 
       TRANSLATE_DEBUG && Promise.resolve(fRes).then((r) => {
 
@@ -432,6 +464,15 @@ function injection_script_1() {
         console.log(7559, 2, obj)
 
       })
+      /*
+        return new Proxy(fRes, {
+          get(target, prop, receiver) {
+            console.log(2266,prop);
+            return Reflect.get(...arguments)
+          }
+        })
+        */
+
 
 
       return fRes;
@@ -904,6 +945,7 @@ function injection_script_1() {
     let translate = getTranslate();
 
     const s6 = Symbol();
+
 
     Object.defineProperty(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', {
       get() {
