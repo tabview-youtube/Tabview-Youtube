@@ -123,19 +123,20 @@ function injection_script_1() {
 
 
 
+  const TRANSLATE_DEBUG = false;
 
 
   function getTranslate() {
 
 
-  /** @type {(str: string?) => string} */
+    /** @type {(str: string?) => string} */
     function _snippetText(str) {
       // str can be underfinded
-      return str ? str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ') : ''
+      return (str ? str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ') : '').trim().replace(/\s*\n\s*/,'\n');
     }
 
-    
-  /** @type {(snippet: Object) => string} */
+
+    /** @type {(snippet: Object) => string} */
     function snippetText(snippet) {
       let runs = snippet.runs;
       if (runs.length === 1) return _snippetText(runs[0].text);
@@ -149,25 +150,64 @@ function injection_script_1() {
     }
 
     const s8 = Symbol();
-    
+
+    function szz(t) {
+
+      return t.map(x => ({
+        t: x.transcriptSegmentRenderer.snippet.runs.map(x => x.text).join('//'),
+        a: x.transcriptSegmentRenderer.startMs,
+        b: x.transcriptSegmentRenderer.endMs
+      }));
+    }
 
     function translate(initialSegments) {
 
       if (!initialSegments) return initialSegments;
 
+
+
+      /*
+      temp1.map(x=>({
+        t:x.transcriptSegmentRenderer.snippet.runs.map(x=>x.text).join('//'),
+        a:x.transcriptSegmentRenderer.startMs,
+        b:x.transcriptSegmentRenderer.endMs
+      }))
+      
+        */
+
+      TRANSLATE_DEBUG && Promise.resolve(JSON.stringify(initialSegments)).then((r) => {
+
+        let obj = JSON.parse(r);
+        console.log(7558, 1, obj)
+        return obj;
+      }).then(p => {
+        let obj = szz(p)
+        console.log(7558, 2, obj)
+
+      })
+
       /** @type {Map<String, Object>} */
       let cacheTexts = new Map(); // avoid duplicate with javascript object properties
-      let map = new WeakSet();
+      //let mapRej = new WeakSet();
 
-      let mh1 = new Set(); // avoid duplicate with javascript object properties
+      let mh1 = new Map(); // avoid duplicate with javascript object properties
+      // 1: ok
+      // 2: abandoned effect text
 
 
-      
+
       const fRes = [];
-    
+
       for (const initialSegment of initialSegments) {
-        let transcript = (initialSegment || 0).transcriptSegmentRenderer;
+        const transcript = (initialSegment || 0).transcriptSegmentRenderer;
         if (!transcript) continue;
+        
+        const runs = transcript.snippet.runs
+        if(!runs){
+          initialSegment[s8]=true;
+          continue;
+        } 
+          
 
         let startMs = (+transcript.startMs || 0); //integer
         let endMs = (+transcript.endMs || 0); //integer
@@ -175,49 +215,100 @@ function injection_script_1() {
         if (startMs === endMs) {
           // effect text
           // https://www.youtube.com/watch?v=Ud73fm4Uoq0
-          map.add(initialSegment)
+          //mapRej.add(initialSegment)
           continue;
         }
 
         const text = snippetText(transcript.snippet);
+        const mh1e = mh1.get(text);
+        if (mh1e == 2) continue;
 
-        if (mh1.has(text) || /^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
-          initialSegment[s8] = true;
-          mh1.add(text);
-          //effect only
-          // https://www.youtube.com/watch?v=zLak0dxBKpM
-          map.add(initialSegment)
-          continue;
-        }
-
-        
         const entry = {
           startMs,
           endMs,
-          initialSegment
+          initialSegment,
+          text
         }
 
-        if (cacheTexts.has(text)) {
 
-          let entryA = cacheTexts.get(text); // previous valid entry object
 
-          let timeDiff = entry.startMs - entryA.endMs;
-          let bool = (timeDiff < 5) ? entry.startMs >= entryA.endMs : (timeDiff < 180 && entry.startMs >= entryA.endMs && entry.endMs - entry.startMs < 800);
+        if (!mh1e) {
 
-          if (bool) {
-            // abandon the current entry.
-            // absorbed by previous entry
-            entryA.endMs = entry.endMs;
-            entryA.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs; // update fRes & initialSegments as well using object reference
-            map.add(entry.initialSegment);
+          if (/^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
+            initialSegment[s8] = true;
+            mh1.set(text, 2);
+            //effect only
+            // https://www.youtube.com/watch?v=zLak0dxBKpM
+            //mapRej.add(initialSegment)
             continue;
           }
+          mh1.set(text, 1);
+        } else {
+
+          let entryA
+
+          if (mh1e === 1) {
+            entryA = cacheTexts.get(text);
+
+            if (entryA) {
+
+              let timeDiff = entry.startMs - entryA.endMs;
+              let bool = false;
+
+              if (timeDiff >= 0) {
+
+                if (timeDiff < 25) {
+
+                  bool = true;
+                } else if (timeDiff < 180 && entry.endMs - entry.startMs < 800) {
+                  bool = true;
+
+                }
+
+
+                if (bool && entryA.endMs <= endMs && startMs <= endMs) {
+
+                  // abandon the current entry.
+                  // absorbed by previous entry
+                  entryA.endMs = entry.endMs;
+                  entryA.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs; // update fRes & initialSegments as well using object reference
+                  //mapRej.add(entry.initialSegment);
+                  continue;
+
+                }
+
+              } else if (entry.startMs < entryA.startMs && entryA.startMs < entry.endMs) {
+
+                // abandon the current entry.
+                // absorbed by previous entry
+                if (entry.endsMs > entryA.endMs) {
+                  entryA.endMs = entry.endMs;
+                  entryA.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs; // update fRes & initialSegments as well using object reference
+                }
+                //mapRej.add(entry.initialSegment);
+                continue;
+
+
+              }
+
+
+
+
+            }
+          }
+
+
 
         }
+
 
         //if not abandoned
         cacheTexts.set(text, entry); //replace the previous valid entry object if any
-      
+
+        for (const s of runs) {
+          s.text = _snippetText(s.text);
+        }
+
         fRes.push(initialSegment);
 
 
@@ -225,7 +316,7 @@ function injection_script_1() {
       mh1 = null;
 
 
-      
+
 
 
       let sj_start = 0;
@@ -235,23 +326,27 @@ function injection_script_1() {
 
       if (si_length === sj_length) {
         //no fix is required
+        // ignore spacing fix
         return fRes;
       }
 
 
 
-      
-  /** @type {(str: string?) => string} */
-  function trim2(str) {
-    return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
-  }
 
-/** @type {(str: string?) => string} */
-  function ns2(str) {
-    return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
-  }
+      /** @type {(str: string?) => string} */
+      function trim2(str) {
+        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
+      }
+
+      /** @type {(str: string?) => string} */
+      function ns2(str) {
+        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
+      }
 
 
+      // collect the abandon text to become second subtitle
+
+      let invalid_sj=-1;
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
         const transcript = segment.transcriptSegmentRenderer;
@@ -270,10 +365,12 @@ function injection_script_1() {
 
           let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
           let isStartValid = startMs >= main_startMs;
-          if (!isStartValid) continue;
+          if (!isStartValid) {
+            invalid_sj=sj;
+            continue;
+          }
           if (startMs > main_endMs) {
-            sj_start = sj - 1; // ignore sj_start = -1
-            if (sj_start < si + 1) sj_start = si + 1; // next si is si+1;  sj>=si
+            sj_start = invalid_sj+1;
             break;
           }
 
@@ -286,21 +383,17 @@ function injection_script_1() {
             let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
             let v1 = tMap.get(mt) || 0;
             let v2 = v1 + 1 + Math.abs(endMs - startMs);
-            tMap.set(mt,v2);
+            tMap.set(mt, v2);
           }
 
 
         }
-        
+
 
 
         const runs = segment.transcriptSegmentRenderer.snippet.runs;
-
-        let main_str = trim2(_snippetText(runs[0].text));
-
-        runs[0].text = main_str
-
         if (runs.length > 1) continue;  // skip multi lines
+
 
         if (tMap.size <= 1) continue; // no second line
 
@@ -312,11 +405,14 @@ function injection_script_1() {
 
         if (rg[1][1] > 4 && ns2(rg[1][0]) !== ns2(rg[0][0]) && rg[1][1] > rg.reduce((a, entry, idx) => (idx > 1 ? (a + entry[1]) : 0), 0)) {
 
+
           let a = trim2(rg[0][0])
-          let b = main_str
+          let b = trim2(_snippetText(runs[0].text))
 
           //console.log(452, a,b,a===b)
-          if (a === b) runs.push({ text: trim2(rg[1][0]) })
+          if (a === b) {
+            runs.push({ text: trim2(rg[1][0]) })
+          }
         }
 
 
@@ -324,7 +420,19 @@ function injection_script_1() {
 
 
 
-      //console.log(7559, fRes)
+      
+
+      TRANSLATE_DEBUG && Promise.resolve(fRes).then((r) => {
+
+        let obj = r;
+        console.log(7559, 1, obj)
+        return obj;
+      }).then(p => {
+        let obj = szz(p)
+        console.log(7559, 2, obj)
+
+      })
+
 
       return fRes;
 
@@ -337,7 +445,7 @@ function injection_script_1() {
 
 
   //const round = x => x + 0.5 << 0
-  function getInsObserver(){
+  function getInsObserver() {
 
 
     let insObserver = null;
@@ -347,53 +455,53 @@ function injection_script_1() {
       let cmtWM = new WeakMap();
 
       let cmtObserver = new IntersectionObserver(function (entries, observer) {
-        
+
         for (const entry of entries) {
 
-            let h = entry.boundingClientRect.height
-            let threadRenderer = entry.target;
-            if(!threadRenderer) continue;
+          let h = entry.boundingClientRect.height
+          let threadRenderer = entry.target;
+          if (!threadRenderer) continue;
 
-            let b1 = h>10;
-            let b2 = !entry.isIntersecting;
-            if(!b1 && !b2) continue;
+          let b1 = h > 10;
+          let b2 = !entry.isIntersecting;
+          if (!b1 && !b2) continue;
 
-            let m = cmtWM.get(threadRenderer);
-            // m:string -> css for --tabview-cmt-height
-            // m===-1: not intialized
-            // m===-2: disabled
-            if(m===-2) continue;
+          let m = cmtWM.get(threadRenderer);
+          // m:string -> css for --tabview-cmt-height
+          // m===-1: not intialized
+          // m===-2: disabled
+          if (m === -2) continue;
 
 
-            if(b1){
-              // possible to get height even it is not intersecting
+          if (b1) {
+            // possible to get height even it is not intersecting
 
-              let t= `${h.toFixed(3)}px` //123.456px
-              if(m!==t){
-                cmtWM.set(threadRenderer, t)
-              }
-              m=t;
+            let t = `${h.toFixed(3)}px` //123.456px
+            if (m !== t) {
+              cmtWM.set(threadRenderer, t)
+            }
+            m = t;
 
+          }
+
+          // m:string -> css for --tabview-cmt-height
+
+          if (m === -1) continue; // h is not available
+
+          if (b2) {
+            // set CSS rule when it leaves the visible region
+
+            if (entry.target.style.getPropertyValue("--tabview-cmt-height") !== m) {
+              entry.target.style.setProperty("--tabview-cmt-height", m)
             }
 
-            // m:string -> css for --tabview-cmt-height
+          } else {
+            //invisible -> visible
+            entry.target.style.removeProperty("--tabview-cmt-height")
+          }
 
-            if(m===-1)continue; // h is not available
-            
-            if(b2){
-              // set CSS rule when it leaves the visible region
-
-              if(entry.target.style.getPropertyValue("--tabview-cmt-height")!==m){
-                  entry.target.style.setProperty("--tabview-cmt-height",m)
-              }
-
-            }else{
-              //invisible -> visible
-              entry.target.style.removeProperty("--tabview-cmt-height")
-            }
-            
         }
-      },{
+      }, {
         threshold: [0],
         rootMargin: "-18px 0px -18px 0px"  // before fully leave the visible region
 
@@ -403,18 +511,18 @@ function injection_script_1() {
       insObserver = new IntersectionObserver(function (entries, observer) {
         for (const entry of entries) {
           /// entry.target -> ytd-expander
-          if (entry.isIntersecting){
+          if (entry.isIntersecting) {
             let pElm = entry.target.closest('ytd-comment-thread-renderer');
-            if(pElm && !cmtWM.has(pElm)){
+            if (pElm && !cmtWM.has(pElm)) {
               let flag = -1;
 
               let cmRendererBGOFFSETED = entry.target.closest('ytd-comment-renderer#comment.ytd-comment-thread-renderer[style*="--ytd-decorated-comment-background-offset-"]');
-              if(cmRendererBGOFFSETED){
+              if (cmRendererBGOFFSETED) {
                 // colored comment - https://www.youtube.com/watch?v=Ewnt9o7c1vo
-                flag=-2;
+                flag = -2;
               }
-              
-              cmtWM.set(pElm,flag);
+
+              cmtWM.set(pElm, flag);
               cmtObserver.observe(pElm)
             }
             entry.target.calculateCanCollapse();
@@ -435,8 +543,8 @@ function injection_script_1() {
   }
 
 
-  
-  function getInsObserverChipCloud(){
+
+  function getInsObserverChipCloud() {
 
 
     let insObserver = null;
@@ -446,47 +554,47 @@ function injection_script_1() {
 
 
 
-      async function callReset(target,value){
+      async function callReset(target, value) {
 
 
-        if(wm.get(target)!==value){
+        if (wm.get(target) !== value) {
           wm.set(target, value)
           target.reset();
-          if(!target.hasAttribute('QNJMC')){
-            target.setAttribute('QNJMC','')  
-            target.addEventListener('mouseenter',function(){
-              requestAnimationFrame(()=>{
-                if(this.atStart===true) this.reset();
+          if (!target.hasAttribute('QNJMC')) {
+            target.setAttribute('QNJMC', '')
+            target.addEventListener('mouseenter', function () {
+              requestAnimationFrame(() => {
+                if (this.atStart === true) this.reset();
               })
-            },false)
+            }, false)
           }
         }
-        
-        setTimeout(()=>{
-          if(target.atStart===true) target.reset();
-        },160)
+
+        setTimeout(() => {
+          if (target.atStart === true) target.reset();
+        }, 160)
 
       }
 
       insObserver = new IntersectionObserver(function (entries, observer) {
-        
+
         for (const entry of entries) {
 
-            let h = entry.boundingClientRect.height
-            if(h>10 && entry.isIntersecting){
-              // possible to get height even it is not intersecting
+          let h = entry.boundingClientRect.height
+          if (h > 10 && entry.isIntersecting) {
+            // possible to get height even it is not intersecting
 
-              if(entry.target&&entry.target.reset){
-                let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
-                if(area>10){
-                  callReset(entry.target,area)
-                }
+            if (entry.target && entry.target.reset) {
+              let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
+              if (area > 10) {
+                callReset(entry.target, area)
               }
-
             }
-            
+
+          }
+
         }
-      },{
+      }, {
         threshold: [0],
         rootMargin: "0px 0px 0px 0px"  // before fully leave the visible region
 
@@ -582,14 +690,18 @@ function injection_script_1() {
     const symbol_gtcw=Symbol();
     let refreshAt = 0;
     let rfaId=0;
+    let _prevRepeat = 0;
     const tf_gtcw=function(x){
       if(rfaId > 0){
         if(activeFlag)return;
         //console.log(1723,3,x)
         rfaId = 0;
         refreshAt = Date.now()+460;
+        _prevRepeat = refreshAt;
+        let prevRepeat = _prevRepeat;
         // Promise to allow unknown runtime error (not to block the coding)
         Promise.resolve({args:afArg, f:this.__$$postToContentWindow$$__, ths:this}).then((obj)=>{
+          if(prevRepeat!==_prevRepeat) return;
           //arg is object reference.
           const {args, f, ths} = obj;
           f.apply(ths,args);
