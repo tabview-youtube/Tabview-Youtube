@@ -1012,7 +1012,198 @@ function injection_script_1() {
       configurable: false // if redefine by YouTube, error comes and change the coding
     });
 
- 
+
+    //let s65 = Symbol();
+    ((P) => {
+      let _refit = P.refit;
+      if (_refit) {
+
+        // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
+        // reproduction: click watch later without login 
+        // without this, the layout coordinates and size (height) of container will become incorrect.
+
+        P.__refit = _refit;
+        P.refit = function () {
+          if (this.horizontalAlign || this.verticalAlign) {
+            if ((this.__restoreFocusNode || 0).matches) {
+              let node = this.__restoreFocusNode
+              let nodeName = node.nodeName.toUpperCase();
+              if (nodeName === 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') {
+                if (node.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')) {
+                  if (this.horizontalAlign) this.horizontalAlign = false;
+                  if (this.verticalAlign) this.verticalAlign = false;
+                }
+              }
+            }
+          }
+          return this.__refit();
+        };
+
+      }
+    })(customElements.get('tp-yt-iron-dropdown').prototype);
+
+
+
+    //     customElements.get('tp-yt-iron-dropdown').prototype.refit=function(){
+
+    //       if(this && this.__restoreFocusNode && this.__restoreFocusNode.matches && this.__restoreFocusNode.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')){
+
+    //         var a = this.sizingTarget.scrollLeft
+    //         , b = this.sizingTarget.scrollTop;
+    //         this.resetFit();
+    //         if(this.horizontalAlign) this.horizontalAlign= false;
+    //         if(this.verticalAlign) this.verticalAlign= false;
+
+    //         /*
+
+
+    //         fit: function() {
+    //             this.position();
+    //             this.constrain();
+    //             this.center()
+    //         },
+
+    //         center: function() {
+    //             if (!this.__shouldPosition) {
+    //                 this._discoverInfo();
+    //                 var a = this._fitInfo.positionedBy;
+    //                 if (!a.vertically || !a.horizontally) {
+    //                     this.style.position = "fixed";
+    //                     a.vertically || (this.style.top = "0px");
+    //                     a.horizontally || (this.style.left = "0px");
+    //                     var b = this.getBoundingClientRect()
+    //                       , c = this.__getNormalizedRect(this.fitInto);
+    //                     a.vertically || (this.style.top = c.top - b.top + (c.height - b.height) / 2 + "px");
+    //                     a.horizontally || (this.style.left = c.left - b.left + (c.width - b.width) / 2 + "px")
+    //                 }
+    //             }
+    //         },
+    //         __getNormalizedRect: function(a) {
+    //             return a === document.documentElement || a === window ? {
+    //                 top: 0,
+    //                 left: 0,
+    //                 width: window.innerWidth,
+    //                 height: window.innerHeight,
+    //                 right: window.innerWidth,
+    //                 bottom: window.innerHeight
+    //             } : a.getBoundingClientRect()
+    //         },
+
+    //         */
+
+    // /*
+
+    //        position: function() {
+    //             if (this.__shouldPosition) {
+    //                 this._discoverInfo();
+    //                 window.ShadyDOM && window.ShadyDOM.flush();
+    //                 this.style.position = "fixed";
+    //                 this.sizingTarget.style.boxSizing = "border-box";
+    //                 this.style.left = "0px";
+    //                 this.style.top = "0px";
+    //                 var a = this.getBoundingClientRect()
+    //                   , b = this.__getNormalizedRect(this.positionTarget)
+    //                   , c = this.__getNormalizedRect(this.fitInto);
+    //                 if (this.expandSizingTargetForScrollbars) {
+    //                     var d = this.sizingTarget.offsetWidth;
+    //                     var f = this.sizingTarget.offsetHeight;
+    //                     var h = this.sizingTarget.clientWidth;
+    //                     var l = this.sizingTarget.clientHeight
+    //                 }
+    //                 var n = this._fitInfo.margin;
+    //                 b = this.__getPosition(this._localeHorizontalAlign, this.verticalAlign, {
+    //                     width: a.width + n.left + n.right,
+    //                     height: a.height + n.top + n.bottom
+    //                 }, a, b, c);
+    //                 var p = b.left + n.left
+    //                   , r = b.top + n.top
+    //                   , x = Math.min(c.right - n.right, p + a.width)
+    //                   , D = Math.min(c.bottom - n.bottom, r + a.height);
+    //                 p = Math.max(c.left + n.left, Math.min(p, x - this._fitInfo.sizedBy.minWidth));
+    //                 r = Math.max(c.top + n.top, Math.min(r, D - this._fitInfo.sizedBy.minHeight));
+    //                 x = Math.max(x - p, this._fitInfo.sizedBy.minWidth);
+    //                 D = Math.max(D - r, this._fitInfo.sizedBy.minHeight);
+    //                 this.sizingTarget.style.maxWidth = x + "px";
+    //                 this.sizingTarget.style.maxHeight = D + "px";
+    //                 p -= a.left;
+    //                 a = r - a.top;
+    //                 this.style.left = p + "px";
+    //                 this.style.top = a + "px";
+    //                 if (this.expandSizingTargetForScrollbars) {
+    //                     r = this.sizingTarget.offsetHeight;
+    //                     f = r - this.sizingTarget.clientHeight - (f - l);
+    //                     if (0 < f) {
+    //                         this.sizingTarget.style.maxHeight = Math.min(c.height - n.top - n.bottom, D + f) + "px";
+    //                         f = this.sizingTarget.offsetHeight;
+    //                         l = f - r;
+    //                         var H;
+    //                         "top" === b.verticalAlign ? H = a : "middle" === b.verticalAlign ? H = a - l / 2 : "bottom" === b.verticalAlign && (H = a - l);
+    //                         H = Math.max(c.top + n.top, Math.min(H, c.bottom - n.bottom - f));
+    //                         this.style.top = H + "px"
+    //                     }
+    //                     H = this.sizingTarget.offsetWidth;
+    //                     d = H - this.sizingTarget.clientWidth - (d - h);
+    //                     if (0 < d) {
+    //                         void 0 !== Bsb ? h = Bsb : (h = document.createElement("div"),
+    //                         Object.assign(h.style, {
+    //                             overflow: "auto",
+    //                             position: "fixed",
+    //                             left: "0px",
+    //                             top: "0px",
+    //                             maxWidth: "100px",
+    //                             maxHeight: "100px"
+    //                         }),
+    //                         f = document.createElement("div"),
+    //                         f.style.width = "200px",
+    //                         f.style.height = "200px",
+    //                         h.appendChild(f),
+    //                         document.body.appendChild(h),
+    //                         Bsb = 1 < Math.abs(h.offsetWidth - 100) ? h.offsetWidth - h.clientWidth : 0,
+    //                         document.body.removeChild(h),
+    //                         h = Bsb);
+    //                         this.sizingTarget.style.maxWidth = Math.min(c.width - n.left - n.right, x + d - h) + "px";
+    //                         x = this.sizingTarget.offsetWidth + h;
+    //                         d = x - H;
+    //                         var L;
+    //                         "left" === b.horizontalAlign ? L = p : "center" === b.horizontalAlign ? L = p - d / 2 : "right" === b.horizontalAlign && (L = p - d);
+    //                         L = Math.max(c.left + n.left, Math.min(L, c.right - n.right - x));
+    //                         this.style.left = L + "px"
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         constrain: function() {
+    //             if (!this.__shouldPosition) {
+    //                 this._discoverInfo();
+    //                 var a = this._fitInfo;
+    //                 a.positionedBy.vertically || (this.style.position = "fixed",
+    //                 this.style.top = "0px");
+    //                 a.positionedBy.horizontally || (this.style.position = "fixed",
+    //                 this.style.left = "0px");
+    //                 this.sizingTarget.style.boxSizing = "border-box";
+    //                 var b = this.getBoundingClientRect();
+    //                 a.sizedBy.height || this.__sizeDimension(b, a.positionedBy.vertically, "top", "bottom", "Height");
+    //                 a.sizedBy.width || this.__sizeDimension(b, a.positionedBy.horizontally, "left", "right", "Width")
+    //             }
+    //         },
+
+    //         */
+
+    //         this.fit();
+    //         this.sizingTarget.scrollLeft = a;
+    //         this.sizingTarget.scrollTop = b
+
+    //         return;
+    //       }
+
+    //       var a = this.sizingTarget.scrollLeft
+    //       , b = this.sizingTarget.scrollTop;
+    //       this.resetFit();
+    //       this.fit();
+    //       this.sizingTarget.scrollLeft = a;
+    //       this.sizingTarget.scrollTop = b
+    //     }
+
 
 
   }
@@ -1379,6 +1570,8 @@ function injection_script_1() {
       }
     }, location.origin);
   }, false)
+
+
 
 
   document.documentElement.setAttribute('tabview-injection-js-1-ready','2')

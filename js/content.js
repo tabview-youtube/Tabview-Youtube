@@ -50,7 +50,7 @@
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
 
-  const DEBUG_LOG = false
+  const DEBUG_LOG = true
 
   const LAYOUT_VAILD = 1;
 
@@ -3272,6 +3272,71 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
     }, bubblePassive);
+
+
+    // globalHook('data-changed',(evt)=>{
+
+      
+
+      
+    // // ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"]:not([aria-disabled=""]) > #contentWrapper > ytd-modal-with-title-and-button-renderer[style*="0px"]{
+
+    // //     /* fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 */
+    // //     /* reproduction: click watch later without login */
+    // //     /* without this, the layout coordinates and size (height) of container will become incorrect. */
+
+
+    // //     max-height: initial !important;
+
+
+
+    // // } 
+
+    // // ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"][style*="fixed"]:not([aria-disabled=""]){
+
+    // //     /* fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 */
+    // //     /* reproduction: click watch later without login */
+    // //     /* without this, the layout coordinates and size (height) of container will become incorrect. */
+
+
+    // //     top:0 !important;
+    // //     left:0 !important;
+
+
+
+    // // } 
+
+
+
+    //   if (!scriptEnable && tabsDeferred.resolved) { return }
+
+    //   let nodeName = (((evt||0).target||0).nodeName||'').toUpperCase()
+
+    //   if(nodeName !== 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') return;
+
+    //   setTimeout(()=>{
+
+    //     let checkElm = document.querySelector(`ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"]:not([aria-disabled=""]) > #contentWrapper > ytd-modal-with-title-and-button-renderer[style*="0px"]`);
+    //     console.log(123);
+    //     if(checkElm){
+    //       // this is incorrect layout with fixed position and wrong height
+
+    //       let positionContainer = closestDOM.call(checkElm,'tp-yt-iron-dropdown.style-scope.ytd-popup-container');
+    //       console.log(456);
+    //       console.log(positionContainer.getBoundingClientRect().top, screen.height);
+    //       if(positionContainer && positionContainer.getBoundingClientRect().top>screen.height ){
+    //         checkElm.style.maxHeight = 'initial';
+    //         positionContainer.top = '0';
+    //         positionContainer.left = '0';
+    //       }
+
+    //     }
+
+    //   },300)
+
+
+    // })
+
 
     // document.addEventListener('yt-page-type-changed',(evt)=>{
     //   _console.log(3553,evt,evt.detail,evt.target.data)
