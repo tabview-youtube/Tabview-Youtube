@@ -3136,3 +3136,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         padding: var(--tab-content-padding-2);
     }
 
+
+
+
+    .tabview-txt{
+        --tabview-txt-display: none;
+        display:var(--tabview-txt-display);
+    }
+    [is-empty]+.tabview-txt{
+        --tabview-txt-display:'-NULL-';
+    }

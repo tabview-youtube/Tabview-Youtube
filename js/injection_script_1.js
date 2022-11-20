@@ -128,11 +128,14 @@ function injection_script_1() {
   function getTranslate() {
 
 
+  /** @type {(str: string?) => string} */
     function _snippetText(str) {
       // str can be underfinded
       return str ? str.replace(/\u200b/g, '').replace(/[\xA0\x20]/g, ' ') : ''
     }
 
+    
+  /** @type {(snippet: Object) => string} */
     function snippetText(snippet) {
       let runs = snippet.runs;
       if (runs.length === 1) return _snippetText(runs[0].text);
@@ -145,24 +148,29 @@ function injection_script_1() {
       return res.join('\n');
     }
 
-    const s7 = Symbol();
     const s8 = Symbol();
+    
 
     function translate(initialSegments) {
 
       if (!initialSegments) return initialSegments;
 
-      let res = {};
+      /** @type {Map<String, Object>} */
+      let cacheTexts = new Map(); // avoid duplicate with javascript object properties
       let map = new WeakSet();
 
-      let mh1 = {}
+      let mh1 = new Set(); // avoid duplicate with javascript object properties
 
+
+      
+      const fRes = [];
+    
       for (const initialSegment of initialSegments) {
         let transcript = (initialSegment || 0).transcriptSegmentRenderer;
         if (!transcript) continue;
 
-        let startMs = (+transcript.startMs || 0)
-        let endMs = (+transcript.endMs || 0)
+        let startMs = (+transcript.startMs || 0); //integer
+        let endMs = (+transcript.endMs || 0); //integer
 
         if (startMs === endMs) {
           // effect text
@@ -171,51 +179,53 @@ function injection_script_1() {
           continue;
         }
 
-        let text = snippetText(transcript.snippet);
+        const text = snippetText(transcript.snippet);
 
-        if (mh1[text] || /^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
+        if (mh1.has(text) || /^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
           initialSegment[s8] = true;
-          mh1[text] = true;
+          mh1.add(text);
           //effect only
           // https://www.youtube.com/watch?v=zLak0dxBKpM
           map.add(initialSegment)
           continue;
         }
 
-        if (!res[text]) res[text] = [];
-        res[text].push({
+        
+        const entry = {
           startMs,
           endMs,
           initialSegment
-        })
+        }
+
+        if (cacheTexts.has(text)) {
+
+          let entryA = cacheTexts.get(text); // previous valid entry object
+
+          let timeDiff = entry.startMs - entryA.endMs;
+          let bool = (timeDiff < 5) ? entry.startMs >= entryA.endMs : (timeDiff < 180 && entry.startMs >= entryA.endMs && entry.endMs - entry.startMs < 800);
+
+          if (bool) {
+            // abandon the current entry.
+            // absorbed by previous entry
+            entryA.endMs = entry.endMs;
+            entryA.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs; // update fRes & initialSegments as well using object reference
+            map.add(entry.initialSegment);
+            continue;
+          }
+
+        }
+
+        //if not abandoned
+        cacheTexts.set(text, entry); //replace the previous valid entry object if any
+      
+        fRes.push(initialSegment);
+
 
       }
       mh1 = null;
 
 
-      for (const text of Object.keys(res)) {
-
-        let lastEntry = null
-        for (const entry of res[text]) {
-
-          if (lastEntry && entry) {
-            // snippetText(lastEntry.initialSegment.transcriptSegmentRenderer.snippet) === snippetText(entry.initialSegment.transcriptSegmentRenderer.snippet)
-            let timeDiff = entry.startMs - lastEntry.endMs;
-            let bool = (timeDiff < 5) ? entry.startMs >= lastEntry.endMs : (timeDiff < 180 && entry.startMs >= lastEntry.endMs && entry.endMs - entry.startMs < 800);
-            if (bool) {
-              lastEntry.endMs = entry.endMs
-              lastEntry.initialSegment.transcriptSegmentRenderer.endMs = entry.initialSegment.transcriptSegmentRenderer.endMs
-              map.add(entry.initialSegment);
-              continue;
-            }
-
-          }
-          lastEntry = entry
-
-        }
-      }
-
-      const fRes = initialSegments.filter(m => !map.has(m));
+      
 
 
       let sj_start = 0;
@@ -228,13 +238,30 @@ function injection_script_1() {
         return fRes;
       }
 
+
+
+      
+  /** @type {(str: string?) => string} */
+  function trim2(str) {
+    return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
+  }
+
+/** @type {(str: string?) => string} */
+  function ns2(str) {
+    return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
+  }
+
+
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
+        const transcript = segment.transcriptSegmentRenderer;
 
-        let main_startMs = (+segment.transcriptSegmentRenderer.startMs || 0)
-        let main_endMs = (+segment.transcriptSegmentRenderer.endMs || 0)
-        segment.transcriptSegmentRenderer[s7] = {};
+        let main_startMs = (+transcript.startMs || 0);
+        let main_endMs = (+transcript.endMs || 0);
+        /** @type {Map<string, number>} */
+        const tMap = new Map(); // avoid duplicate with javascript object properties
 
+        // assume that it is asc-ordered array of key startMs;
         for (let sj = sj_start; sj < sj_length; sj++) {
           const initialSegment = initialSegments[sj]
 
@@ -257,25 +284,15 @@ function injection_script_1() {
 
             //console.log(8833, 102)
             let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
-            segment.transcriptSegmentRenderer[s7][mt] = (segment.transcriptSegmentRenderer[s7][mt] || 0) + 1 + Math.abs(endMs - startMs);
+            let v1 = tMap.get(mt) || 0;
+            let v2 = v1 + 1 + Math.abs(endMs - startMs);
+            tMap.set(mt,v2);
           }
 
 
         }
+        
 
-      }
-
-
-      
-      function trim2(str) {
-        return str ? str.replace(/^[\xA0\u200b\s\n\t]+|[\xA0\u200b\s\n\t]+$/g, '') : '';
-      }
-
-      function ns2(str) {
-        return str ? str.replace(/[\xA0\u200b\s\n\t]+/g, '') : '';
-      }
-
-      for (const segment of fRes) {
 
         const runs = segment.transcriptSegmentRenderer.snippet.runs;
 
@@ -285,27 +302,26 @@ function injection_script_1() {
 
         if (runs.length > 1) continue;  // skip multi lines
 
-        let obj = segment.transcriptSegmentRenderer[s7]
+        if (tMap.size <= 1) continue; // no second line
 
-        let rg = Object.keys(obj)
-
-        if (rg.length <= 1) continue; // no second line
+        let rg = [...tMap.entries()] // N x 2 2D-array [string,number][]
 
         // https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
-        rg = rg.map(k => ({ str: k, count: obj[k] }))
-        rg.sort((a, b) => b.count - a.count)
+        rg.sort((a, b) => b[1] - a[1]) //descending order of number
 
-        if (rg[1].count > 4 && ns2(rg[1].str) !== ns2(rg[0].str) && rg[1].count > rg.slice(2).map(e => e.count).reduce((a, b) => a + b, 0)) {
+        if (rg[1][1] > 4 && ns2(rg[1][0]) !== ns2(rg[0][0]) && rg[1][1] > rg.reduce((a, entry, idx) => (idx > 1 ? (a + entry[1]) : 0), 0)) {
 
-          let a = trim2(rg[0].str)
+          let a = trim2(rg[0][0])
           let b = main_str
 
           //console.log(452, a,b,a===b)
-          if (a === b) runs.push({ text: trim2(rg[1].str) })
+          if (a === b) runs.push({ text: trim2(rg[1][0]) })
         }
 
+
       }
+
 
 
       //console.log(7559, fRes)
