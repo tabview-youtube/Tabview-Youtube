@@ -1085,6 +1085,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       timeout_resize_for_layout_change.clear();
       timeout_resize_for_layout_change.set(() => {
         dispatchWindowResize();
+        if(theater_mode_changed) updateFloatingSlider();
       }, 92)
     }
 
@@ -3049,7 +3050,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         setTimeout(()=>{
 
-          manualResize(true);
+          dispatchWindowResize();
+          updateFloatingSlider();
         },420)
 
 
@@ -5336,6 +5338,91 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // ---------------------------------------------------------------------------------------------
 
+  function updateFloatingSlider(){
+
+
+    let secondary = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')
+      
+
+    if(!secondary) return;
+
+    let t = document.documentElement.clientWidth; //integer
+
+    siderMutex.lockWith(unlock=>{
+
+      let v = document.documentElement.clientWidth; //integer
+
+      if(t!==v) {
+        unlock();
+        return;
+      }
+
+      if(!secondary.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')){
+        unlock();
+        return;
+      }
+
+      let previousHasClass = secondary.classList.contains('tabview-hover-sider');
+      if(previousHasClass){
+
+        secondary.classList.remove('tabview-hover-sider') // avoid css rules changed the native position of the element.
+
+      }
+      requestAnimationFrame(() => {
+
+
+        //const widthProp = '--ytd-watch-flexy-sidebar-min-width'; //'--ytd-watch-flexy-sidebar-width'
+        const widthProp = '--ytd-watch-flexy-sidebar-width';
+
+        Promise.all([
+          new Promise(f => f(window.getComputedStyle(secondary))),
+          new Promise(f => f(secondary.getBoundingClientRect())),
+          new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
+
+        ]).then(res => {
+          const [cprops, rect, screenWidth] = res;
+
+          let targetSize = +cprops.getPropertyValue(widthProp).replace('px', '')
+          let currentWidth = rect.width;
+
+          let bool = (targetSize > 100 && currentWidth > 100 && screenWidth < rect.right);
+
+          if(bool || previousHasClass){
+
+              
+            if(previousHasClass && !bool){
+              secondary.style.removeProperty('--tabview-sider-right')
+              secondary.style.removeProperty('--tabview-sider-offset')
+              secondary.style.removeProperty('--tabview-sider-basewidth')
+            
+            }else{
+
+              //secondary.style.setProperty('--tabview-sider-right', `${screen.width-rect.right}px`)
+              let pr = +cprops.getPropertyValue('padding-right').replace('px', '');
+              secondary.style.setProperty('--tabview-sider-right', `${pr}px`)
+              secondary.style.setProperty('--tabview-sider-offset', `${rect.right - (screenWidth - pr) }px`)
+              secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width  }px`)
+
+              //console.log(targetSize, currentWidth, screenWidth, pr, rect.right)
+              
+            }
+
+            secondary.classList.toggle('tabview-hover-sider', bool)
+
+          }
+
+          unlock();
+
+
+        })
+
+
+
+      })
+
+    })
+
+  }
   
   window.addEventListener("scroll", function () {
     singleColumnScrolling(false)
@@ -5360,86 +5447,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }else{
 
       if(!isTrusted) return;
-      let secondary = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')
-      
 
-      if(!secondary) return;
-
-      let t = document.documentElement.clientWidth; //integer
-
-      siderMutex.lockWith(unlock=>{
-
-        let v = document.documentElement.clientWidth; //integer
-
-        if(t!==v) {
-          unlock();
-          return;
-        }
-
-        if(!secondary.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')){
-          unlock();
-          return;
-        }
-
-        let previousHasClass = secondary.classList.contains('tabview-hover-sider');
-        if(previousHasClass){
-  
-          secondary.classList.remove('tabview-hover-sider') // avoid css rules changed the native position of the element.
-  
-        }
-        requestAnimationFrame(() => {
-  
-  
-          //const widthProp = '--ytd-watch-flexy-sidebar-min-width'; //'--ytd-watch-flexy-sidebar-width'
-          const widthProp = '--ytd-watch-flexy-sidebar-width';
-  
-          Promise.all([
-            new Promise(f => f(window.getComputedStyle(secondary))),
-            new Promise(f => f(secondary.getBoundingClientRect())),
-            new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
-  
-          ]).then(res => {
-            const [cprops, rect, screenWidth] = res;
-  
-            let targetSize = +cprops.getPropertyValue(widthProp).replace('px', '')
-            let currentWidth = rect.width;
-  
-            let bool = (targetSize > 100 && currentWidth > 100 && screenWidth < rect.right);
-  
-            if(bool || previousHasClass){
-  
-                
-              if(previousHasClass && !bool){
-                secondary.style.removeProperty('--tabview-sider-right')
-                secondary.style.removeProperty('--tabview-sider-offset')
-                secondary.style.removeProperty('--tabview-sider-basewidth')
-              
-              }else{
-  
-                //secondary.style.setProperty('--tabview-sider-right', `${screen.width-rect.right}px`)
-                let pr = +cprops.getPropertyValue('padding-right').replace('px', '');
-                secondary.style.setProperty('--tabview-sider-right', `${pr}px`)
-                secondary.style.setProperty('--tabview-sider-offset', `${rect.right - (screenWidth - pr) }px`)
-                secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width  }px`)
-  
-                //console.log(targetSize, currentWidth, screenWidth, pr, rect.right)
-                
-              }
-  
-              secondary.classList.toggle('tabview-hover-sider', bool)
-  
-            }
-
-            unlock();
-  
-  
-          })
-  
-  
-  
-        })
-
-      })
+      updateFloatingSlider();
 
 
 
