@@ -778,6 +778,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
+  let theater_mode_changed_dt = 0;
   function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
 
 
@@ -1085,8 +1086,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       timeout_resize_for_layout_change.clear();
       timeout_resize_for_layout_change.set(() => {
         dispatchWindowResize();
-        if(theater_mode_changed) updateFloatingSlider();
       }, 92)
+      
+    }
+
+    if(theater_mode_changed){
+      let tdt =Date.now();
+      theater_mode_changed_dt = tdt
+      setTimeout(()=>{
+        if(theater_mode_changed_dt!==tdt)return;
+        updateFloatingSlider();
+      },130)
     }
 
   }
