@@ -3049,7 +3049,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         setTimeout(()=>{
 
-          dispatchWindowResize();
+          manualResize(true);
         },420)
 
 
