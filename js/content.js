@@ -747,7 +747,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     cssElm.setAttribute(attrName, `${isNegative ? -ak : ak}${flag || ''}`)
   }
 
-  function dispatchWindowResize() {
+  async function dispatchWindowResize() {
     // for youtube to detect layout resize for adjusting Player tools
     return window.dispatchEvent(new Event('resize'));
   }
@@ -1858,6 +1858,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       (() => {
 
         strcturedInfo.removeAttribute('hidden');
+
+
+        setTimeout(()=>{
+
+          
+          let e = strcturedInfo.closest('ytd-watch-flexy #tab-info ytd-expander');
+
+          if(!e)return;
+          let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
+          if(s.length===1){
+                        let sp = s[0].parentNode
+            if(sp.nodeName.toUpperCase()==='TP-YT-PAPER-BUTTON'){
+
+              sp.click();
+            }
+          }
+
+        },300)
+
       })();
     }
 
@@ -2703,7 +2722,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   };
 
-  const advanceFetch = function () {
+  const advanceFetch = async function () {
     if (!fetchCounts.new && !fetchCounts.fetched) {
       comments_caching(_innerCommentsLoader());
       if (!fetchCounts.new) {
@@ -3028,6 +3047,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         
         setKeywords();
 
+        setTimeout(()=>{
+
+          dispatchWindowResize();
+        },420)
+
+
 
 
       });
@@ -3090,20 +3115,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           _foundChatFrame();
 
-          // force browser to load the videostream during playing (not for livechat)
           let video = document.querySelector('#ytd-player video[src]');
           if (video && !video.hasAttribute('tabview-video-events')) {
             video.setAttribute('tabview-video-events', '')
 
             video.addEventListener('timeupdate', (evt) => {
-              let m = 2300;
-              let t = Math.round((Date.now() - mTime) / m)
-              t = t % 152000000;
-              t=Math.round((+document.head.dataset.viTime||0)*0.001 + evt.timeStamp*0.0001 + t )
-              let tx = `${t}`;
-              if (document.head.dataset.viTime !== tx) {
-                document.head.dataset.viTime = tx;
-              }
+              // force browser to load the videostream during playing (not for livechat)
+              Promise.resolve([Date.now() - mTime, evt.timeStamp]).then(c => {
+                let [c1, c2] = c;
+                let m = 3700;
+                let t = Math.round(c1 / m)
+                t = t % 152000000;
+                let s = document.head.dataset.viTime;
+                t = Math.round((+s || 0) * 0.001 + c2 * 0.0001 + t)
+                return [t, s];
+              }).then(ts => {
+                let [t, s] = ts;
+                let tx = `${t}`;
+                if (s !== tx) {
+                  document.head.dataset.viTime = tx;
+                }
+              })
             }, bubblePassive);
 
             video.addEventListener('ended',(evt)=>{
@@ -4151,7 +4183,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     setTimeout(()=>{
         
       let Itemslist = chatFrameElement('#contents.yt-live-chat-renderer');
-      if(typeof Itemslist.ondblclick ==='function') iframePointEventsAllow=true;
+      if(Itemslist && typeof Itemslist.ondblclick ==='function') iframePointEventsAllow=true;
 
       if(iframePointEventsAllow){
         chatFrameElement('body').classList.add('tabview-allow-pointer-events');
@@ -4728,8 +4760,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+  let singleColumnScrolling_dt = 0;
 
-  const singleColumnScrolling = function (/** @type {boolean} */ scrolling_lastF) {
+  const singleColumnScrolling = async function (/** @type {boolean} */ scrolling_lastF) {
 
     if (!scriptEnable || pageType !== 'watch') return;
 
@@ -4745,23 +4778,41 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       pageY = scrollY;
     }
 
+    let tdt = Date.now();
+    singleColumnScrolling_dt = tdt;
+
     let targetElm, header, navElm;
 
 
     _console.log(7891, 'scrolling')
 
-    Promise.resolve().then(() => {
+    Promise.all([
+      new Promise(f=>f(document.querySelector("#right-tabs"))),
+      
+      new Promise(f=>f(document.querySelector("#right-tabs header"))),
+      
+      new Promise(f=>f(document.querySelector('#masthead-container, #masthead'))),
+      
+    ]).then(res=>{
+      const [_targetElm, _header, _navElm] = res;
+      targetElm=_targetElm;
+      header=_header;
+      navElm=_navElm;
+      if(!targetElm || !header) {
+        return null;
+      }
+      if(singleColumnScrolling_dt !== tdt) return null;
+      return Promise.all([
+        new Promise(f=>f(navElm ? navElm.offsetHeight : 0)),
+        new Promise(f=>f(targetElm.offsetTop))
+      ])
+    }).then(res=>{
+      if(!res) return null;
+      const [navHeight, elmY] = res;
 
-      targetElm = document.querySelector("#right-tabs");
-      if (!targetElm) return;
-      header = querySelectorFromAnchor.call(targetElm, "header");
-      if (!header) return;
-      navElm = document.querySelector('#masthead-container, #masthead')
-      if (!navElm) return;
-      let navHeight = navElm ? navElm.offsetHeight : 0
-
-      let elmY = targetElm.offsetTop
-
+      
+      if(singleColumnScrolling_dt !== tdt) return null;
+        
       let xyz = [elmY + navHeight, pageY, elmY - navHeight]
 
       let xyStatus = 0
@@ -4784,10 +4835,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
       }
-
-      return xyStatus;
+      return xyStatus
 
     }).then((xyStatus) => {
+
+      if(xyStatus === null) return;
+      
+      if(singleColumnScrolling_dt !== tdt) return null;
 
       if ((xyStatus == 2 || xyStatus == 3) && (scrolling_lastD === 0 || scrolling_lastF)) {
         scrolling_lastD = 1;
@@ -4809,6 +4863,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         wAttr(targetElm, 'userscript-sticky', false);
       }
 
+
+
+    }).then(()=>{
 
       targetElm = null;
       header = null;
@@ -5207,42 +5264,54 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _console.log(nodeName, 904, evt.type);
 
     pageType = d_page;
-    if (d_page == 'watch') {
-      document.documentElement.classList.toggle('tabview-normal-player', true)
-    } else {
-      document.documentElement.classList.toggle('tabview-normal-player', false)
-    }
+    document.documentElement.classList.toggle('tabview-normal-player', d_page == 'watch')
+    
 
     dispatchWindowResize(); // player control positioning
 
-    let liveChatRenderer = null;
-    try {
-      liveChatRenderer = evt.detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
-    } catch (e) { }
-
-    chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
-
-    let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
-    if (ytdFlexyElm) {
-      ytdFlexyElm.classList.toggle('tv-chat-toggleable', !!chatroomDetails);
-    }
 
     pageFetchedData = evt.detail
     _console.log(601, pageFetchedData)
 
-    let tabsDeferredSess = pageSession.session();
-    if (!scriptEnable && tabsDeferred.resolved) { }
-    else tabsDeferred.debounce(() => {
+    new Promise(resolve=>{
 
-      if (!tabsDeferredSess.isValid) return;
 
-      domInit_comments();
-
-      if (pageFetchedData !== null) {
-        newVideoPage(pageFetchedData);
+      let liveChatRenderer = null;
+      try {
+        liveChatRenderer = evt.detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
+      } catch (e) { }
+  
+      chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
+  
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+      if (ytdFlexyElm) {
+        ytdFlexyElm.classList.toggle('tv-chat-toggleable', !!chatroomDetails);
       }
 
-    });
+      resolve(0)
+
+    }).then(()=>{
+
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+  
+        if (!tabsDeferredSess.isValid) return;
+  
+        domInit_comments();
+  
+        if (pageFetchedData !== null) {
+          newVideoPage(pageFetchedData);
+        }
+  
+      });
+  
+
+    })
+
+
+
 
 
 
@@ -5272,12 +5341,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     singleColumnScrolling(false)
   }, bubblePassive)
 
-  //let lastResizeAt = 0;
-  window.addEventListener('resize', function () {
+
+  let siderMutex = new Mutex();
+  function manualResize(isTrusted){
 
     if (!scriptEnable) return;
     if (pageType !== 'watch') return;
     //lastResizeAt = Date.now();
+
+    _console.log(2233, isTrusted)
 
     if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS) {
 
@@ -5285,8 +5357,110 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         singleColumnScrolling(true)
       })
 
+    }else{
+
+      if(!isTrusted) return;
+      let secondary = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')
+      
+
+      if(!secondary) return;
+
+      let t = document.documentElement.clientWidth; //integer
+
+      siderMutex.lockWith(unlock=>{
+
+        let v = document.documentElement.clientWidth; //integer
+
+        if(t!==v) {
+          unlock();
+          return;
+        }
+
+        if(!secondary.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')){
+          unlock();
+          return;
+        }
+
+        let previousHasClass = secondary.classList.contains('tabview-hover-sider');
+        if(previousHasClass){
+  
+          secondary.classList.remove('tabview-hover-sider') // avoid css rules changed the native position of the element.
+  
+        }
+        requestAnimationFrame(() => {
+  
+  
+          //const widthProp = '--ytd-watch-flexy-sidebar-min-width'; //'--ytd-watch-flexy-sidebar-width'
+          const widthProp = '--ytd-watch-flexy-sidebar-width';
+  
+          Promise.all([
+            new Promise(f => f(window.getComputedStyle(secondary))),
+            new Promise(f => f(secondary.getBoundingClientRect())),
+            new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
+  
+          ]).then(res => {
+            const [cprops, rect, screenWidth] = res;
+  
+            let targetSize = +cprops.getPropertyValue(widthProp).replace('px', '')
+            let currentWidth = rect.width;
+  
+            let bool = (targetSize > 100 && currentWidth > 100 && screenWidth < rect.right);
+  
+            if(bool || previousHasClass){
+  
+                
+              if(previousHasClass && !bool){
+                secondary.style.removeProperty('--tabview-sider-right')
+                secondary.style.removeProperty('--tabview-sider-offset')
+                secondary.style.removeProperty('--tabview-sider-basewidth')
+              
+              }else{
+  
+                //secondary.style.setProperty('--tabview-sider-right', `${screen.width-rect.right}px`)
+                let pr = +cprops.getPropertyValue('padding-right').replace('px', '');
+                secondary.style.setProperty('--tabview-sider-right', `${pr}px`)
+                secondary.style.setProperty('--tabview-sider-offset', `${rect.right - (screenWidth - pr) }px`)
+                secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width  }px`)
+  
+                //console.log(targetSize, currentWidth, screenWidth, pr, rect.right)
+                
+              }
+  
+              secondary.classList.toggle('tabview-hover-sider', bool)
+  
+            }
+
+            unlock();
+  
+  
+          })
+  
+  
+  
+        })
+
+      })
+
+
+
     }
 
+
+  }
+  //let lastResizeAt = 0; 
+  window.addEventListener('resize', function (evt) {
+
+    let isTrusted = evt.isTrusted;
+    if (isTrusted) {
+      let tcw = document.documentElement.clientWidth;
+      setTimeout(() => {
+        // avoid duplicate calling during resizing
+        if (tcw !== document.documentElement.clientWidth) return;
+        manualResize(isTrusted);
+      }, 160)
+    } else {
+      manualResize(false);
+    }
 
   }, bubblePassive)
 
@@ -5304,6 +5478,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
+  let scrollEvtDT = 0;
 
   window.addEventListener('scroll', function (evt) {
 
@@ -5318,21 +5493,37 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (videoListBeforeSearch) return;
 
 
+    let tdt=Date.now();
+    scrollEvtDT=tdt;
 
-    let visibleHeight = document.scrollingElement.clientHeight;
-    let totalHeight = document.scrollingElement.scrollHeight;
+    new Promise(resolve => {
 
-    if (totalHeight < visibleHeight * 1.5) return; // filter out two column view;
-
-    let z = window.pageYOffset + visibleHeight;
-    let h_advanced = totalHeight - (visibleHeight > 5 * 40 ? visibleHeight * 0.5 : 40);
+      if(scrollEvtDT!==tdt) return resolve(null);
 
 
+      let scrollingElement = document.scrollingElement;
+      let visibleHeight = scrollingElement.clientHeight;
+      let totalHeight = scrollingElement.scrollHeight;
 
-    if (z > h_advanced) {
+
+      if (totalHeight < visibleHeight * 1.5) return resolve(null); // filter out two column view;
+
+      let z = window.pageYOffset + visibleHeight;
+      let h_advanced = totalHeight - (visibleHeight > 5 * 40 ? visibleHeight * 0.5 : 40);
+
+      if (z > h_advanced) resolve(true);
+      resolve(null);
+
+    }).then(zh => {
+
+
+      if (!zh) return null;
+
+      if(scrollEvtDT!==tdt) return null;
+
 
       let ct = Date.now();
-      if (ct - lastScrollFetch < 500) return; //prevent continuous calling
+      if (ct - lastScrollFetch < 500) return null; //prevent continuous calling
 
       lastScrollFetch = ct;
 
@@ -5343,7 +5534,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         requestAnimationFrame(() => {
           let { offsetTop } = res.m2 // as visibility of m2 & m3 switched.
 
-          if (offsetTop - lastOffsetTop < 40) return; // in case bug, or repeating calling.  // the next button shall below the this button 
+          if (offsetTop - lastOffsetTop < 40) return null; // in case bug, or repeating calling.  // the next button shall below the this button 
           lastOffsetTop = offsetTop
 
           res.m2.parentNode.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
@@ -5357,9 +5548,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-    }
-
-
+    })
 
 
   }, bubblePassive)

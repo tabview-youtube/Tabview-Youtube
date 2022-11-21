@@ -25,11 +25,15 @@ function injection_script_1() {
   let _ceHack_calledOnce = false;
   let cid_teaserInfo = 0;
 
+  const DEBUG_e32 = false;
+
+  DEBUG_e32 && console.log(9442, 103);
 
 
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready',function(evt){
 
+    DEBUG_e32 && console.log(9442, evt.type);
 
     /** @type {HTMLIFrameElement} */
     let iframe = evt.target;
@@ -39,6 +43,7 @@ function injection_script_1() {
 
   document.addEventListener('userscript-call-dom',function(evt){
     //console.log(1233)
+    DEBUG_e32 && console.log(9442, evt.type);
 
     if (!evt || !evt.target || !evt.detail) return;
     let dom = evt.target;
@@ -88,6 +93,8 @@ function injection_script_1() {
 
 
   document.addEventListener('userscript-call-dom-func', function (evt) {
+
+    DEBUG_e32 && console.log(9442, evt.type);
 
     if (!evt || !evt.target || !evt.detail) return;
     let dom = evt.target;
@@ -727,22 +734,21 @@ function injection_script_1() {
 
 
   function getFunc_postToContentWindow(){
+    DEBUG_e32 && console.log(9442, '-postToContent');
     let afArg = null;
     const symbol_gtcw=Symbol();
     let refreshAt = 0;
     let rfaId=0;
-    let _prevRepeat = 0;
     const tf_gtcw=function(x){
       if(rfaId > 0){
-        if(activeFlag)return;
         //console.log(1723,3,x)
         rfaId = 0;
+        if(activeFlag)return;
         refreshAt = Date.now()+460;
-        _prevRepeat = refreshAt;
-        let prevRepeat = _prevRepeat;
+        let tdt = refreshAt;
         // Promise to allow unknown runtime error (not to block the coding)
         Promise.resolve({args:afArg, f:this.__$$postToContentWindow$$__, ths:this}).then((obj)=>{
-          if(prevRepeat!==_prevRepeat) return;
+          if(refreshAt!==tdt) return;
           //arg is object reference.
           const {args, f, ths} = obj;
           f.apply(ths,args);
@@ -814,38 +820,39 @@ function injection_script_1() {
 
     }, true)
 
-    const g_postToContentWindow = function () { 
+    const g_postToContentWindow = function () {
       //console.log(1723,8,arguments)
 
-      if(activeFlag>0) return;
-      if(!this.hasAttribute('yt-userscript-iframe-loaded')) return this.__$$postToContentWindow$$__.apply(this, arguments);
-      
-      //console.log(1723,6)
-      if (arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
+      if (activeFlag > 0) return;
+      let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
+
+      if (boolz && arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
+
+        if (ptcBusy === true) return;
 
         //console.log(1723,9,ptcBusy)
         let pt = arguments[0]['yt-player-video-progress'];
         let isRefreshRequired = false;
-        
+
         let lastPT = _lastPT
         _lastPT = pt;
-        isRefreshRequired = pt<lastPT && lastPT-pt>0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
-        
+        isRefreshRequired = pt < lastPT && lastPT - pt > 0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
 
-        
-        if(isRefreshRequired){
+
+
+        if (isRefreshRequired) {
           //console.log(9371,2)
-          let taf= Date.now();
-          activeFlag=taf;
+          let taf = Date.now();
+          activeFlag = taf;
           ptcBusy = true;
-          
-          setTimeout(()=>{
-            if(taf!==activeFlag) return;
-            
+
+          setTimeout(() => {
+            if (taf !== activeFlag) return;
+
             // this.urlChanged()
             // this.detached();
             // this.attached();
-            
+
             this.currentPageUrl = "";//  necessary
             this.isListeningForPlayerProgress = false;
             this.setPlayer(null);
@@ -853,46 +860,47 @@ function injection_script_1() {
             this.currentPageUrl = window.location.href;
             this.setupPlayerProgressRelay()
 
-            let ptcF=()=>{
-              
-              if(taf!==activeFlag) return;
-              if(this.isFrameReady===true){
+            let ptcF = () => {
+
+              if (taf !== activeFlag) return;
+              if (this.isFrameReady === true) {
                 ptcBusy = false;
-                activeFlag=false;
-              }else{
-                setTimeout(ptcF,46);
+                activeFlag = false;
+              } else {
+                setTimeout(ptcF, 46);
               }
             };
-            setTimeout(ptcF,46); //just some delay - allow page loading
-          },460); //just some delay - allow user operation
-          if(this.isFrameReady===true) this.isFrameReady=false;
+            setTimeout(ptcF, 46); //just some delay - allow page loading
+          }, 460); //just some delay - allow user operation
+          if (this.isFrameReady === true) this.isFrameReady = false;
           return; // skip update and wait for page refresh
-        }else if(ptcBusy === true) return;
-        else{
-          ptcBusy = true;
         }
-        
+        ptcBusy = true;
 
-        afArg=[{'yt-player-video-progress':pt}];
-      
+
+
+        afArg = [{ 'yt-player-video-progress': pt }];
+
         //let curTime = 0;
-        
-        if(rfaId>0 && (curTime=Date.now())>refreshAt){
+
+        if (rfaId > 0 && (curTime = Date.now()) > refreshAt) {
           //console.log(1723,1)
-          $cancelAnimationFrame(rfaId);
-          if(this[symbol_gtcw]) this[symbol_gtcw](); // this[symbol_gtcw] always return function
-        }else if (rfaId === 0) {
+          $cancelAnimationFrame(rfaId); //rfaId is still >0
+          let fx = this[symbol_gtcw];
+          if (fx) fx(); // this[symbol_gtcw] always return function
+        } else if (rfaId === 0) {
           //console.log(1723,2)
-          if(!this[symbol_gtcw]) this[symbol_gtcw]=tf_gtcw.bind(this)
-          rfaId=$requestAnimationFrame(this[symbol_gtcw]);
+          let fx = this[symbol_gtcw];
+          if (!fx) this[symbol_gtcw] = (fx = tf_gtcw.bind(this)); //execute once
+          rfaId = $requestAnimationFrame(fx);
         }
-        
+
         ptcBusy = false;
-        
+
 
       } else {
         this.__$$postToContentWindow$$__.apply(this, arguments)
-      } 
+      }
     }
     return g_postToContentWindow;
   }
@@ -1507,6 +1515,7 @@ function injection_script_1() {
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
 
+    DEBUG_e32 && console.log(9442, evt.type);
     // including reply of comments;
     // fix scrollTop when "show less" is tapped
 
@@ -1536,6 +1545,7 @@ function injection_script_1() {
 
 
   document.addEventListener('tabview-no-duplicate-info',function(evt){
+    DEBUG_e32 && console.log(9442, evt.type);
 
     if(cid_teaserInfo){
       clearInterval(cid_teaserInfo)
@@ -1572,8 +1582,9 @@ function injection_script_1() {
   },true);
   
   
-  document.addEventListener('tabview-fix-autocomplete',function(){
+  document.addEventListener('tabview-fix-autocomplete',function(evt){
 
+    DEBUG_e32 && console.log(9442, evt.type);
       // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
 
       for(const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')){
@@ -1617,6 +1628,7 @@ function injection_script_1() {
   // initial paging -> yt-page-data-fetched
   // page changing ->  yt-page-type-changed + yt-page-data-fetched
   document.addEventListener('yt-page-type-changed', (evt) => {
+    DEBUG_e32 && console.log(9442, evt.type);
     window.postMessage({
       tabview: {
         eventType: evt.type,

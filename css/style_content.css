@@ -3146,3 +3146,123 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     [is-empty]+.tabview-txt{
         --tabview-txt-display:'-NULL-';
     }
+
+
+    /* ---- v3.7.0 ---- */
+    /* 2022/11/21 css fix wide layout */
+
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner {
+
+        min-width: var(--ytd-watch-flexy-sidebar-min-width);
+
+        transition: transform 0.13s ease-out, min-width 1ms, background-color 250ms linear, outline 250ms linear;
+        transition-delay: 48ms, 192ms, 192ms, 4ms;
+        
+        transform:translateX(0px);
+        background-color: rgba(0,0,0,0.0);
+        outline:0px solid var(--ytd-searchbox-background);
+
+    }
+
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy.tabview-hover-sider:hover > div#secondary-inner,
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner:hover {
+        /* two layout are different in size and location */
+
+        min-width: var(--ytd-watch-flexy-sidebar-width);
+        --tabview-sider-offset2: calc( var(--tabview-sider-offset) - var(--tabview-sider-basewidth) + var(--ytd-watch-flexy-sidebar-width) );
+        transform:translateX(calc(-1*var(--tabview-sider-offset2) ));
+        background-color: var(--yt-spec-base-background);
+        /*min-width: var(--ytd-watch-flexy-sidebar-width);*/
+        transition: min-width 1ms, transform 0.13s ease-out, outline 250ms linear;
+        transition-delay: 48ms, 192ms, 4ms;
+        outline:8px solid var(--ytd-searchbox-background);
+
+    }
+    
+
+/* 
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy::before {
+
+        display: block;
+        content: "";
+        position: absolute;
+        width: var(--ytd-watch-flexy-sidebar-width);
+        height: 100vh;
+        top: 0px;
+        /-*right: var(--tabview-sider-offset);*-/
+        right: calc( 0.5*var(--ytd-watch-flexy-sidebar-width) );
+        /-*right:0px;*-/
+        /-*transform: translate(0px, 0px);*-/
+
+        transform: scaleX(0%);
+
+        transform-origin: center right;
+        background: rgba(120,0,0,0.5);
+        z-index: 0;
+        
+        transition: all 0.2s ease-out;
+        transition-delay: 0.15s;
+    }
+    
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy:hover::before {
+
+        right: var(--tabview-sider-right);
+        transform: scaleX(100%);
+        transition-delay: 0.01s;
+        
+    }
+
+    ytd-watch-flexy[cinematics-enabled] #secondary.ytd-watch-flexy.tabview-hover-sider{
+        position: static;
+    }  */
+/*     
+
+necessary; otherwise background issue occurs for transcript panel background  (panel button)
+    body ytd-watch-flexy[cinematics-enabled] #secondary.ytd-watch-flexy{
+        position: static; /-* not necessary as the cinematics is inside primary not secondary. *-/
+    }  */
+
+    body ytd-watch-flexy[flexy][is-two-columns_][theater] #columns.ytd-watch-flexy{
+        min-width: 0; /* avoid very wide video make the column sketch > 100vw under theater mode */
+    }
+
+    #tab-info .less-button.style-scope.ytd-video-secondary-info-renderer[role="button"]{
+        display:none;
+    }
+
+    @supports (selector(:has(:hover))) {
+
+        
+        #tab-info #video-lockups > #left-arrow-container.style-scope.arrow-container {
+
+            --tabview-left-arrow-opacity:'-NULL-';
+            opacity:var(--tabview-left-arrow-opacity);
+            transition:opacity 130ms;
+
+        }
+
+
+        #tab-info #video-lockups:has(#right-arrow-container:hover) > #left-arrow-container.style-scope.arrow-container {
+
+            --tabview-left-arrow-opacity:0.23;
+
+        }
+
+        #tab-info #video-lockups > #right-arrow-container.style-scope.arrow-container {
+
+            --tabview-right-arrow-opacity:'-NULL-';
+            opacity:var(--tabview-right-arrow-opacity);
+            transition:opacity 130ms;
+
+        }
+
+
+        #tab-info #video-lockups:has(#left-arrow-container:hover) > #right-arrow-container.style-scope.arrow-container {
+
+            --tabview-right-arrow-opacity:0.23;
+
+        }
+
+       
+    }
+    
