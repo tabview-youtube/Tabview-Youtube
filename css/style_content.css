@@ -2895,6 +2895,28 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             background: var(--yt-spec-button-chip-background-hover);
         }
 
+
+        
+
+    }
+
+    /* 2022/11/23 */
+    
+    @supports (overflow-x: hidden) and selector(#tag.cls:has(>#id:only-child)){
+
+
+        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]{
+            overflow-x: hidden;
+        }
+        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
+            min-width: calc(80% - 6px);
+        }
+
+        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
+            /*min-width: calc(20% - 6px);*/
+            transform: translateX(50%);
+        }
+
     }
 
 
@@ -2933,9 +2955,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     */
     body ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
         min-width: calc(60% - 6px);
+        transition: min-width 200ms;
     }
     body ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
         min-width: calc(40% - 6px);
+        transition: transform 200ms;
     }
 
     /* 2022/11/07 - playlist no round radius */
