@@ -2902,20 +2902,21 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 2022/11/23 */
     
-    @supports (overflow-x: hidden) and selector(#tag.cls:has(>#id:only-child)){
+    @supports (overflow-x: hidden) and (min-width: fit-content) and selector(#tag.cls:has(>#id:only-child)){
 
 
-        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer){
+        body #primary #below ytd-watch-metadata[modern-metapanel-order]{
             overflow-x: hidden;
         }
-        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer):has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
-            min-width: calc(80% - 6px);
+        body #primary #below ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
+            min-width: fit-content;
         }
-
-        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer):has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
-            /*min-width: calc(20% - 6px);*/
-            transform: translateX(50%);
+/*
+        body #primary #below ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
+            /-*min-width: calc(20% - 6px);*-/
+            /-*transform: translateX(50%);*-/
         }
+        */
 
     }
 
@@ -2953,13 +2954,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     /* 2022/11/06 - adjust width for new layout (modern-metapanel)
     YouTube Bug: Darker Dark Mode forgot to consider Japanese Layout Issue
     */
-    body ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
+    
+    body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
         min-width: calc(60% - 6px);
         transition: min-width 200ms;
     }
-    body ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
+    body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
         min-width: calc(40% - 6px);
-        transition: transform 200ms;
+        /*transition: transform 200ms;*/
     }
 
     /* 2022/11/07 - playlist no round radius */
