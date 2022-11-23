@@ -479,7 +479,7 @@ function injection_script_1() {
         const tMap = new Map(); // avoid duplicate with javascript object properties
 
         const runs = segment.transcriptSegmentRenderer.snippet.runs;
-        if (runs.length > 1 || runs[0].text.includes('\n')) continue;  // skip multi lines
+        if (runs.length > 1 || runs[0].text.includes('\n')) continue; // skip multi lines
 
         // assume that it is asc-ordered array of key startMs;
         for (let sj = sj_start; sj < sj_length; sj++) {
@@ -727,8 +727,7 @@ function injection_script_1() {
         }
       }, {
         threshold: [0],
-        rootMargin: "-18px 0px -18px 0px"  // before fully leave the visible region
-
+        rootMargin: "-18px 0px -18px 0px" // before fully leave the visible region
       })
 
 
@@ -820,8 +819,7 @@ function injection_script_1() {
         }
       }, {
         threshold: [0],
-        rootMargin: "0px 0px 0px 0px"  // before fully leave the visible region
-
+        rootMargin: "0px 0px 0px 0px" // before fully leave the visible region
       })
 
 
@@ -1210,10 +1208,10 @@ function injection_script_1() {
         return this[s32];
       },
       set(nv) {
-        if (insObserverChipCloud) insObserverChipCloud.observe(this)
+        if (insObserverChipCloud) insObserverChipCloud.observe(this);
         if (mutObserverChipCloud) mutObserverChipCloud.observe(this,{
           attributes: false, childList: true, subtree: true 
-        })
+        });
         this[s32] = nv;
       },
       enumerable: false,
@@ -1709,7 +1707,7 @@ function injection_script_1() {
 
 
   if(document.documentElement.hasAttribute('tabview-loaded'))ceHack();else
-  document.addEventListener('tabview-ce-hack',ceHack, true)
+  document.addEventListener('tabview-ce-hack',ceHack, true);
 
   
 
@@ -1756,7 +1754,7 @@ function injection_script_1() {
     cid_teaserInfo = setInterval(()=>{
 
       let lineExpander = document.querySelector('ytd-watch-metadata ytd-text-inline-expander');
-      let [ watch_metadata, full, detail, content] =  teaserInfoMatchCondition(lineExpander)
+      let [watch_metadata, full, detail, content] = teaserInfoMatchCondition(lineExpander)
         
       let tid = `${content.length},${full.length},${detail.length}`
       if(mid===tid) return null;

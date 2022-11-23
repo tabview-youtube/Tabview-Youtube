@@ -3902,8 +3902,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // reference: https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
   String.replacei = String.prototype.replacei = function (rep, rby) {
     var pos = this.toLowerCase().indexOf(rep.toLowerCase());
-    return pos == -1 ? this : this.substring(0, pos) + rby(this.substring(pos, pos+rep.length)  ) + this.substring(pos + rep.length);
-};
+    return pos == -1 ? this : this.substring(0, pos) + rby(this.substring(pos, pos + rep.length)) + this.substring(pos + rep.length);
+  };
 
   function setKeywords(){
 
@@ -4051,10 +4051,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
-    })
-    {
-
-    }
+    });
   }
 
 
@@ -5452,7 +5449,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               let pr = +cprops.getPropertyValue('padding-right').replace('px', '');
               secondary.style.setProperty('--tabview-sider-right', `${pr}px`)
               secondary.style.setProperty('--tabview-sider-offset', `${rect.right - (screenWidth - pr) }px`)
-              secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width  }px`)
+              secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width}px`)
 
               //console.log(targetSize, currentWidth, screenWidth, pr, rect.right)
               
