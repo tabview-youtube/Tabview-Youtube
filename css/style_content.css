@@ -2905,14 +2905,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     @supports (overflow-x: hidden) and selector(#tag.cls:has(>#id:only-child)){
 
 
-        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]{
+        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer){
             overflow-x: hidden;
         }
-        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
+        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer):has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
             min-width: calc(80% - 6px);
         }
 
-        body ytd-watch-flexy[userscript-chatblock="chat-live"] ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
+        body ytd-watch-metadata[modern-metapanel-order]:has(#sponsor-button ytd-button-renderer):has(#subscribe-button ytd-subscribe-button-renderer):has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
             /*min-width: calc(20% - 6px);*/
             transform: translateX(50%);
         }
