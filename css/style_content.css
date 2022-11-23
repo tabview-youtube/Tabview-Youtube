@@ -2373,25 +2373,34 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     
     /*  Some CSS fix for transcript */
 
+    
+    
     ytd-transcript-segment-renderer{
-        content-visibility: auto;
+        /*content-visibility: auto;*/
         contain: layout paint;
     }
     ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer > #body{
         contain: layout paint style;
     }
 
+    
     yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer:focus {
         outline: 0;
     }
 
+    body .segment.ytd-transcript-segment-renderer{
+        --tabview-segment-renderer-background: '--NULL--';
+        background-color: var(--tabview-segment-renderer-background);
+    }
+
     body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active){
-        background:transparent;
+        --tabview-segment-renderer-background:transparent;
     }
     body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
-        background:transparent;
+        --tabview-segment-renderer-background:transparent;
     } 
 
+    
     ytd-transcript-segment-renderer{
         --tabview-transcript-segment-span-display: block;
     }
@@ -2399,6 +2408,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
         display: var(--tabview-transcript-segment-span-display);
     }
+    
 
 
     /*  Userscript - Youtube Genius Lyrics */
@@ -2839,29 +2849,51 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             margin: 5px 12px 3px 12px;
         }
         
-        ytd-watch-flexy:not([fullscreen]) 
+        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander 
+        #description.ytd-video-secondary-info-renderer > yt-attributed-string.style-scope.ytd-video-secondary-info-renderer ~ yt-formatted-string.style-scope.ytd-video-secondary-info-renderer) 
         #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) > #description-inner.style-scope.ytd-watch-metadata > 
         #info-container.style-scope.ytd-watch-metadata ~
-        ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata
-        > yt-attributed-string.style-scope.ytd-text-inline-expander ~ yt-formatted-string.style-scope.ytd-text-inline-expander{
+        ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata
+        > yt-attributed-string.ytd-text-inline-expander ~ yt-formatted-string.ytd-text-inline-expander{
             content-visibility: hidden;
         }
         
-        ytd-watch-flexy:not([fullscreen]) 
+        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer) 
         #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) > #description-inner.style-scope.ytd-watch-metadata > 
         #info-container.style-scope.ytd-watch-metadata ~
-        ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata{
+        ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata{
             content-visibility: hidden;
         }
         
-        ytd-watch-flexy[fullscreen] 
+        ytd-watch-flexy[fullscreen]:has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer) 
         #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) > #description-inner.style-scope.ytd-watch-metadata > 
         #info-container.style-scope.ytd-watch-metadata ~
-        ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata{
+        ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata{
             max-height: calc( 100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x) );
             overflow: auto;
         }
 
+        /* 2022/11/23 */
+
+
+        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer)
+        #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
+            content-visibility: hidden;
+        }
+
+        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer) 
+        #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer{
+            margin-right: 0;
+        }
+
+        /* ytd-watch-metadata[clickable-description][description-collapsed] #description.ytd-watch-metadata */
+        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata #info-container[tabview-info-toggler]{
+            cursor: pointer;
+        }
+        
+        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tabview-info-toggler]:hover) {
+            background: var(--yt-spec-button-chip-background-hover);
+        }
 
     }
 
@@ -3265,4 +3297,6 @@ necessary; otherwise background issue occurs for transcript panel background  (p
 
        
     }
+    
+
     

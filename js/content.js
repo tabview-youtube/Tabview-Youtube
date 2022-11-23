@@ -1458,7 +1458,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
 
     let tf = () => {
-      if (!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return setTimeout(tf, 300);
+      if (!document.documentElement.getAttribute('tabview-unwrapjs')) return setTimeout(tf, 300);
       document.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'))
     }
     tf();
@@ -1922,6 +1922,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })();
     }
 
+    let subscribersCount = document.querySelector('#primary #below ytd-watch-metadata #owner #owner-sub-count')
+
+    if(subscribersCount){
+      subscribersCount.setAttribute('title', subscribersCount.textContent); // set at every page update
+    }
+
 
 
   }
@@ -2182,7 +2188,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!addedInfo) return;
 
-    if (!document.documentElement.hasAttribute('tabview-injection-js-1-ready')) return;
+    if (!document.documentElement.getAttribute('tabview-unwrapjs')) return;
 
     _console.log(3903)
 
@@ -3057,6 +3063,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         
         setKeywords();
+
+        setToggleInfo();
 
         setTimeout(()=>{
 
@@ -4016,6 +4024,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function setToggleInfo() {
+    new Promise(resolve => {
+
+      let tf = () => {
+        let t = document.documentElement.getAttribute('tabview-unwrapjs')
+        if (!t) return setTimeout(tf, 300);
+        resolve();
+      }
+      tf();
+
+    }).then(() => {
+
+      // let elem = document.querySelector('#primary #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child > yt-formatted-string#info.style-scope.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
+
+      let elem = document.querySelector('#primary #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
+      if (elem) {
+
+
+
+        elem.setAttribute('tabview-info-toggler', '')
+        elem.dispatchEvent(new CustomEvent('tabview-info-toggler'))
+
+      }
+
+    })
+    {
+
+    }
+  }
+
 
 
 
@@ -4028,11 +4066,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let videoElm = querySelectorFromAnchor.call(ytd_player, 'video');
     if (!videoElm) return;
 
-    let video = videoElm;
-    if (videoElm && video.currentTime > 0 && !video.ended && video.readyState > video.HAVE_CURRENT_DATA) {
+    let ct = videoElm.currentTime;
+    if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
       let chat = document.querySelector('ytd-live-chat-frame#chat');
       if (chat) {
-        nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": videoElm.currentTime }])
+        nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": ct }])
       }
     }
 

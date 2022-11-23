@@ -4,8 +4,8 @@ function injection_script_1() {
   
   if(!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
-  if(document.documentElement.hasAttribute('tabview-injection-js-1-ready'))return;
-  document.documentElement.setAttribute('tabview-injection-js-1-ready','1')
+  if(document.documentElement.hasAttribute('tabview-unwrapjs'))return;
+  document.documentElement.setAttribute('tabview-unwrapjs','')
   
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
@@ -147,7 +147,7 @@ function injection_script_1() {
       if (!str) return '';
       let res = snCache.get(str);
       if (res) return res;
-      res = str.replace(/\u200b/g, '').replace(/[\xA0\x20]+/g, ' ').trim().replace(/\s*\n\s*/, '\n');
+      res = str.replace(/\u200b/g, '').replace(/[\xA0\x20]+/g, ' ').trim().replace(/\s*\n\s*/, '\n').trim();
       snCache.set(str, res);
       snCache.set(res, res);
       return res;
@@ -177,6 +177,97 @@ function injection_script_1() {
       }));
     }
 
+    /*
+    function translateV2(initialSegments){
+
+      let res = []
+      
+      let textCache = new Map();
+
+      for (const initialSegment of initialSegments) {
+        const transcript = (initialSegment || 0).transcriptSegmentRenderer;
+        if (!transcript) continue;
+
+        const runs = transcript.snippet.runs
+        if (!runs || runs.length === 0) {
+          continue;
+        }
+
+
+        let startMs = (+transcript.startMs || 0); //integer
+        let endMs = (+transcript.endMs || 0); //integer
+
+
+        let text = snippetText(transcript.snippet);
+
+        let tc = textCache.get(text);
+
+        if(!tc){
+
+          tc =  {
+            segment: initialSegment,
+            startMs: startMs,
+            endMs: endMs
+          }
+
+          textCache.set(text,tc);
+          res.push(tc);
+          
+        }else{
+
+          if(startMs - tc.endMs < 450){
+            tc.endMs =endMs;
+          }else{
+
+            tc = {
+              segment: initialSegment,
+              startMs: startMs,
+              endMs: endMs
+            }
+            res.push(tc);
+            textCache.set(text, tc);
+
+          }
+
+        }
+
+
+      }
+
+      let sType = null;
+      let fRes = [];
+      for(const entry of res) {
+
+        const transcript = entry.segment.transcriptSegmentRenderer;
+
+        let duration = entry.endMs - entry.startMs
+
+        if(duration>450){
+
+          if(!sType) sType = typeof transcript.startMs;
+          transcript.startMs =  sType=='string'?`${entry.startMs}`:entry.startMs;
+          transcript.endMs =  sType=='string'?`${entry.endMs}`:entry.endMs;
+  
+          const runs = transcript.snippet.runs
+  
+          
+          for (const s of runs) {
+            s.text = _snippetText(s.text);
+          }
+
+          fRes.push( entry.segment );
+        }
+
+
+      }
+
+
+      console.log(res)
+      return fRes;
+
+    }
+    */
+
     function translate(initialSegments) {
 
       if (!initialSegments) return initialSegments;
@@ -184,6 +275,12 @@ function injection_script_1() {
       if (TRANSLATE_DEBUG) {
         console.log(12)
       }
+
+
+      
+
+
+      //return translateV2(initialSegments);
 
 
 
@@ -241,6 +338,9 @@ function injection_script_1() {
           //mapRej.add(initialSegment)
           continue;
         }
+        if(endMs - startMs < 30){
+          continue;
+        }
 
         const text = snippetText(transcript.snippet);
         const mh1e = mh1.get(text);
@@ -283,9 +383,10 @@ function injection_script_1() {
                 if (timeDiff < 25) {
 
                   bool = true;
-                } else if (timeDiff < 180 && entry.endMs - entry.startMs < 800) {
+                } else if (timeDiff < 450 && entry.endMs - entry.startMs < 900) {
                   bool = true;
-
+                } else if (timeDiff < 150 && entry.endMs - entry.startMs > 800) {
+                  bool = true;
                 }
 
 
@@ -369,10 +470,11 @@ function injection_script_1() {
       let invalid_sj = -1;
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
-        const transcript = segment.transcriptSegmentRenderer;
+        let transcript = segment.transcriptSegmentRenderer;
 
         let main_startMs = (+transcript.startMs || 0);
         let main_endMs = (+transcript.endMs || 0);
+        transcript = null;
         /** @type {Map<string, number>} */
         const tMap = new Map(); // avoid duplicate with javascript object properties
 
@@ -404,13 +506,87 @@ function injection_script_1() {
 
             //console.log(8833, 102)
             let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
-            let v1 = tMap.get(mt) || 0;
-            let v2 = v1 + 1 + Math.abs(endMs - startMs);
-            tMap.set(mt, v2);
+            /*
+            if(tMap.size===0 && initialSegment!==segment){
+              //switch to the earilest effect text
+
+              TRANSLATE_DEBUG && console.log(24848,
+                 'main',[segment.transcriptSegmentRenderer.startMs, segment.transcriptSegmentRenderer.endMs ],
+                 'initial',[initialSegment.transcriptSegmentRenderer.startMs, initialSegment.transcriptSegmentRenderer.endMs ] );
+
+              initialSegment.transcriptSegmentRenderer.startMs = segment.transcriptSegmentRenderer.startMs;
+              initialSegment.transcriptSegmentRenderer.endMs = segment.transcriptSegmentRenderer.endMs;
+              initialSegment.transcriptSegmentRenderer.snippet=segment.transcriptSegmentRenderer.snippet;
+
+              segment.transcriptSegmentRenderer = initialSegment.transcriptSegmentRenderer;
+              
+            }*/
+            let xv = tMap.get(mt) || 0;
+            if(endMs>=startMs){
+              xv += 1 + (endMs - startMs);
+            }
+            tMap.set(mt, xv);
           }
 
 
         }
+
+        // let lastSegment = fRes[si-1];
+        // if(si-1>=0){
+        //   const transcript1 = lastSegment.transcriptSegmentRenderer
+        //   const transcript2 = segment.transcriptSegmentRenderer
+        //   let segmentGap = (+transcript2.startMs) - (+transcript1.endMs);
+
+        //   if(segmentGap<800){
+        //     let d1 = (+transcript1.endMs)-(+transcript1.startMs);
+        //     let d2 = (+transcript2.endMs)-(+transcript2.startMs);
+
+        //     //let e1 =  (+lastSegment.endMs+k1)-(+lastSegment.startMs);
+        //     //let e2 = (+segment.endMs)-(+segment.startMs-k2);
+
+        //     /--*
+        //     e1/e2 = d1/d2 && k1+k2 = segmentGap;
+        //     (end1+k1 - start1 ) / (end2-start2+k2) = (end1 - start1 ) / (end2-start2) && k1+k2== segmentgap
+            
+        //     (end1+k1 - start1 ) * (end2-start2) = (end1 - start1 ) * (end2-start2+k2)
+
+        //     (end1 - start1 ) * (end2-start2) + k1 * (end2-start2) = (end1 - start1 ) * (end2-start2)+(end1 - start1 ) * k2
+        //      k1 * (end2-start2) =(end1 - start1 ) * k2
+        //      k1/k2 =(end1 - start1 ) / (end2-start2) 
+        //      *--/
+
+
+        //     //  k1/k2 =(end1 - start1 ) / (end2-start2)  = A
+
+        //     // k1+k2 = segmentGap = B
+
+        //     // k1 = A k2
+        //     // A k2 + k2 = B
+        //     // k2 = B/(1+A)
+
+        //     let kA = d1 / d2;
+
+        //     let kB = segmentGap;
+
+        //     let k2 = kB / (1+kA);
+        //     let k1 = kA*k2;
+
+        //     if(typeof transcript1.endsMs == 'string'){
+        //       transcript1.endMs = `${+transcript1.endMs + k1}`;
+        //       transcript2.startMs = `${+transcript2.startMs - k2}`;
+        //     }else if(typeof transcript1.endsMs == 'number'){
+        //       transcript1.endMs = +transcript1.endMs + k1;
+        //       transcript2.startMs = +transcript2.startMs - k2;
+        //     }
+
+
+
+
+        //   }
+
+        // }
+
+       
 
 
 
@@ -735,27 +911,15 @@ function injection_script_1() {
 
   function getFunc_postToContentWindow(){
     DEBUG_e32 && console.log(9442, '-postToContent');
-    let afArg = null;
-    const symbol_gtcw=Symbol();
     let refreshAt = 0;
     let rfaId=0;
-    const tf_gtcw=function(x){
+    const tf_gtcw2=function(x){
       if(rfaId > 0){
-        //console.log(1723,3,x)
         rfaId = 0;
-        if(activeFlag)return;
         refreshAt = Date.now()+460;
-        let tdt = refreshAt;
-        // Promise to allow unknown runtime error (not to block the coding)
-        Promise.resolve({args:afArg, f:this.__$$postToContentWindow$$__, ths:this}).then((obj)=>{
-          if(refreshAt!==tdt) return;
-          //arg is object reference.
-          const {args, f, ths} = obj;
-          f.apply(ths,args);
-          //console.log(5422, args)
-        })
       }
     };
+
     let _lastPT = 0;
     let activeFlag = 0;
     
@@ -818,88 +982,124 @@ function injection_script_1() {
       
 
 
-    }, true)
+    }, true);
+
+    let isFirstBatchMsgDispatched = false;
 
     const g_postToContentWindow = function () {
       //console.log(1723,8,arguments)
 
-      if (activeFlag > 0) return;
+      if (activeFlag > 0) return; // no action when reloading
       let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
+      let pt = arguments[0]['yt-player-video-progress'];
 
-      if (boolz && arguments.length === 1 && "yt-player-video-progress" in arguments[0]) {
+      if (boolz && pt>0) {
 
         if (ptcBusy === true) return;
 
         //console.log(1723,9,ptcBusy)
-        let pt = arguments[0]['yt-player-video-progress'];
         let isRefreshRequired = false;
 
         let lastPT = _lastPT
         _lastPT = pt;
-        isRefreshRequired = pt < lastPT && lastPT - pt > 0.99 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
 
+        DEBUG_e32 && console.log(573,2, pt, lastPT)
 
 
         if (isRefreshRequired) {
-          //console.log(9371,2)
-          let taf = Date.now();
-          activeFlag = taf;
-          ptcBusy = true;
+          
+          if(!isFirstBatchMsgDispatched) return;
+          // isFirstBatchMsgDispatched can be true when the page is not loaded
+          isFirstBatchMsgDispatched = false;
 
-          setTimeout(() => {
-            if (taf !== activeFlag) return;
+          Promise.resolve(0).then(()=>{
+            //avoid long scripting within a single call of g_postToContentWindow()
 
-            // this.urlChanged()
-            // this.detached();
-            // this.attached();
 
-            this.currentPageUrl = "";//  necessary
-            this.isListeningForPlayerProgress = false;
-            this.setPlayer(null);
-            this.isFrameReady = false
-            this.currentPageUrl = window.location.href;
-            this.setupPlayerProgressRelay()
+            let pageLoaded = false;
 
-            let ptcF = () => {
-
-              if (taf !== activeFlag) return;
-              if (this.isFrameReady === true) {
-                ptcBusy = false;
-                activeFlag = false;
-              } else {
-                setTimeout(ptcF, 46);
+            try{
+              if( this.querySelector('iframe').contentDocument.querySelector('yt-live-chat-renderer #continuations')){
+                // isFirstBatchMsgDispatched was wrongly set as true
+                pageLoaded=true; 
               }
-            };
-            setTimeout(ptcF, 46); //just some delay - allow page loading
-          }, 460); //just some delay - allow user operation
-          if (this.isFrameReady === true) this.isFrameReady = false;
+            }catch(e){}
+            
+            
+            if(!pageLoaded) return;
+  
+            //console.log(9371,2)
+            let taf = Date.now();
+            activeFlag = taf;
+            ptcBusy = true;
+  
+  
+            setTimeout(() => {
+              if (taf !== activeFlag) return;
+  
+              // this.urlChanged()
+              // this.detached();
+              // this.attached();
+   
+                
+  
+                this.currentPageUrl = "";//  necessary
+                this.isListeningForPlayerProgress = false;
+                this.setPlayer(null);
+                this.isFrameReady = false;
+                this.currentPageUrl = window.location.href;
+                this.setupPlayerProgressRelay();
+  
+                setTimeout(()=>{
+                  activeFlag = 0;
+                  ptcBusy = false;
+                  
+                }, 230) // time delay for iframe reloading
+              
+  
+            }, 460); //just some delay - allow user operation
+
+
+          })
+
           return; // skip update and wait for page refresh
         }
         ptcBusy = true;
 
 
 
-        afArg = [{ 'yt-player-video-progress': pt }];
+        let exec = true;
 
-        //let curTime = 0;
-
-        if (rfaId > 0 && (curTime = Date.now()) > refreshAt) {
+        if (rfaId > 0 && Date.now() > refreshAt) {
           //console.log(1723,1)
           $cancelAnimationFrame(rfaId); //rfaId is still >0
-          let fx = this[symbol_gtcw];
-          if (fx) fx(); // this[symbol_gtcw] always return function
+          tf_gtcw2(); 
         } else if (rfaId === 0) {
           //console.log(1723,2)
-          let fx = this[symbol_gtcw];
-          if (!fx) this[symbol_gtcw] = (fx = tf_gtcw.bind(this)); //execute once
-          rfaId = $requestAnimationFrame(fx);
+          rfaId = $requestAnimationFrame(tf_gtcw2);
+        }else{
+          exec = false;
+
+        }
+
+        if(exec){
+          isFirstBatchMsgDispatched=true; // first batch of messages are dispatched
+          let ret = this.__$$postToContentWindow$$__(...arguments)
+          DEBUG_e32 && console.log(573,6, ret)
         }
 
         ptcBusy = false;
 
 
       } else {
-        this.__$$postToContentWindow$$__.apply(this, arguments)
+        
+        //{'yt-player-state-change': 3}
+        //{'yt-player-state-change': 2}
+        //{'yt-player-state-change': 1}
+        DEBUG_e32 && console.log(573,25, this.isListeningForPlayerProgress , this.isFrameReady, arguments)
+        //isFrameReady is false if iframe is not shown
+        this.__$$postToContentWindow$$__(...arguments)
       }
     }
     return g_postToContentWindow;
@@ -1635,12 +1835,30 @@ function injection_script_1() {
         eventDetail: evt.detail // in order to get the object detail
       }
     }, location.origin);
-  }, false)
+  }, false);
+
+
+  function tabviewInfoTogglerOnClick (evt){
+    let dom = evt.target;
+    let description = dom.closest('#description')
+    if(!description) return;
+    let button = description.querySelector('tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+    if(!button) return;
+    setTimeout(()=>{ //setTimeout / raf required - js event issue
+      button.click();
+    },30);
+    evt.preventDefault();
+  }
+
+
+  document.addEventListener('tabview-info-toggler', (evt)=>{
+    let node = (evt||0).target;
+    node.addEventListener('click',tabviewInfoTogglerOnClick, false)
+  }, true);
 
 
 
-
-  document.documentElement.setAttribute('tabview-injection-js-1-ready','2')
+  document.documentElement.setAttribute('tabview-unwrapjs','1')
 
   //effected subtitle - https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
