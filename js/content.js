@@ -78,7 +78,7 @@
   let cmTime = 0;
   let commentsReady_id = 0;
   let t_heated_BodyScroll = 0;
-  let mTime = Date.now() - 152000000;
+  const mTime = Date.now() - 152000000;
 
   let lastScrollFetch = 0;
   let lastOffsetTop = 0;
@@ -3139,23 +3139,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (video && !video.hasAttribute('tabview-video-events')) {
             video.setAttribute('tabview-video-events', '')
 
+            let _viTimeNum = 0;
             video.addEventListener('timeupdate', (evt) => {
-              // force browser to load the videostream during playing (not for livechat)
-              Promise.resolve([Date.now() - mTime, evt.timeStamp]).then(c => {
-                let [c1, c2] = c;
-                let m = 3700;
-                let t = Math.round(c1 / m)
-                t = t % 152000000;
-                let s = document.head.dataset.viTime;
-                t = Math.round((+s || 0) * 0.001 + c2 * 0.0001 + t)
-                return [t, s];
-              }).then(ts => {
-                let [t, s] = ts;
-                let tx = `${t}`;
-                if (s !== tx) {
-                  document.head.dataset.viTime = tx;
-                }
-              })
+              // force browser to load the videostream during playing (primarily for music videos)
+              const x = Math.round((Date.now() - mTime)/3400);
+              if(x !== _viTimeNum){
+                Promise.all([
+                  new Promise(resolve => {
+                    _viTimeNum = +document.head.dataset.viTime || 0;
+                    resolve(0);
+                  }),
+                  new Promise(resolve => {
+                    resolve(x);
+                  })]).then(r => {
+                    const [z, t] = r;
+                    const s = _viTimeNum;
+                    if (s !== t) {
+                      document.head.dataset.viTime = `${t}`;
+                    }
+                  })
+              }
             }, bubblePassive);
 
             video.addEventListener('ended',(evt)=>{
