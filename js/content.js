@@ -3142,22 +3142,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             let _viTimeNum = 0;
             video.addEventListener('timeupdate', (evt) => {
               // force browser to load the videostream during playing (primarily for music videos)
+              // both background and foreground
               const x = Math.round((Date.now() - mTime)/3400);
               if(x !== _viTimeNum){
-                Promise.all([
-                  new Promise(resolve => {
-                    _viTimeNum = +document.head.dataset.viTime || 0;
-                    resolve(0);
-                  }),
-                  new Promise(resolve => {
-                    resolve(x);
-                  })]).then(r => {
-                    const [z, t] = r;
-                    const s = _viTimeNum;
-                    if (s !== t) {
-                      document.head.dataset.viTime = `${t}`;
-                    }
-                  })
+                new Promise(resolve => {
+                  resolve(x);
+                }).then(t => {
+                  if (_viTimeNum !== t) {
+                    document.head.dataset.viTime = `${t}`;
+                    return true;
+                  }
+                  return false;
+                }).then(b => {
+                  if(b) _viTimeNum = +document.head.dataset.viTime || 0;
+                })
               }
             }, bubblePassive);
 
