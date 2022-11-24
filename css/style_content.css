@@ -2902,18 +2902,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 2022/11/24 */
     
-    @supports (overflow-x: hidden) and (min-width: fit-content){
+    @supports (overflow-x: hidden) and (min-width: max-content){
 
         /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
         body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover{
             overflow-x: hidden;
         }
         body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover #owner.ytd-watch-metadata {
-            min-width: fit-content;
+            min-width: max-content;
         }
 
     }
-
 
      /* 2022/11/06 - fix empty clarify box */
      
