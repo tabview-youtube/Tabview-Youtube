@@ -1825,7 +1825,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function getCountHText(elm){
+  function getCountHText(elm) {
     return `${((((pageFetchedData || 0).pageData || 0).playerResponse || 0).videoDetails || 0).videoId || 0}...${elm.textContent}`
   }
 
@@ -1833,151 +1833,172 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // fired at begining, and keep for in case any change
   function mtf_fix_details() {
 
-    if (!scriptEnable) return;
+    if (!scriptEnable) return Promise.resolve(0); // in case
+
+    return Promise.all([
+      new Promise(resolve => {
 
 
-    let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])');
 
-    if (contentToggleBtn) {
+        let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])');
 
-      (() => {
-        const domElement = contentToggleBtn;
-        contentToggleBtn = null;
-        // if(!domElement.parentElement) return; // not working in pseudo custom element - parentNode = documentFragment
-        const expander = closestDOM.call(domElement, 'ytd-watch-flexy #tab-info ytd-expander')
+        if (contentToggleBtn) {
 
-        if (!expander || expander.nodeType !== 1) return; // checking whether it is still on the page
+          (() => {
+            const domElement = contentToggleBtn;
+            contentToggleBtn = null;
+            // if(!domElement.parentElement) return; // not working in pseudo custom element - parentNode = documentFragment
+            const expander = closestDOM.call(domElement, 'ytd-watch-flexy #tab-info ytd-expander')
 
-        if (expander.style.getPropertyValue('--ytd-expander-collapsed-height')) {
-          expander.style.setProperty('--ytd-expander-collapsed-height', '')
-        }
-        nativeCall(expander, [
-          { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
-          { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
-          { 'property': 'recomputeOnResize', 'value': false }, // no need to check toggleable
-          { 'property': 'isToggled', 'value': true }, // show full content
-          { 'property': 'canToggle', 'value': false }, // hide show more or less btn
-          { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
-        ])
+            if (!expander || expander.nodeType !== 1) return; // checking whether it is still on the page
 
-      })();
-    }
-
-    let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
-    if (strcturedInfo) {
-
-      (() => {
-
-        strcturedInfo.removeAttribute('hidden');
-
-
-        setTimeout(()=>{
-
-          
-          let e = strcturedInfo.closest('ytd-watch-flexy #tab-info ytd-expander');
-
-          if(!e)return;
-          let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
-          if(s.length===1){
-                        let sp = s[0].parentNode
-            if(sp.nodeName.toUpperCase()==='TP-YT-PAPER-BUTTON'){
-
-              sp.click();
+            if (expander.style.getPropertyValue('--ytd-expander-collapsed-height')) {
+              expander.style.setProperty('--ytd-expander-collapsed-height', '')
             }
-          }
+            nativeCall(expander, [
+              { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
+              { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
+              { 'property': 'recomputeOnResize', 'value': false }, // no need to check toggleable
+              { 'property': 'isToggled', 'value': true }, // show full content
+              { 'property': 'canToggle', 'value': false }, // hide show more or less btn
+              { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
+            ])
 
-        },300)
+          })();
+        }
 
-      })();
-    }
-
-    /*
-        let inlineInfoExpander = document.querySelector('ytd-watch-flexy #description.ytd-watch-metadata ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
-        let vsInfoExpander = document.querySelector('#tab-info ytd-expander.ytd-video-secondary-info-renderer #description.ytd-video-secondary-info-renderer yt-formatted-string[split-lines].ytd-video-secondary-info-renderer')
-        _console.log(23234, inlineInfoExpander, vsInfoExpander, inlineInfoExpander.textContent, vsInfoExpander.textContent)
-        if(inlineInfoExpander && vsInfoExpander && inlineInfoExpander.textContent===vsInfoExpander.textContent){
-    
-          inlineInfoExpander.classList.add('tabview-hidden-info')
-    
-        }*/
+        resolve();
 
 
 
+      }),
 
-    // just in case the playlist is collapsed
-    let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-    if (playlist && playlist.matches('[collapsed], [collapsible]')) {
+      new Promise(resolve => {
 
-      (() => {
 
-        const domElement = playlist;
-        playlist = null;
-        // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
-        const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
+        let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
+        if (strcturedInfo) {
 
-        if (!tablist || tablist.nodeType !== 1) return; // checking whether it is still on the page
+          (() => {
 
-        if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
-        if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
-      })();
-    }
+            strcturedInfo.removeAttribute('hidden');
 
-    let subscribersCount = document.querySelector('#primary #below ytd-watch-metadata #owner #owner-sub-count')
 
-    if(subscribersCount){
-      if(!subscribersCount.hasAttribute('title')){
-        // assume YouTube native coding would not implement [title]
+            setTimeout(() => {
 
-        let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
-        if(ytdWatchMetaDataElm){ 
-          ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover','')
-          let _h = 0;
-          ytdWatchMetaDataElm.addEventListener('transitionend', function (evt){
-            // no css selector rule required; no delay js function call required
 
-            if (evt.propertyName === 'background-position-y') { // string comparision only
+              let e = strcturedInfo.closest('ytd-watch-flexy #tab-info ytd-expander');
 
-              // If the cursor initially stayed at the owner info area, 
-              // the mechanism will be broken
-              // so implement the true leave detection at their parent
+              if (!e) return;
+              let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
+              if (s.length === 1) {
+                let sp = s[0].parentNode
+                if (sp.nodeName.toUpperCase() === 'TP-YT-PAPER-BUTTON') {
 
-              let isHover = evt.elapsedTime < 0.03; // 50ms @normal; 10ms @hover;
-
-              let cssRoot = this; // no querySelector is required
-              if (!isHover) {
-                // 50ms is slowest than sub element leave effect
-                if(_h>0) cssRoot.classList.toggle('tabview-uploader-hover', false) // even the order is incorrect, removal of class is safe.
-                _h = 0; // in case
-              }else if(isHover){
-                // 10ms is faster than sub element hover effect
-                // no removal of class in case browser's transition implemention order is incorrect
-                _h = 0; // in case
+                  sp.click();
+                }
               }
 
-            } else if (evt.propertyName === 'background-position-x') { // string comparision only
+            }, 300)
 
-              //from one element to another element; hover effect of 2nd element transition end first.
-              // _h: 0 -> 1 -> 2 -> 1
-
-              let isHover = evt.elapsedTime < 0.03; // 40ms @normal; 20ms @hover;
-              if (isHover) _h++; else _h--;
-              let cssRoot = this; // no querySelector is required
-              if (_h <= 0) {
-                cssRoot.classList.toggle('tabview-uploader-hover', false)
-                _h = 0; // in case
-              } else if (_h === 1) {
-                cssRoot.classList.toggle('tabview-uploader-hover', true)
-              } 
-
-            }
-
-          }, capturePassive) // capture the hover effect inside the cssRoot
+          })();
         }
 
-      }
-      subscribersCount.setAttribute('title', subscribersCount.textContent); // set at every page update
-      
-    }
+
+        resolve();
+
+      }),
+
+      new Promise(resolve => {
+
+
+        // just in case the playlist is collapsed
+        let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
+        if (playlist && playlist.matches('[collapsed], [collapsible]')) {
+
+          (() => {
+
+            const domElement = playlist;
+            playlist = null;
+            // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
+            const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
+
+            if (!tablist || tablist.nodeType !== 1) return; // checking whether it is still on the page
+
+            if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
+            if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
+          })();
+        }
+
+        resolve();
+
+
+      }),
+
+      new Promise(resolve => {
+
+
+        let subscribersCount = document.querySelector('#primary #below ytd-watch-metadata #owner #owner-sub-count')
+
+        if (subscribersCount) {
+          if (!subscribersCount.hasAttribute('title')) {
+            // assume YouTube native coding would not implement [title]
+
+            let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
+            if (ytdWatchMetaDataElm) {
+              ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover', '')
+              let _h = 0;
+              ytdWatchMetaDataElm.addEventListener('transitionend', function (evt) {
+                // no css selector rule required; no delay js function call required
+
+                if (evt.propertyName === 'background-position-y') { // string comparision only
+
+                  // If the cursor initially stayed at the owner info area, 
+                  // the mechanism will be broken
+                  // so implement the true leave detection at their parent
+
+                  let isHover = evt.elapsedTime < 0.03; // 50ms @normal; 10ms @hover;
+
+                  let cssRoot = this; // no querySelector is required
+                  if (!isHover) {
+                    // 50ms is slowest than sub element leave effect
+                    if (_h > 0) cssRoot.classList.toggle('tabview-uploader-hover', false) // even the order is incorrect, removal of class is safe.
+                    _h = 0; // in case
+                  } else if (isHover) {
+                    // 10ms is faster than sub element hover effect
+                    // no removal of class in case browser's transition implemention order is incorrect
+                    _h = 0; // in case
+                  }
+
+                } else if (evt.propertyName === 'background-position-x') { // string comparision only
+
+                  //from one element to another element; hover effect of 2nd element transition end first.
+                  // _h: 0 -> 1 -> 2 -> 1
+
+                  let isHover = evt.elapsedTime < 0.03; // 40ms @normal; 20ms @hover;
+                  if (isHover) _h++; else _h--;
+                  let cssRoot = this; // no querySelector is required
+                  if (_h <= 0) {
+                    cssRoot.classList.toggle('tabview-uploader-hover', false)
+                    _h = 0; // in case
+                  } else if (_h === 1) {
+                    cssRoot.classList.toggle('tabview-uploader-hover', true)
+                  }
+
+                }
+
+              }, capturePassive) // capture the hover effect inside the cssRoot
+            }
+
+          }
+          subscribersCount.setAttribute('title', subscribersCount.textContent); // set at every page update
+
+        }
+
+      })
+
+
+    ])
 
 
 
@@ -3124,26 +3145,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         }
 
-        mtf_fix_details();
+        if (scriptEnable) {
 
-        
-        setKeywords();
+          mtf_fix_details().then(() => {
+            // setKeywords();
+            setToggleInfo();
+            setTimeout(() => {
+              dispatchWindowResize();
+              updateFloatingSlider();
+            }, 420)
+          });
 
-        setToggleInfo();
-
-        setTimeout(()=>{
-
-          dispatchWindowResize();
-          updateFloatingSlider();
-        },420)
-
-
-
+        }
 
       });
-
-
-
 
     });
 
@@ -4105,8 +4120,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let elem = document.querySelector('#primary #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
       if (elem) {
-
-
 
         elem.setAttribute('tabview-info-toggler', '')
         elem.dispatchEvent(new CustomEvent('tabview-info-toggler'))
