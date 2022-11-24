@@ -1925,7 +1925,58 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let subscribersCount = document.querySelector('#primary #below ytd-watch-metadata #owner #owner-sub-count')
 
     if(subscribersCount){
+      if(!subscribersCount.hasAttribute('title')){
+        // assume YouTube native coding would not implement [title]
+
+        let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, '#primary #below ytd-watch-metadata:not([tabview-uploader-hover])');
+        if(ytdWatchMetaDataElm){ 
+          ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover','')
+          let _h = 0;
+          ytdWatchMetaDataElm.addEventListener('transitionend', function (evt){
+            // no css selector rule required; no delay js function call required
+
+            if (evt.propertyName === 'background-position-y') { // string comparision only
+
+              // If the cursor initially stayed at the owner info area, 
+              // the mechanism will be broken
+              // so implement the true leave detection at their parent
+
+              let isHover = evt.elapsedTime < 0.03; // 50ms @normal; 10ms @hover;
+
+              let cssRoot = this; // no querySelector is required
+              if (!isHover) {
+                // 50ms is slowest than sub element leave effect
+                if(_h>0) cssRoot.classList.toggle('tabview-uploader-hover', false) // even the order is incorrect, removal of class is safe.
+                _h = 0; // in case
+              }else if(isHover){
+                // 10ms is faster than sub element hover effect
+                // no removal of class in case browser's transition implemention order is incorrect
+                _h = 0; // in case
+              }
+
+            } else if (evt.propertyName === 'background-position-x') { // string comparision only
+
+              //from one element to another element; hover effect of 2nd element transition end first.
+              // _h: 0 -> 1 -> 2 -> 1
+
+              let isHover = evt.elapsedTime < 0.03; // 40ms @normal; 20ms @hover;
+              if (isHover) _h++; else _h--;
+              let cssRoot = this; // no querySelector is required
+              if (_h <= 0) {
+                cssRoot.classList.toggle('tabview-uploader-hover', false)
+                _h = 0; // in case
+              } else if (_h === 1) {
+                cssRoot.classList.toggle('tabview-uploader-hover', true)
+              } 
+
+            }
+
+          }, capturePassive) // capture the hover effect inside the cssRoot
+        }
+
+      }
       subscribersCount.setAttribute('title', subscribersCount.textContent); // set at every page update
+      
     }
 
 
@@ -2213,6 +2264,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       setTimeout(unlock, 30)
 
     })
+
+  }
+
+  
+
+  function goYoutubeGeniusLyrics() {
+
+    setTimeout(function $f() {
+
+      if (!document.documentElement.getAttribute('tabview-unwrapjs')) return setTimeout($f, 100);
+      document.documentElement.dispatchEvent(new CustomEvent('engagement-panel-genius-lyrics'));
+
+    }, 100);
 
   }
 
@@ -2724,6 +2788,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   const pageBeingInit = function () {
+    // call regardless pageType
     if (tabsDeferred.resolved) {
       comments_loader = 1;
       tabsDeferred.reset();
@@ -2740,7 +2805,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   };
 
   const advanceFetch = async function () {
-    if (!fetchCounts.new && !fetchCounts.fetched) {
+    if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
       comments_caching(_innerCommentsLoader());
       if (!fetchCounts.new) {
         window.dispatchEvent(new Event("scroll"));
@@ -3306,17 +3371,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               bool = true;
 
               pageType = 'watch';
+              dispatchWindowResize(); // player control positioning
+              
             } else if (newPageType == 'ytd-browse') {
 
               pageType = 'browse';
             }
 
-            //if(newPageType=='ytd-browse'){
-
-            //}
             document.documentElement.classList.toggle('tabview-normal-player', bool)
 
-            dispatchWindowResize(); // player control positioning
+            
 
           }
         }
@@ -3757,7 +3821,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           console.log('#right-tabs inserted')
         }
             
-        document.documentElement.setAttribute('plugin-tabview-youtube', '')
+        
 
         const ytdFlexyElm = kRef(ytdFlexy)
         if (!ytdFlexyElm) return;
@@ -5028,32 +5092,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     //console.log('newVideoPage-', 350, location.href)
 
-
-    if (pageType === 'watch') {
-      resetBuggyLayoutForNewVideoPage();
-    }
-
-
-    advanceFetch();
-
+    
     let liveChatRenderer = null;
     let isReplay = null;
-    try {
 
+    if (pageType !== 'watch') return; // scriptEnable -> pageType shall be always 'watch'
+    resetBuggyLayoutForNewVideoPage();
+    advanceFetch();
+
+    try {
       liveChatRenderer = evt_detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
     } catch (e) { }
     if (liveChatRenderer) {
-
       if (liveChatRenderer.isReplay === true) isReplay = true;
     }
 
+    
+
     const chatBlockR = liveChatRenderer ? (isReplay ? 3 : 1) : 0
     const initialDisplayState = liveChatRenderer ? liveChatRenderer.initialDisplayState : null;
-
-
-
-
-
 
     let f = () => {
 
@@ -5065,8 +5122,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (pageType !== 'watch') return;
 
       _console.log(932, 1, 3)
-
-
 
 
       let attr_chatblock = chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false;
@@ -5304,22 +5359,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let d_page = ((evt.detail || 0).pageData || 0).page;
     if (!d_page) return;
 
+    _console.log(nodeName, 904, evt.type);
+
     //in case yt-navigate-xxx not called.
     pageBeingInit();
 
+    pageType = d_page;
+
     advanceFetch();
 
-    _console.log(nodeName, 904, evt.type);
+    document.documentElement.classList.toggle('tabview-normal-player', d_page === 'watch');
+  
+    _console.log(601, evt.detail);
 
-    pageType = d_page;
-    document.documentElement.classList.toggle('tabview-normal-player', d_page == 'watch')
-    
-
-    dispatchWindowResize(); // player control positioning
-
-
-    pageFetchedData = evt.detail
-    _console.log(601, pageFetchedData)
+    if(d_page === 'watch'){
+      dispatchWindowResize(); // player control positioning
+      pageFetchedData = evt.detail;
+    }else{
+      pageFetchedData = null;
+    }
 
     new Promise(resolve=>{
 
@@ -5630,20 +5688,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  function goYoutubeGeniusLyrics() {
-
-    setTimeout(function $f() {
-
-      if (!document.documentElement.hasAttribute('w-engagement-panel-genius-lyrics')) return setTimeout($f, 100)
-
-      document.documentElement.dispatchEvent(new CustomEvent('engagement-panel-genius-lyrics'))
-
-
-    }, 100)
-
-
-
-  }
+  document.documentElement.setAttribute('plugin-tabview-youtube', '')
 
 
   function nestedObjectFlatten(prefix, obj) {

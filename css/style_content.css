@@ -2405,7 +2405,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         --tabview-transcript-segment-span-display: block;
     }
     
-    ytd-transcript-segment-renderer yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer > span{
+    yt-formatted-string.segment-text.ytd-transcript-segment-renderer > span{
         display: var(--tabview-transcript-segment-span-display);
     }
     
@@ -2900,23 +2900,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    /* 2022/11/23 */
+    /* 2022/11/24 */
     
-    @supports (overflow-x: hidden) and (min-width: fit-content) and selector(#tag.cls:has(>#id:only-child)){
+    @supports (overflow-x: hidden) and (min-width: fit-content){
 
-
-        body #primary #below ytd-watch-metadata[modern-metapanel-order]{
+        /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
+        body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover{
             overflow-x: hidden;
         }
-        body #primary #below ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #owner.ytd-watch-metadata {
+        body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover #owner.ytd-watch-metadata {
             min-width: fit-content;
         }
-/*
-        body #primary #below ytd-watch-metadata[modern-metapanel-order]:has(#owner #upload-info:hover) #actions.ytd-watch-metadata {
-            /-*min-width: calc(20% - 6px);*-/
-            /-*transform: translateX(50%);*-/
-        }
-        */
 
     }
 
@@ -3196,7 +3190,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-
+/*
     .tabview-txt{
         --tabview-txt-display: none;
         display:var(--tabview-txt-display);
@@ -3204,6 +3198,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     [is-empty]+.tabview-txt{
         --tabview-txt-display:'-NULL-';
     }
+    */
 
 
     /* ---- v3.7.0 ---- */
@@ -3323,6 +3318,40 @@ necessary; otherwise background issue occurs for transcript panel background  (p
 
        
     }
+
+
+    /* added in 2022/11/24 */
+
+    html:has(body){
+        --tabview-has-selector-enabled: 1;
+    }
+
+    /* parent container */
+    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata{
+        background-position-y: 0px; /* no background */
+        transition: background-position-y 50ms; /* detection of hover - mouseleave */
+        transition-delay: 1ms; /* ensure effect is stably executed */
+    }
+    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata:hover{
+        background-position-y: 1px; /* no background */
+        transition-duration: 10ms; /* detection of hover - mouseenter */
+        /*transition-delay: 1ms;*/
+    }
+
+    /* sub elements */
+    #primary #below #upload-info, 
+    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href]{
+        background-position-x: 0px; /* no background */
+        transition: background-position-x 40ms; /* detection of hover - mouseleave */
+        transition-delay: 1ms; /* not counted in elapsedTime; just time delay allowing cursor moving between channel icon and channel text */
+    }
+    #primary #below #upload-info:hover, 
+    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href]:hover{
+        background-position-x: 1px; /* no background */
+        transition-duration: 20ms; /* detection of hover - mouseenter */
+        /*transition-delay: 1ms;*/
+    }
+
     
 
     

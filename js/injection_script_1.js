@@ -1152,6 +1152,8 @@ function injection_script_1() {
 
     const s6 = Symbol();
 
+    // assume initialTranscriptsRenderer is not called before ceHack()
+
 
     Object.defineProperty(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', {
       get() {
@@ -1703,7 +1705,6 @@ function injection_script_1() {
     $f();
 
   })
-  document.documentElement.setAttribute('w-engagement-panel-genius-lyrics', '')
 
 
   if(document.documentElement.hasAttribute('tabview-loaded'))ceHack();else
