@@ -3217,6 +3217,15 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
+    /* 2022/12/25 added for firefox css (rendering) bug fixing */
+    @supports (-moz-appearance:none) {
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner {
+            border: 1px solid transparent; 
+        }
+
+    }
+
     ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider:hover > div#secondary-inner,
     ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner:hover {
         /* two layout are different in size and location */
