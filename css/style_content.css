@@ -2954,6 +2954,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
         min-width: calc(40% - 6px);
+        max-width: calc(40% - 6px);
         /*transition: transform 200ms;*/
     }
 
