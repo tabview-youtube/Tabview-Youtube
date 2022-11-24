@@ -1928,7 +1928,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if(!subscribersCount.hasAttribute('title')){
         // assume YouTube native coding would not implement [title]
 
-        let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, '#primary #below ytd-watch-metadata:not([tabview-uploader-hover])');
+        let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
         if(ytdWatchMetaDataElm){ 
           ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover','')
           let _h = 0;

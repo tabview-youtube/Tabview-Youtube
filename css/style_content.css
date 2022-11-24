@@ -2905,10 +2905,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     @supports (overflow-x: hidden) and (min-width: max-content){
 
         /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
-        body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover{
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover{
             overflow-x: hidden;
         }
-        body #primary #below ytd-watch-metadata[modern-metapanel-order]:hover.tabview-uploader-hover #owner.ytd-watch-metadata {
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
             min-width: max-content;
         }
 
