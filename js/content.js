@@ -50,7 +50,7 @@
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
 
-  const DEBUG_LOG = true
+  const DEBUG_LOG = false
 
   const LAYOUT_VAILD = 1;
 
