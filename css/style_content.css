@@ -2901,15 +2901,25 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
     /* 2022/11/24 */
-    
-    @supports (overflow-x: hidden) and (min-width: max-content){
+    @supports (overflow-x: hidden) and (min-width: max-content) {
 
         /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
-        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover{
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover {
             overflow-x: hidden;
         }
+
         body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
             min-width: max-content;
+        }
+
+        body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
+            max-width: calc(50% - 6px);
+            min-width: initial;
+        }
+
+        body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
+            max-width: calc(50% - 6px);
+            min-width: initial;
         }
 
     }
@@ -2948,6 +2958,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     YouTube Bug: Darker Dark Mode forgot to consider Japanese Layout Issue
     */
     
+    /*
     body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
         min-width: calc(60% - 6px);
         transition: min-width 200ms;
@@ -2955,8 +2966,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
         min-width: calc(40% - 6px);
         max-width: calc(40% - 6px);
-        /*transition: transform 200ms;*/
     }
+    */
 
     /* 2022/11/07 - playlist no round radius */
     body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer{
