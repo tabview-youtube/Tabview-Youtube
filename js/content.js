@@ -50,7 +50,7 @@
   0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
 
 
-  const DEBUG_LOG = false
+  const DEBUG_LOG = true
 
   const LAYOUT_VAILD = 1;
 
@@ -2759,6 +2759,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  
+  function checkPlaylistForInitialization(node){
+    // if the page url is with playlist; renderer event might not occur.
+
+    if(!node) node = document.querySelector('#secondary ytd-playlist-panel-renderer.style-scope.ytd-watch-flexy');
+
+    if(!node) return;
+
+    //("yt-playlist-data-updated");
+    //yt-playlist-reloading
+    mtf_append_playlist(node);
+
+    let m_playlist = document.querySelector(`ytd-playlist-panel-renderer#playlist[tabview-true-playlist]:not([o3r-${sa_playlist}])`)
+
+    // once per {ytd-playlist-panel-renderer#playlist} detection
+
+    _console.log(3902, !!m_playlist)
+
+    let ytdFlexyElm = kRef(ytdFlexy);
+    if (!scriptEnable || !ytdFlexyElm) { }
+    else if (m_playlist) {
+
+      if (mtoVisibility_Playlist.bindElement(m_playlist)) {
+        mtoVisibility_Playlist.observer.check(9); //delay check required for browser bug - hidden changed not triggered 
+      }
+      m_playlist = null;
+
+    }
+
+    FP.mtf_attrPlaylist();
+
+  }
+
 
 
   let _foundChatFrame = () => {
@@ -2987,28 +3020,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         if (nodeName === 'YTD-PLAYLIST-PANEL-RENDERER') {
-          //("yt-playlist-data-updated");
-          //yt-playlist-reloading
-          mtf_append_playlist(node);
+          
 
-          let m_playlist = document.querySelector(`ytd-playlist-panel-renderer#playlist[tabview-true-playlist]:not([o3r-${sa_playlist}])`)
+          checkPlaylistForInitialization(node);
 
-          // once per {ytd-playlist-panel-renderer#playlist} detection
-
-          _console.log(3902, !!m_playlist)
-
-          let ytdFlexyElm = kRef(ytdFlexy);
-          if (!scriptEnable || !ytdFlexyElm) { }
-          else if (m_playlist) {
-
-            if (mtoVisibility_Playlist.bindElement(m_playlist)) {
-              mtoVisibility_Playlist.observer.check(9); //delay check required for browser bug - hidden changed not triggered 
-            }
-            m_playlist = null;
-
-          }
-
-          FP.mtf_attrPlaylist();
 
         } else if (nodeName === 'YTD-WATCH-METADATA') {
 
@@ -3148,6 +3163,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         if (scriptEnable) {
+
+          checkPlaylistForInitialization();
 
           mtf_fix_details().then(() => {
             // setKeywords();
@@ -4755,7 +4772,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (isFullScreen()) {
               _console.log(8221,16,1)
 
-              console.log(isActiveAndVisible, this)
+              //console.log(isActiveAndVisible, this)
               if (isActiveAndVisible) {
                 timeline.setTimeout(unlock, 80);
                 switchTabActivity(null);
@@ -5390,6 +5407,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if(d_page === 'watch'){
       dispatchWindowResize(); // player control positioning
       pageFetchedData = evt.detail;
+      /*
+      console.log(pageFetchedData)
+      try{
+
+        let desc1=pageFetchedData.pageData.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.description;
+
+
+        let desc2=pageFetchedData.pageData.response.engagementPanels[2].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[1].expandableVideoDescriptionBodyRenderer.descriptionBodyText;
+
+        
+        console.log(desc1===desc2, JSON.stringify(desc1),JSON.stringify(desc2), desc1, desc2)
+
+
+      }catch(e){}
+      */
     }else{
       pageFetchedData = null;
     }
