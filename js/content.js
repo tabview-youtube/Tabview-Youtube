@@ -2864,7 +2864,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (cNodeA !== null && cNodeB !== null) {
         let isEqual;
         if(cNodeA.nodeType===1 && cNodeB.nodeType===1){
-          let m = await isChildNodesEqual(cNodeA, cNodeB);
+          let m = await isChildElementNodesEqual(cNodeA, cNodeB);
           isEqual = m.res;
         }else{
           await Promise.resolve(0);
@@ -3088,7 +3088,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       //console.log(entries)
 
       let bool = entries.length > 0 ? (
-        (entries[0].isIntersecting === isStickyHeaderEnabled)  // intersecting = isStickyHeaderEnabled = true / false
+        (entries[0].isIntersecting === isStickyHeaderEnabled) // intersecting = isStickyHeaderEnabled = true / false
       ) : false;
 
       if (bool) {
@@ -5030,13 +5030,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         break;
       case 'tyt-chat':
         attrElm = kRef(ytdFlexy);
-        let vv = attrElm.getAttribute('tyt-chat');
-        let iscollapsed = vv!==null && vv.charAt(0)==='-';
+        v = attrElm.getAttribute('tyt-chat');
 
-        if (iscollapsed) {
+        if (v !== null && v.charAt(0) === '-') {
           nls = flexyAttr_toggleFlag(nls, true, LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED);
         } else {
-          nls = flexyAttr_toggleFlag(nls, vv!==null, LAYOUT_CHATROOM);
+          nls = flexyAttr_toggleFlag(nls, v !== null, LAYOUT_CHATROOM);
           nls = flexyAttr_toggleFlag(nls, false, LAYOUT_CHATROOM_COLLAPSED);
         }
 
