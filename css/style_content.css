@@ -3509,7 +3509,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 @media all and (display-mode: fullscreen) {
 
-    @supports (content-visibility: hidden) {
+    @supports (display:none) {
         
         /* repeated info hidden */
 
@@ -3558,17 +3558,19 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 @media not all and (display-mode: fullscreen) {
 
-    @supports (content-visibility: hidden) {
+    @supports (display:none) {
 
         
         /* repeated info hidden */
 
         ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata>yt-attributed-string.ytd-text-inline-expander ~ yt-formatted-string.ytd-text-inline-expander {
             content-visibility: hidden;
+            display:none
         }
 
         ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
             content-visibility: hidden;
+            display:none
         }
 
 
@@ -3587,6 +3589,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
             content-visibility: hidden;
+            display:none
         }
 
         /*
@@ -3835,7 +3838,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 2022/11/06 - hide new layout repeated info */
 
-    @supports (content-visibility: hidden) {
+    @supports (display:none) {
 
         /* repeated info hidden */
 
