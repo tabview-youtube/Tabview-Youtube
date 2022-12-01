@@ -5177,13 +5177,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       } else if (mutation.attributeName === 'is-extra-wide-video_') {
         setTimeout(() => {
-          let elmA = document.querySelector('tabview-column-pos');
-          let elmAP = elmA.parentNode;
-          let elmAB = elmA.nextSibling;
-          elmA.remove();
-          elmAP.insertBefore(elmA, elmAB);
-          dispatchWindowResize(); //required for hover slider // eg video after ads
-        }, 130);
+          updateFloatingSlider();  //required for hover slider // eg video after ads
+        }, 1);
       }
     }
 
@@ -6424,13 +6419,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         singleColumnScrolling(true)
       })
 
-    }else{
-
-      if(!isTrusted) return;
+    }else if(isTrusted) {
 
       updateFloatingSlider();
-
-
 
     }
 
