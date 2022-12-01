@@ -3932,6 +3932,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           setToggleInfo();
           setTimeout(() => {
             //dispatchWindowResize(); //try to omit
+            dispatchWindowResize(); //add once for safe
             updateFloatingSlider();
           }, 420)
 
