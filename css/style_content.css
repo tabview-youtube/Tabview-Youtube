@@ -1,5 +1,3 @@
-
-
 /* reference dimension */
 
 /* --ytd-watch-flexy-panel-max-height: 549px */
@@ -70,75 +68,299 @@ html:not(.style-scope) {
 
 
 
-    ytd-watch-flexy{
+ytd-watch-flexy {
 
-        --tabview-youtube-tabbtn-height: 46px;
-    
-        --tabview-ytd-toggle-button-height: 32px;
-    
+    --tabview-youtube-tabbtn-height: 46px;
+
+    --tabview-ytd-toggle-button-height: 32px;
+
     /* custom size for meta-contents */
-        --meta-contents-default-height-outer: 30px;
-        --userscript-meta-default-outline-thickness: 1px;
-        --meta-contents-padding-vertical: 4px;
-        --meta-contents-default-height-inner:calc(var(--meta-contents-default-height-outer) - var(--meta-contents-padding-vertical) * 2);
-    
+    --meta-contents-default-height-outer: 30px;
+    --userscript-meta-default-outline-thickness: 1px;
+    --meta-contents-padding-vertical: 4px;
+    --meta-contents-default-height-inner: calc(var(--meta-contents-default-height-outer) - var(--meta-contents-padding-vertical) * 2);
+
     /* recalculation of right-tab height */
-        --userscript-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
-        --userscript-below-height: calc(100vh - var(--userscript-top-bar-height) - var(--ytd-watch-flexy-panel-max-height) );
-        --userscript-h1:calc(var(--ytd-watch-flexy-panel-max-height) + var(--userscript-below-height));
-        --userscript-h-tab-btn:var(--tabview-youtube-tabbtn-height);
-        --userscript-h2:calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
-        --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
+    --userscript-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
+    --userscript-below-height: calc(100vh - var(--userscript-top-bar-height) - var(--ytd-watch-flexy-panel-max-height));
+    --userscript-h1: calc(var(--ytd-watch-flexy-panel-max-height) + var(--userscript-below-height));
+    --userscript-h-tab-btn: var(--tabview-youtube-tabbtn-height);
+    --userscript-h2: calc(var(--userscript-h1) - var(--userscript-h-tab-btn) - var(--ytd-margin-6x));
+    --userscript-base-height: calc(var(--userscript-h2) - var(--ytd-margin-6x));
 
-        --userscript-zoom-info: var(--ut2257-info, 1.00);
-        --userscript-zoom-comments: var(--ut2257-comments, 1.00);
-        --userscript-zoom-videos: var(--ut2257-videos, 1.00);
-        --userscript-zoom-list: var(--ut2257-list, 1.00);
+    --userscript-zoom-info: var(--ut2257-info, 1.00);
+    --userscript-zoom-comments: var(--ut2257-comments, 1.00);
+    --userscript-zoom-videos: var(--ut2257-videos, 1.00);
+    --userscript-zoom-list: var(--ut2257-list, 1.00);
 
-        
-    
+
+
+}
+
+
+
+
+
+/* << animationstart */
+
+
+
+
+
+
+
+
+/*
+
+@keyframes wsn1 {
+
+    0% {
+        background-position-x: 1px;
     }
-    
-    
-      
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    .font-size-right{
+
+    100% {
+        background-position-x: 2px;
+
+    }
+}
+ytd-watch-next-secondary-results-renderer{
+    animation: wsn1 1ms;
+}
+@keyframes wsn2 {
+
+    0% {
+        background-position-x: 3px;
+    }
+
+    100% {
+        background-position-x: 4px;
+
+    }
+}
+#tab-videos > #related > ytd-watch-next-secondary-results-renderer{
+    animation: wsn2 1ms;
+}
+tyt-videos-pos-relocated{
+    width:0px;
+    height:0px;
+    display:flex;
+    pointer-events: none !important;
+    user-select: none !important;
+    position: absolute;
+    animation: wsn1 1ms;
+}
+
+#tab-videos > #related > ytd-watch-next-secondary-results-renderer + tyt-videos-pos-relocated{
+    animation: wsn2 1ms;
+}
+
+
+
+*/
+
+@keyframes liveChatFrameDOMAppended {
+
+    0% {
+        background-position-x: 3px;
+    }
+
+    100% {
+        background-position-x: 4px;
+
+    }
+}
+
+ytd-live-chat-frame#chat{
+    animation: liveChatFrameDOMAppended 1ms linear 0s 1 normal forwards;
+}
+
+
+@keyframes chatFrameToggleBtnAppended1 {
+
+    0% {
+        background-position-x: 1px;
+    }
+
+    100% {
+        background-position-x: 2px;
+
+    }
+}
+
+
+@keyframes chatFrameToggleBtnAppended2 {
+
+    0% {
+        background-position-x: 3px;
+    }
+
+    100% {
+        background-position-x: 4px;
+
+    }
+}
+
+ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button{
+    animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
+}
+
+ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:first-child{
+    animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
+
+}
+
+
+
+@keyframes commentsSectionAppended {
+
+    0% {
+        background-position-x: 3px;
+    }
+
+    100% {
+        background-position-x: 4px;
+
+    }
+}
+
+ytd-item-section-renderer#sections.style-scope.ytd-comments{
+    animation: commentsSectionAppended 1ms linear 0s 1 normal forwards;
+}
+
+
+
+@keyframes commentsHeaderAppended1 {
+
+    0% {
+        background-position-x: 3px;
+    }
+
+    100% {
+        background-position-x: 4px;
+
+    }
+}
+
+
+@keyframes commentsHeaderAppended2 {
+
+    0% {
+        background-position-x: 5px;
+    }
+
+    100% {
+        background-position-x: 6px;
+
+    }
+}
+
+
+ytd-item-section-renderer#sections.ytd-comments > #header > ytd-comments-header-renderer:not(.tyt-ani){
+    animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
+}
+
+
+ytd-item-section-renderer#sections.ytd-comments > #header > ytd-comments-header-renderer.tyt-ani{
+    animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
+}
+
+
+@media all and (display-mode: fullscreen) {
+    tabview-tab-expander{
+        display: none;
+    }
+}
+
+
+tabview-column-pos {
+
+    position: relative;
+    /* top: 0; */
+    /* left: 0; */
+    /* right: 0; */
+    width: 0;
+    height: 0;
+    /* background: red; */
+    /* z-index: 99999; */
+    display: flex;
+    /* opacity: 1; */
+    top: 0;
+    contain: strict;
+    pointer-events: none !important;
+    user-select: none !important;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+tabview-videos-end-pos {
+
+    display: var(--tabview-videos-end-pos-display, none);
+
+    position: absolute;
+    width: 0;
+    height: 0;
+
+    contain: strict;
+    pointer-events: none !important;
+    user-select: none !important;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+
+    margin-top: -30vh;
+
+}
+
+ytd-watch-flexy[tyt-tab="#tab-videos"] #tab-videos.tab-content-cld {
+    --tabview-videos-end-pos-display: flex;
+}
+
+body ytd-watch-flexy[flexy][is-two-columns_] #tab-videos.tab-content-cld {
+    --tabview-videos-end-pos-display: none;
+}
+
+body ytd-watch-flexy #tab-videos.tab-content-cld.tab-content-hidden {
+    --tabview-videos-end-pos-display: none;
+}
+
+
+
+
+
+
+
+/* animationstart >> */
+
+
+
+
+
+
+@media all {
+
+
+    .font-size-right {
         display: inline-flex;
         flex-direction: column;
         position: absolute;
-        right:0;
-        top:0;
-        bottom:0;
-        width:16px;
-        padding:4px 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: 16px;
+        padding: 4px 0;
         justify-content: space-evenly;
         align-content: space-evenly;
-    } 
+    }
 
-    html body ytd-watch-flexy.style-scope .font-size-btn{
+    html body ytd-watch-flexy.style-scope .font-size-btn {
         user-select: none !important;
     }
-    
+
     .tab-btn .font-size-btn {
         display: none;
     }
+
     .tab-btn.active:hover .font-size-btn {
         display: inline-block;
     }
@@ -151,28 +373,29 @@ html:not(.style-scope) {
         box-sizing: border-box;
         cursor: pointer;
         transform-origin: left top;
-        margin:0;
+        margin: 0;
         padding: 0;
-        position:relative;
+        position: relative;
         display: inline-block;
         font-family: 'Menlo', 'Lucida Console', 'Monaco', 'Consolas', monospace;
         line-height: 100%;
         font-weight: 900;
         transition: background-color 90ms linear, color 90ms linear;
-      }
-      
-      .font-size-btn:hover {
+    }
+
+    .font-size-btn:hover {
         background-color: var(--yt-spec-text-primary);
         color: var(--yt-spec-general-background-a);
-      }
+    }
 
 
-    
-    
+
+
     /* align scrollbar style */
     [userscript-scrollbar-render]::-webkit-scrollbar {
         width: 16px;
     }
+
     [userscript-scrollbar-render]::-webkit-scrollbar-thumb {
         height: 56px;
         border-radius: 8px;
@@ -180,56 +403,63 @@ html:not(.style-scope) {
         background-clip: content-box;
         background-color: var(--yt-spec-text-secondary);
     }
+
     /* Colorize the scroll bar (chrome, safari, edge) */
     [userscript-scrollbar-render]::-webkit-scrollbar-thumb {
         background-color: var(--paper-checkbox-unchecked-color) !important;
     }
+
     [userscript-scrollbar-render]::-webkit-scrollbar-thumb:hover {
         background-color: var(--paper-checkbox-checked-color) !important;
     }
+
     [userscript-scrollbar-render]::-webkit-scrollbar-corner {
         background-color: transparent;
     }
-    
-    
-    
-    
+
+
+
+
     /* align scrollbar style */
-    [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar {
+    [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar {
         width: 16px;
     }
-    [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb {
+
+    [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar-thumb {
         height: 56px;
         border-radius: 8px;
         border: 4px solid transparent;
         background-clip: content-box;
         background-color: var(--yt-spec-text-secondary);
     }
+
     /* Colorize the scroll bar (chrome, safari, edge) */
-    [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb{
+    [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar-thumb {
         background-color: var(--paper-checkbox-unchecked-color) !important;
     }
-    [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-thumb:hover{
+
+    [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar-thumb:hover {
         background-color: var(--paper-checkbox-checked-color) !important;
     }
-    
-    [userscript-scrollbar-render] > *:only-child::-webkit-scrollbar-corner {
+
+    [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar-corner {
         background-color: transparent;
     }
-    
-    
-    
-    
+
+
+
+
     /*   == for Teaser UI ==  */
 
-    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy{
+    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
         flex-shrink: 0;
     }
-    
+
     /* align scrollbar style */
     ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar {
         width: 16px;
     }
+
     ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-thumb {
         height: 56px;
         border-radius: 8px;
@@ -237,302 +467,122 @@ html:not(.style-scope) {
         background-clip: content-box;
         background-color: var(--yt-spec-text-secondary);
     }
+
     /* Colorize the scroll bar (chrome, safari, edge) */
-    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-thumb{
+    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-thumb {
         background-color: var(--paper-checkbox-unchecked-color) !important;
     }
-    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-thumb:hover{
+
+    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-thumb:hover {
         background-color: var(--paper-checkbox-checked-color) !important;
     }
+
     ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy::-webkit-scrollbar-corner {
         background-color: transparent;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* Global */
-    
-    
-    #columns > yt-img-shadow, #columns > img{
+
+
+    #columns>yt-img-shadow,
+    #columns>img {
         position: absolute;
         z-index: -1;
         visibility: collapse;
         contain: strict;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    ytd-watch-flexy #right-tabs{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ytd-watch-flexy #right-tabs {
         display: block;
         padding: 0;
         margin: 0;
     }
-    
-    
-    
-    
-    body ytd-sentiment-bar-renderer{
+
+    body ytd-sentiment-bar-renderer {
         padding-top: 2px;
         padding-bottom: 0;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    /* removed the old info styling since 2022/11/06 */
-
-    /*
-    
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
-        margin-left: calc(5% + var(--userscript-meta-default-outline-thickness));
-        margin-right: calc(5% + var(--userscript-meta-default-outline-thickness));
-        width: calc(90% - var(--userscript-meta-default-outline-thickness) * 2);
-    
-        --box-shadow-thickness-1: var(--userscript-meta-default-outline-thickness);
-        --box-shadow-thickness-2: var(--box-shadow-thickness-1) var(--box-shadow-thickness-1);
-        box-shadow:0 0 var(--box-shadow-thickness-2) var(--ytd-searchbox-border-color, rgba(0,0,0,0.22));
-    
-    }
-     
-    
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents{
-        --border-radius-2t: var(--border-radius-1t) var(--border-radius-1t);
-        --border-radius-2b: var(--border-radius-1b) var(--border-radius-1b);
-    }
-    
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
-        --border-radius-1t: var(--ytd-margin-2x);
-        --border-radius-1b: calc(var(--border-radius-1t)*0.6);
-    }
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover{
-        --border-radius-1t: var(--ytd-margin-3x);
-        --border-radius-1b: calc(var(--border-radius-1t)*0.6);
-    }
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:hover::before{
-        content: "\00a0";
-        display: block;
-        position: absolute;
-        left: -18px;
-        right: -18px;
-        top: -12px;
-        bottom: 0px;
-        background-color: inherit;
-        border-radius: inherit;
-        opacity: 0;
-        z-index: -1;
-    }
-    ytd-watch-flexy[flexy][is-two-columns_] #primary #info ~ #meta #meta-contents{
-        border-radius: var(--border-radius-2t) var(--border-radius-2b);
-    }
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #primary #info ~ #meta #meta-contents{
-        border-radius: var(--border-radius-2t) var(--border-radius-2b);
-    }
-    ytd-watch-flexy[flexy] #primary #info ~ #meta #meta-contents:not(:hover){
-        height: calc(var(--meta-contents-default-height-outer)); 
-        overflow: hidden;
-    }
-    
-    
-    
-    // ytd-watch-flexy #primary #info ~ #meta 
-    
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents{
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        box-sizing: border-box;
-        border:1px solid transparent;
-        border-color: var(--ytd-searchbox-legacy-button-focus-color);
-        color:var(--yt-spec-text-primary);
-        text-transform: var(--yt-button-text-transform, inherit);
-        background-color: var(--yt-spec-general-background-b);
-        opacity: 1; 
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:hover ytd-video-secondary-info-renderer{
-        padding: 0 var(--ytd-margin-6x);
-    }
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents ytd-video-secondary-info-renderer{
-        border-bottom: 0;
-        padding: 0;
-        margin: 0;
-    }
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover){
-        height: auto;
-        padding: 0;
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) *{
-        padding: 0;
-        margin: 0;
-        vertical-align: middle;
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row{
-        padding: var(--meta-contents-padding-vertical);  
-        
-        // just ensure nowrap for (non-hover meta-content)'s flex layout 
-        flex-wrap: nowrap;
-        zoom: 0.95;
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #top-row ytd-video-owner-renderer > *{
-        align-self: center;
-    }
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-icon-button#button{
-        --yt-button-icon-size: var(--meta-contents-default-height-inner);
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar{
-        height: var(--meta-contents-default-height-inner);
-        width: var(--meta-contents-default-height-inner);
-        margin: 0px var(--ytd-margin-2x);
-        vertical-align: middle;
-    }
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) ytd-subscribe-button-renderer{
-        align-items: center;
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar:not([loaded]){
-        opacity: 0;
-    }
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) yt-img-shadow#avatar img{
-        height: var(--meta-contents-default-height-inner);
-        width: var(--meta-contents-default-height-inner);
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents yt-img-shadow#avatar[loaded]{
-        box-shadow:0 0px 2px 2px var(--ytd-searchbox-border-color, rgba(0,0,0,0.22))
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) #owner-sub-count{
-        display: none;
-    }
-    
-    // show button with smaller size (non-hover meta-content) -> (badge icon) 
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button{
-        height: calc( var(--meta-contents-default-height-inner) );
-        margin: 0px var(--ytd-margin-2x);
-        padding: 10px 0;
-        zoom: 0.9;
-    }
-    // margin for (non-hover meta-content) -> (badge icon)
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) ytd-badge-supported-renderer{
-        margin: 0px var(--ytd-margin-2x);
-    }
-    // vertical center for (non-hover meta-content)'s (button text) 
-    ytd-watch-flexy #primary #info ~ #meta #meta-contents:not(:hover) tp-yt-paper-button yt-formatted-string{
-        line-height: 100%;
-    }
-
-    
-    ytd-watch-flexy[flexy] #primary #info > #info-contents > ytd-video-primary-info-renderer {
-       border-bottom-color: transparent;
-    }
-    
-    ytd-watch-flexy[flexy] #primary #info ~ #meta{
-        position: relative;
-        height: calc(var(--meta-contents-default-height-outer)); 
-        min-height: calc(var(--meta-contents-default-height-outer));  // under flex 
-    }
-    
-    ytd-watch-flexy #primary #info ~ #meta ytd-expander{
-        display: none;
-    }
 
 
-    */
-    
     ytd-watch-flexy[is-two-columns_] #chat.ytd-watch-flexy,
-    ytd-watch-flexy:not([is-two-columns_]) #chat.ytd-watch-flexy{
+    ytd-watch-flexy:not([is-two-columns_]) #chat.ytd-watch-flexy {
         margin-bottom: 0;
     }
-    
-    ytd-watch-flexy[is-two-columns_][userscript-chatblock] #right-tabs,
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs{
+
+    ytd-watch-flexy[is-two-columns_][tyt-chat] #right-tabs,
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs {
         margin-top: var(--ytd-margin-2x);
     }
 
-    
-    #right-tabs #material-tabs{
+
+    #right-tabs #material-tabs {
         position: relative;
         display: flex;
-        padding: 0; 
+        padding: 0;
         /*outline: 1px solid var(--userscript-border-color);*/
         outline: 1px solid var(--ytd-searchbox-legacy-border-color);
     }
-/*
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] #material-tabs{
-        outline:0;
-    }    */
-    
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs #material-tabs{
-        outline:0;
-    }   
 
-    #right-tabs{
-        /*--userscript-border-color: var(--yt-spec-10-percent-layer);*/
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs #material-tabs {
+        outline: 0;
     }
-     
-    
-    
+
     /* give background color; otherwise it will be transparent in dark mode, single column*/
-    ytd-watch-flexy #right-tabs .tab-btn{
-        background:var(--yt-spec-general-background-a);
+    ytd-watch-flexy #right-tabs .tab-btn {
+        background: var(--yt-spec-general-background-a);
     }
-    
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]{
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] {
         flex: 1;
         position: relative;
         display: inline-block;
         text-decoration: none;
         text-transform: uppercase;
-        color:var(--yt-spec-text-secondary);
+        color: var(--yt-spec-text-secondary);
         text-align: center;
         padding: 14px 2px 10px 2px;
         border: 0;
@@ -545,19 +595,19 @@ html:not(.style-scope) {
         background-color: var(--ytd-searchbox-legacy-button-color);
         text-transform: var(--yt-button-text-transform, inherit);
         user-select: none !important;
-    
+
         overflow: hidden;
         white-space: nowrap;
         /*text-overflow: ellipsis;*/
         text-overflow: clip;
 
-    
+
     }
-    
-    
+
+
     /* .tab-btn[userscript-tab-content] */
-    
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]>svg{
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]>svg {
         height: 18px;
         padding-right: 4px;
         vertical-align: bottom;
@@ -568,51 +618,54 @@ html:not(.style-scope) {
         stroke: var(--iron-icon-stroke-color, none);
     }
 
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] svg{
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] svg {
         pointer-events: none;
     }
 
 
 
 
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active{
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active {
         font-weight: 500;
         outline: 0;
-        color:var(--yt-spec-text-primary);
+        color: var(--yt-spec-text-primary);
         background-color: var(--ytd-searchbox-legacy-button-focus-color);
         border-bottom: 4px #ff4533 solid;
         border-bottom-color: var(--yt-brand-light-red);
     }
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active svg{
-        opacity:.9 
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].active svg {
+        opacity: .9
     }
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover{
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover {
         background-color: var(--ytd-searchbox-legacy-button-hover-color);
-        color:var(--yt-spec-text-primary);
+        color: var(--yt-spec-text-primary);
     }
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover svg{
-        opacity:.9 
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]:not(.active):hover svg {
+        opacity: .9
     }
-    
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content]{
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content] {
         user-select: none !important;
     }
-    
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden{
+
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content].tab-btn-hidden {
         display: none;
     }
 
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"], 
-    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"]:hover{
-        color: var(--yt-spec-icon-disabled);        
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"],
+    ytd-watch-flexy #right-tabs .tab-btn[userscript-tab-content="#tab-comments"][loaded-comment="message"]:hover {
+        color: var(--yt-spec-icon-disabled);
     }
-    
-    
-    
-    
-     
-    
-    ytd-watch-flexy #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
+
+
+
+
+
+
+    ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
         display: inline-block;
         width: 4em;
         text-align: left;
@@ -621,50 +674,46 @@ html:not(.style-scope) {
         transform: scaleX(0.8);
     }
 
-    ytd-watch-flexy{
+    ytd-watch-flexy {
         --userscript-loading-content-letter-spacing: 2px;
     }
 
 
-    html{   
-        --tabview-text-loading:"Loading";
-        --tabview-text-fetching:"Fetching";
-    }
-    
-    html[lang|="ja"][lang^="ja"]{   
-        --tabview-text-loading:"読み込み中..";
-        --tabview-text-fetching:"フェッチ..";
-    }
-    
-    html[lang|="ko"][lang^="ko"]{   
-        --tabview-text-loading:"로딩..";
-        --tabview-text-fetching:"가져오기..";
+    html {
+        --tabview-text-loading: "Loading";
+        --tabview-text-fetching: "Fetching";
     }
 
-    html[lang|="zh-Hant"][lang^="zh-Hant"]{   
-        --tabview-text-loading:"加載中";
-        --tabview-text-fetching:"抓取中";
+    html[lang|="ja"][lang^="ja"] {
+        --tabview-text-loading: "読み込み中..";
+        --tabview-text-fetching: "フェッチ..";
     }
-    html[lang|="zh-Hans"][lang^="zh-Hans"]{   
-        --tabview-text-loading:"加载中";
-        --tabview-text-fetching:"抓取中";
+
+    html[lang|="ko"][lang^="ko"] {
+        --tabview-text-loading: "로딩..";
+        --tabview-text-fetching: "가져오기..";
     }
-    
 
-     
+    html[lang|="zh-Hant"][lang^="zh-Hant"] {
+        --tabview-text-loading: "加載中";
+        --tabview-text-fetching: "抓取中";
+    }
 
-    ytd-watch-flexy[tabview-youtube-comments^="-"] #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
+    html[lang|="zh-Hans"][lang^="zh-Hans"] {
+        --tabview-text-loading: "加载中";
+        --tabview-text-fetching: "抓取中";
+    }
+
+
+
+
+    ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
         content: var(--tabview-text-loading);
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
-    
-    ytd-watch-flexy:not([tabview-youtube-comments^="-"]) #right-tabs .tab-btn span#tab3-txt-loader:empty::after{
-        content: var(--tabview-text-fetching);
-        letter-spacing: var(--userscript-loading-content-letter-spacing);
-    }
-    
-    
-    ytd-watch-flexy #right-tabs .tab-content{
+
+
+    ytd-watch-flexy #right-tabs .tab-content {
         padding: 0;
         box-sizing: border-box;
         display: block;
@@ -677,21 +726,21 @@ html:not(.style-scope) {
         flex-direction: row;
         overflow: hidden;
     }
-    
-    
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content{
+
+
+    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content {
         height: var(--userscript-tab-content-height);
         contain: size layout paint;
     }
 
 
 
-    
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content{
+
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content {
         height: 100%;
     }
 
-    ytd-watch-flexy #right-tabs .tab-content-cld{
+    ytd-watch-flexy #right-tabs .tab-content-cld {
         box-sizing: border-box;
         position: relative;
         display: block;
@@ -700,42 +749,47 @@ html:not(.style-scope) {
         --tab-content-padding: var(--ytd-margin-4x);
         padding: var(--tab-content-padding);
         contain: layout paint;
-        
-    } 
 
-    .tab-content-cld, #right-tabs, .tab-content{
+    }
+
+    .tab-content-cld,
+    #right-tabs,
+    .tab-content {
         transition: none;
         animation: none;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld{
-        height:100%;
-        width:100%;
-         contain: size layout paint style;
+
+    ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content-cld {
+        height: 100%;
+        width: 100%;
+        contain: size layout paint style;
         position: absolute;
     }
-    
-    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden{
+
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden {
         display: none;
-        width:100%; /* width fix */
+        width: 100%;
+        /* width fix */
         contain: size layout paint style;
     }
-    
-    ytd-watch-flexy[tabview-youtube-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
+
+    ytd-watch-flexy[tyt-comments*="K"] #right-tabs .tab-content-cld.tab-content-hidden#tab-comments {
         display: block;
         position: absolute;
         /*
         content-visibility: hidden;
         */
-        opacity:0;
-       z-index:-1 !important; /* 2022.04.25 - Edge 100 */
-        content-visibility: auto; /* 2022.04.25 - Edge 100 */
+        opacity: 0;
+        z-index: -1 !important;
+        /* 2022.04.25 - Edge 100 */
+        content-visibility: auto;
+        /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
 
     /* <-- 2022/11/12 fix for single column mode */
-    
-    ytd-watch-flexy[tabview-youtube-comments*="K"]:not([is-two-columns_]) #right-tabs .tab-content-cld.tab-content-hidden#tab-comments{
+
+    ytd-watch-flexy[tyt-comments*="K"]:not([is-two-columns_]) #right-tabs .tab-content-cld.tab-content-hidden#tab-comments {
         position: fixed;
         top: 4vh;
         left: 0;
@@ -744,101 +798,117 @@ html:not(.style-scope) {
 
     /* 2022/11/12 fix for single column mode --> */
 
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld.tab-content-hidden#tab-list{
+
+    ytd-watch-flexy[is-two-columns_][tyt-tab=""] #right-tabs .tab-content {
+        display: none;
+        contain: strict;
+        width: 100%;
+        /* to allow comments loading */
+    }
+
+    ytd-watch-flexy[is-two-columns_][tyt-tab=""][tyt-comments*="K"] #right-tabs .tab-content {
         display: block;
         position: absolute;
         opacity: 0;
-        content-visibility: hidden;
+        z-index: -1 !important;
+        /* 2022.04.25 - Edge 100 */
+        content-visibility: auto;
+        /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
 
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""] #right-tabs .tab-content{
+    ytd-watch-flexy[tyt-tab=""] #right-tabs .tab-content-cld {
         display: none;
         contain: strict;
-        width:100%; /* to allow comments loading */
-    }
-    ytd-watch-flexy[is-two-columns_][tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content{
-        display: block;
-        position: absolute;
-        opacity:0;
-       z-index:-1 !important; /* 2022.04.25 - Edge 100 */
-        content-visibility: auto; /* 2022.04.25 - Edge 100 */
-        pointer-events: none;
+        width: 100%;
+        /* to allow comments loading */
+        /*experimental*/
     }
 
-    ytd-watch-flexy[tabview-selection=""] #right-tabs .tab-content-cld{
-        display: none;
-        contain: strict;
-        width:100%; /* to allow comments loading */ /*experimental*/
-    }
-    ytd-watch-flexy[tabview-selection=""][tabview-youtube-comments*="K"] #right-tabs .tab-content-cld#tab-comments{
+    ytd-watch-flexy[tyt-tab=""][tyt-comments*="K"] #right-tabs .tab-content-cld#tab-comments {
         display: block;
         position: absolute;
         /*
         content-visibility: hidden;
         */
-        opacity:0;
-       z-index:-1 !important; /* 2022.04.25 - Edge 100 */
-        content-visibility: auto; /* 2022.04.25 - Edge 100 */
+        opacity: 0;
+        z-index: -1 !important;
+        /* 2022.04.25 - Edge 100 */
+        content-visibility: auto;
+        /* 2022.04.25 - Edge 100 */
         pointer-events: none;
     }
-    ytd-watch-flexy[tabview-youtube-playlist^="-"] #right-tabs .tab-content-cld#tab-list{
+
+    ytd-watch-flexy:not([playlist]) #right-tabs .tab-content-cld.tab-content-hidden#tab-list,
+    ytd-watch-flexy:not([playlist]) #right-tabs .tab-content-cld#tab-list {
         display: block;
         position: absolute;
         opacity: 0;
         content-visibility: hidden;
         pointer-events: none;
     }
-     
-    
-    ytd-watch-flexy #right-tabs .tab-content-cld#tab-list{
+
+
+    ytd-watch-flexy #right-tabs .tab-content-cld#tab-list {
         --tab-content-padding: 0px;
-        overflow: hidden; /* avoid double scroll */
+        overflow: hidden;
+        /* avoid double scroll */
     }
-    
-    ytd-watch-flexy #right-tabs .tab-content-cld#tab-videos [placeholder-videos]{
+
+    ytd-watch-flexy #right-tabs .tab-content-cld#tab-videos [placeholder-videos] {
         --tab-content-padding: var(--ytd-margin-2x);
     }
-    
-    
-    
 
-    
+}
 
-    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content > .tab-content-cld:not(.tab-content-hidden){
+
+
+
+
+@media not all and (display-mode: fullscreen) {
+
+
+
+
+    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content>.tab-content-cld:not(.tab-content-hidden) {
         min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--tabview-youtube-tabbtn-height) - var(--ytd-margin-3x));
     }
-           
- 
 
+
+}
+
+
+
+
+@media all {
 
 
     /* too many space at the right */
     ytd-watch-flexy #tab-comments,
-    ytd-watch-flexy #tab-videos [placeholder-videos]
-    {
+    ytd-watch-flexy #tab-videos [placeholder-videos] {
         padding-right: 4px;
     }
-    
+
     /* fix the rendering block overflow x problem */
-    ytd-watch-flexy #tab-videos ytd-compact-video-renderer yt-interaction.extended{
+    ytd-watch-flexy #tab-videos ytd-compact-video-renderer yt-interaction.extended {
         max-width: 100%;
     }
 
-    
-    
-    
-    
-    ytd-live-chat-frame#chat:not([collapsed]) > .ytd-live-chat-frame#show-hide-button:first-child{
+
+
+
+
+    ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
         border-bottom: 1px solid var(--yt-spec-10-percent-layer);
         box-sizing: border-box;
-        border-bottom-color: var(--yt-spec-general-background-a); /* css fix to background loading */
+        border-bottom-color: var(--yt-spec-general-background-a);
+        /* css fix to background loading */
     }
-    
-     /* double .ytd-watch-flexy is Youtube Coding Bug */
-    body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy, 
+
+    /* double .ytd-watch-flexy is Youtube Coding Bug */
+    body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
     body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
-    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy, 
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
     body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
         --userscript-chat-max-height: calc(var(--userscript-base-height) - 20px);
         height: var(--userscript-chat-max-height);
@@ -846,93 +916,119 @@ html:not(.style-scope) {
     }
 
 
-     /* double .ytd-watch-flexy is Youtube Coding Bug */
-     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
-    
-        --userscript-chat-max-height: var(--userscript-chatroom-height); /* not override if value not set */
-    
-    }
-    /*dy ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-*/
-    
+    /* double .ytd-watch-flexy is Youtube Coding Bug */
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
 
+        --userscript-chat-max-height: var(--userscript-chatroom-height);
+        /* not override if value not set */
+
+    }
+
+    /*dy ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-*/
+
+}
+
+
+
+@media all and (display-mode: fullscreen) {
+  
     /* 2022/11/07 */
-    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
+    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
         --userscript-chat-max-height: calc(100vh - 40px - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x));
     }
-    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy{
-        --userscript-chat-max-height: calc( 100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x) );
+
+    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
+        --userscript-chat-max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x));
     }
-    
-    
-    
-    ytd-watch-flexy[is-two-columns_][userscript-chatblock]{
+
+}
+
+
+@media all {
+
+
+    ytd-watch-flexy[is-two-columns_][tyt-chat] {
         --userscript-tab-content-vertical-offset: 42px;
     }
-    
-    ytd-watch-flexy[is-two-columns_]{
+
+    ytd-watch-flexy[is-two-columns_] {
         --userscript-tab-content-height: calc(var(--userscript-base-height) - var(--userscript-tab-content-vertical-offset, 0px));
     }
 
+}
+
+
+
+@media all and (display-mode: fullscreen) {
+
     /* 2022/11/07 */
-    ytd-watch-flexy[is-two-columns_][fullscreen]{
+    ytd-watch-flexy[is-two-columns_][fullscreen] {
         --userscript-tab-content-height: calc(var(--userscript-base-height) - var(--userscript-tab-content-vertical-offset, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x));
     }
-    
-    ytd-watch-flexy[is-two-columns_][userscript-chatblock]:not([userscript-chat-collapsed]){
+
+}
+
+
+@media all {
+
+    ytd-watch-flexy[is-two-columns_][tyt-chat^="+"] {
         --userscript-available-height: var(--tabview-youtube-tabbtn-height);
         --userscript-chatroom-height: calc(var(--userscript-base-height) - 6px);
     }
 
-    ytd-watch-flexy[is-two-columns_][userscript-chatblock][userscript-chat-collapsed],
-    ytd-watch-flexy[is-two-columns_]:not([userscript-chatblock]):not([userscript-chat-collapsed]){
+    ytd-watch-flexy[is-two-columns_][tyt-chat^="-"],
+    ytd-watch-flexy[is-two-columns_]:not([tyt-chat]) {
         --userscript-available-height: var(--userscript-tab-content-height);
         --userscript-chatroom-height: '-NULL-';
     }
-    
-    
-    ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed]):not([is-two-columns_]) #right-tabs{
-        min-height: 0; /* avoid page scroll when display of tab-content changed */
+
+
+    ytd-watch-flexy[tyt-chat^="+"]:not([is-two-columns_]) #right-tabs {
+        min-height: 0;
+        /* avoid page scroll when display of tab-content changed */
     }
-    
-    
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+
+
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs[userscript-sticky] {
         min-height: 0px;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]){
+
+    ytd-watch-flexy:not([is-two-columns_]) {
         --userscript-chatroom-height: var(--ytd-watch-flexy-chat-max-height);
     }
-    
-     
-    ytd-watch-flexy ytd-live-chat-frame#chat{
+
+
+    ytd-watch-flexy ytd-live-chat-frame#chat {
         margin-top: 0;
     }
-    
-    html ytd-watch-flexy:not([is-two-columns_]) #chat.ytd-watch-flexy{
+
+    html ytd-watch-flexy:not([is-two-columns_]) #chat.ytd-watch-flexy {
         margin-top: var(--ytd-margin-2x);
     }
-    
-    ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer[js-panel-height_] #container.ytd-playlist-panel-renderer{
+
+    ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer[js-panel-height_] #container.ytd-playlist-panel-renderer {
         min-height: 0;
         max-height: var(--userscript-available-height);
     }
-    
-    
-    
-    .tab-content-cld ytd-playlist-panel-renderer{
+
+
+
+    .tab-content-cld ytd-playlist-panel-renderer {
         max-height: none !important;
         padding: 0 !important;
         margin: 0 !important;
     }
 
 
-    ytd-watch-flexy[is-two-columns_] .tab-content-cld #ytd-userscript-playlist{
-        height:100%;
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld #ytd-userscript-playlist {
+        height: 100%;
     }
-    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height]{
-        height:100%;
+
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] {
+        height: 100%;
     }
-    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] #container.ytd-playlist-panel-renderer{
+
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] #container.ytd-playlist-panel-renderer {
         max-height: none;
     }
 
@@ -940,257 +1036,275 @@ html:not(.style-scope) {
 
 
 
-    
+
     ytd-watch-flexy:not([theater]):not([is-two-columns_]) #secondary.ytd-watch-flexy,
-    ytd-watch-flexy[theater]:not([is-two-columns_]) #secondary.ytd-watch-flexy{
+    ytd-watch-flexy[theater]:not([is-two-columns_]) #secondary.ytd-watch-flexy {
         margin-top: 0;
         padding-bottom: 0;
     }
-    
-    
-    ytd-watch-flexy:not([is-two-columns_]):not([theater]):not([fullscreen]) #primary.ytd-watch-flexy, 
-    ytd-watch-flexy:not([is-two-columns_]):not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy{
+
+
+}
+
+
+@media not all and (display-mode: fullscreen) {
+
+    ytd-watch-flexy:not([is-two-columns_]):not([theater]):not([fullscreen]) #primary.ytd-watch-flexy,
+    ytd-watch-flexy:not([is-two-columns_]):not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy {
         padding-top: 0;
     }
-    
-    ytd-watch-flexy[tabview-selection^="#tab-"]:not([theater]):not([is-two-columns_]) #primary-inner,
-    ytd-watch-flexy[tabview-selection^="#tab-"][theater]:not([is-two-columns_]) #primary-inner{
+
+}
+
+
+@media all {
+
+    ytd-watch-flexy[tyt-tab^="#tab-"]:not([theater]):not([is-two-columns_]) #primary-inner,
+    ytd-watch-flexy[tyt-tab^="#tab-"][theater]:not([is-two-columns_]) #primary-inner {
         padding-bottom: var(--ytd-margin-6x);
     }
-    
-    body ytd-video-primary-info-renderer{
-        padding: 12px 0 2px 0; 
+
+    body ytd-video-primary-info-renderer {
+        padding: 12px 0 2px 0;
     }
-    
-    
-    
+
+
+
     /* left side - like menu smaller */
-    
+
     #primary #player ~ #info ytd-menu-renderer yt-icon-button.ytd-toggle-button-renderer {
         line-height: 1;
         padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
         width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
         height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
     }
-    
+
     #primary #player ~ #info ytd-menu-renderer yt-icon-button.ytd-button-renderer {
         line-height: 1;
         padding: calc(1.0 * var(--yt-button-icon-padding, 8px));
         width: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-width, 40px)));
         height: calc(0.75 * var(--yt-button-icon-size, var(--yt-icon-height, 40px)));
     }
-    
+
     #primary #player ~ #info ytd-menu-renderer #button.ytd-menu-renderer {
         width: calc(0.75 * var(--paper-icon-button_-_width, var(--yt-icon-width)));
         height: calc(0.75 * var(--paper-icon-button_-_height, var(--yt-icon-height)));
     }
-    
-    
-    
-     
-    #right-tabs{
+
+
+
+
+    #right-tabs {
         position: relative;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
     /* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents */
-    
+
     ytd-watch-flexy:not([is-two-columns_]) #player ~ #info {
         display: flex;
         flex-direction: column;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info {
         padding-bottom: 6px;
         border: 0;
         outline: 0;
     }
-        
-    ytd-watch-flexy:not([is-two-columns_]) #primary #player ~ #info ytd-menu-renderer a{
+
+    ytd-watch-flexy:not([is-two-columns_]) #primary #player ~ #info ytd-menu-renderer a {
         white-space: nowrap;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents>ytd-video-primary-info-renderer {
         border: 0;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents #menu-container {
         padding: 0;
         margin: 0;
         margin-left: 60px;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container > #menu{
-        padding: 0;margin: 0;
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents #menu-container>#menu {
+        padding: 0;
+        margin: 0;
         position: static;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents #menu-container > #menu > ytd-menu-renderer{
-        padding: 0;margin: 0;
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents #menu-container>#menu>ytd-menu-renderer {
+        padding: 0;
+        margin: 0;
         height: var(--ytd-user-comment_-_line-height);
         align-items: center;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container >#info >#info-text{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container>#info>#info-text {
         max-height: none;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents, 
-    #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents,
+    #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container {
         flex-grow: 1;
     }
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents, 
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer, 
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents,
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents>ytd-video-primary-info-renderer,
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container {
         display: flex;
         height: 100%;
         flex-direction: column;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container > .title.ytd-video-primary-info-renderer{
+
+    ytd-watch-flexy:not([is-two-columns_]) #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container>.title.ytd-video-primary-info-renderer {
         flex-grow: 1;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
     /* ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents */
-    
-    
-    
-    
+
+
+
+
     /* ytd-watch-flexy[is-two-columns_] #player ~ #info */
-    
+
     ytd-watch-flexy[is-two-columns_] #player ~ #info {
         display: flex;
         flex-direction: column;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info {
         padding-bottom: 6px;
         border: 0;
         outline: 0;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #primary #player ~ #info ytd-menu-renderer a{
+
+    ytd-watch-flexy[is-two-columns_] #primary #player ~ #info ytd-menu-renderer a {
         white-space: nowrap;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents>ytd-video-primary-info-renderer {
         border: 0;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents #menu-container {
         padding: 0;
         margin: 0;
         margin-left: 60px;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container > #menu{
-        padding: 0;margin: 0;
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents #menu-container>#menu {
+        padding: 0;
+        margin: 0;
         position: static;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents #menu-container > #menu > ytd-menu-renderer{
-        padding: 0;margin: 0;
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents #menu-container>#menu>ytd-menu-renderer {
+        padding: 0;
+        margin: 0;
         height: var(--ytd-user-comment_-_line-height);
         align-items: center;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container >#info >#info-text{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container>#info>#info-text {
         max-height: none;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents, 
-    #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents,
+    #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container {
         flex-grow: 1;
     }
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents, 
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer, 
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents,
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents>ytd-video-primary-info-renderer,
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container {
         display: flex;
         height: 100%;
         flex-direction: column;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents > ytd-video-primary-info-renderer > #container > .title.ytd-video-primary-info-renderer{
+
+    ytd-watch-flexy[is-two-columns_] #player ~ #info>#info-contents>ytd-video-primary-info-renderer>#container>.title.ytd-video-primary-info-renderer {
         flex-grow: 1;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
     /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer  */
-    
-    
+
+
     ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer,
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer #button.ytd-menu-renderer{
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer #button.ytd-menu-renderer {
         --yt-icon-button-icon-width: var(--ytd-margin-4x);
         --yt-icon-button-icon-height: var(--ytd-margin-4x);
         --paper-icon-button_-_width: var(--ytd-margin-4x);
         --paper-icon-button_-height: var(--ytd-margin-4x);
     }
-    
+
     /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata  */
-    
-    
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata{
+
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata {
         height: 100%;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata > a{
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata>a {
         height: 100%;
         display: flex;
         flex-direction: column;
     }
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata{
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata {
         flex-grow: 1;
         display: flex;
         flex-direction: row;
     }
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata .badge{
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata .badge {
         box-sizing: border-box;
         margin: 2px 2px;
         width: 100%;
         text-align: center;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata >ytd-video-meta-block{
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata>ytd-video-meta-block {
         flex-grow: 1;
         overflow: hidden;
     }
-    
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata ytd-badge-supported-renderer{
+
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata .secondary-metadata ytd-badge-supported-renderer {
         flex-direction: column;
         white-space: nowrap;
     }
-    
-    
-    
-    
+
+
+
+
     /* --- zoom --- */
-    
-    ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer{
+
+    ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer {
         zoom: var(--userscript-zoom-comments);
         /*
         transform: scale(var(--userscript-zoom-comments, 1.0));
@@ -1199,44 +1313,46 @@ html:not(.style-scope) {
         width: var(--width);
         */
     }
-    
+
     ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-video-renderer,
     ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-radio-renderer,
     ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-playlist-renderer,
-    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] yt-chip-cloud-chip-renderer.style-scope.yt-chip-cloud-renderer
-    {
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] yt-chip-cloud-chip-renderer.style-scope.yt-chip-cloud-renderer {
         zoom: var(--userscript-zoom-videos);
     }
 
-    ytd-watch-flexy[is-two-columns_] #tab-list #ytd-userscript-playlist{
+    ytd-watch-flexy[is-two-columns_] #tab-list #ytd-userscript-playlist {
         zoom: var(--userscript-zoom-list);
     }
-    
+
     /* --- zoom --- */
-    
-    
+
+
     /* #tab-info ytd-expander */
-    
-    ytd-watch-flexy[is-two-columns_] #tab-info ytd-expander{
+
+    ytd-watch-flexy[is-two-columns_] #tab-info ytd-expander {
         /* space fix for tab INFO */
         padding: 0;
         margin: 0;
-        zoom: var(--userscript-zoom-info); /* smaller text in tab Info */
+        zoom: var(--userscript-zoom-info);
+        /* smaller text in tab Info */
     }
+
     /* single column view - keep margin-left if available */
-    ytd-watch-flexy:not([is-two-columns_]) #tab-info ytd-expander{
+    ytd-watch-flexy:not([is-two-columns_]) #tab-info ytd-expander {
         /* space fix for tab INFO */
         padding: 0;
         margin-right: 0;
         margin-top: 0;
         margin-bottom: 0;
-        zoom: var(--userscript-zoom-info); /* smaller text in tab Info */
+        zoom: var(--userscript-zoom-info);
+        /* smaller text in tab Info */
     }
-    
-    #tab-info ytd-expander, 
-    #tab-info ytd-expander .content.ytd-metadata-row-header-renderer, 
-    #tab-info ytd-expander #title.ytd-metadata-row-renderer, 
-    #tab-info ytd-expander .ytd-metadata-row-renderer, 
+
+    #tab-info ytd-expander,
+    #tab-info ytd-expander .content.ytd-metadata-row-header-renderer,
+    #tab-info ytd-expander #title.ytd-metadata-row-renderer,
+    #tab-info ytd-expander .ytd-metadata-row-renderer,
     #tab-info ytd-expander ytd-metadata-row-renderer {
         /* smaller text for tab INFO */
         /*
@@ -1246,10 +1362,10 @@ html:not(.style-scope) {
         letter-spacing: var(--ytd-user-comment_-_letter-spacing);
         */
     }
-    
 
 
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info:not(.tab-content-hidden){
+
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info:not(.tab-content-hidden) {
         display: flex;
         flex-direction: row;
     }
@@ -1259,55 +1375,58 @@ html:not(.style-scope) {
         flex-grow: 200;
         max-width: 64px;
     }
-    
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info > ytd-expander{
-        margin-left:0;
+
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info>ytd-expander {
+        margin-left: 0;
         flex-grow: 300;
     }
 
-    
-    
-    
-    
+
+
+
+
     /* smaller text in tab Comments */
-    #tab-comments > #comments #main.ytd-comment-renderer{
+    #tab-comments>#comments #main.ytd-comment-renderer {
         /*zoom: 0.95;*/
     }
-    
-    #tab-comments ytd-comments-header-renderer{
-        padding: 0;margin-top: 0;margin-left: 0;margin-right: 0;
+
+    #tab-comments ytd-comments-header-renderer {
+        padding: 0;
+        margin-top: 0;
+        margin-left: 0;
+        margin-right: 0;
     }
-    
-     
-    
+
+
+
     /* smaller text for tab Videos */
-    #tab-videos [placeholder-videos] ytd-compact-video-renderer .details > .metadata.style-scope.ytd-compact-video-renderer {
+    #tab-videos [placeholder-videos] ytd-compact-video-renderer .details>.metadata.style-scope.ytd-compact-video-renderer {
         /*zoom: 0.94;*/
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #tab-list ytd-playlist-panel-renderer#playlist yt-icon-button#expand-button{
+
+
+
+
+
+
+
+
+
+
+
+
+
+    #tab-list ytd-playlist-panel-renderer#playlist yt-icon-button#expand-button {
         /* hide expand button */
         display: none;
     }
-    
-    #tab-list ytd-playlist-panel-renderer#playlist #header-description, 
-    #tab-list ytd-playlist-panel-renderer#playlist #header-description yt-formatted-string[class]{
-    
-    /* fix playlist title */
-    
-    /*
+
+    #tab-list ytd-playlist-panel-renderer#playlist #header-description,
+    #tab-list ytd-playlist-panel-renderer#playlist #header-description yt-formatted-string[class] {
+
+        /* fix playlist title */
+
+        /*
         font-size: var(--ytd-user-comment_-_font-size);
         font-weight: var(--ytd-user-comment_-_font-weight);
         line-height: var(--ytd-user-comment_-_line-height);
@@ -1315,19 +1434,19 @@ html:not(.style-scope) {
         height: calc(1 * var(--ytd-subheadline-one-line-ellipsis_-_max-height));
         */
         white-space: nowrap;
-        
+
     }
-    
-    
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description, 
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description yt-formatted-string[class]{
+
+
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description,
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description yt-formatted-string[class] {
         height: auto;
         max-height: none;
         white-space: normal;
     }
-    
 
-    
+
+
 
     /* <-- playlist css changed in 2022/11/09 -- */
 
@@ -1339,89 +1458,99 @@ html:not(.style-scope) {
         --tabview-playlist-header-zindex: -1;
         /*--tabview-playlist-header-display: none;*/
         --tabview-playlist-header-position: absolute;
-        --tabview-playlist-header-transform: translate(-100vw,0);
+        --tabview-playlist-header-transform: translate(-100vw, 0);
     }
 
 
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover{
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover {
         /*--tabview-playlist-header-display: flex;*/
-        
+
         --tabview-playlist-header-position: relative;
         --tabview-playlist-header-transform: initial;
 
-        --tabview-playlist-header-height: calc( 36px + 4px );
-        
+        --tabview-playlist-header-height: calc(36px + 4px);
+
     }
-    
+
 
 
     /* changed in 2022/11/09 */
-    
+
     /* #tab-list ytd-playlist-panel-renderer#playlist #container */
-    
-    #tab-list ytd-playlist-panel-renderer#playlist #container{
-        border: 0; /* hide playlist default border */
+
+    #tab-list ytd-playlist-panel-renderer#playlist #container {
+        border: 0;
+        /* hide playlist default border */
     }
-    
-    
-    #tab-list ytd-playlist-panel-renderer#playlist #container > .header yt-icon-button{
+
+
+    #tab-list ytd-playlist-panel-renderer#playlist #container>.header yt-icon-button {
         background-color: transparent;
     }
-    
-         
-    #tab-list ytd-playlist-panel-renderer#playlist #container > .header #header-contents{
+
+
+    #tab-list ytd-playlist-panel-renderer#playlist #container>.header #header-contents {
 
         position: relative;
         contain: none;
-    }   
- 
-    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #header-top-row + #playlist-actions{
+    }
+
+    #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer #header-top-row+#playlist-actions {
         /* display: var(--tabview-playlist-header-display);*/
         position: var(--tabview-playlist-header-position);
         transform: var(--tabview-playlist-header-transform);
         height: var(--tabview-playlist-header-height);
         align-items: center;
         min-height: var(--tabview-playlist-header-height);
-     }
- 
+    }
 
 
- 
-    #tab-list ytd-playlist-panel-renderer#playlist #container > .header.ytd-playlist-panel-renderer:hover{
-        --tabview-playlist-shift: calc( -80px + var(--tabview-playlist-header-height) );
+
+
+    #tab-list ytd-playlist-panel-renderer#playlist #container>.header.ytd-playlist-panel-renderer:hover {
+        --tabview-playlist-shift: calc(-80px + var(--tabview-playlist-header-height));
         margin-bottom: var(--tabview-playlist-shift);
-    }   
+    }
 
-    
+
     /* -- playlist css changed in 2022/11/09 --> */
 
 
     /* 2022/11/14 fix playlist display issue */
 
-    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] #playlist-actions.ytd-playlist-panel-renderer{
+    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] #playlist-actions.ytd-playlist-panel-renderer {
         display: flex;
     }
-    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] .playlist-items.ytd-playlist-panel-renderer{
+
+    #tab-list ytd-playlist-panel-renderer[collapsible][collapsed] .playlist-items.ytd-playlist-panel-renderer {
         display: block;
     }
 
 
 
-    
+
     /* hide playlist border & toggle button */
-    
-    
-    
-    
+
+
+
+
     /* hide original right tabs {#related} */
-    #primary-inner > #related, #secondary-inner > #related, /* during resizing - relocate it between {#primary} and {#secondary} */
-    *:not(#tab-videos) > #related,
-    #related #related, /* youtube coding bug */
-    *:not([placeholder-videos]) > ytd-watch-next-secondary-results-renderer,  /* hide videos list & play list before script loading */
-    #related > #related-skeleton, #related > #player-ads,
-    *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer),  /* hide videos list & play list before script loading */
-    #primary #primary #info ~ #meta #meta-contents ytd-expander /* meta-contents relocated */
-    {
+    #primary-inner>#related,
+    #secondary-inner>#related,
+    /* during resizing - relocate it between {#primary} and {#secondary} */
+    *:not(#tab-videos)>#related,
+    #related #related,
+    /* youtube coding bug */
+    *:not([placeholder-videos])>ytd-watch-next-secondary-results-renderer,
+    /* hide videos list & play list before script loading */
+    #related>#related-skeleton,
+    #related>#player-ads,
+    *:not(#ytd-userscript-playlist)>ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer),
+    /* hide videos list & play list before script loading */
+    #primary #primary #info ~ #meta #meta-contents ytd-expander
+
+    /* meta-contents relocated */
+        {
         position: absolute;
         z-index: -1;
         visibility: collapse;
@@ -1430,124 +1559,143 @@ html:not(.style-scope) {
         margin-top: -40px;
         contain: strict;
     }
-    
-    #primary-inner #player ~ ytd-comments#comments{
+
+    #primary-inner #player ~ ytd-comments#comments {
         position: absolute;
         z-index: -1;
         visibility: collapse;
         contain: layout paint;
     }
-    
-    
-    
-    
+
+
+
+
     /* responsive to non-column flexy */
-    ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy{
-        flex-direction: column; /* from (flex-direction: column;) | overriding {#columns.ytd-watch-flexy} */
+    ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy {
+        flex-direction: column;
+        /* from (flex-direction: column;) | overriding {#columns.ytd-watch-flexy} */
     }
-    ytd-watch-flexy:not([is-two-columns_]) #columns #secondary.ytd-watch-flexy{
-        display: block; /* from (display: inline-block;) | overiding {ytd-watch-flexy:not([is-two-columns_]) #secondary.ytd-watch-flexy} */
+
+    ytd-watch-flexy:not([is-two-columns_]) #columns #secondary.ytd-watch-flexy {
+        display: block;
+        /* from (display: inline-block;) | overiding {ytd-watch-flexy:not([is-two-columns_]) #secondary.ytd-watch-flexy} */
     }
-    
-    
+
+
     /* css fix for responsive two columns flex , width */
+
+    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy {
+        width: var(--ytd-watch-flexy-sidebar-width);
+        min-width: var(--ytd-watch-flexy-sidebar-min-width);
+    }
+
+    ytd-watch-flexy[theater][is-two-columns_] #secondary.ytd-watch-flexy {
+        margin-top: var(--ytd-margin-3x);
+        padding-bottom: 0;
+    }
+
+}
+
+
+@media not all and (display-mode: fullscreen) {
+
+    /* css fix for responsive two columns flex , width */
+
     
     ytd-watch-flexy[flexy]:not([is-two-columns_]):not([fullscreen]) #secondary.ytd-watch-flexy {
         min-width: var(--ytd-watch-flexy-min-player-width);
         width: auto;
     }
-    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy {
-        width: var(--ytd-watch-flexy-sidebar-width);
-        min-width: var(--ytd-watch-flexy-sidebar-min-width);
-    }
-    
-    ytd-watch-flexy[theater][is-two-columns_] #secondary.ytd-watch-flexy { 
-        margin-top: var(--ytd-margin-3x);
-        padding-bottom: 0;
-    }
-    
-    
-    
+
+
     /* css fix for responsive two columns flex , align {#secondary} style like {#primary} */
-    
-    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #ytd-userscript-playlist #container{
+
+    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #ytd-userscript-playlist #container {
         max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--ytd-margin-6x) - var(--userscript-sticky));
     }
-    
-    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy{
+
+    ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy {
         margin-top: 0;
         margin-bottom: 0;
         padding-top: var(--ytd-margin-3x);
         padding-bottom: 0;
     }
-    
-    
+
+}
+
+@media all {
+
+
     /* two column mainly;  theater view make font smaller */
-    ytd-watch-flexy[theater] #player ~ #info #info-contents .title{
-        font-size:var(--ytd-user-comment_-_font-size);
+    ytd-watch-flexy[theater] #player ~ #info #info-contents .title {
+        font-size: var(--ytd-user-comment_-_font-size);
     }
-    
-    
+
+
     /* <<< sticky right-tabs header --- */
 
     /* keep the single column view css as simple as possible */
     /* use js coding to make it like sticky */
     /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
-    #right-tabs > header{
+    #right-tabs>header {
         position: relative;
-        box-sizing:border-box;
+        box-sizing: border-box;
     }
-    ytd-watch-flexy[flexy] #right-tabs > header{
+
+    ytd-watch-flexy[flexy] #right-tabs>header {
         background-color: var(--yt-spec-general-background-a);
     }
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] > header{
+
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header {
         z-index: 2;
         position: fixed;
         top: var(--ytd-watch-flexy-masthead-height);
         width: var(--userscript-sticky-width, 100%);
     }
 
-    @supports (top: var(--ytd-watch-flexy-masthead-height-xs-x)){
-        
-    }
+    @supports (top: var(--ytd-watch-flexy-masthead-height-xs-x)) {}
 
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]{
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] {
         padding-top: var(--userscript-sticky);
     }
-    
-    
+
+
     /* --- sticky right-tabs header >>> */
-    
+
 
 
     /* k002 */
-        
-    
+
+
 
     /* << whole page scroll bar (original-type) */
-    
+
     /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
     /* siginificant empty at the right side (vertical bar) in the dark mode */
     html.tabview-mini-player body {
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
+
     /*
     html.tabview-normal-player body::-webkit-scrollbar {
         display: none; /.* Blink and Webkit *./
     }*/
     html.tabview-normal-player body {
-        overflow-y: auto; /* override body { overflow-y: scroll } */
+        overflow-y: auto;
+        /* override body { overflow-y: scroll } */
     }
-    
+
     /* whole page scroll bar (original-type) >> */
-    
+
     /*  overflow fix */
-    ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[slot="dropdown-content"]{
+    ytd-popup-container #contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer[slot="dropdown-content"] {
         overflow: hidden;
     }
-    
-    
+
+
     /* <<< page height setting - two-column-normal ---  */
 
 
@@ -1558,8 +1706,12 @@ html:not(.style-scope) {
 
     /* k005 */
 
+}
 
-    
+
+
+@media not all and (display-mode: fullscreen) {
+
     /* two column height = 100vh */
     ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #columns.ytd-watch-flexy {
         margin-bottom: 0;
@@ -1569,101 +1721,79 @@ html:not(.style-scope) {
     }
 
     /* it is possible that #info is too height, make it overflow: auto with no scroll-bar */
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner {
         max-height: 100%;
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
+
     ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner::-webkit-scrollbar {
-        display: none; /* Blink and Webkit */
+        display: none;
+        /* Blink and Webkit */
     }
 
 
-    /* video player sticky at the top */
-
-    /* 2022/11/07 - conflict with modern layout cinema */
-
-    /*
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
-        top: 0;
-        position: sticky; // as the parent is scrollable, the player can be sticky to the top //
-        z-index: 1;
-    }
-    */
-
-    /*
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child {
-        top: 0;
-        position: sticky; 
-        z-index: 0;
-    }
-    
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #player:first-child #player-container-outer {
-        z-index: 1;
-    }
-    */
-    
-
-    
     /* --- page height setting - two-column-normal >>>  */
-    
-    
-    
+
+
+
     /* <<< page height setting - two-column-theater ---  */
-    
+
 
     /* theater mode: the player is extracted from two column view */
     /* only set padding & margin */
     ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
         margin-bottom: 0;
-        padding-bottom: 0; 
+        padding-bottom: 0;
     }
 
     /* theater mode same mechanism */
-    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]){
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) {
         height: calc(100vh - var(--ytd-watch-flexy-masthead-height));
         overflow: auto;
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
+
     ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])::-webkit-scrollbar {
         display: none;
     }
+
     /* video player sticky at the top */
-    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) > #player-theater-container {
+    ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen])>#player-theater-container {
         top: 0;
-        position: sticky; /* as the parent is scrollable, the player can be sticky to the top */
+        position: sticky;
+        /* as the parent is scrollable, the player can be sticky to the top */
     }
-    
-    
+
+
     /* --- page height setting - two-column-theater >>>  */
-    
-    
+
+
     ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy {
         margin-bottom: 0;
-        padding-bottom: 0; 
+        padding-bottom: 0;
     }
-    
+
 
 
 
     /* k006 */
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+}
+
+
+
+@media all {
+
+
     /* ytd-live-chat-frame#chat:not([collapsed]) */
-    
-    ytd-live-chat-frame#chat:not([collapsed]):not([yt-userscript-iframe-loaded])::before{
+
+    ytd-live-chat-frame#chat:not([collapsed]):not([yt-userscript-iframe-loaded])::before {
         position: absolute;
         content: "Loading";
         z-index: 0;
@@ -1677,270 +1807,698 @@ html:not(.style-scope) {
         line-height: var(--userscript-chatroom-height);
         letter-spacing: var(--userscript-loading-content-letter-spacing);
     }
-    
-    
-    ytd-live-chat-frame#chat:not([collapsed]){
-        position: relative; 
+
+
+    ytd-live-chat-frame#chat:not([collapsed]) {
+        position: relative;
     }
-    
-    ytd-live-chat-frame#chat:not([collapsed]) > * {
+
+    ytd-live-chat-frame#chat:not([collapsed])>* {
         z-index: 1;
         position: inherit;
     }
-    
-    ytd-live-chat-frame#chat[collapsed] iframe{
+
+    ytd-live-chat-frame#chat[collapsed] iframe {
         display: none;
     }
+
+
+
+
+
+
+
+
+
+
+
+}
+
+@media not all and (display-mode: fullscreen) {
+
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    /* ---- v3.7.0 ---- */
+    /* 2022/11/21 css fix wide layout */
+
+    @keyframes tabviewSiderAnimation {
+        0% {
+            transform: translateX(calc(var(--tabview-hover-slider-x1)));
+            right: var(--tabview-hover-slider-r1);
+            min-width: var(--tabview-hover-slider-mw1);
+        }
+
+        1% {
+            transform: translateX(calc(var(--tabview-hover-slider-x1)));
+            right: var(--tabview-hover-slider-r1);
+            min-width: var(--tabview-hover-slider-mw2);
+        }
+
+        99% {
+            transform: translateX(calc(var(--tabview-hover-slider-x3)));
+            right: var(--tabview-hover-slider-r1);
+            min-width: var(--tabview-hover-slider-mw2);
+        }
+
+        100% {
+            transform: translateX(calc(var(--tabview-hover-slider-x1)));
+            right: var(--tabview-hover-slider-r2);
+            min-width: var(--tabview-hover-slider-mw2);
+        }
+
+    }
+
+
+
+    .tabview-hover-slider>#secondary-inner {
+
+        --tabview-slider-offset-pos: max(var(--tabview-slider-offset), 0);
+
+        --tabview-slider-offset-a: min(var(--ytd-watch-flexy-sidebar-width), var(--tabview-slider-offset-pos));
+
+        /*
+        --tabview-slider-offset-k: calc(var(--tabview-slider-offset-a) / var(--ytd-watch-flexy-sidebar-width));
+
+        --tabview-slider-offset-k2: calc(73px / var(--ytd-watch-flexy-sidebar-width));*/
+
+        --tabview-slider-offset-k2: 1.0;
+
+        --tabview-slider-offset-p: calc(var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width) - var(--ytd-watch-flexy-sidebar-min-width)));
+
+
+        --ytd-watch-flexy-sidebar-width-d: var(--tabview-slider-offset-p);
+
+        --tabview-slider-offset-actual: calc(var(--ytd-watch-flexy-sidebar-width-d) - var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset));
+
+
+
+        --tabview-hover-slider-x1: 0px;
+        --tabview-hover-slider-x2: calc(-0.5*var(--tabview-slider-offset-actual));
+        --tabview-hover-slider-x3: calc(-1*var(--tabview-slider-offset-actual));
+
+        --tabview-hover-slider-r1: auto;
+        --tabview-hover-slider-r2: var(--tabview-slider-right);
+
+        --tabview-hover-slider-mw1: var(--ytd-watch-flexy-sidebar-min-width);
+        --tabview-hover-slider-mw2: var(--ytd-watch-flexy-sidebar-width-d);
+
+    }
+
+    .tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner,
+    .tabview-hover-slider.tabview-hover-final>#secondary-inner {
+
+        --tabview-hover-slider-x2: var(--tabview-hover-slider-x1);
+        --tabview-hover-slider-x3: var(--tabview-hover-slider-x1);
+
+        --tabview-hover-slider-r1: var(--tabview-hover-slider-r2);
+
+        --tabview-hover-slider-mw1: var(--tabview-hover-slider-mw2);
+
+
+    }
+
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+
+        /*
+        transition: transform 0.13s ease-out, min-width 1ms, background-color 250ms linear, outline 250ms linear;
+        transition-delay: 48ms, 192ms, 192ms, 4ms;
+        */
+
+        animation: initial;
+
+        background-color: rgba(0, 0, 0, 0.0);
+        outline: 0px solid var(--ytd-searchbox-background);
+
+        transform: translateX(0px);
+        right: auto;
+        min-width: var(--ytd-watch-flexy-sidebar-min-width);
+        /*
+        transition: min-width 1ms, right 1ms, transform 1ms;
+        transition-delay: 400ms, 400ms, 400ms;
+        position:fixed;
+        */
+
+        transition: initial;
+
+        transition-delay: initial;
+
+
+    }
+
+    /* 2022/12/25 added for firefox css (rendering) bug fixing */
+    @supports (-moz-appearance:none) {
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+            border: 1px solid transparent;
+        }
+
+    }
+
+
+
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner:not(.tabview-slider-offset-disable),
+    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner:not(.tabview-slider-offset-disable) {
+        /* two layout are different in size and location */
+
+        animation: tabviewSiderAnimation 330ms ease-in-out 0s 1 normal forwards;
+
+        position: fixed;
+
+        background-color: var(--yt-spec-base-background);
+        /*min-width: var(--ytd-watch-flexy-sidebar-width);*/
+        /*
+        transition: min-width 1ms, transform 0.13s ease-out, outline 250ms linear;
+        transition-delay: 48ms, 192ms, 4ms;*/
+        outline: 8px solid var(--ytd-searchbox-background);
+
+        transform: translateX(0px);
+        right: var(--tabview-slider-right);
+        min-width: var(--ytd-watch-flexy-sidebar-width);
+        transition: initial;
+
+        transition-delay: initial;
+    }
+
+
+}
+
+@media all {
+
+    /*     
+
+    necessary; otherwise background issue occurs for transcript panel background  (panel button)
+    body ytd-watch-flexy[cinematics-enabled] #secondary.ytd-watch-flexy{
+        position: static; /-* not necessary as the cinematics is inside primary not secondary. *-/
+    }  */
+
+    body ytd-watch-flexy[flexy][is-two-columns_][theater] #columns.ytd-watch-flexy {
+        min-width: 0;
+        /* avoid very wide video make the column sketch > 100vw under theater mode */
+    }
+
+    #tab-info .less-button.style-scope.ytd-video-secondary-info-renderer[role="button"] {
+        display: none;
+    }
+
+    @supports (selector(:has(:hover))) {
+
+
+        #tab-info #video-lockups>#left-arrow-container.style-scope.arrow-container {
+
+            --tabview-left-arrow-opacity: '-NULL-';
+            opacity: var(--tabview-left-arrow-opacity);
+            transition: opacity 130ms;
+
+        }
+
+
+        #tab-info #video-lockups:has(#right-arrow-container:hover)>#left-arrow-container.style-scope.arrow-container {
+
+            --tabview-left-arrow-opacity: 0.23;
+
+        }
+
+        #tab-info #video-lockups>#right-arrow-container.style-scope.arrow-container {
+
+            --tabview-right-arrow-opacity: '-NULL-';
+            opacity: var(--tabview-right-arrow-opacity);
+            transition: opacity 130ms;
+
+        }
+
+
+        #tab-info #video-lockups:has(#left-arrow-container:hover)>#right-arrow-container.style-scope.arrow-container {
+
+            --tabview-right-arrow-opacity: 0.23;
+
+        }
+
+
+    }
+
+
+    /* added in 2022/11/24 */
+
+    html:has(body) {
+        --tabview-has-selector-enabled: 1;
+    }
+
+    /* parent container */
+    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata {
+        background-position-y: 0px;
+        /* no background */
+        transition: background-position-y 50ms;
+        /* detection of hover - mouseleave */
+        transition-delay: 1ms;
+        /* ensure effect is stably executed */
+    }
+
+    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata:hover {
+        background-position-y: 1px;
+        /* no background */
+        transition-duration: 10ms;
+        /* detection of hover - mouseenter */
+        /*transition-delay: 1ms;*/
+    }
+
+    /* sub elements */
+    #primary #below #upload-info,
+    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href] {
+        background-position-x: 0px;
+        /* no background */
+        transition: background-position-x 40ms;
+        /* detection of hover - mouseleave */
+        transition-delay: 1ms;
+        /* not counted in elapsedTime; just time delay allowing cursor moving between channel icon and channel text */
+    }
+
+    #primary #below #upload-info:hover,
+    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href]:hover {
+        background-position-x: 1px;
+        /* no background */
+        transition-duration: 20ms;
+        /* detection of hover - mouseenter */
+        /*transition-delay: 1ms;*/
+    }
+
+
+    @keyframes tabviewTabExpanderChover {
+        0% {
+            opacity: var(--tabview-tab-expander-opacity2);
+            transform: translateY(0);
+            z-index: 4;
+        }
+
+        4% {
+            opacity: var(--tabview-tab-expander-opacity2);
+        }
+
+        8% {
+            opacity: var(--tabview-tab-expander-opacity1);
+            /* 4% of 1750ms */
+        }
+
+        90% {
+            opacity: var(--tabview-tab-expander-opacity1);
+        }
+
+        99% {
+            opacity: var(--tabview-tab-expander-opacity2);
+            /* 8% of 1750ms */
+        }
+
+        100% {
+            opacity: var(--tabview-tab-expander-opacity2);
+            transform: translateY(0);
+            z-index: 4;
+        }
+    }
+
+    [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander {
+        animation: tabviewTabExpanderChover 1750ms normal forwards;
+    }
+
+    body [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander:hover {
+        --tabview-tab-expander-opacity2: 1.0;
+        --tabview-tab-expander-opacity1: 1.0;
+        z-index: 4;
+        transform: translateY(0);
+    }
+
+    [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander>div {
+        --tabview-tab-expander-mt1: 0px;
+        --tabview-tab-expander-mr1: -6px;
+    }
+
+    [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander>div {
+        --tabview-tab-expander-mt1: 8px;
+        --tabview-tab-expander-mr1: 2px;
+    }
+
+    [tyt-tab] #right-tabs tabview-tab-expander>div {
+        margin-top: calc(var(--tabview-tab-expander-mt1, 0px) - 6px);
+        margin-right: calc(var(--tabview-tab-expander-mr1, 0px) - 6px);
+    }
+
+
+
+    [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander {
+        animation: tabviewTabExpanderChover 1750ms normal forwards;
+    }
+
+    body [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander:hover {
+        --tabview-tab-expander-opacity2: 1.0;
+        --tabview-tab-expander-opacity1: 1.0;
+        z-index: 4;
+        transform: translateY(0);
+    }
+
+    .tabview-hover-slider-enable tabview-tab-expander {
+        --tabview-tab-expander-opacity2: 1.0;
+        --tabview-tab-expander-opacity1: 1.0;
+    }
+
+
+    /* .tabview-hover-slider:not(.tabview-hover-slider-enable) tabview-tab-expander,*/
+    ytd-watch-flexy[fullscreen] tabview-tab-expander,
+    ytd-watch-flexy:not([is-two-columns_]) tabview-tab-expander {
+        --tabview-tab-expander-opacity2: 0.0;
+        --tabview-tab-expander-opacity1: 0.0;
+        display: none;
+    }
+
+    tabview-tab-expander {
+
+        --tabview-tab-expander-opacity1: 0.8;
+        --tabview-tab-expander-opacity2: 0.0;
+
+        transform: translateY(-300px);
+        position: sticky;
+        top: 0;
+        float: right;
+        top: 0;
+        right: 0;
+        color: var(--yt-spec-call-to-action);
+        margin: 0;
+        width: 0px;
+        height: 0px;
+        padding: 0;
+        box-sizing: border-box;
+        z-index: 4;
+        opacity: 0.8;
+    }
+
+    tabview-tab-expander:hover {
+        transform: translateY(0);
+        opacity: 1.0;
+        color: var(--yt-spec-call-to-action-hover);
+    }
+
+    tabview-tab-expander>div {
+        box-sizing: border-box;
+        position: absolute;
+        padding: 3px;
+        color: inherit;
+        background: var(--yt-spec-badge-chip-background);
+        border-radius: 6px;
+        cursor: pointer;
+        right: 0;
+        top: 0;
+        z-index: 45;
+    }
+
+    tabview-tab-expander svg.svg-expand {
+        display: block;
+    }
+
+    tabview-tab-expander svg.svg-collapse {
+        display: none;
+    }
+
+    .tabview-hover-slider-enable tabview-tab-expander svg.svg-expand {
+        display: none;
+    }
+
+    .tabview-hover-slider-enable tabview-tab-expander svg.svg-collapse {
+        display: block;
+    }
+
+}
+
+
+@media all {
+
+
+
+    /* wrong node tag 'yt-button-renderer' instead of 'ytd-button-renderer' */
+
+    #tab-videos #button.ytd-continuation-item-renderer yt-button-renderer.ytd-continuation-item-renderer {
+        width: var(--ytd-continuation-item-renderer-width, 100%);
+    }
+
+    #tab-videos yt-button-renderer.ytd-item-section-renderer {
+        margin-top: var(--ytd-item-section-item-margin, 16px);
+    }
+
+
+}
+
+@media not all and (display-mode: fullscreen) {
+
+
+
+
     /* flexbox | ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) | #primary-inner | #info */
-    
-    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner{
+
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner {
         display: flex;
         flex-flow: column;
         height: 100%;
     }
 
     /* non-teaser UI */
-    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > #info{
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>#info {
         flex: 1;
     }
 
     /* teaser UI */
-    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner > ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy{
+    ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner>ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
         margin-top: 0;
         margin-bottom: 0;
         flex-grow: 1;
         justify-content: end;
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     /* k003 */
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     /* flexbox | ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) | #columns | #primary-inner | #info */
-    
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]){
-        display: flex;    
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) {
+        display: flex;
         flex-direction: column;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns {
         flex: 1;
         overflow: auto;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary {
         overflow: auto;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns #primary-inner{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner {
         display: flex;
         flex-flow: column;
         height: 100%;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns #primary-inner > #info{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns #primary-inner>#info {
         flex: 1;
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#secondary {
         overflow: hidden;
     }
-/*
-    ytd-watch-flexy[is-two-columns_][theater][tabview-selection=""]:not([fullscreen]) > #columns > #secondary{
+
+    /*
+    ytd-watch-flexy[is-two-columns_][theater][tyt-tab=""]:not([fullscreen]) > #columns > #secondary{
         overflow: initial;  fix border
     }
      */
 
-    
-     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #secondary #right-tabs #material-tabs{
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#secondary #right-tabs #material-tabs {
         outline: 0;
         border: 1px solid var(--ytd-searchbox-legacy-border-color);
         /*border: 1px solid var(--userscript-border-color);*/
         /* use border instead due to overflow:hidden */
     }
-    
-    
-    
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary{
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+
+
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
-    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns > #primary::-webkit-scrollbar {
+
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen])>#columns>#primary::-webkit-scrollbar {
         display: none;
     }
-    
-    
-    
-    
-         
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+}
+
+
+@media all {
+
+
+
+
+
     /* flexbox */
-    
-    
-    
-    ytd-watch-flexy[tabview-selection="#tab-list"]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer > #container{
+
+
+
+    ytd-watch-flexy[tyt-tab="#tab-list"]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer>#container {
         max-height: none;
     }
-    
-    
-    
-    
-    ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos{
+
+
+
+
+    ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos {
         padding: 0;
     }
-    
-    
-    ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue] > #suggestions-search{
-        position: sticky; 
-        top: -1px;  /* visual gap */
+
+
+    ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search {
+        position: sticky;
+        top: -1px;
+        /* visual gap */
         z-index: 2;
     }
-    
-    ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos [placeholder-videos]{
+
+    ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos [placeholder-videos] {
         /*overflow: auto;*/
         padding: var(--tab-content-padding, 0px);
         padding-right: 4px;
     }
-    
-    
-    
+
+
+
     ytd-watch-flexy[is-two-columns_] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer.ytd-watch-flexy {
         margin-bottom: var(--ytd-margin-2x);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
     /* autocomplete */
-    
-    autocomplete-positioner > .autocomplete-suggestions{
+
+    autocomplete-positioner>.autocomplete-suggestions {
         position: absolute !important;
-        left:auto !important;
-        top:auto !important;
+        left: auto !important;
+        top: auto !important;
         width: 100% !important;
-        margin: 0 !important;   
-        z-index: 99; 
+        margin: 0 !important;
+        z-index: 99;
     }
-    
-    autocomplete-positioner{
+
+    autocomplete-positioner {
         overflow: visible;
         display: block;
         position: relative;
         height: 0;
         width: 100%;
-        margin-top: calc( -1 * ( var(--sb-margin-bottom) ) );
-        margin-bottom: calc( 1 * ( var(--sb-margin-bottom) ) );
-        z-index: 99; 
+        margin-top: calc(-1 * (var(--sb-margin-bottom)));
+        margin-bottom: calc(1 * (var(--sb-margin-bottom)));
+        z-index: 99;
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     /* autocomplete | position-fixed-by-tabview-youtube */
-    
-    autocomplete-positioner[position-fixed-by-tabview-youtube]{
+
+    autocomplete-positioner[position-fixed-by-tabview-youtube] {
         position: sticky;
-        top: calc( var(--height, auto) - var(--tab-content-padding, 0px)) ;
-        z-index: 2; 
+        top: calc(var(--height, auto) - var(--tab-content-padding, 0px));
+        z-index: 2;
     }
-    autocomplete-positioner[position-fixed-by-tabview-youtube] > .autocomplete-suggestions[position-fixed-by-tabview-youtube]{
-        z-index: 2; 
+
+    autocomplete-positioner[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube] {
+        z-index: 2;
     }
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
     /* ytd-watch-flexy:not([is-two-columns_]) #columns */
-    
-    
-    ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy{
+
+
+    ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy {
         overflow: auto;
     }
-    
-    
-    ytd-watch-flexy:not([is-two-columns_]) #columns{
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
+
+
+    ytd-watch-flexy:not([is-two-columns_]) #columns {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
     }
+
     ytd-watch-flexy:not([is-two-columns_]) #columns::-webkit-scrollbar {
         display: none;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
     /* plugin - #youtube-play-next-queue-renderer */
-    
-    #youtube-play-next-queue-renderer .queue-button{
+
+    #youtube-play-next-queue-renderer .queue-button {
         height: auto;
-        zoom: 0.8;    
+        zoom: 0.8;
     }
-    
-    #youtube-play-next-queue-renderer .queue-button.queue-play-now, 
-    #youtube-play-next-queue-renderer .queue-button.queue-play-next, 
-    #youtube-play-next-queue-renderer .queue-button.queue-remove{
+
+    #youtube-play-next-queue-renderer .queue-button.queue-play-now,
+    #youtube-play-next-queue-renderer .queue-button.queue-play-next,
+    #youtube-play-next-queue-renderer .queue-button.queue-remove {
         margin: 2px !important;
     }
-    
+
     #youtube-play-next-queue-renderer ytd-badge-supported-renderer {
         align-self: flex-end;
     }
-    
-    
-    
-    
+
+
+
+
     /* align scrollbar style */
     #youtube-play-next-queue-renderer::-webkit-scrollbar {
         width: 16px;
     }
+
     #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb {
         height: 56px;
         border-radius: 8px;
@@ -1948,82 +2506,106 @@ html:not(.style-scope) {
         background-clip: content-box;
         background-color: var(--yt-spec-text-secondary);
     }
+
     /* Colorize the scroll bar (chrome, safari, edge) */
-    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb, #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb{
+    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb,
+    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb {
         background-color: var(--paper-checkbox-unchecked-color) !important;
     }
-    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover, #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover{
+
+    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover,
+    #youtube-play-next-queue-renderer::-webkit-scrollbar-thumb:hover {
         background-color: var(--paper-checkbox-checked-color) !important;
     }
+
     #youtube-play-next-queue-renderer::-webkit-scrollbar-corner {
         background-color: transparent;
     }
-    
-    
-    ytd-watch-flexy[flexy][is-two-columns_][theater] #primary.ytd-watch-flexy{
-    
+
+
+    ytd-watch-flexy[flexy][is-two-columns_][theater] #primary.ytd-watch-flexy {
+
         --ytd-watch-flexy-min-player-width: 0;
-    
+
     }
-    
-    ytd-watch-flexy[flexy]:not([is-two-columns_]) #player ~ #info ytd-video-primary-info-renderer #info{
+
+    ytd-watch-flexy[flexy]:not([is-two-columns_]) #player ~ #info ytd-video-primary-info-renderer #info {
         flex-wrap: wrap;
         justify-content: flex-end;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
     /* live fill up view */
-    .YouTubeLiveFilledUpView #primary-inner > #right-tabs:not(#player){
+    .YouTubeLiveFilledUpView #primary-inner>#right-tabs:not(#player) {
         padding: 0;
     }
-    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_] #right-tabs{
+
+    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_] #right-tabs {
         padding: 0;
         margin: 0;
     }
-    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_]{
+
+    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_] {
         --YouTubeLiveFilledUpView-header-height: calc(var(--ytd-watch-flexy-masthead-height) + var(--tabview-youtube-tabbtn-height));
     }
-    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_]{
+
+    .YouTubeLiveFilledUpView ytd-watch-flexy[is-two-columns_] {
         --YouTubeLiveFilledUpView-primary-width: calc(100vw - var(--ytd-watch-flexy-sidebar-width));
         --YouTubeLiveFilledUpView-secondary-width: var(--ytd-watch-flexy-sidebar-width);
     }
-    .YouTubeLiveFilledUpView ytd-watch-flexy[flexy][js-panel-height_][is-two-columns_] ytd-live-chat-frame#chat.ytd-watch-flexy:not([collapsed]){
+
+    .YouTubeLiveFilledUpView ytd-watch-flexy[flexy][js-panel-height_][is-two-columns_] ytd-live-chat-frame#chat.ytd-watch-flexy:not([collapsed]) {
         height: calc(100vh - var(--YouTubeLiveFilledUpView-header-height)) !important;
-    } 
-    
+    }
 
 
 
-    
-    
+}
+
+
+
+
+
+
+@media not all and (display-mode: fullscreen) {
+
+
+
+
     /* contain 321 */
 
-    #tab-comments ytd-comments, #tab-comments ytd-item-section-renderer, #tab-comments #contents,
-    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos], 
-    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-watch-next-secondary-results-renderer, 
-    ytd-watch-flexy[is-two-columns_] #tab-videos #items
-    {
-        contain: layout paint style; /* experimental */
-    }
-    
-    
-    ytd-watch-flexy #material-tabs, ytd-watch-flexy #material-tabs .tab-btn{
-        contain: layout; /* experimental */
+    #tab-comments ytd-comments,
+    #tab-comments ytd-item-section-renderer,
+    #tab-comments #contents,
+    ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos],
+    ytd-watch-flexy[is-two-columns_] #tab-videos ytd-watch-next-secondary-results-renderer,
+    ytd-watch-flexy[is-two-columns_] #tab-videos #items {
+        contain: layout paint style;
+        /* experimental */
     }
 
 
-    #material-tabs .tab-btn paper-ripple, #material-tabs .tab-btn svg{
-        contain: size layout paint style; /* experimental */
+    ytd-watch-flexy #material-tabs,
+    ytd-watch-flexy #material-tabs .tab-btn {
+        contain: layout;
+        /* experimental */
+    }
+
+
+    #material-tabs .tab-btn paper-ripple,
+    #material-tabs .tab-btn svg {
+        contain: size layout paint style;
+        /* experimental */
     }
 
 
@@ -2037,35 +2619,41 @@ html:not(.style-scope) {
     /* contain 341 */
 
 
-    iframe[src][id]{ 
-        contain: size layout paint style; /* experimental */
+    iframe[src][id] {
+        contain: size layout paint style;
+        /* experimental */
     }
 
-    ytd-live-chat-frame{
+    ytd-live-chat-frame {
         contain: layout paint;
-    } 
-
-    #masthead-container, ytd-masthead#masthead{
-        contain: layout style; /* experimental */
     }
 
-    ytd-masthead > #container{
-        contain: size layout style; /* experimental */
+    #masthead-container,
+    ytd-masthead#masthead {
+        contain: layout style;
+        /* experimental */
     }
 
-    ytd-masthead > #container .style-scope.ytd-masthead{
-        contain: layout style; /* experimental */
+    ytd-masthead>#container {
+        contain: size layout style;
+        /* experimental */
     }
 
-    
+    ytd-masthead>#container .style-scope.ytd-masthead {
+        contain: layout style;
+        /* experimental */
+    }
+
+
     /* contain 342 */
 
     /* contain 351 */
 
-    ytd-watch-flexy #right-tabs{
+    ytd-watch-flexy #right-tabs {
         contain: none;
     }
-    ytd-watch-flexy[is-two-columns_] #right-tabs{
+
+    ytd-watch-flexy[is-two-columns_] #right-tabs {
         contain: layout;
     }
 
@@ -2075,12 +2663,18 @@ html:not(.style-scope) {
     /* contain 791 - be careful */
 
 
-    ytd-watch-flexy #player, ytd-player#ytd-player{
-        /*contain: layout paint style;*/ /* removed in 2022/11/07 - conflict with YouTubeLiveClock and modern layout #cinematics */
-        contain: layout style; /* added in 2022/11/07 */
+    ytd-watch-flexy #player,
+    ytd-player#ytd-player {
+        /*contain: layout paint style;*/
+        /* removed in 2022/11/07 - conflict with YouTubeLiveClock and modern layout #cinematics */
+        contain: layout style;
+        /* added in 2022/11/07 */
     }
-    .ytp-caption-window-container .caption-window, .ytp-caption-window-container .captions-text, 
-    .ytp-caption-window-container .caption-visual-line, .ytp-caption-window-container .ytp-caption-segment{
+
+    .ytp-caption-window-container .caption-window,
+    .ytp-caption-window-container .captions-text,
+    .ytp-caption-window-container .caption-visual-line,
+    .ytp-caption-window-container .ytp-caption-segment {
         contain: layout paint;
     }
 
@@ -2090,12 +2684,15 @@ html:not(.style-scope) {
 
     /* contain 361 */
 
-    yt-img-shadow[height][width]{
-        contain: layout paint style; /* experimental */
+    yt-img-shadow[height][width] {
+        contain: layout paint style;
+        /* experimental */
         content-visibility: auto;
     }
-    img[height][width]{
-        contain: layout paint style; /* experimental */
+
+    img[height][width] {
+        contain: layout paint style;
+        /* experimental */
         content-visibility: auto;
     }
 
@@ -2113,14 +2710,15 @@ html:not(.style-scope) {
 
     /* contain 851 */
 
-.tab-content-cld svg,
-.tab-content-cld yt-icon-button,
-.tab-content-cld button,
-.tab-content-cld yt-icon
-{
-    contain: size layout paint; /* removed in 2022/11/06 */
-    contain: layout; /* added in 2022/11/06 */
-}
+    .tab-content-cld svg,
+    .tab-content-cld yt-icon-button,
+    .tab-content-cld button,
+    .tab-content-cld yt-icon {
+        contain: size layout paint;
+        /* removed in 2022/11/06 */
+        contain: layout;
+        /* added in 2022/11/06 */
+    }
 
 
     /* contain 852 */
@@ -2130,68 +2728,71 @@ html:not(.style-scope) {
 
     /* contain 871 */
 
-.tab-content-cld ytd-thumbnail-overlay-resume-playback-renderer,
-.tab-content-cld ytd-thumbnail-overlay-now-playing-renderer{
-    contain: strict; 
-    content-visibility: auto;
-}
-.tab-content-cld ytd-thumbnail-overlay-time-status-renderer{
-    contain: paint;
-    content-visibility: auto;        
-}
+    .tab-content-cld ytd-thumbnail-overlay-resume-playback-renderer,
+    .tab-content-cld ytd-thumbnail-overlay-now-playing-renderer {
+        contain: strict;
+        content-visibility: auto;
+    }
 
-.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
-    contain: size;
-}
+    .tab-content-cld ytd-thumbnail-overlay-time-status-renderer {
+        contain: paint;
+        content-visibility: auto;
+    }
 
-.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay:not([can-reorder]):not([touch-persistent-drag-handle]){
-    contain: size;
-}
-.tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays:not([can-reorder]):not([touch-persistent-drag-handle]){
-    contain: size;
-}
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#overlays:not([can-reorder]):not([touch-persistent-drag-handle]) {
+        contain: size;
+    }
+
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#mouseover-overlay:not([can-reorder]):not([touch-persistent-drag-handle]) {
+        contain: size;
+    }
+
+    .tab-content-cld ytd-thumbnail div.style-scope.ytd-thumbnail#hover-overlays:not([can-reorder]):not([touch-persistent-drag-handle]) {
+        contain: size;
+    }
 
     /* contain 872 */
-    
 
 
-        /* contain 521 */
 
-ytd-watch-flexy .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
-    contain: layout paint;
-}
+    /* contain 521 */
 
-/*
+    ytd-watch-flexy .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items {
+        contain: layout paint;
+    }
+
+    /*
 ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
     contain: layout paint style;
 }*/
 
-ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents {
-    contain: layout style; /* 2022/11/11 colored comments background padding */
-}
+    ytd-watch-flexy .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents {
+        contain: layout style;
+        /* 2022/11/11 colored comments background padding */
+    }
 
 
-ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents,
-ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos > [placeholder-videos] > ytd-watch-next-secondary-results-renderer > #items{
-    content-visibility: auto;
-}
-    
-    
-ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments, 
-ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related, 
-ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
-    visibility: collapse;
-}
+    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents,
+    ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items {
+        content-visibility: auto;
+    }
 
 
-        /* contain 522 */
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments,
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related,
+    ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
+        visibility: collapse;
+    }
 
 
-        /* contain 631 */
+    /* contain 522 */
 
-        
-    
-    
+
+    /* contain 631 */
+
+
+
+
     /* experimental for drag & drop re-order */
     .style-scope.playlist-drag-handle,
     .style-scope[can-reorder],
@@ -2201,49 +2802,48 @@ ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
     .style-scope[touch-persistent-drag-handle] .style-scope,
     .style-scope.playlist-drag-handle ~ .style-scope,
     .style-scope[can-reorder] ~ .style-scope,
-    .style-scope[touch-persistent-drag-handle] ~ .style-scope{
+    .style-scope[touch-persistent-drag-handle] ~ .style-scope {
         content-visibility: initial !important;
         contain: initial !important;
     }
-    
-    
 
 
-/* for https://greasyfork.org/scripts/4870-maximize-video */
-    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #masthead-container, 
+
+
+    /* for https://greasyfork.org/scripts/4870-maximize-video */
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #masthead-container,
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #right-tabs,
-    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-primary-info-renderer, 
-    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-secondary-info-renderer, 
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-primary-info-renderer,
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-video-secondary-info-renderer,
     #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #player ~ div[id],
-    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-live-chat-frame{
-        visibility:collapse;
+    #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush ytd-live-chat-frame {
+        visibility: collapse;
     }
 
     /* ytd-thumbnail hover fix */
-    
-     
+
+
     .tab-content-cld ytd-thumbnail #overlays yt-icon,
     .tab-content-cld ytd-thumbnail #mouseover-overlay yt-icon,
     .tab-content-cld ytd-thumbnail #hover-overlays yt-icon {
-        z-index:99999999 !important;
+        z-index: 99999999 !important;
     }
-     
+
     .tab-content-cld ytd-thumbnail #overlays [class],
     .tab-content-cld ytd-thumbnail #mouseover-overlay [class],
-    .tab-content-cld ytd-thumbnail #hover-overlays [class]  
-    {
+    .tab-content-cld ytd-thumbnail #hover-overlays [class] {
         contain: none !important;
-        content-visibility: visible !important;  
+        content-visibility: visible !important;
     }
 
-    .tab-content-cld ytd-thumbnail tp-yt-paper-tooltip{
+    .tab-content-cld ytd-thumbnail tp-yt-paper-tooltip {
         contain: none !important;
-        content-visibility: visible !important;  
-        z-index:6666 !important;
-        pointer-events:none !important;
+        content-visibility: visible !important;
+        z-index: 6666 !important;
+        pointer-events: none !important;
 
     }
-    
+
     /* for chrome extension - Enhancer for YouTube™
     https://chrome.google.com/webstore/detail/enhancer-for-youtube/ponfpcnoihfmfllpaingbgckeeldkhle  */
     html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns #primary #player,
@@ -2253,21 +2853,23 @@ ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
 
 
 
-        /* contain 632 */
+    /* contain 632 */
+
+}
 
 
 
 
 
+/** ZONE C */
 
 
 
+@media all {
 
 
-    
-    
     /* -webkit-box | -webkit-line-clamp | comment fix line clamp */
-    
+
     /* Chrome / Firefox / Edge */
     /*
     #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[should-use-number-of-lines] > #content.ytd-expander{
@@ -2277,8 +2879,8 @@ ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
        opacity:0.999;
     }
     */
-    
-     /* Chrome / Firefox / Edge + backward compatible with Waterfox Classic */
+
+    /* Chrome / Firefox / Edge + backward compatible with Waterfox Classic */
     /*
      #tab-comments.tab-content-cld ytd-comments#comments ytd-expander[max-number-of-lines] > #content.ytd-expander{
        opacity:0.998;
@@ -2287,21 +2889,22 @@ ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #contents {
        opacity:0.999;
     }
     */
-     
-     /* Better CSS Layout for Info Meta since 2022.04.20 */
-     .watch-active-metadata.style-scope.ytd-watch-flexy{
-       flex-grow: 1;
-       display: flex;
-       flex-direction: column;   
-     }
-     .watch-active-metadata.style-scope.ytd-watch-flexy > #info{
-       flex-grow: 1;
-     }
-    
+
+    /* Better CSS Layout for Info Meta since 2022.04.20 */
+    .watch-active-metadata.style-scope.ytd-watch-flexy {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .watch-active-metadata.style-scope.ytd-watch-flexy>#info {
+        flex-grow: 1;
+    }
 
 
 
-     /* experimental to fix Chinese display bug like 
+
+    /* experimental to fix Chinese display bug like 
      
 
 https://www.youtube.com/watch?v=wzjgnrIt4n8
@@ -2316,52 +2919,51 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-      
-    ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer{
+
+    ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer {
         height: auto;
         overflow: visible;
         -webkit-line-clamp: initial;
     }
- 
 
 
 
-     /* css for menu bar and hide image button text (Teaser UI ) */
 
-     ytd-watch-flexy ytd-menu-renderer yt-formatted-string.style-scope.ytd-toggle-button-renderer.style-text{
+    /* css for menu bar and hide image button text (Teaser UI ) */
+
+    ytd-watch-flexy ytd-menu-renderer yt-formatted-string.style-scope.ytd-toggle-button-renderer.style-text {
         white-space: pre;
     }
-       
-    ytd-watch-flexy ytd-menu-renderer ytd-button-renderer.force-icon-button a.ytd-button-renderer{
-       overflow: hidden;
-       flex-wrap: wrap;
-       width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-       height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-   }
 
-   ytd-watch-flexy #primary #menu ytd-menu-renderer{
-       --yt-button-icon-size: 32px;
-   }
-   ytd-watch-flexy #primary #menu ytd-menu-renderer .ytd-menu-renderer[style-target=button]{
+    ytd-watch-flexy ytd-menu-renderer ytd-button-renderer.force-icon-button a.ytd-button-renderer {
+        overflow: hidden;
+        flex-wrap: wrap;
+        width: var(--yt-button-icon-size, var(--yt-icon-width, 40px));
+        height: var(--yt-button-icon-size, var(--yt-icon-width, 40px));
+    }
+
+    ytd-watch-flexy #primary #menu ytd-menu-renderer {
+        --yt-button-icon-size: 32px;
+    }
+
+    ytd-watch-flexy #primary #menu ytd-menu-renderer .ytd-menu-renderer[style-target=button] {
         --yt-icon-button-icon-width: 24px;
         --yt-icon-button-icon-height: 24px;
         --yt-icon-width: 32px;
         --yt-icon-height: 32px;
-   }
+    }
 
-   ytd-watch-flexy ytd-menu-renderer .ytd-menu-renderer[style-target=button]{
-       width: var(--yt-icon-width);
-       height: var(--yt-icon-height);
-   }
-      
-   ytd-watch-flexy ytd-menu-renderer ytd-download-button-renderer.force-icon-button a.ytd-download-button-renderer{
-      overflow: hidden;
-      flex-wrap: wrap;
-      width: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-      height: var(--yt-button-icon-size,var(--yt-icon-width,40px));
-  }
+    ytd-watch-flexy ytd-menu-renderer .ytd-menu-renderer[style-target=button] {
+        width: var(--yt-icon-width);
+        height: var(--yt-icon-height);
+    }
 
-
+    ytd-watch-flexy ytd-menu-renderer ytd-download-button-renderer.force-icon-button a.ytd-download-button-renderer {
+        overflow: hidden;
+        flex-wrap: wrap;
+        width: var(--yt-button-icon-size, var(--yt-icon-width, 40px));
+        height: var(--yt-button-icon-size, var(--yt-icon-width, 40px));
+    }
 
 
 
@@ -2370,96 +2972,101 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-    
+
+
+
     /*  Some CSS fix for transcript */
 
-    
-    
-    ytd-transcript-segment-renderer{
+
+
+    ytd-transcript-segment-renderer {
         /*content-visibility: auto;*/
         contain: layout paint;
     }
-    ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer > #body{
+
+    ytd-engagement-panel-section-list-renderer ytd-transcript-search-panel-renderer>#body {
         contain: layout paint style;
     }
 
-    
+
     yt-formatted-string.segment-text.style-scope.ytd-transcript-segment-renderer:focus {
         outline: 0;
     }
 
-    body .segment.ytd-transcript-segment-renderer{
+    body .segment.ytd-transcript-segment-renderer {
         --tabview-segment-renderer-background: '--NULL--';
         background-color: var(--tabview-segment-renderer-background);
     }
 
-    body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active){
-        --tabview-segment-renderer-background:transparent;
+    body .segment.ytd-transcript-segment-renderer:focus:not(:hover):not(.active) {
+        --tabview-segment-renderer-background: transparent;
     }
-    body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active){
-        --tabview-segment-renderer-background:transparent;
-    } 
 
-    
-    ytd-transcript-segment-renderer{
+    body .segment.ytd-transcript-segment-renderer:active:not(:hover):not(.active) {
+        --tabview-segment-renderer-background: transparent;
+    }
+
+
+    ytd-transcript-segment-renderer {
         --tabview-transcript-segment-span-display: block;
     }
-    
-    yt-formatted-string.segment-text.ytd-transcript-segment-renderer > span{
+
+    yt-formatted-string.segment-text.ytd-transcript-segment-renderer>span {
         display: var(--tabview-transcript-segment-span-display);
     }
-    
+
 
 
     /*  Userscript - Youtube Genius Lyrics */
 
 
-    body> .loadingspinnerholder[title][style]{
+    body>.loadingspinnerholder[title][style] {
         --tabview-youtube-tabbtn-height: 46px;
-        margin-top:var(--tabview-youtube-tabbtn-height, 0px);
+        margin-top: var(--tabview-youtube-tabbtn-height, 0px);
     }
-     
 
-    ytd-watch-flexy #content.ytd-engagement-panel-section-list-renderer iframe#lyricsiframe{
+
+    ytd-watch-flexy #content.ytd-engagement-panel-section-list-renderer iframe#lyricsiframe {
         width: 100% !important;
         height: calc(var(--ytd-watch-flexy-panel-max-height) - 96px) !important;
 
     }
-    
-    body > .loadingspinnerholder[style*="top"][style*="width"]{
-        display:none !important;
-        z-index:-1;
-        opacity:0;
-        visibility:collapse;
+
+    body>.loadingspinnerholder[style*="top"][style*="width"] {
+        display: none !important;
+        z-index: -1;
+        opacity: 0;
+        visibility: collapse;
     }
 
-    body > .loadingspinner[style*="top"][style*="width"]{
-        display:none !important;
-        z-index:-1;
-        opacity:0;
-        visibility:collapse;
+    body>.loadingspinner[style*="top"][style*="width"] {
+        display: none !important;
+        z-index: -1;
+        opacity: 0;
+        visibility: collapse;
     }
 
 
-    ytd-engagement-panel-section-list-renderer #lyricsiframe{
+    ytd-engagement-panel-section-list-renderer #lyricsiframe {
         transition: none;
     }
-    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading #lyricsiframe{
+
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading #lyricsiframe {
         opacity: 0 !important;
-        pointer-events:none;
+        pointer-events: none;
     }
 
-    ytd-engagement-panel-section-list-renderer:not(.epanel-lyrics-loading) #lyricsiframe{
+    ytd-engagement-panel-section-list-renderer:not(.epanel-lyrics-loading) #lyricsiframe {
         opacity: 1 !important;
     }
 
-    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading{
-        overflow:hidden;
-        position:relative;
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading {
+        overflow: hidden;
+        position: relative;
     }
 
-    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading::before{
-        
+    ytd-engagement-panel-section-list-renderer.epanel-lyrics-loading::before {
+
         position: absolute;
         content: "Loading";
         z-index: 0;
@@ -2476,54 +3083,61 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 
-    body > #lyricscontainer > #lyricsiframe {
-        
+    body>#lyricscontainer>#lyricsiframe {
+
         opacity: 0 !important;
-        pointer-events:none;
+        pointer-events: none;
     }
 
 
-    
+
     /* 9341 */
 
 
-    
+
     /*  contain-intrinsic-size - guess the size = 1.2 x SizeMax */
-        
-    @supports (contain-intrinsic-size: 1px 1px) and selector(:has(:hover)){
+
+    @supports (contain-intrinsic-size: 1px 1px) {
         /* layout.css.has-selector.enabled = true OR chrome only */
 
-        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]{
+        ytd-comment-thread-renderer[style*="--tabview-cmt-height"] {
             content-visibility: auto;
-            contain-intrinsic-size: 1px var(--tabview-cmt-height, 234px); /* 1.2 x SizeMax */
-        }
-        
-        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]:has(:hover){
-            content-visibility: visible;
-            contain-intrinsic-size: initial;
+            contain-intrinsic-size: 1px var(--tabview-cmt-height, 234px);
+            /* 1.2 x SizeMax */
         }
 
-        /* 2022/11/09 fix chrome layout sizing bug for content-visibility: auto (colored comment) */
-        /*
-        // https://www.youtube.com/watch?v=Ewnt9o7c1vo
-        ytd-comment-thread-renderer[style*="--tabview-cmt-height"]:has(#comment[style*="--ytd-comment-paid-background-color"]){
-            content-visibility: visible;
-        }
-        */
-
-        
 
     }
+
+}
+
+
+
+@media not all and (display-mode: fullscreen) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     /**  ==== for Teaser UI  ===  */
 
-    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy{
+    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
         margin-bottom: 0;
         overflow-y: auto;
     }
 
-    ytd-watch-flexy[flexy] #primary ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ * #info ~ #meta{
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ * #info ~ #meta {
         height: auto;
         min-height: 0;
     }
@@ -2532,25 +3146,25 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         margin-right: 0;
         gap: 12px;
     }
-    #owner-and-teaser.style-scope.ytd-watch-metadata > #owner.item.style-scope.ytd-watch-metadata,
-    #owner-and-teaser.style-scope.ytd-watch-metadata > #comment-teaser.item.style-scope.ytd-watch-metadata{
+
+    #owner-and-teaser.style-scope.ytd-watch-metadata>#owner.item.style-scope.ytd-watch-metadata,
+    #owner-and-teaser.style-scope.ytd-watch-metadata>#comment-teaser.item.style-scope.ytd-watch-metadata {
         margin-top: 2px;
         margin-right: 0;
     }
 
     @media only screen and (max-width: 1184px) {
-                
+
         #owner-and-teaser.style-scope.ytd-watch-metadata {
             gap: 4px;
         }
     }
- 
+
 
     /* tabview-no-duplicate-info */
 
 
-    #description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])
-    {
+    #description-and-actions.style-scope.ytd-watch-metadata>#description ytd-text-inline-expander:not([tabview-removed-duplicate]) {
         visibility: collapse;
     }
 
@@ -2558,8 +3172,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     .tabview-no-duplicate-info ytd-text-inline-expander #extra-content.style-scope.ytd-watch-metadata,
     .tabview-no-duplicate-info ytd-text-inline-expander:not([is-expanded]) tp-yt-paper-button#collapse,
-    .tabview-no-duplicate-info ytd-text-inline-expander [slot="extra-content"].style-scope.ytd-watch-metadata
-    {
+    .tabview-no-duplicate-info ytd-text-inline-expander [slot="extra-content"].style-scope.ytd-watch-metadata {
         display: none;
     }
 
@@ -2568,13 +3181,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
     /**  fix dimensions */
-    
+
     body ytd-watch-flexy[flexy][is-two-columns_][is-four-three-to-sixteen-nine-video_] #primary.ytd-watch-flexy {
         max-width: none;
         /* square video : https://www.youtube.com/watch?v=rEU4CjSQzNY */
     }
-    
-    #tab-info #description.ytd-video-secondary-info-renderer{
+
+    #tab-info #description.ytd-video-secondary-info-renderer {
         max-width: none;
     }
 
@@ -2588,7 +3201,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     @supports not (zoom: 0.5) {
         #right-tabs .font-size-btn {
-            display: none !important;  /* hide zoom btn for FireFox */
+            display: none !important;
+            /* hide zoom btn for FireFox */
         }
     }
 
@@ -2604,16 +3218,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /*9361*/
 
-    ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]){
-        max-width: none; /* fix game content box width */
+    ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]) {
+        max-width: none;
+        /* fix game content box width */
     }
 
-    #tab-list ytd-playlist-panel-renderer:not([hide-header-text]):not([collapsed]):not([has-toolbar]) #header-contents.ytd-playlist-panel-renderer{
+    #tab-list ytd-playlist-panel-renderer:not([hide-header-text]):not([collapsed]):not([has-toolbar]) #header-contents.ytd-playlist-panel-renderer {
         margin-bottom: 0;
     }
 
     /* fix teaser UI overflow */
-    ytd-watch-flexy[flexy] #primary ytd-watch-metadata #bottom-row.style-scope.ytd-watch-metadata{
+    ytd-watch-flexy[flexy] #primary ytd-watch-metadata #bottom-row.style-scope.ytd-watch-metadata {
         max-width: 100%;
     }
 
@@ -2621,26 +3236,30 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* experimental css - teaser ui */
         /* visible if tab-info is with no content */
-        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text > span.bold[style-target="bold"] + span[style*="color: "]:not([style-target="bold"]):not(.bold){
+        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text>span.bold[style-target="bold"]+span[style*="color: "]:not([style-target="bold"]):not(.bold) {
             visibility: hidden;
             max-height: 0;
             display: inline-block;
         }
-        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text > span.bold[style-target="bold"] + span[style*="color: "]:not([style-target="bold"]):not(.bold) ~ .yt-simple-endpoint.style-scope.yt-formatted-string{
+
+        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #formatted-snippet-text>span.bold[style-target="bold"]+span[style*="color: "]:not([style-target="bold"]):not(.bold) ~ .yt-simple-endpoint.style-scope.yt-formatted-string {
             visibility: hidden;
             max-height: 0;
             display: inline-block;
         }
-        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander + tp-yt-paper-button#expand[style*="left: "]{
+
+        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander+tp-yt-paper-button#expand[style*="left: "] {
             visibility: hidden;
             max-height: 0;
             display: inline-block;
         }
-        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander > #snippet-text + #ellipsis ~ * {
+
+        ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander>#snippet-text + #ellipsis ~ * {
             visibility: hidden;
             max-height: 0;
             display: inline-block;
         }
+
         ytd-watch-flexy[flexy] #primary ytd-watch-metadata ytd-text-inline-expander#description-inline-expander #snippet.style-scope.ytd-text-inline-expander {
             white-space: nowrap;
             color: var(--yt-spec-text-secondary);
@@ -2649,41 +3268,55 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    
-    .ytp-progress-bar[tabindex][role="slider"] > .ytp-scrubber-container[style]{
+
+    .ytp-progress-bar[tabindex][role="slider"]>.ytp-scrubber-container[style] {
         transition-delay: 10ms;
     }
 
-    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]){
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) {
         transition-delay: 12ms;
     }
 
-    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-text{
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-text {
         transition-delay: 15ms;
     }
 
-    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-bg{
+    .ytp-tooltip.ytp-bottom.ytp-preview[style*="top"][style*="left"]:not([style*="display"]) .ytp-tooltip-bg {
         transition-delay: 16ms;
     }
 
-    
+
+
+
+
+}
+
+
+@media all and (display-mode: fullscreen) {
 
     /*  fix Iridium CSS  */
 
-    ytd-watch-flexy[flexy][is-two-columns_][fullscreen] #info .iri-quick-controls-tooltip{
+    ytd-watch-flexy[flexy][is-two-columns_][fullscreen] #info .iri-quick-controls-tooltip {
         margin-top: -7rem;
     }
 
+    ytd-watch-flexy[flexy][fullscreen] ytd-live-chat-frame,
+    ytd-watch-flexy[flexy][fullscreen] #right-tabs .tab-content {
+        content-visibility: auto;
+    }
+
+}
+
+@media all {
+
+
+
     /* 2022/07/30 #primary-inner > #player + #below */
 
-    ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner > #below {
+    ytd-watch-flexy[flexy][is-two-columns_] #primary #primary-inner>#below {
         flex-grow: 1;
         display: flex;
         flex-direction: column;
-    }
-
-    ytd-watch-flexy[flexy][fullscreen] ytd-live-chat-frame,  ytd-watch-flexy[flexy][fullscreen] #right-tabs .tab-content {
-        content-visibility: auto;
     }
 
 
@@ -2691,11 +3324,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy div#scroll-container.style-scope.yt-chip-cloud-renderer {
         user-select: none !important;
     }
-    
-    
+
+
     /* 2022.08.09 for https://greasyfork.org/scripts/373005-super-fast-youtube-to-mp3-converter-online-video-downloader */
 
-    #meta-contents #subscribe-button.ytd-video-secondary-info-renderer > #punisher{
+    #meta-contents #subscribe-button.ytd-video-secondary-info-renderer>#punisher {
         z-index: 0;
     }
 
@@ -2703,12 +3336,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 9381 */
 
-    body #subscribe-button.ytd-video-secondary-info-renderer{
+    body #subscribe-button.ytd-video-secondary-info-renderer {
         flex-direction: row;
         align-items: center;
     }
 
-    #subscribe-button.ytd-video-secondary-info-renderer > span#punisher > a[href*="https://convert2mp3s.com/api/widgetv2?url="] {
+    #subscribe-button.ytd-video-secondary-info-renderer>span#punisher>a[href*="https://convert2mp3s.com/api/widgetv2?url="] {
         font-size: 1px !important;
         color: transparent !important;
         width: 24px !important;
@@ -2724,130 +3357,126 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         transform: scale(0.8);
         transform-origin: center center;
         user-select: none !important;
-        opacity:0.8;
+        opacity: 0.8;
     }
 
 
-    #subscribe-button.ytd-video-secondary-info-renderer > span#punisher {
+    #subscribe-button.ytd-video-secondary-info-renderer>span#punisher {
         padding: 2px !important;
         margin-top: 0 !important;
         background-color: transparent !important;
-     }
+    }
 
 
-     /* 2022.08.18 livechat reply disable */
+    /* 2022.08.18 livechat reply disable */
 
-     /*
+    /*
      ytd-watch-flexy[tabview-livechat-msg]{
          --tabview-livechat-show-hide-button-display: none;
      }
      */
 
-     ytd-watch-flexy:not(.tv-chat-toggleable) ytd-live-chat-frame#chat > #show-hide-button{
-         display: none;
-     }
-     
-     /*  2022/10/27 ; ytd-channel-name z-index:0 for scrolling not to overlay video */
-     #player ~ #below ytd-watch-metadata #upload-info.ytd-video-owner-renderer > ytd-channel-name.ytd-video-owner-renderer{
-         z-index: 0;
-     }
+    ytd-watch-flexy:not(.tv-chat-toggleable) ytd-live-chat-frame#chat>#show-hide-button {
+        display: none;
+    }
+
+    /*  2022/10/27 ; ytd-channel-name z-index:0 for scrolling not to overlay video */
+    #player ~ #below ytd-watch-metadata #upload-info.ytd-video-owner-renderer>ytd-channel-name.ytd-video-owner-renderer {
+        z-index: 0;
+    }
 
     /* 9382 */
 
-    
 
 
 
-     /* 2022/11/06 - one-line tips */
+}
 
-     ytd-comment-action-buttons-renderer  #toolbar #tooltip.style-scope.tp-yt-paper-tooltip,
-     [action-buttons-style="desktop-toolbar"] #toolbar #tooltip.style-scope.tp-yt-paper-tooltip
-     {
-        word-wrap: none;
-        white-space: nowrap;
-        word-break: keep-all;
-     }
 
-     /* 2022/11/06 - margin bug for new layout */
+/** ZONE D **/
 
-     ytd-watch-flexy[is-two-columns_][theater] > #columns.ytd-watch-flexy {
+@media all {
+
+
+    /* 2022/11/06 - margin bug for new layout */
+
+    ytd-watch-flexy[is-two-columns_][theater]>#columns.ytd-watch-flexy {
         margin: 0;
-     }
+    }
 
-     /* 2022/11/06 - fix round border */
+    /* 2022/11/06 - fix round border */
 
-     ytd-live-chat-frame#chat yt-live-chat-app,
-     ytd-live-chat-frame#chat yt-live-chat-renderer,
-     ytd-live-chat-frame#chat yt-live-chat-header-renderer,
-     ytd-live-chat-frame#chat ytd-live-chat-frame#chat,
-     ytd-live-chat-frame#chat iframe#chatframe,
-     body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame *
-     {
-        border:0;
+    ytd-live-chat-frame#chat yt-live-chat-app,
+    ytd-live-chat-frame#chat yt-live-chat-renderer,
+    ytd-live-chat-frame#chat yt-live-chat-header-renderer,
+    ytd-live-chat-frame#chat ytd-live-chat-frame#chat,
+    ytd-live-chat-frame#chat iframe#chatframe,
+    body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame * {
+        border: 0;
         border-radius: 0;
-     }
-     
-     body ytd-live-chat-frame[rounded-container]
-     {
-        border:0;
+    }
+
+    body ytd-live-chat-frame[rounded-container] {
+        border: 0;
         border-radius: 0;
-     }
+    }
 
-     body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame ytd-toggle-button-renderer.ytd-live-chat-frame
-     {
-        border:0;
+    body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame ytd-toggle-button-renderer.ytd-live-chat-frame {
+        border: 0;
         border-radius: 0;
-     }
-     
+    }
 
 
-     
-     /* 2022/11/06 - show hide button background fix */
 
-     ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame{
+
+    /* 2022/11/06 - show hide button background fix */
+
+    ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame {
         /*background-color: var(--yt-spec-black-2);*/
         background-color: var(--ytd-searchbox-legacy-button-color);
         color: var(--yt-spec-text-secondary);
-     }
+    }
 
-     ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame yt-button-shape{
+    ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame yt-button-shape {
         outline: 1px solid var(--yt-spec-10-percent-layer);
-     }
+    }
 
-     /* 2022/11/07 - chat room border 1px */
-
-
-     body ytd-live-chat-frame#chat[class]{
-        outline:1px solid var(--yt-spec-10-percent-layer);
-        margin:1px;
-     }
+    /* 2022/11/07 - chat room border 1px */
 
 
+    body ytd-live-chat-frame#chat[class] {
+        outline: 1px solid var(--yt-spec-10-percent-layer);
+        margin: 1px;
+    }
+
+}
 
 
-     /* 2022/11/06 - hide new layout repeated info */
-     
-    @supports (content-visibility: hidden) and selector(#tag.cls:has(>#id:only-child)){
+
+@media all and (display-mode: fullscreen) {
+
+    @supports (content-visibility: hidden) {
         
-        /* Firefox: layout.css.has-selector.enabled = true */
+        /* repeated info hidden */
 
-        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy:has(#description-inner:only-child){
-            margin-top:3px;
+        /*
+        ytd-watch-flexy[fullscreen]:has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer) #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child)>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
+            overflow: auto;
+        }*/
+
+        ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
+            overflow: auto;
         }
 
-        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child){
-            overflow: hidden;
+        ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
+            overflow-x: hidden;
         }
 
         
-        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) {
-            margin-top: 3px;
-        }
 
-        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) 
-        > #description-inner.style-scope.ytd-watch-metadata{
-            margin: 5px 12px 3px 12px;
-        }
+        /*
         
         ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander 
         #description.ytd-video-secondary-info-renderer > yt-attributed-string.style-scope.ytd-video-secondary-info-renderer ~ yt-formatted-string.style-scope.ytd-video-secondary-info-renderer) 
@@ -2864,133 +3493,100 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata{
             content-visibility: hidden;
         }
+
+        */
+    }
+
+}
+
+
+/** ZONE E */
+
+@media not all and (display-mode: fullscreen) {
+
+    @supports (content-visibility: hidden) {
+
         
-        ytd-watch-flexy[fullscreen]:has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer) 
-        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) > #description-inner.style-scope.ytd-watch-metadata > 
-        #info-container.style-scope.ytd-watch-metadata ~
-        ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata{
-            max-height: calc( 100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x) );
-            overflow: auto;
+        /* repeated info hidden */
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata>yt-attributed-string.ytd-text-inline-expander ~ yt-formatted-string.ytd-text-inline-expander {
+            content-visibility: hidden;
         }
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            content-visibility: hidden;
+        }
+
+
 
         /* 2022/11/23 */
 
+
+        /*
 
         ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer)
         #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
             content-visibility: hidden;
         }
+        */
 
-        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer) 
-        #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer{
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
+            content-visibility: hidden;
+        }
+
+        /*
+        ytd-watch-flexy:not([fullscreen]):has(#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer) #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer {
+            margin-right: 0;
+        }
+        */
+
+        ytd-watch-flexy:not([fullscreen]):not([tyt-has*="c"]) #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer {
             margin-right: 0;
         }
 
         /* ytd-watch-metadata[clickable-description][description-collapsed] #description.ytd-watch-metadata */
-        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata #info-container[tabview-info-toggler]{
-            cursor: pointer;
-        }
-        
-        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tabview-info-toggler]:hover) {
-            background: var(--yt-spec-button-chip-background-hover);
-        }
 
 
-        
+
+
+        /* 2022/11/27 */
+
+        ytd-watch-flexy[tyt-chat*="chat$live"]:not([fullscreen]).tabview-info-duplicated ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata {
+            pointer-events: none;
+        }
+
 
     }
+}
 
-    /* 2022/11/24 */
-    @supports (overflow-x: hidden) and (min-width: max-content) {
 
-        /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
-        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover {
-            overflow-x: hidden;
-        }
+@media all {
 
-        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
-            min-width: max-content;
-        }
-
-        body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
-            max-width: calc(50% - 6px);
-            min-width: initial;
-        }
-
-        body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
-            max-width: calc(50% - 6px);
-            min-width: initial;
-        }
-
-    }
-
-     /* 2022/11/06 - fix empty clarify box */
-     
-     #primary.style-scope.ytd-watch-flexy #clarify-box.style-scope.ytd-watch-flexy:empty{
-        display: none;
-    }
-
-     /* 2022/11/07 - adjust spacing */
-     /*
-     #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
-        margin-top:8px;        
-    }*/
     
-    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
-        margin-top:0px;        
-    }
-    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow) + h1.style-scope.ytd-watch-metadata{
-        margin-top:2px;        
-    }
-
-    ytd-watch-flexy[flexy][is-two-columns_] #primary-inner #player~#below.style-scope.ytd-watch-flexy{
-        overflow-y: auto; /* note: overlapped the tooltips */
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-        margin-top: 6px;
-    }
-    #primary-inner #player~#below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
-        display: none;
-    }
-
-     
-    /* 2022/11/06 - adjust width for new layout (modern-metapanel)
-    YouTube Bug: Darker Dark Mode forgot to consider Japanese Layout Issue
-    */
-    
-    /*
-    body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
-        min-width: calc(60% - 6px);
-        transition: min-width 200ms;
-    }
-    body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
-        min-width: calc(40% - 6px);
-        max-width: calc(40% - 6px);
-    }
-    */
-
     /* 2022/11/07 - playlist no round radius */
-    body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer{
+    body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer {
         border-radius: 0;
     }
 
     /* 2022/11/07 - specific fix for YouTubeLiveClock - chrome only */
-    html:has(style#ytlctn-style-for-native-control) #columns #player::after{
+    html:has(style#ytlctn-style-for-native-control) #columns #player::after {
         content: "";
         background-color: transparent;
         border-color: transparent;
-        color:transparent;
+        color: transparent;
         box-sizing: border-box;
         border-style: dotted;
         display: flex;
-        height:0px;
-        margin:0;
-        border:0;
-        margin-top:51px;
-        width: calc( 100% - 4px );
+        height: 0px;
+        margin: 0;
+        border: 0;
+        margin-top: 51px;
+        width: calc(100% - 4px);
         position: relative;
         pointer-events: none;
     }
+
     /*
     html:has(style#ytlctn-style-for-native-control) #player-theater-container > #player-container.ytd-watch-flexy > #ytd-player::after{
         content: "";
@@ -3009,15 +3605,15 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         pointer-events: none;
     }*/
 
-    html:has(style#ytlctn-style-for-native-control) #columns #below{
+    html:has(style#ytlctn-style-for-native-control) #columns #below {
         transform: initial;
     }
-    
-    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater] #columns{
-        margin-top:51px;
+
+    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater] #columns {
+        margin-top: 51px;
     }
 
-    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns #secondary #secondary-inner > *{
+    html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns #secondary #secondary-inner>* {
         transform: initial;
     }
 
@@ -3028,180 +3624,132 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         max-width: calc(var(--ytd-watch-flexy-sidebar-width) - var(--ytd-margin-8x) * 5);
     }
 
-    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs #emojis.ytd-commentbox yt-emoji-picker-renderer.style-scope.ytd-commentbox#emoji{
+    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs #emojis.ytd-commentbox yt-emoji-picker-renderer.style-scope.ytd-commentbox#emoji {
         min-height: calc(60vh - var(--userscript-h-tab-btn) - var(--ytd-margin-6x) * 2 - var(--userscript-top-bar-height));
     }
 
-    
+
     /* 2022/11/07 - integrate with cinematics background */
-    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs > header {
-        background:transparent;
+    ytd-watch-flexy[flexy][is-two-columns_] #right-tabs>header {
+        background: transparent;
     }
-    
+
 
 
     /* 2022/11/09 - cinematic background integration */
-    
-    
-    body .playlist-items.ytd-playlist-panel-renderer{
-        background-color: initial; /* remove YouTube default background background */
+
+
+    body .playlist-items.ytd-playlist-panel-renderer {
+        background-color: initial;
+        /* remove YouTube default background background */
     }
 
-    ytd-watch-flexy[cinematics-enabled] #right-tabs{
-        --tabview-tab-container-background: rgba(255,255,255,0.04);
+    ytd-watch-flexy[cinematics-enabled] #right-tabs {
+        --tabview-tab-container-background: rgba(255, 255, 255, 0.04);
     }
 
 
-    .tab-content-cld{
+    .tab-content-cld {
         background-color: var(--tabview-tab-container-background);
     }
 
     /* remove YouTube constant will-change */
-    body .yt-spec-touch-feedback-shape__fill, body .yt-spec-touch-feedback-shape__stroke, body tp-yt-iron-list, body #items.tp-yt-iron-list>*, body #onRadio.tp-yt-paper-radio-button, body .toggle-button.tp-yt-paper-toggle-button, body .fill.yt-interaction, body .stroke.yt-interaction, body #items.ytd-post-multi-image-renderer, body #items.ytd-horizontal-card-list-renderer, body #items.yt-horizontal-list-renderer,
-    body #left-arrow.yt-horizontal-list-renderer, body #right-arrow.yt-horizontal-list-renderer, body #items.ytd-video-description-music-section-renderer, body #chips.yt-chip-cloud-renderer, body #items.ytd-merch-shelf-renderer, body #items.ytd-product-details-image-carousel-renderer,
-    body #chips.ytd-feed-filter-chip-bar-renderer, ytd-miniplayer[enabled] {
-        will-change: auto; /* constant value will slow down the performance; default auto */
+    body .yt-spec-touch-feedback-shape__fill,
+    body .yt-spec-touch-feedback-shape__stroke,
+    body tp-yt-iron-list,
+    body #items.tp-yt-iron-list>*,
+    body #onRadio.tp-yt-paper-radio-button,
+    body .toggle-button.tp-yt-paper-toggle-button,
+    body .fill.yt-interaction,
+    body .stroke.yt-interaction,
+    body #items.ytd-post-multi-image-renderer,
+    body #items.ytd-horizontal-card-list-renderer,
+    body #items.yt-horizontal-list-renderer,
+    body #left-arrow.yt-horizontal-list-renderer,
+    body #right-arrow.yt-horizontal-list-renderer,
+    body #items.ytd-video-description-music-section-renderer,
+    body #chips.yt-chip-cloud-renderer,
+    body #items.ytd-merch-shelf-renderer,
+    body #items.ytd-product-details-image-carousel-renderer,
+    body #chips.ytd-feed-filter-chip-bar-renderer,
+    ytd-miniplayer[enabled] {
+        will-change: auto;
+        /* constant value will slow down the performance; default auto */
     }
 
-    ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer{
-        background-color: rgba(32.5, 32.5,32.5, 0.875);
+    ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer {
+        background-color: rgba(32.5, 32.5, 32.5, 0.875);
     }
 
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer{
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer {
 
 
         background: var(--yt-spec-raised-background);
         border-radius: 12px;
-        padding:0px 8px;
+        padding: 0px 8px;
         --yt-spec-base-background: var(--yt-spec-raised-background);
-        opacity:0.8;
+        opacity: 0.8;
 
     }
-    
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme]  #container.style-scope.yt-chip-cloud-renderer #left-arrow,
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow{
 
-            opacity:0.9;
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #left-arrow,
+    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow {
+
+        opacity: 0.9;
     }
 
     /* 2022/11/09 added coloring css to make the super title looks better */
 
-    html[darker-dark-theme][dark] #title.style-scope.ytd-watch-metadata{
+    html[darker-dark-theme][dark] #title.style-scope.ytd-watch-metadata {
         --yt-spec-call-to-action-clone: var(--yt-spec-call-to-action);
     }
 
-    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata{
+    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata {
         /*
         --yt-spec-call-to-action: var(--yt-live-interactivity-component-background-color);
         */
         --yt-spec-call-to-action: var(--yt-live-chat-tertiary-text-color);
     }
-    
-    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata a:hover{
+
+    html[darker-dark-theme][dark] #super-title.style-scope.ytd-watch-metadata a:hover {
         /*
         --yt-spec-call-to-action: var(--yt-spec-call-to-action-clone);*/
         --yt-spec-call-to-action: var(--yt-spec-mono-filled-hover);
-        
+
     }
 
-     body ytd-message-renderer{
-        padding: 8px 16px; /* inline with button size */
-     }
+    body ytd-message-renderer {
+        padding: 8px 16px;
+        /* inline with button size */
+    }
 
 
-     /* 2022/11/11 video ratio 0.418945 */
-     /*
-
-     380px; 0.418945
-
-     https://www.youtube.com/watch?v=E_0AOHXcw_8
-         CHANMINA - Don't go (feat. ASH ISLAND) (Official Music Video) - - YouTube
-
-         
-     380px; 0.46
-
-        https://www.youtube.com/watch?v=yK2Cdi6R43c
-         涙することは疎か、息も出来ない。 / HACHI 【Official MV】 - YouTube
-
-        */
-
-        /* 
-        // 2022/11/12 Layout Bug Fixed By YouTube
-        
-            ytd-watch-flexy {
-                --tabview-widescreen-primary-ml: '-NULL-';
-                --tabview-widescreen-primary-mr: '-NULL-';
-                --tabview-widescreen-primary-pl: '-NULL-';
-                --tabview-widescreen-primary-pr: '-NULL-';
-            }
-
-            ytd-watch-flexy[style*="-max-height:"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) {
-                --tabview-widescreen-primary-ml: var(--ytd-margin-5x);
-                --tabview-widescreen-primary-mr: var(--ytd-margin-5x);
-                --tabview-widescreen-primary-pl: 0;
-                --tabview-widescreen-primary-pr: 0;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default {
-                width: 24px;
-                height: 24px;
-                --yt-icon-button-icon-width: 16px;
-                --yt-icon-button-icon-height: 16px;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer [class*="yt"] {
-                align-items: center;
-                display: flex;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) .top-level-buttons.style-scope.ytd-menu-renderer .yt-spec-button-shape-next__icon {
-                width: auto;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) button.yt-spec-button-shape-next--icon-only-default yt-icon {
-                width: 16px !important;
-                height: 16px !important;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-menu-renderer .ytd-menu-renderer[style-target="button"] {
-                --yt-icon-width: 24px;
-                --yt-icon-height: 24px;
-                --yt-icon-button-icon-width: 16px;
-                --yt-icon-button-icon-height: 16px;
-            }
-
-            ytd-watch-flexy[style*="-max-height:380px"][style*="--ytd-watch-flexy-height-ratio:0.4"][is-two-columns_]:not([theater]):not([fullscreen]) ytd-comments#comments.style-scope.ytd-watch-flexy ytd-comments-header-renderer.ytd-item-section-renderer>#title.style-scope.ytd-comments-header-renderer>#count {
-                margin-right: 16px;
-            }
-
-            */
-
-            /* fix button size due to transform:scale*/
-            /* kept as default setting */
-            #left-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon,
-            #right-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            
+    /* fix button size due to transform:scale*/
+    /* kept as default setting */
+    #left-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon,
+    #right-arrow.yt-chip-cloud-renderer .yt-spec-button-shape-next__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
 
-     /* 2022/11/11 comments colored background padding fix */
-     
-    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld{
+
+
+    /* 2022/11/11 comments colored background padding fix */
+
+    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld {
         --tab-content-padding: var(--ytd-margin-2x);
     }
 
-    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld ytd-item-section-renderer#sections.style-scope.ytd-comments{
+    ytd-watch-flexy #right-tabs #tab-comments.tab-content-cld ytd-item-section-renderer#sections.style-scope.ytd-comments {
         --tab-content-padding-2: var(--ytd-margin-2x);
         padding: var(--tab-content-padding-2);
     }
 
 
 
-/*
+    /*
     .tabview-txt{
         --tabview-txt-display: none;
         display:var(--tabview-txt-display);
@@ -3211,167 +3759,164 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     */
 
+}
 
-    /* ---- v3.7.0 ---- */
-    /* 2022/11/21 css fix wide layout */
+/** ZONE G */
 
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner {
+@media all {
 
-        min-width: var(--ytd-watch-flexy-sidebar-min-width);
+    /* 2022/11/06 - one-line tips */
 
-        transition: transform 0.13s ease-out, min-width 1ms, background-color 250ms linear, outline 250ms linear;
-        transition-delay: 48ms, 192ms, 192ms, 4ms;
-        
-        transform:translateX(0px);
-        background-color: rgba(0,0,0,0.0);
-        outline:0px solid var(--ytd-searchbox-background);
-
+    ytd-comment-action-buttons-renderer #toolbar #tooltip.style-scope.tp-yt-paper-tooltip,
+    [action-buttons-style="desktop-toolbar"] #toolbar #tooltip.style-scope.tp-yt-paper-tooltip {
+        word-wrap: none;
+        white-space: nowrap;
+        word-break: keep-all;
     }
 
-    /* 2022/12/25 added for firefox css (rendering) bug fixing */
-    @supports (-moz-appearance:none) {
 
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner {
-            border: 1px solid transparent; 
+
+
+
+
+    /* 2022/11/06 - hide new layout repeated info */
+
+    @supports (content-visibility: hidden) {
+
+        /* repeated info hidden */
+
+        /* tabview-info-c1 | :has(>#description-inner:only-child) */
+        /* tabview-info-c2 | :has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer)  */
+
+        /* Firefox: layout.css.has-selector.enabled = true */
+
+        /*
+        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy:has(#description-inner:only-child) {
+            margin-top: 3px;
         }
 
-    }
+        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) {
+            overflow: hidden;
+        }
 
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider:hover > div#secondary-inner,
-    ytd-watch-flexy[flexy][is-two-columns_]:not([theater]) #secondary.ytd-watch-flexy.tabview-hover-sider > div#secondary-inner:hover {
-        /* two layout are different in size and location */
 
-        min-width: var(--ytd-watch-flexy-sidebar-width);
-        --tabview-sider-offset2: calc( var(--tabview-sider-offset) - var(--tabview-sider-basewidth) + var(--ytd-watch-flexy-sidebar-width) );
-        transform:translateX(calc(-1*var(--tabview-sider-offset2) ));
-        background-color: var(--yt-spec-base-background);
-        /*min-width: var(--ytd-watch-flexy-sidebar-width);*/
-        transition: min-width 1ms, transform 0.13s ease-out, outline 250ms linear;
-        transition-delay: 48ms, 192ms, 4ms;
-        outline:8px solid var(--ytd-searchbox-background);
+        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child) {
+            margin-top: 3px;
+        }
 
-    }
-    
+        #description.style-scope.ytd-watch-metadata:has(>#description-inner:only-child)>#description-inner.style-scope.ytd-watch-metadata {
+            margin: 5px 12px 3px 12px;
+        }
 
-/* 
-    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy::before {
+        */
 
-        display: block;
-        content: "";
-        position: absolute;
-        width: var(--ytd-watch-flexy-sidebar-width);
-        height: 100vh;
-        top: 0px;
-        /-*right: var(--tabview-sider-offset);*-/
-        right: calc( 0.5*var(--ytd-watch-flexy-sidebar-width) );
-        /-*right:0px;*-/
-        /-*transform: translate(0px, 0px);*-/
+        ytd-watch-flexy:not([tyt-has*="a"]) ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
+            margin-top: 3px;
+        }
 
-        transform: scaleX(0%);
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
+            overflow: hidden;
+        }
 
-        transform-origin: center right;
-        background: rgba(120,0,0,0.5);
-        z-index: 0;
-        
-        transition: all 0.2s ease-out;
-        transition-delay: 0.15s;
-    }
-    
-    ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy:hover::before {
 
-        right: var(--tabview-sider-right);
-        transform: scaleX(100%);
-        transition-delay: 0.01s;
-        
-    }
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
+            margin-top: 3px;
+        }
 
-    ytd-watch-flexy[cinematics-enabled] #secondary.ytd-watch-flexy.tabview-hover-sider{
-        position: static;
-    }  */
-/*     
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata {
+            margin: 5px 12px 3px 12px;
+        }
 
-necessary; otherwise background issue occurs for transcript panel background  (panel button)
-    body ytd-watch-flexy[cinematics-enabled] #secondary.ytd-watch-flexy{
-        position: static; /-* not necessary as the cinematics is inside primary not secondary. *-/
-    }  */
 
-    body ytd-watch-flexy[flexy][is-two-columns_][theater] #columns.ytd-watch-flexy{
-        min-width: 0; /* avoid very wide video make the column sketch > 100vw under theater mode */
-    }
 
-    #tab-info .less-button.style-scope.ytd-video-secondary-info-renderer[role="button"]{
-        display:none;
-    }
 
-    @supports (selector(:has(:hover))) {
+        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy[clickable-description] #description.ytd-watch-metadata #info-container.ytd-watch-metadata[tabview-info-toggler] {
+            cursor: pointer;
+        }
+
+        /* rollback at 2022/11/30;  buggy for :has(:hover) */
+        /*
+        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tabview-info-toggler]:hover) {
+            background: var(--yt-spec-button-chip-background-hover);
+        }*/
+
 
         
-        #tab-info #video-lockups > #left-arrow-container.style-scope.arrow-container {
 
-            --tabview-left-arrow-opacity:'-NULL-';
-            opacity:var(--tabview-left-arrow-opacity);
-            transition:opacity 130ms;
-
-        }
-
-
-        #tab-info #video-lockups:has(#right-arrow-container:hover) > #left-arrow-container.style-scope.arrow-container {
-
-            --tabview-left-arrow-opacity:0.23;
-
-        }
-
-        #tab-info #video-lockups > #right-arrow-container.style-scope.arrow-container {
-
-            --tabview-right-arrow-opacity:'-NULL-';
-            opacity:var(--tabview-right-arrow-opacity);
-            transition:opacity 130ms;
-
-        }
-
-
-        #tab-info #video-lockups:has(#left-arrow-container:hover) > #right-arrow-container.style-scope.arrow-container {
-
-            --tabview-right-arrow-opacity:0.23;
-
-        }
-
-       
-    }
-
-
-    /* added in 2022/11/24 */
-
-    html:has(body){
-        --tabview-has-selector-enabled: 1;
-    }
-
-    /* parent container */
-    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata{
-        background-position-y: 0px; /* no background */
-        transition: background-position-y 50ms; /* detection of hover - mouseleave */
-        transition-delay: 1ms; /* ensure effect is stably executed */
-    }
-    #primary #below ytd-video-owner-renderer.style-scope.ytd-watch-metadata:hover{
-        background-position-y: 1px; /* no background */
-        transition-duration: 10ms; /* detection of hover - mouseenter */
-        /*transition-delay: 1ms;*/
-    }
-
-    /* sub elements */
-    #primary #below #upload-info, 
-    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href]{
-        background-position-x: 0px; /* no background */
-        transition: background-position-x 40ms; /* detection of hover - mouseleave */
-        transition-delay: 1ms; /* not counted in elapsedTime; just time delay allowing cursor moving between channel icon and channel text */
-    }
-    #primary #below #upload-info:hover, 
-    #primary #below #owner a.yt-simple-endpoint.style-scope.ytd-video-owner-renderer[href]:hover{
-        background-position-x: 1px; /* no background */
-        transition-duration: 20ms; /* detection of hover - mouseenter */
-        /*transition-delay: 1ms;*/
     }
 
     
 
-    
+    /* 2022/11/24 */
+    @supports (overflow-x: hidden) and (min-width: max-content) {
+
+        /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover {
+            overflow-x: hidden;
+        }
+
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
+            min-width: max-content;
+        }
+
+        /*
+        body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
+            max-width: calc(50% - 6px);
+            min-width: initial;
+        }
+
+        body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
+            max-width: calc(50% - 6px);
+            min-width: initial;
+        }
+        */
+
+    }
+
+    /* 2022/11/06 - fix empty clarify box */
+
+    #primary.style-scope.ytd-watch-flexy #clarify-box.style-scope.ytd-watch-flexy:empty {
+        display: none;
+    }
+
+
+    /* 2022/11/07 - adjust spacing */
+
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
+        margin-top: 2px;
+    }
+
+    ytd-watch-flexy[flexy][is-two-columns_] #primary-inner #player ~ #below.style-scope.ytd-watch-flexy {
+        overflow-y: auto;
+        /* note: overlapped the tooltips */
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+        margin-top: 6px;
+    }
+
+    #primary-inner #player ~ #below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
+        display: none;
+    }
+
+
+    /* 2022/11/06 - adjust width for new layout (modern-metapanel)
+    YouTube Bug: Darker Dark Mode forgot to consider Japanese Layout Issue
+    */
+
+    /*
+    body #primary #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
+        min-width: calc(60% - 6px);
+        transition: min-width 200ms;
+    }
+    body #primary #below ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata {
+        min-width: calc(40% - 6px);
+        max-width: calc(40% - 6px);
+    }
+    */
+
+
+
+}
+

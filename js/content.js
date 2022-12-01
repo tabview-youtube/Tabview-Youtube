@@ -18,38 +18,35 @@
    * <div>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
    */
 
-  const scriptVersionForExternal = '2022/05/07';
+  const scriptVersionForExternal = '2022/12/01';
 
   const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof ((((window || 0).chrome || 0).runtime || 0).getURL) === 'function'
 
-  const svgComments = `<path d="M40.068 13.465l-34.138.07A5.94 5.94 0 0 0 0 19.465v21.141a5.94 5.94 0 0 0 5.93 5.929H12v10a1 
-  1 0 0 0 1.74.673l9.704-10.675 16.626-.068A5.94 5.94 0 0 0 46 40.536V19.395a5.94 5.94 0 0 0-5.932-5.93zM10 23.465h13a1 
-  1 0 1 1 0 2H10a1 1 0 1 1 0-2zm26 14H10a1 1 0 1 1 0-2h26a1 1 0 1 1 0 2zm0-6H10a1 1 0 1 1 0-2h26a1 1 0 1 1 0 
-  2zm18.072-28.93l-34.142-.07A5.94 5.94 0 0 0 14 8.395v3.124l26.064-.054c4.377 0 7.936 3.557 7.936 7.93v21.07.071 
-  2.087l3.26 3.586a1 1 0 0 0 1.74-.673v-10h1.07A5.94 5.94 0 0 0 60 29.607V8.465a5.94 5.94 0 0 0-5.928-5.93z"/>`.trim();
+  // https://yqnn.github.io/svg-path-editor/
+// https://vecta.io/nano
 
-  const svgVideos = `<path d="M298 33c0-13.255-10.745-24-24-24H24C10.745 9 0 19.745 0 33v232c0 13.255 10.745 24 24 
-  24h250c13.255 0 24-10.745 24-24V33zM91 39h43v34H91V39zM61 259H30v-34h31v34zm0-186H30V39h31v34zm73 
-  186H91v-34h43v34zm-11-82.292v-55.417c0-8.25 5.868-11.302 12.77-6.783l40.237 26.272c6.902 4.519 6.958 11.914.056 
-  16.434l-40.321 26.277c-6.902 4.52-12.742 1.467-12.742-6.783zM207 259h-43v-34h43v34zm0-186h-43V39h43v34zm61 
-  186h-31v-34h31v34zm0-186h-31V39h31v34z"/>`.trim();
+  const svgComments = `<path d="M80 27H12A12 12 90 0 0 0 39v42a12 12 90 0 0 12 12h12v20a2 2 90 0 0 3.4 2L47 93h33a12 
+  12 90 0 0 12-12V39a12 12 90 0 0-12-12zM20 47h26a2 2 90 1 1 0 4H20a2 2 90 1 1 0-4zm52 28H20a2 2 90 1 1 0-4h52a2 2 90 
+  1 1 0 4zm0-12H20a2 2 90 1 1 0-4h52a2 2 90 1 1 0 4zm36-58H40a12 12 90 0 0-12 12v6h52c9 0 16 7 16 16v42h0v4l7 7a2 2 90 
+  0 0 3-1V71h2a12 12 90 0 0 12-12V17a12 12 90 0 0-12-12z"/>`.trim();
 
-  const svgInfo = `<path d="M11.812 0C5.289 0 0 5.289 0 11.812s5.289 11.813 11.812 11.813 11.813-5.29 11.813-11.813S18.335 
-  0 11.812 0zm2.459 18.307c-.608.24-1.092.422-1.455.548s-.783.189-1.262.189c-.736 
-  0-1.309-.18-1.717-.539s-.611-.814-.611-1.367c0-.215.015-.435.045-.659a8.23 8.23 0 0 1 
-  .147-.759l.761-2.688c.067-.258.125-.503.171-.731a3.24 3.24 0 0 0 
-  .068-.633c0-.342-.071-.582-.212-.717s-.412-.201-.813-.201c-.196 
-  0-.398.029-.605.09s-.383.12-.529.176l.201-.828c.498-.203.975-.377 1.43-.521s.885-.218 1.29-.218c.731 0 1.295.178 
-  1.692.53s.594.812.594 1.376c0 .117-.014.323-.041.617a4.13 4.13 0 0 1-.152.811l-.757 
-  2.68c-.062.215-.117.461-.167.736s-.073.485-.073.626c0 .356.079.599.239.728s.435.194.827.194a2.4 2.4 0 0 0 .626-.097 
-  3.56 3.56 0 0 0 .506-.17l-.203.827zm-.134-10.878c-.353.328-.778.492-1.275.492s-.924-.164-1.28-.492a1.57 1.57 0 
-  0 1-.533-1.193c0-.465.18-.865.533-1.196a1.81 1.81 0 0 1 1.28-.497 1.79 1.79 0 0 1 1.275.497c.353.331.53.731.53 
-  1.196s-.177.865-.53 1.193z"/>`.trim();
+  const svgVideos = `<path d="M89 10c0-4-3-7-7-7H7c-4 0-7 3-7 7v70c0 4 3 7 7 7h75c4 0 7-3 7-7V10zm-62 2h13v10H27V12zm-9 
+  66H9V68h9v10zm0-56H9V12h9v10zm22 56H27V68h13v10zm-3-25V36c0-2 2-3 4-2l12 8c2 1 2 4 0 5l-12 8c-2 1-4 0-4-2zm25 
+  25H49V68h13v10zm0-56H49V12h13v10zm18 56h-9V68h9v10zm0-56h-9V12h9v10z"/>`.trim();
 
-  const svgPlayList = `<path d="M0 64h256v42.667H0zm0 85.333h256V192H0zm0 85.334h170.667v42.667H0zm341.333 
-  0v-85.334h-42.666v85.334h-85.334v42.666h85.334v85.334h42.666v-85.334h85.334v-42.666z"/>`.trim();
+  const svgInfo = `<path d="M30 0C13.3 0 0 13.3 0 30s13.3 30 30 30 30-13.3 30-30S46.7 0 30 0zm6.2 46.6c-1.5.5-2.6 
+  1-3.6 1.3a10.9 10.9 0 0 1-3.3.5c-1.7 0-3.3-.5-4.3-1.4a4.68 4.68 0 0 1-1.6-3.6c0-.4.2-1 .2-1.5a20.9 20.9 90 0 1 
+  .3-2l2-6.8c.1-.7.3-1.3.4-1.9a8.2 8.2 90 0 0 .3-1.6c0-.8-.3-1.4-.7-1.8s-1-.5-2-.5a4.53 4.53 0 0 0-1.6.3c-.5.2-1 
+  .2-1.3.4l.6-2.1c1.2-.5 2.4-1 3.5-1.3s2.3-.6 3.3-.6c1.9 0 3.3.6 4.3 1.3s1.5 2.1 1.5 3.5c0 .3 0 .9-.1 1.6a10.4 10.4 
+  90 0 1-.4 2.2l-1.9 6.7c-.2.5-.2 1.1-.4 1.8s-.2 1.3-.2 1.6c0 .9.2 1.6.6 1.9s1.1.5 2.1.5a6.1 6.1 90 0 0 1.5-.3 9 9 90 
+  0 0 1.4-.4l-.6 2.2zm-3.8-35.2a1 1 0 010 8.6 1 1 0 010-8.6z"/>`.trim();
 
+  const svgPlayList = `<path d="M0 3h12v2H0zm0 4h12v2H0zm0 4h8v2H0zm16 0V7h-2v4h-4v2h4v4h2v-4h4v-2z"/>`.trim();
+  
+  const svgDiag1 = `<svg stroke="currentColor" fill="none"><path d="M8 2h2v2M7 5l3-3m-6 8H2V8m0 2l3-3"/></svg>`;
+  const svgDiag2 = `<svg stroke="currentColor" fill="none"><path d="M7 3v2h2M7 5l3-3M5 9V7H3m-1 3l3-3"/></svg>`;
 
+  const REMOVE_DUPLICATE_INFO = true
   const DEBUG_LOG = false
 
   const LAYOUT_VAILD = 1;
@@ -67,21 +64,165 @@
 
   const nullFunc = function () { };
 
+  
+  const iframeCSS = (()=>{
+    
+    return `
+  body {
+      --tabview-msg-cursor: default;
+      --tabview-msg-pointer-events: none;
+      --tabview-img-pointer-events: auto;
+  }
+  
+  body.tabview-allow-pointer-events {
+      --tabview-msg-cursor: '-NULL-';
+      --tabview-msg-pointer-events: '-NULL-';
+      --tabview-img-pointer-events: '-NULL-';
+  }
+  
+  body #input-panel.yt-live-chat-renderer::after {
+      background: transparent;
+  }
+  
+  .style-scope.yt-live-chat-item-list-renderer {
+      box-sizing: border-box;
+  }
+  
+  yt-live-chat-text-message-renderer:nth-last-child(-n+30):hover #menu.yt-live-chat-text-message-renderer {
+      transition-delay: 87ms;
+  }
+  
+  yt-live-chat-text-message-renderer #menu.yt-live-chat-text-message-renderer {
+      transition-delay: 1ms;
+  }
+  
+  #item.style-scope.yt-live-chat-item-list-renderer,
+  #item-scroller.style-scope.yt-live-chat-item-list-renderer {
+      transition-delay: 42ms;
+  }
+  
+  yt-live-chat-item-list-renderer img[alt] {
+      pointer-events: auto;
+  }
+  
+  body yt-live-chat-item-list-renderer img[alt]~tp-yt-paper-tooltip,
+  body yt-live-chat-item-list-renderer #image~tp-yt-paper-tooltip {
+      --paper-tooltip-delay-in: 120ms !important;
+      white-space: nowrap;
+  }
+  
+  #items.style-scope.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer {
+      --tabview-chat-message-display: block;
+      --tabview-chat-message-mt: 2px;
+      --tabview-chat-message-mb: 4px;
+  }
+  
+  #message.yt-live-chat-text-message-renderer {
+      display: var(--tabview-chat-message-display);
+      margin-top: var(--tabview-chat-message-mt);
+      margin-bottom: var(--tabview-chat-message-mb);
+  }
+  
+  [collapsed] #message.yt-live-chat-text-message-renderer {
+      --tabview-chat-message-display: 'VOID';
+      --tabview-chat-message-mt: 'VOID';
+      --tabview-chat-message-mb: 'VOID';
+  }
+  
+  
+  @supports (contain: layout paint style) {
+  
+      body yt-live-chat-app {
+          contain: size layout paint style;
+          content-visibility: auto;
+          transform: translate3d(0, 0, 0);
+          overflow: hidden;
+      }
+  
+  
+      #items.style-scope.yt-live-chat-item-list-renderer,
+      #item-offset.style-scope.yt-live-chat-item-list-renderer {
+          contain: layout paint style;
+      }
+  
+      #item-scroller.style-scope.yt-live-chat-item-list-renderer {
+          contain: size style;
+      }
+  
+      #contents.style-scope.yt-live-chat-item-list-renderer,
+      #chat.style-scope.yt-live-chat-renderer,
+      img.style-scope.yt-img-shadow[width][height] {
+          contain: size layout paint style;
+      }
+  
+      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label],
+      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label]>#container {
+          contain: layout paint style;
+      }
+  
+  
+      yt-img-shadow#author-photo.style-scope {
+          contain: layout paint style;
+          content-visibility: auto;
+          contain-intrinsic-size: 24px 24px;
+      }
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
+          pointer-events: var(--tabview-msg-pointer-events);
+      }
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
+          cursor: var(--tabview-msg-cursor);
+      }
+  
+  
+      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
+      yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer,
+      yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer,
+      yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer,
+      yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
+      yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
+      yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
+      yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
+          cursor: var(--tabview-msg-cursor);
+          pointer-events: var(--tabview-msg-pointer-events);
+      }
+  
+      yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+      yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
+          contain: layout style;
+      }
+  
+      tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
+          contain: layout paint style;
+      }
+  
+  }
+  
+  
+  #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button {
+      margin-right: var(--ytd-margin-12x);
+  }
+    `.trim();
+  });
 
-  let iframePointEventsAllow = false;
+
+  let iframePointEventsAllow = false; // default to discard unnecessary mouse events for iframe
 
   let scriptEnable = false;
-  let scriptEC = 0;
 
-  let comments_loader = 0;
+  let comments_loader = 0; // for comment count (might omit)
 
   let cmTime = 0;
-  let commentsReady_id = 0;
-  let t_heated_BodyScroll = 0;
+  //let t_heated_BodyScroll = 0;
   const mTime = Date.now() - 152000000;
 
-  let lastScrollFetch = 0;
-  let lastOffsetTop = 0;
+  //let lastScrollFetch = 0;
+  //let lastOffsetTop = 0;
   let mtf_forceCheckLiveVideo_disable = 0;
 
   let tabsUiScript_setclick = false;
@@ -98,24 +239,23 @@
   let storeLastPanel = null;
 
   
-  let mtf_chatBlockQ = null;
+  let mtf_chatBlockQ = null; // for chat layout status change
+
+  let enableHoverSliderDetection = false; // for hover slider
 
   
-  let firstLoadStatus = 2|8;
+  let firstLoadStatus = 2|8; // for page init
 
   
-  let m_last_count = '';
-
-  
-  let scrolling_lastD = 0;
+  let m_last_count = ''; // for comment count
+ 
 
 
+  let sVideosITO = null;
 
   /** @type {WeakRef | null} */
-  let displayedPlaylist = null;
-
-  /** @type {WeakRef | null} */
-  let scrollingVideosList = null;
+  //let displayedPlaylist = null;
+ 
 
   /** @type {WeakRef | null} */
   let ytdFlexy = null;
@@ -185,6 +325,17 @@
   let globalHook_symbols = [];
   let globalHook_hashs = {};
 
+  
+  let singleColumnScrolling_dt = 0;
+
+  let isStickyHeaderEnabled = false;
+  
+  let theater_mode_changed_dt = 0;
+  let detailsTriggerReset = false;
+
+  
+  let isMakeHeaderFloatCalled = false;
+
   /** @type {WeakSet<HTMLIFrameElement>} */
   let iframe_set = new WeakSet();
 
@@ -215,7 +366,7 @@
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector; // nodeType==1 // since 2022/07/12
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
-  const elementRemove = HTMLElement.prototype.remove;
+  //const elementRemove = HTMLElement.prototype.remove;
   const elementInsertBefore = HTMLElement.prototype.insertBefore; // since 2022/07/12
   const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
@@ -341,6 +492,26 @@
     }
   }
 
+
+
+  let handleDOMAppearFN = new Map();
+  function handleDOMAppear(fn, func) {
+
+    if (handleDOMAppearFN.size === 0) {
+      document.addEventListener('animationstart', (evt) => {
+
+        let func = handleDOMAppearFN.get(evt.animationName);
+        if (func) func(evt);
+      }, capturePassive)
+    } else {
+
+      if (handleDOMAppearFN.has(fn)) return;
+    }
+
+    handleDOMAppearFN.set(fn, func);
+
+  }
+
   /*
 
   yt-action yt-add-element-to-app yt-autonav-pause-blur yt-autonav-pause-focus
@@ -365,6 +536,7 @@ yt-swatch-changed yt-theater-mode-allowed yt-unregister-action yt-update-title
 yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 */
+
 
 
   _console.log(38489)
@@ -529,6 +701,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let timeout_resize_for_layout_change = new Timeout();
 
   let layoutStatusMutex = new Mutex();
+  
+  let sliderMutex = new Mutex();
 
 
   function scriptInjector(script_id, url_chrome, response_id) {
@@ -582,6 +756,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       result[i] = t;
     }
     return result.join('');
+  }
+
+  const uidMAP = new Map();
+
+  function uidGEN(s) {
+    let uid = uidMAP.get(s);
+    if (!uid) {
+      const uidStore = ObserverRegister.uidStore;
+      do {
+        uid = nonCryptoRandStr(5);
+      } while (uidStore[uid])
+      uidMAP.set(s, uid);
+    }
+    return uid;
   }
 
   /**
@@ -650,6 +838,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
  */
   ObserverRegister.uidStore = {}; //backward compatible with FireFox 55.
 
+  
+  const mtoObservationDetails = new ObserverRegister(() => {
+    return new IntersectionObserver(iof_details, {
+      root: null,
+      rootMargin: "0px"
+    })
+  });
 
   const mtoMutation_body = new ObserverRegister(() => {
     return new MutationObserver(FP.mtoBodyF)
@@ -686,6 +881,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   })
   const sa_chatroom = mtoVisibility_Chatroom.uid;
 
+  
+
 
   function isDOMVisible(/** @type {HTMLElement} */ elem) {
     // jQuery version : https://github.com/jquery/jquery/blob/a684e6ba836f7c553968d7d026ed7941e1a612d8/src/css/hiddenVisibleSelectors.js
@@ -721,7 +918,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // }
 
   function isCommentsK(ytdFlexyElm) {
-    return (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').indexOf('K') >= 0
+    return (ytdFlexyElm.getAttribute('tyt-comments') || '').indexOf('K') >= 0
   }
 
   function akAttr(/** @type {HTMLElement} */ cssElm, /** @type {String} */ attrName, /** @type {boolean} */ isNegative, /** @type {string | any} */ flag) {
@@ -778,15 +975,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  let theater_mode_changed_dt = 0;
   function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
 
+    
+    if((new_layoutStatus & LAYOUT_TWO_COLUMNS) === 0 ) makeHeaderFloat();
 
-    if (old_layoutStatus === new_layoutStatus) return;
+    //if (old_layoutStatus === new_layoutStatus) return;
 
     const cssElm = kRef(ytdFlexy);
 
     if (!cssElm) return;
+
 
     const BF_TWOCOL_N_THEATER = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER
 
@@ -1085,7 +1284,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (requestVideoResize) {
       timeout_resize_for_layout_change.clear();
       timeout_resize_for_layout_change.set(() => {
-        dispatchWindowResize();
+        //dispatchWindowResize(); //try to omit
       }, 92)
       
     }
@@ -1094,9 +1293,31 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let tdt =Date.now();
       theater_mode_changed_dt = tdt
       setTimeout(()=>{
-        if(theater_mode_changed_dt!==tdt)return;
+        if(theater_mode_changed_dt!==tdt)return; 
         updateFloatingSlider();
       },130)
+    }
+
+    let secondary = null;
+    if(secondary=document.querySelector('.tabview-hover-slider-enable')){
+      secondary.dispatchEvent(new CustomEvent('tabview-hover-slider-restore'))
+      //console.log(1996)
+    }
+
+    
+    if (((old_layoutStatus ^ new_layoutStatus) & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN) {
+      detailsTriggerReset = true;
+    }
+
+    // resize => is-two-columns_
+    if (((new_layoutStatus ^ old_layoutStatus) & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+      
+      Promise.resolve(0).then(()=>{
+        pageCheck();
+        requestAnimationFrame(() => {
+          singleColumnScrolling(true); //initalize sticky
+        });
+      })
     }
 
   }
@@ -1128,8 +1349,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             target[prop] = value;
             layoutStatusMutex.lockWith(unlock => {
               target.layoutStatus_pending = false;
-              layoutStatusChanged((old_layoutStatus), (target[prop]));
-              timeline.setTimeout(unlock, 40)
+              let new_layoutStatus = target[prop];
+              if (old_layoutStatus !== new_layoutStatus) {
+                layoutStatusChanged(old_layoutStatus, new_layoutStatus);
+                timeline.setTimeout(unlock, 40)
+              } else {
+                unlock();
+              }
             })
             return true;
           }
@@ -1143,14 +1369,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   });
 
-  const svgElm = (w, h, vw, vh, p) => `<svg width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
+  const svgElm = (w, h, vw, vh, p, m) => `<svg${m?` class=${m}`:''} width="${w}" height="${h}" viewBox="0 0 ${vw} ${vh}" preserveAspectRatio="xMidYMid meet">${p}</svg>`
 
   // function isVideoPlaying(video) {
   //   return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
   // }
 
-  function wAttr(elm, attr, kv) {
-    if (!elm || kv === null) { } else if (kv === true) { elm.setAttribute(attr, '') } else if (kv === false) { elm.removeAttribute(attr) } else if (typeof kv == 'string') { elm.setAttribute(attr, kv) }
+  function wAttr(elm, attr, kv) { 
+    if (elm) {
+      if (kv === true) {
+        elm.setAttribute(attr, '');
+      } else if (kv === false) {
+        elm.removeAttribute(attr);
+      } else if (kv === null) {
+        //;
+      } else if (typeof kv == 'string') {
+        elm.setAttribute(attr, kv);
+      }
+    }
   }
 
   function hideTabBtn(tabBtn) {
@@ -1178,7 +1414,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function isChatExpand() {
     const cssElm = kRef(ytdFlexy);
-    return cssElm && cssElm.hasAttribute('userscript-chatblock') && !cssElm.hasAttribute('userscript-chat-collapsed')
+    return cssElm && (cssElm.getAttribute('tyt-chat')||'').charAt(0)==='+'
   }
 
   function isWideScreenWithTwoColumns() {
@@ -1192,7 +1428,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function isEngagementPanelExpanded() { //note: not checking the visual elements
     const cssElm = kRef(ytdFlexy);
-    return (cssElm && +cssElm.getAttribute('userscript-engagement-panel') > 0)
+    return (cssElm && +cssElm.getAttribute('tyt-ep-visible') > 0)
   }
 
   function engagement_panels_() {
@@ -1343,15 +1579,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-
-
   function fixTabs() {
 
 
     if (!scriptEnable) return;
 
 
-    let queryElement = document.querySelector('*:not(#tab-videos) > #related:not([non-placeholder-videos]) > ytd-watch-next-secondary-results-renderer')
+    let queryElement = document.querySelector('*:not(#tab-videos) > #related:not([tyt-null]) > ytd-watch-next-secondary-results-renderer')
 
     let isRelocated = !!queryElement;
 
@@ -1373,7 +1607,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         _console.log(3202,4)
 
         for (const s of querySelectorAllFromAnchor.call(relocatedRelated, '#related')) {
-          s.setAttribute('non-placeholder-videos', '')
+          s.setAttribute('tyt-null', '')
         }
 
         let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner, ytd-watch-flexy[is-two-columns_] #secondary-inner')
@@ -1386,12 +1620,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue');
 
         tab_videos.appendChild(videos_related);
-        let videos_results_renderer = querySelectorFromAnchor.call(relocatedRelated, "ytd-watch-next-secondary-results-renderer");
-        if (videos_results_renderer) videos_results_renderer.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal);
         videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
         videos_related.setAttribute('placeholder-videos', '')
-
-        $('[placeholder-videos]').on("scroll", windowScroll); // videos - single column mode
+ 
+        makeVideosAutoLoad2();
 
       }
 
@@ -1601,7 +1833,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (videoListBeforeSearch) {
             //console.log('fromSearch', videoListBeforeSearch)
 
-            requestAnimationFrame(function () {
+            requestAnimationFrame(function () { // the action shall be done by user input at foreground 
 
               let renderer = document.querySelector('[placeholder-videos] ytd-watch-next-secondary-results-renderer');
               if (searchBox && searchBox.parentNode) searchBox.blur();
@@ -1676,12 +1908,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         s |= querySelectorFromAnchor.call(elmCont, 'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
         //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
         if (s == 1) {
-          attr_chatblock = 'chat-live';
-        } else if (s == 2) attr_chatblock = 'chat-playback';
+          attr_chatblock = 'chat$live';
+        } else if (s == 2) attr_chatblock = 'chat$playback';
 
-        if (s == 1) $("span#tab3-txt-loader").text('');
+        if (s == 1) $("span#tyt-cm-count").text('');
 
-      } else if (!ytdFlexyElm.hasAttribute('userscript-chatblock')) {
+      } else if (!ytdFlexyElm.hasAttribute('tyt-chat')) {
         // live chat frame but type not known
 
         attr_chatblock = '';
@@ -1705,13 +1937,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-
+/*
   function windowScroll() {
     let ct = Date.now();
     if (ct - t_heated_BodyScroll < 6) return; // avoid duplicate calling
     t_heated_BodyScroll = ct;
     window.dispatchEvent(new Event("scroll")); // dispatch Scroll Event to Window for content display
   }
+  */
 
   /* items - > special case (2022/11/09) */
 
@@ -1729,14 +1962,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let comments = querySelectorFromAnchorFizzy(rootElement, 'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
-
-      _console.log(3202,6)
-      $(comments).appendTo('#tab-comments').attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
+      $(comments).appendTo('#tab-comments')
     }
   }
 
-  // continuous check for element relocation
-  function mtf_liveChatBtnF() {
+  function prependTo(elm, target){
+
+    if(!target || !elm) return null;
+
+    if (HTMLElement.prototype.prepend) {
+      // using prepend
+      HTMLElement.prototype.prepend.call(target, elm);
+      return true;
+    } else {
+      // using insertBefore
+      try {
+        elementInsertBefore.call(target, elm, target.firstChild);
+        return true;
+      } catch (e) {
+        console.log('element insert failed in old browser CE')
+      }
+    }
+
+    return false;
+
+  }
+
+  // css animation check for element relocation
+  function mtf_liveChatBtnF(node) {
+
+    if (!node || node.nodeType !== 1) return;
 
     /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
@@ -1745,77 +2000,74 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement | null} */
     const rootElement = ytdFlexyElm;
 
-    let button = querySelectorFromAnchor.call(rootElement, 'ytd-live-chat-frame#chat > .ytd-live-chat-frame#show-hide-button:nth-child(n+2)');
-    if (button) {
-      let parentNode = closestDOM.call(button, 'ytd-live-chat-frame#chat');
-      if (!parentNode) {
-        console.log('parentNode failed')
-      } else if (HTMLElement.prototype.prepend) {
-        // using prepend
-        
-        _console.log(3202,7)
-        HTMLElement.prototype.prepend.call(parentNode, button)
+    
 
-      } else {
-        // using insertBefore
-        try {
-          
-          _console.log(3202,8)
-          elementInsertBefore.call(parentNode, button, parentNode.firstChild);
-        } catch (e) {
-          console.log('element insert failed in old browser CE')
-        }
-      }
+    let button = node;
+    
+    if (button) {
+      prependTo(button, button.parentNode);
     }
-    //if (button) button.parentNode.insertBefore(button, button.parentNode.firstChild)
+
+
   }
+
+  handleDOMAppear('chatFrameToggleBtnAppended1', (evt)=>{
+
+    _console.log(5099, 'chatFrameToggleBtnAppended', evt)
+
+    Promise.resolve(0).then(() => { // avoid immediately dom change
+
+      tabsDeferred.debounce(() => {
+
+        mtf_liveChatBtnF(evt.target);
+
+      })
+
+    })
+
+  });
+
+  
+  DEBUG_LOG && handleDOMAppear('chatFrameToggleBtnAppended2', (evt)=>{
+
+    _console.log(5099, 'chatFrameToggleBtnAppended', evt)
+
+    
+  });
+
+
 
 
 
   // continuous check for element relocation
   // fired at begining & window resize, etc
+  // might moved to #primary
   function mtf_append_playlist(playlist) {
+
+
+    if(playlist === null){
+      playlist = document.querySelector('ytd-watch-flexy[playlist] *:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer.style-scope.ytd-watch-flexy#playlist:not(.ytd-miniplayer)');
+      // this playlist is highly possible to have '#items'
+      if(!playlist) return;
+    }
 
     /** @type {HTMLElement | null} */
     let ytdFlexyElm = kRef(ytdFlexy);
-    if (!scriptEnable || !ytdFlexyElm || !playlist) return;
+    if (!scriptEnable || !ytdFlexyElm) return;
 
+    let items = querySelectorFromAnchor.call(playlist, "*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
 
-    let ple1 = querySelectorFromAnchor.call(playlist, "*:not(#ytd-userscript-playlist) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
+    if (items) {
 
-
-    if (ple1) {
-
-
-      let ct = Date.now();
-
-      let truePlaylist = closestDOM.call(ple1, 'ytd-playlist-panel-renderer#playlist');
-      if (!truePlaylist || truePlaylist.nodeType !== 1) truePlaylist = null;
-      else {
-
+      if ((playlist.nodeName||0).toUpperCase() === 'YTD-PLAYLIST-PANEL-RENDERER') {
+    
         let tab_list = document.querySelector("#tab-list");
 
         if (!tab_list) return;
 
-        truePlaylist.setAttribute('tabview-true-playlist', ct)
-
-
-        for (const s of document.querySelectorAll(`ytd-playlist-panel-renderer#playlist:not([tabview-true-playlist="${ct}"])`)) {
-          s.removeAttribute('tabview-true-playlist')
-        }
-
         let $wrapper = getWrapper('ytd-userscript-playlist')
-        $wrapper.append(truePlaylist).appendTo(tab_list);
-        truePlaylist.setAttribute('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
-        setDisplayedPlaylist(); // relocation after re-layout
+        $wrapper.append(playlist).appendTo(tab_list); 
 
-        requestAnimationFrame(() => {
-          let ytdFlexyElm = kRef(ytdFlexy);
-          if (!scriptEnable || !ytdFlexyElm) return;
-          if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tabview-selection') + '').indexOf('#tab-') === 0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href)) {
-            if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
-          }
-        })
 
       }
 
@@ -2027,7 +2279,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(2907, 1,!!elm)
       if(!elm) return;
 
-      let span = document.querySelector("span#tab3-txt-loader")
+      let span = document.querySelector("span#tyt-cm-count")
       let r = '0';
       let txt = elm.textContent
       if (typeof txt == 'string') {
@@ -2055,7 +2307,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(2907, 2,!!elm)
       if(!elm) return;
 
-      let span = document.querySelector("span#tab3-txt-loader")
+      let span = document.querySelector("span#tyt-cm-count")
       if (span) {
         let tab_btn = closestDOM.call(span, '.tab-btn[userscript-tab-content="#tab-comments"]')
         if (tab_btn) tab_btn.setAttribute('loaded-comment', 'message')
@@ -2182,11 +2434,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _console.log(2903)
 
 
-
-    akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+    ytdFlexyElm.setAttribute('tyt-comments','Kz');
 
     const tabBtn = document.querySelector('[userscript-tab-content="#tab-comments"]');
-    let span = querySelectorFromAnchor.call(tabBtn, 'span#tab3-txt-loader');
+    let span = querySelectorFromAnchor.call(tabBtn, 'span#tyt-cm-count');
     tabBtn.removeAttribute('loaded-comment')
     span.innerHTML = '';
 
@@ -2335,12 +2586,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(21311)
       if (!scriptEnable) return;
       if (pageType !== 'watch') return;
+      /** @type {HTMLElement|null} */
       let cssElm = kRef(ytdFlexy);
       if (!cssElm) return;
 
       _console.log(21312)
 
-      let playlist = document.querySelector('ytd-playlist-panel-renderer#playlist[tabview-true-playlist]')
+      let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist'); // can be null if it is manually triggered
       let isAnyPlaylistExist = playlist && !playlist.hasAttribute('hidden');
       const tabBtn = document.querySelector('[userscript-tab-content="#tab-list"]');
       //console.log(1212.2, isPlaylistHidden, playlist.getAttribute('hidden'))
@@ -2356,7 +2608,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
       /* visible layout for triggering hidden removal */
-      akAttr(cssElm, 'tabview-youtube-playlist', !isAnyPlaylistExist);
+      
     },
     mtf_attrComments: (attrName, newValue) => {
       //attr mutation checker - {ytd-comments#comments} \single
@@ -2382,7 +2634,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       } else if (!isCommentHidden) {
 
-        akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'K');
+        ytdFlexyElm.setAttribute('tyt-comments', 'Kv');
         if(!fetchCounts.fetched){
           emptyCommentSection();
         }
@@ -2391,7 +2643,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       } else if (isCommentHidden) {
 
-        akAttr(ytdFlexyElm, 'tabview-youtube-comments', true, 'K');
+        ytdFlexyElm.setAttribute('tyt-comments', 'Kh');
         if (pageType === 'watch' && Q.comments_section_loaded === 1) {
           emptyCommentSection();
           _console.log(9360, 72);
@@ -2420,6 +2672,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       layoutStatusMutex.lockWith(unlock => {
 
         const chatBlock = document.querySelector('ytd-live-chat-frame#chat')
+        /** @type {HTMLElement | null} */
         const cssElm = kRef(ytdFlexy)
 
         if (!chatBlock || !cssElm) {
@@ -2432,13 +2685,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           return;
         }
 
-        if (!cssElm.hasAttribute('userscript-chatblock')) wAttr(cssElm, 'userscript-chatblock', true);
-
-        _console.log(332, ytdFlexyElm.hasAttribute('userscript-chatblock'))
+        let newAttrV = '';
+        //mtf_attrChatroom => chat exist => tyt-chat non-null
+        
         let isCollapsed = !!chatBlock.hasAttribute('collapsed');
-        wAttr(cssElm, 'userscript-chat-collapsed', isCollapsed);
 
-        if (cssElm.hasAttribute('userscript-chatblock') && !isCollapsed) lstTab.lastPanel = '#chatroom';
+        let currentAttr = cssElm.getAttribute('tyt-chat');
+
+        if (currentAttr !== null) { //string     // [+-]?[az]+[az\$]+
+          let isPlusMinus = currentAttr.charCodeAt(0) < 46; // 43 OR 45
+          if (isPlusMinus) newAttrV = currentAttr.substring(1);
+        }
+
+        if(isCollapsed) newAttrV = `-${newAttrV}`;
+        if(!isCollapsed) newAttrV = `+${newAttrV}`;
+
+        wAttr(cssElm, 'tyt-chat', newAttrV);
+
+
+
+        if (typeof newAttrV === 'string' && !isCollapsed) lstTab.lastPanel = '#chatroom';
 
         if (!isCollapsed && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()) {
           switchTabActivity(null);
@@ -2486,25 +2752,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           unlock();
           return;
         }
-        let previousValue = +cssElm.getAttribute('userscript-engagement-panel') || 0;
+        let previousValue = +cssElm.getAttribute('tyt-ep-visible') || 0;
 
         let { shownRes, value, count } = engagement_panels_();
         let nextValue = value;
         let nextCount = count;
 
 
-        if (nextCount == 0 && cssElm.hasAttribute('userscript-engagement-panel')) {
+        if (nextCount == 0 && cssElm.hasAttribute('tyt-ep-visible')) {
           storeLastPanel = null;
-          wAttr(cssElm, 'userscript-engagement-panel', false);
+          wAttr(cssElm, 'tyt-ep-visible', false);
           unlock();
         } else {
 
-          if ((nextCount > 1) || (cssElm.hasAttribute('userscript-engagement-panel') && previousValue === nextValue)) {
+          if ((nextCount > 1) || (cssElm.hasAttribute('tyt-ep-visible') && previousValue === nextValue)) {
             unlock();
             return;
           }
 
-          cssElm.setAttribute('userscript-engagement-panel', nextValue);
+          cssElm.setAttribute('tyt-ep-visible', nextValue);
 
           let b = false;
           if (previousValue != nextValue && nextValue > 0) {
@@ -2568,27 +2834,68 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
+  async function isChildElementNodesEqual(pNodeA, pNodeB){
 
-  function lstTabInit() {
-    lstTab =
-    {
-      lastTab: null,
-      lastPanel: null,
-      last: null
-    };
+    let cNodeA = pNodeA.firstElementChild;
+    let cNodeB = pNodeB.firstElementChild;
+
+    do {
+      if (cNodeA !== null && cNodeB !== null) {
+        await Promise.resolve(0);
+        let isEqual = cNodeA.isEqualNode(cNodeB)
+        if (!isEqual) return ({ res: false, pNodeA, pNodeB });
+        cNodeA = cNodeA.nextElementSibling;
+        cNodeB = cNodeB.nextElementSibling;
+      } else {
+        let res = (cNodeA === null && cNodeB === null);
+        return ({ res, pNodeA, pNodeB });
+      }
+    } while (true);
+
+
   }
 
+  async function isChildTextNodesEqual(pNodeA, pNodeB){
+
+    let cNodeA = pNodeA.firstChild;
+    let cNodeB = pNodeB.firstChild;
+
+    do {
+      if (cNodeA !== null && cNodeB !== null) {
+        let isEqual;
+        if(cNodeA.nodeType===1 && cNodeB.nodeType===1){
+          let m = await isChildNodesEqual(cNodeA, cNodeB);
+          isEqual = m.res;
+        }else{
+          await Promise.resolve(0);
+          isEqual = cNodeA.isEqualNode(cNodeB)
+        }
+        if (!isEqual) return ({ res: false, pNodeA, pNodeB });
+        cNodeA = cNodeA.nextSibling;
+        cNodeB = cNodeB.nextSibling;
+      } else {
+        let res = (cNodeA === null && cNodeB === null);
+        return ({ res, pNodeA, pNodeB });
+      }
+    } while (true);
+
+
+  }
 
   function variableResets() {
 
     videoListBeforeSearch = null;
     _cachedLastVideo = null;
-    lstTabInit()
-    displayedPlaylist = null;
-    scrollingVideosList = null;
+
+    lstTab =
+    {
+      lastTab: null, //tab-xxx
+      lastPanel: null, 
+      last: null
+    };
+
+    //displayedPlaylist = null; 
     scriptEnable = false;
-    scriptEC++;
-    if (scriptEC > 788888888) scriptEC = 188888888;
     ytdFlexy = null;
     wls.layoutStatus = 0;
 
@@ -2621,9 +2928,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function getTabsHTML() {
 
-    const sTabBtnVideos = `${svgElm(16, 16, 298, 298, svgVideos)}<span>${getWord('videos')}</span>`;
-    const sTabBtnInfo = `${svgElm(16, 16, 23.625, 23.625, svgInfo)}<span>${getWord('info')}</span>`;
-    const sTabBtnPlayList = `${svgElm(16, 16, 426.667, 426.667, svgPlayList)}<span>${getWord('playlist')}</span>`;
+    const sTabBtnVideos = `${svgElm(16, 16, 90, 90, svgVideos)}<span>${getWord('videos')}</span>`;
+    const sTabBtnInfo = `${svgElm(16, 16, 60, 60, svgInfo)}<span>${getWord('info')}</span>`;
+    const sTabBtnPlayList = `${svgElm(16, 16, 20, 20, svgPlayList)}<span>${getWord('playlist')}</span>`;
 
     let str1 = `
         <paper-ripple class="style-scope yt-icon-button">
@@ -2637,7 +2944,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     <div class="font-size-btn font-size-plus">
     <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet" 
     stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-size">
-      <path d="M12 25h26"/><path d="M25 12v26"/>
+      <path d="M12 25H38M25 12V38"/>
     </svg>
     </div><div class="font-size-btn font-size-minus">
     <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet"
@@ -2650,7 +2957,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const str_tabs = [
       `<a id="tab-btn1" data-name="info" userscript-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16, 16, 60, 60, svgComments)}<span id="tab3-txt-loader"></span>${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn3" userscript-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16, 16, 120, 120, svgComments)}<span id="tyt-cm-count"></span>${str1}${str_fbtns}</a>`,
       `<a id="tab-btn4" userscript-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
       `<a id="tab-btn5" userscript-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
     ].join('');
@@ -2662,6 +2969,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                     ${str_tabs}
                 </div>
             </header>
+            <tabview-tabs-header-position></tabview-tabs-header-position>
             <div class="tab-content">
                 <div id="tab-info" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
                 <div id="tab-comments" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
@@ -2723,17 +3031,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // }
 
   function pageCheck() {
-    // yt-rendererstamper-finished
     // yt-player-updated
     // yt-page-data-updated
-    // yt-watch-comments-ready
-    // [is-two-columns_] attr changed
+    // yt-watch-comments-ready - omitted
+    // [is-two-columns_] attr changed => layout changed
 
     domInit_teaserInfo() // YouTube obsoleted feature? 
 
-
     mtf_append_comments();
-    mtf_liveChatBtnF();
+
+    mtf_append_playlist(null); // playlist relocated after layout changed
+    
     fixTabs();
     mtf_AfterFixTabs();
 
@@ -2759,19 +3067,53 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  async function makeHeaderFloat(){
+    if(isMakeHeaderFloatCalled) return;
+    isMakeHeaderFloatCalled = true;
+    await Promise.resolve(0);
+    
+
+    const [header, headerP, navElm] = await Promise.all([
+      new Promise(f=>f(document.querySelector("#right-tabs header"))),
+      
+      new Promise(f=>f(document.querySelector("#right-tabs tabview-tabs-header-position"))),
+      
+      new Promise(f=>f(document.querySelector('#masthead-container, #masthead')))
+      
+    ]);
+ 
+
+    let ito= new IntersectionObserver((entries)=>{
+
+      //console.log(entries)
+
+      let bool = entries.length > 0 ? (
+        (entries[0].isIntersecting === isStickyHeaderEnabled)  // intersecting = isStickyHeaderEnabled = true / false
+      ) : false;
+
+      if (bool) {
+        singleColumnScrolling(true)
+        requestAnimationFrame(() => {
+          singleColumnScrolling(true) // coding bug -> delay required
+        })
+      }
+
+
+    },
+    {
+      rootMargin:`-${navElm.offsetHeight + header.offsetHeight }px 0px 0px 0px`
+    }) 
+
+    ito.observe(headerP)
+
+  }
   
-  function checkPlaylistForInitialization(node){
+  function checkPlaylistForInitialization(){
     // if the page url is with playlist; renderer event might not occur.
 
-    if(!node) node = document.querySelector('#secondary ytd-playlist-panel-renderer.style-scope.ytd-watch-flexy');
+    // playlist already added to dom; this is to set the visibility event and change hidden status
 
-    if(!node) return;
-
-    //("yt-playlist-data-updated");
-    //yt-playlist-reloading
-    mtf_append_playlist(node);
-
-    let m_playlist = document.querySelector(`ytd-playlist-panel-renderer#playlist[tabview-true-playlist]:not([o3r-${sa_playlist}])`)
+    let m_playlist = document.querySelector(`#tab-list ytd-playlist-panel-renderer#playlist:not([o3r-${sa_playlist}])`)
 
     // once per {ytd-playlist-panel-renderer#playlist} detection
 
@@ -2789,35 +3131,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     FP.mtf_attrPlaylist();
+    
+    Promise.resolve(0).then(()=>{
+      // ['tab-btn', 'tab-btn', 'tab-btn active', 'tab-btn tab-btn-hidden']
+      // bug
+      let ytdFlexyElm = kRef(ytdFlexy);
+      if (!scriptEnable || !ytdFlexyElm) return;
+      if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tyt-tab') + '').indexOf('#tab-') === 0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href)) {
+        if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+      }
+    })
 
   }
 
 
-
-  let _foundChatFrame = () => {
-
-    FP.mtf_initalAttr_chatroom();
-
-    let incorrectChat = document.querySelector('ytd-watch-flexy[theater] ytd-live-chat-frame#chat:not([collapsed])')
-    if (incorrectChat) {
-      incorrectChat.setAttribute('collapsed', '')
-    }
-
-    setToggleBtnTxt() //button might not yet be rendered
-    requestAnimationFrame(setToggleBtnTxt)
-  }
-
-  let foundChatFrame = (chatFrame, trials, forceRun) => {
-    // chatframe is found
-
-    if (!chatFrame) return;
-    if (!trials) return;
-    if (!elementContains.call(document.body, chatFrame)) return foundChatFrame(chatFrame, trials - 1, false);
-    if (!forceRun && iframe_set.has(chatFrame)) return;
-    iframe_set.add(chatFrame);
-
-    _foundChatFrame();
-  }
 
 
 
@@ -2849,7 +3176,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       comments_loader = 1;
       tabsDeferred.reset();
       if(!(firstLoadStatus&8)){
-        if (commentsReady_id > 999) commentsReady_id = 333;
         _innerCommentsLoader();
         _pageBeingInit();
       }else if(firstLoadStatus&2){
@@ -2868,6 +3194,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }
   };
+  /*
+
+  let _prevComments = null;
+  handleDOMAppear('commentsSectionAppended', ()=>{
+    console.log('comments section appended')
+    advanceFetch();
+  })
+
+  handleDOMAppear('commentsHeaderAppended1',(evt)=>{
+    console.log(434)
+    let tmp = kRef(_prevComments);
+    if(tmp) tmp.classList.remove('tyt-ani')
+    evt.target.classList.add('tyt-ani')
+    _prevComments=mWeakRef(evt.target);
+    console.log(3434,evt.target)
+  })
+  */
 
 
   function getFinalComments() {
@@ -2897,7 +3240,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       timeout(() => {
         if (Q.comments_section_loaded !== 0) return;
 
-        //if(tmp_id!==commentsReady_id) return;
 
 
         ret = _innerCommentsLoader()
@@ -2963,6 +3305,430 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+  function handlerTabExpanderClick() {
+
+    async function b(){
+      
+      let h1 = document.documentElement.clientHeight;
+      let h2 = (document.querySelector('#right-tabs')||0).clientHeight;
+
+      await Promise.resolve(0);
+      if(h1>300 && h2>300){
+        let ratio = h2/h1; // positive below 1.0
+
+        return ratio;
+      }
+      return 0;
+    }
+
+    async function a(){
+
+
+      let secondary = document.querySelector('#secondary');
+      if (secondary) {
+
+        if (!secondary.classList.contains('tabview-hover-slider-enable')) {
+
+          let secondaryInner = secondary.querySelector('#secondary-inner');
+
+          if (!secondary.classList.contains('tabview-hover-slider')) {
+            // without hover
+
+            let rect = secondary.getBoundingClientRect();
+            let rectI = secondaryInner.getBoundingClientRect();
+
+            secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+
+          }
+          
+          let ratio = await b();
+          if(ratio > 0.0 && ratio <= 1.0){
+
+            secondaryInner.style.setProperty('--ytd-watch-flexy-sidebar-width-d', `${ Math.round(100*ratio*10)/10 }vw`);
+            secondary.classList.add('tabview-hover-slider')
+            secondary.classList.add('tabview-hover-slider-enable')
+          }
+
+
+        } else {
+
+
+          secondary.dispatchEvent(new CustomEvent("tabview-hover-slider-restore"));
+          //console.log(1994)
+
+        }
+
+      }
+
+
+      
+    }
+
+
+    a();
+
+
+  }
+
+  function addTabExpander(tabContent){
+
+    if (!tabContent) return null;
+    let id = tabContent.id;
+    if (!id || typeof id !== 'string') return null;
+
+    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-tab-expander`)) return false;
+
+    let elm = document.createElement('tabview-tab-expander')
+    tabContent.insertBefore(elm, tabContent.firstChild);
+    elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
+    elm.addEventListener('click', handlerTabExpanderClick, false);
+    return true;
+
+  }
+
+  
+  let g_check_detail_A=0;
+  let checkDuplicateRes = null;
+  function checkDuplicatedInfo(){
+
+
+    
+
+    async function checkEqual_A(){
+
+      const ytdFlexyElm = kRef(ytdFlexy)
+      if (!ytdFlexyElm) return; //unlikely
+
+      let t = Date.now();
+      g_check_detail_A=t;
+
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
+
+      await new Promise(resolve=>setTimeout(resolve,1)); // mcrcr might be not yet initalized
+
+
+      if(g_check_detail_A!==t) return;
+      
+      
+      // the class added before can be removed from the external coding
+
+      function mrcrf(mrcr) {
+        let tmp;
+        if (mrcr) {
+          if (tmp = querySelectorFromAnchor.call(mrcr, '#always-shown[hidden]:empty')) tmp.removeAttribute('hidden')
+          if (tmp = querySelectorFromAnchor.call(mrcr, '#collapsible[hidden]:empty')) tmp.removeAttribute('hidden')
+        }
+      }
+
+      let mrcr1 = document.querySelector('ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] > ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata')
+      mrcrf(mrcr1);
+      await Promise.resolve(0);
+      let mrcr2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer ytd-metadata-row-container-renderer.style-scope.ytd-video-secondary-info-renderer')
+      mrcrf(mrcr2); 
+      await Promise.resolve(0);
+      
+      let desc1 = null;
+      let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
+      await Promise.resolve(0);
+
+      let plainText = false;
+      if(desc2 && desc2.firstElementChild === null){
+        plainText = true;
+        desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
+      } 
+      if(!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
+      await Promise.resolve(0);
+
+      let infoDuplicated = true;
+
+
+      if((desc1 === null) ^ (desc2===null) ){
+        infoDuplicated = false;
+      }else if((mrcr1 === null) ^ (mrcr2===null) ){
+        infoDuplicated = false;
+      }else{
+
+
+        await Promise.all([
+
+          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ? 
+          isChildElementNodesEqual(mrcr1, mrcr2).then((o) => {
+            //console.log('mrcr', o.res)
+            let { res, pNodeA, pNodeB } = o;
+
+            if (res !== true) infoDuplicated = false;
+          }) : null,
+
+          plainText?((desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
+          isChildTextNodesEqual(desc1, desc2).then((o) => {
+            //console.log('desc', o.res)
+            let { res, pNodeA, pNodeB } = o;
+
+            if (res !== true) infoDuplicated = false;
+
+          }) : null):
+          ((desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
+          isChildElementNodesEqual(desc1, desc2).then((o) => {
+            //console.log('desc', o.res)
+            let { res, pNodeA, pNodeB } = o;
+
+            if (res !== true) infoDuplicated = false;
+
+          }) : null)
+
+        ]);
+
+      }
+
+      
+      //console.log(desc1, desc2, infoDuplicated)
+      if(desc1){
+        Promise.resolve(desc1).then(desc1=>{
+          let snippet = closestDOM.call(desc1, '#snippet.style-scope.ytd-text-inline-expander');
+          let dom = snippet || desc1; //desc1 might be hidden and thus cannot trigger interception change
+          if(dom) mtoObservationDetails.bindElement(dom);
+        })
+      }
+      
+
+      if(g_check_detail_A!==t) return;
+
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
+
+    };
+
+
+    async function checkEqual_bb(desc1, desc2){
+      // basically desc1 and desc2 are content identical
+      // however, class name order could be different
+      
+      let txt1 = new Promise(r=>r(desc1.textContent))
+
+      let txt2 = new Promise(r=>r(desc2.textContent))
+
+
+      let [res1, res2] = await Promise.all([txt1, txt2]);
+
+      return {res: res1===res2}
+    }
+    
+    async function checkEqual_B(){
+
+      const ytdFlexyElm = kRef(ytdFlexy)
+      if (!ytdFlexyElm) return; //unlikely
+
+      let t = Date.now();
+      g_check_detail_A=t;
+
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
+
+      await new Promise(resolve=>setTimeout(resolve,1)); // mcrcr might be not yet initalized
+
+
+      if(g_check_detail_A!==t) return;
+      
+      
+      // the class added before can be removed from the external coding
+
+      function mrcrf(mrcr) {
+        let tmp;
+        if (mrcr) {
+          if (tmp = querySelectorFromAnchor.call(mrcr, '#always-shown[hidden]:empty')) tmp.removeAttribute('hidden')
+          if (tmp = querySelectorFromAnchor.call(mrcr, '#collapsible[hidden]:empty')) tmp.removeAttribute('hidden')
+        }
+      }
+
+      let mrcr1 = document.querySelector('ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] > ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata')
+      mrcrf(mrcr1);
+      await Promise.resolve(0);
+      let mrcr2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer ytd-metadata-row-container-renderer.style-scope.ytd-video-secondary-info-renderer')
+      mrcrf(mrcr2); 
+      await Promise.resolve(0);
+      
+      let desc1 = null;
+      let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
+      await Promise.resolve(0);
+
+      let plainText = false;
+      if(desc2 && desc2.firstElementChild === null){
+        plainText = true;
+        desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
+      } 
+      if(!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
+      await Promise.resolve(0);
+
+      let infoDuplicated = true;
+
+
+      let mb1=null, mb2=null;
+
+      if((desc1 === null) ^ (desc2===null) ){
+        infoDuplicated = false;
+      }else if((mrcr1 === null) ^ (mrcr2===null) ){
+        infoDuplicated = false;
+      }else{
+
+
+        await Promise.all([
+
+          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ? 
+          checkEqual_bb(mrcr1,mrcr2).then((o) => {
+            //console.log('mrcr', o.res)
+            let { res, pNodeA, pNodeB } = o;
+            mb1 = res;
+
+            if (res !== true) infoDuplicated = false;
+          }) : null,
+
+          (desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
+          checkEqual_bb(desc1,desc2).then((o) => {
+            //console.log('desc', o.res)
+            let { res, pNodeA, pNodeB } = o;
+            mb2=res;
+
+            if (res !== true) infoDuplicated = false;
+
+          }) : null
+
+        ]);
+
+      }
+
+      console.log('check-info-duplicate', infoDuplicated, mb1,mb2 )
+      
+      //console.log(desc1, desc2, infoDuplicated)
+      if(desc1){
+        Promise.resolve(desc1).then(desc1=>{
+          let snippet = closestDOM.call(desc1, '#snippet.style-scope.ytd-text-inline-expander');
+          let dom = snippet || desc1; //desc1 might be hidden and thus cannot trigger interception change
+          if(dom) mtoObservationDetails.bindElement(dom);
+        })
+      }
+      
+
+      if(g_check_detail_A!==t) return;
+
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
+      checkDuplicateRes= infoDuplicated;
+
+      
+
+    };
+
+    checkEqual_B().then(()=>{
+      
+      const ytdFlexyElm = kRef(ytdFlexy)
+      if (!ytdFlexyElm) return; //unlikely
+
+      let cssbool_c1 = false, cssbool_c2= false, cssbool_c3= false;
+      if(ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')){
+        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
+      }
+
+      ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1?'A':'a'}${cssbool_c2?'B':'b'}${cssbool_c3?'C':'c'}`);
+
+      
+    });
+
+  }
+
+  function setupHoverSlider(secondary, columns){
+
+    if (secondary && columns) {
+      let attrName = `o4r-${uidGEN('tabview-hover-slider-restore')}`;
+
+      if (!secondary.hasAttribute(attrName)) {
+
+        secondary.setAttribute(attrName, '');
+
+        let elmA = document.createElement('tabview-column-pos')
+        let itoA = new IntersectionObserver((entries) => {
+          let t = null;
+          let w = enableHoverSliderDetection
+          for (const entry of entries) {
+            if (entry.rootBounds === null) continue;
+            t = !entry.isIntersecting; // if entries.length>1 (unlikely); take the last intersecting
+          }
+          if (w !== t && t !== null) {
+            // t can be true when the layout enters single column mode
+            enableHoverSliderDetection = t;
+          }
+          //console.log(entries, enableHoverSliderDetection, t)
+        })
+        columns.appendChild(elmA); // append to dom first before observe
+        itoA.observe(elmA);
+
+
+
+        secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
+
+          let secondary = evt.target;
+
+          if (secondary.classList.contains('tabview-hover-slider-enable')) {
+
+            let secondaryInner = secondary.querySelector('#secondary-inner')
+
+            if (secondary.classList.contains('tabview-hover-slider-hover')) {
+
+              if (secondaryInner) {
+
+                Promise.resolve(0).then(() => {
+                  secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+                }).then(() => {
+                  secondary.classList.remove('tabview-hover-slider-enable')
+                })
+
+              }
+
+            } else {
+
+              let secondary = evt.target;
+              secondary.classList.remove('tabview-hover-slider')
+              secondary.classList.remove('tabview-hover-slider-enable')
+
+              if (secondaryInner) {
+                secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+                secondaryInner.style.removeProperty('--tabview-slider-right')
+              }
+
+            }
+
+            setTimeout(() => {
+              updateFloatingSlider()
+            }, 30);
+
+
+          }
+
+
+        }, false)
+
+      }
+
+    }
+
+  }
+
+  function findChatFrameDOM() {
+
+    let liveChatFrame = document.querySelector('ytd-live-chat-frame#chat')
+    if (liveChatFrame) {
+
+      FP.mtf_initalAttr_chatroom();
+
+      let incorrectChat = document.querySelector('ytd-watch-flexy[theater] ytd-live-chat-frame#chat:not([collapsed])')
+      if (incorrectChat) {
+        incorrectChat.setAttribute('collapsed', '')
+      }
+
+      setToggleBtnTxt() //button might not yet be rendered
+      requestAnimationFrame(setToggleBtnTxt)
+    }
+
+  }
+
   function ytMicroEventsInit() {
 
     _console.log(902)
@@ -3021,8 +3787,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (nodeName === 'YTD-PLAYLIST-PANEL-RENDERER') {
           
+          mtf_append_playlist(node);
+          // the true playlist is appended to the #tab-list
 
-          checkPlaylistForInitialization(node);
+          checkPlaylistForInitialization();
 
 
         } else if (nodeName === 'YTD-WATCH-METADATA') {
@@ -3078,6 +3846,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
 
 
+
+    handleDOMAppear('liveChatFrameDOMAppended', (evt)=>{
+
+
+      Promise.resolve(0).then(() => { // avoid immediately dom change
+        
+        // time delay to avoid attribute set after dom appended.
+
+        tabsDeferred.debounce(() => {
+  
+          findChatFrameDOM();
+  
+        })
+  
+      })
+
+    });
+
     globalHook('yt-page-data-updated', (evt) => {
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -3092,6 +3878,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       else tabsDeferred.debounce(() => {
 
         if (!tabsDeferredSess.isValid) return;
+
+        if(!scriptEnable) return;
 
         if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
@@ -3110,72 +3898,60 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         //if(document.querySelector('ytd-live-chat-frame#chat')){
 
-        let siw = 10;
-        let sic = 0;
-        let sif = () => {
-
-          let liveChatFrame = document.querySelector('ytd-live-chat-frame#chat')
-          if (liveChatFrame) {
-            foundChatFrame(liveChatFrame, 1, true);
-            clearInterval(sic)
-            sic = 0;
-            return;
-          }
-
-          if (--siw === 1) {
-            clearInterval(sic)
-            sic = 0;
-          }
-        };
-        sic = setInterval(sif, 46);
-        sif();
+        findChatFrameDOM();
 
 
         //}
 
-
-
-        _console.log(evt.target.nodeName, 905, evt.type)
-
-
-        _console.log(2774, !!document.querySelector('ytd-live-chat-frame#chat'))
-
-        _console.log(2344, evt.type, document.querySelector('ytd-live-chat-frame#chat') ? 5 : 2)
-
-        _console.log(544, document.querySelectorAll('#meta-contents'))
-        _console.log(546, document.querySelectorAll('#meta-contents ytd-expander'))
         let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])')
         if (expander) {
-
 
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
 
-          let ytdFlexyElm = kRef(ytdFlexy);
-          if (!scriptEnable || !ytdFlexyElm) return;
-
-          if (!expander) return;
           expander.setAttribute('tabview-info-expander', '')
-          $(expander).appendTo("#tab-info").attr('data-dom-changed-by-tabview-youtube', scriptVersionForExternal)
-
-
+          $(expander).appendTo("#tab-info")
 
         }
 
-        if (scriptEnable) {
 
-          checkPlaylistForInitialization();
-
-          mtf_fix_details().then(() => {
-            // setKeywords();
-            setToggleInfo();
-            setTimeout(() => {
-              dispatchWindowResize();
-              updateFloatingSlider();
-            }, 420)
-          });
-
+        if (REMOVE_DUPLICATE_INFO) {
+          checkDuplicatedInfo();
+          setTimeout(() => {
+            if (checkDuplicateRes !== true) {
+              checkDuplicatedInfo();
+            }
+          }, 270)
         }
+
+
+        checkPlaylistForInitialization();
+
+        mtf_fix_details().then(() => {
+          // setKeywords();
+          setToggleInfo();
+          setTimeout(() => {
+            //dispatchWindowResize(); //try to omit
+            updateFloatingSlider();
+          }, 420)
+
+
+          let secondary = document.querySelector('#columns #secondary');
+
+          let columns = secondary ? closestDOM.call(secondary, '#columns') : null;
+
+          setupHoverSlider(secondary, columns)
+
+          let tabInfo = document.querySelector('#tab-info');
+          addTabExpander(tabInfo);
+
+          let tabComments = document.querySelector('#tab-comments');
+          addTabExpander(tabComments);
+
+
+        });
+
+
 
       });
 
@@ -3219,43 +3995,50 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         //fixChatFrameToggleButton();
 
 
-        let nodeName = evt.target.nodeName.toUpperCase()
+        let nodeName = evt.target.nodeName.toUpperCase();
 
-        _console.log(nodeName, 905, evt.type)
+        _console.log(nodeName, 905, evt.type);
 
-        _console.log(2344, evt.type, document.querySelector('ytd-live-chat-frame#chat') ? 5 : 2)
+        _console.log(2344, evt.type, document.querySelector('ytd-live-chat-frame#chat') ? 5 : 2);
 
 
         if (nodeName === 'YTD-PLAYER') {
 
-          _console.log(2554, nodeName, evt.type, evt.detail)
+          _console.log(2554, nodeName, evt.type, evt.detail);
 
           domInit_comments();
 
-          _foundChatFrame();
+          findChatFrameDOM();
 
           let video = document.querySelector('#ytd-player video[src]');
           if (video && !video.hasAttribute('tabview-video-events')) {
             video.setAttribute('tabview-video-events', '')
 
             let _viTimeNum = 0;
-            video.addEventListener('timeupdate', (evt) => {
+            async function isDocumentInFullScreenMode() {
+              return document.fullscreenElement !== null;
+            }
+            async function videoAsyncTimeUpdate(){
+              
+              const isFullscreen = await isDocumentInFullScreenMode();
               // force browser to load the videostream during playing (primarily for music videos)
               // both background and foreground
-              const x = Math.round((Date.now() - mTime)/3400);
-              if(x !== _viTimeNum){
-                new Promise(resolve => {
-                  resolve(x);
-                }).then(t => {
-                  if (_viTimeNum !== t) {
-                    document.head.dataset.viTime = `${t}`;
-                    return true;
-                  }
-                  return false;
-                }).then(b => {
-                  if(b) _viTimeNum = +document.head.dataset.viTime || 0;
-                })
+              if (isFullscreen) return;
+              const x = Math.round((Date.now() - mTime) / 3400);
+              if (x !== _viTimeNum) {
+                const t = await Promise.resolve(x);
+
+                if (_viTimeNum !== t) {
+                  document.head.dataset.viTime = `${t}`;
+                  await Promise.resolve(0)
+                  _viTimeNum = +document.head.dataset.viTime || 0;
+                }
+
               }
+
+            }
+            video.addEventListener('timeupdate', (evt) => {
+              videoAsyncTimeUpdate();
             }, bubblePassive);
 
             video.addEventListener('ended',(evt)=>{
@@ -3263,7 +4046,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               // otherwise it cannot auto paly next
 
               let elm =evt.target;
-              let scrollElm = closestDOM.call(elm,'#player') || closestDOM.call(elm,'#ytd-player') || elm;
+              Promise.resolve(elm).then((elm)=>{
+                let scrollElm = closestDOM.call(elm,'#player') || closestDOM.call(elm,'#ytd-player') || elm;
+                // requestAnimationFrame
+                scrollElm.scrollIntoView(false);
+              }).then(()=>{
+                // requestAnimationFrame OR setTimeout 100ms
+                window.dispatchEvent(new Event("scroll"));
+              });
+
+              /*
               if(document.visibilityState==='hidden'){
                 scrollElm.scrollIntoView(false);
                 setTimeout(()=>{ 
@@ -3278,6 +4070,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                   })
                 })
               }
+              */
 
               /*
               #player
@@ -3314,9 +4107,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       advanceFetch();
 
-      //commentsReady_id++;
-
-      //let tmp_id=commentsReady_id;
 
       comments_loader = comments_loader | 2;
 
@@ -3327,8 +4117,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (!tabsDeferredSess.isValid) return;
 
 
-        //if(tmp_id!==commentsReady_id) return;
-
         if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
           fetchCounts.fetched = true;
@@ -3338,7 +4126,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         _console.log(2178,5)
-        pageCheck();
+        //pageCheck();
 
         _console.log(nodeName, 905, evt.type, evt.detail, document.querySelector('ytd-live-chat-frame#chat'));
 
@@ -3405,7 +4193,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               bool = true;
 
               pageType = 'watch';
-              dispatchWindowResize(); // player control positioning
+              //dispatchWindowResize(); // player control positioning //try to omit
               
             } else if (newPageType == 'ytd-browse') {
 
@@ -3729,7 +4517,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     
     let isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
-    if(isIframe) foundChatFrame(evt.target, 2); // iframe
 
     if (isIframe && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
 
@@ -3832,7 +4619,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!ytdFlexyElm) return;
 
       scriptEnable = true;
-      scriptEC++;
 
       ytdFlexy = mWeakRef(ytdFlexyElm)
 
@@ -3859,7 +4645,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         const ytdFlexyElm = kRef(ytdFlexy)
         if (!ytdFlexyElm) return;
-        if (!ytdFlexyElm.hasAttribute('tabview-selection')) ytdFlexyElm.setAttribute('tabview-selection', '')
+        if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
 
         // append the next videos 
         // it exists as "related" is already here
@@ -3900,12 +4686,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function setToActiveTab(defaultTab) {
-    if (isTheater() && isWideScreenWithTwoColumns()) return;
+  function setToActiveTab(defaultTab) { 
+    if (isTheater() && isWideScreenWithTwoColumns()) return; 
     const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
       document.querySelector(`a[userscript-tab-content="${(defaultTab || settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
       document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
-      null;
+      null; 
+
     switchTabActivity(jElm);
     return !!jElm;
   }
@@ -3920,7 +4707,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let ytdFlexyElm = kRef(ytdFlexy);
     if (!scriptEnable || !ytdFlexyElm) return;
     if (mtf_forceCheckLiveVideo_disable === 2) return;
-    akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'LS')
+    ytdFlexyElm.setAttribute('tyt-comments', 'L');
     _console.log(2909, 1)
   }
 
@@ -3937,7 +4724,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function emptyCommentSection() {
     let tab_btn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]')
     if (tab_btn) {
-      let span = querySelectorFromAnchor.call(tab_btn, 'span#tab3-txt-loader');
+      let span = querySelectorFromAnchor.call(tab_btn, 'span#tyt-cm-count');
       tab_btn.removeAttribute('loaded-comment')
       if (span) {
         span.textContent = '';
@@ -3976,7 +4763,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let tabBtn = document.querySelector('.tab-btn[userscript-tab-content="#tab-comments"]');
     if (tabBtn) {
-      let span = querySelectorFromAnchor.call(tabBtn, 'span#tab3-txt-loader');
+      let span = querySelectorFromAnchor.call(tabBtn, 'span#tyt-cm-count');
       tabBtn.removeAttribute('loaded-comment')
       if (!tabBtn.classList.contains('tab-btn-hidden')) {
         //console.log('hide', comments, comments && comments.hasAttribute('hidden'))
@@ -3987,7 +4774,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }
 
-    akAttr(cssElm, 'tabview-youtube-comments', true, 'D');
+    cssElm.setAttribute('tyt-comments','D');
 
     _console.log(2909, 10)
 
@@ -4171,151 +4958,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  const iframeCSS = (()=>{
-    
-    return `
-
-    body {
-      --tabview-msg-cursor: default;
-      --tabview-msg-pointer-events: none;
-      --tabview-img-pointer-events: auto;
-    }
-
-    body.tabview-allow-pointer-events{
-      --tabview-msg-cursor: '-NULL-';
-      --tabview-msg-pointer-events: '-NULL-';
-      --tabview-img-pointer-events: '-NULL-';
-    }
-
-    body #input-panel.yt-live-chat-renderer::after {
-      background: transparent;
-  }
-  
-  .style-scope.yt-live-chat-item-list-renderer {
-      box-sizing: border-box;
-  }
-  
-  yt-live-chat-text-message-renderer:nth-last-child(-n+30):hover #menu.yt-live-chat-text-message-renderer {
-      transition-delay: 87ms;
-  }
-  
-  yt-live-chat-text-message-renderer #menu.yt-live-chat-text-message-renderer {
-      transition-delay: 1ms;
-  }
-  
-  #item.style-scope.yt-live-chat-item-list-renderer,
-  #item-scroller.style-scope.yt-live-chat-item-list-renderer {
-      transition-delay: 42ms;
-  }
-  
-  yt-live-chat-item-list-renderer img[alt] {
-      pointer-events: auto;
-  }
-  
-  body yt-live-chat-item-list-renderer img[alt]~tp-yt-paper-tooltip,
-  body yt-live-chat-item-list-renderer #image~tp-yt-paper-tooltip {
-      --paper-tooltip-delay-in: 120ms !important;
-      white-space: nowrap;
-  }
-  
-  #items.style-scope.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer {
-      --tabview-chat-message-display: block;
-      --tabview-chat-message-mt: 2px;
-      --tabview-chat-message-mb: 4px;
-  }
-  
-  #message.yt-live-chat-text-message-renderer {
-      display: var(--tabview-chat-message-display);
-      margin-top: var(--tabview-chat-message-mt);
-      margin-bottom: var(--tabview-chat-message-mb);
-  }
-  
-  [collapsed] #message.yt-live-chat-text-message-renderer {
-      --tabview-chat-message-display: 'VOID';
-      --tabview-chat-message-mt: 'VOID';
-      --tabview-chat-message-mb: 'VOID';
-  }
-  
-  
-  @supports (contain: layout paint style) {
-  
-      body yt-live-chat-app {
-          contain: size layout paint style;
-          content-visibility: auto;
-          transform: translate3d(0, 0, 0);
-          overflow: hidden;
-      }
-  
-  
-      #items.style-scope.yt-live-chat-item-list-renderer,
-      #item-offset.style-scope.yt-live-chat-item-list-renderer {
-          contain: layout paint style;
-      }
-  
-      #item-scroller.style-scope.yt-live-chat-item-list-renderer {
-          contain: size style;
-      }
-  
-      #contents.style-scope.yt-live-chat-item-list-renderer,
-      #chat.style-scope.yt-live-chat-renderer,
-      img.style-scope.yt-img-shadow[width][height] {
-          contain: size layout paint style;
-      }
-  
-      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label],
-      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label]>#container {
-          contain: layout paint style;
-      }
-  
-  
-      yt-img-shadow#author-photo.style-scope {
-          contain: layout paint style;
-          content-visibility: auto;
-          contain-intrinsic-size: 24px 24px;
-      }
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
-          pointer-events: var(--tabview-msg-pointer-events);
-      }
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
-          cursor: var(--tabview-msg-cursor);
-      }
-  
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
-      yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer,
-      yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer,
-      yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
-      yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
-      yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
-      yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
-          cursor: var(--tabview-msg-cursor);
-          pointer-events: var(--tabview-msg-pointer-events);
-      }
-  
-      yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
-          contain: layout style;
-      }
-  
-      tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
-          contain: layout paint style;
-      }
-  
-  }
-  
-  
-  #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button {
-      margin-right: var(--ytd-margin-12x);
-  }
-    `.trim();
-  });
 
   function addIframeStyle(cDoc) {
     if (cDoc.querySelector('#userscript-tabview-chatroom-css')) return false;
@@ -4386,24 +5028,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         b = isTheater();
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_THEATER);
         break;
-      case 'userscript-chat-collapsed':
-      case 'userscript-chatblock':
+      case 'tyt-chat':
         attrElm = kRef(ytdFlexy);
-        if (hasAttribute(attrElm, 'userscript-chat-collapsed')) {
+        let vv = attrElm.getAttribute('tyt-chat');
+        let iscollapsed = vv!==null && vv.charAt(0)==='-';
+
+        if (iscollapsed) {
           nls = flexyAttr_toggleFlag(nls, true, LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED);
         } else {
-          nls = flexyAttr_toggleFlag(nls, hasAttribute(attrElm, 'userscript-chatblock'), LAYOUT_CHATROOM);
+          nls = flexyAttr_toggleFlag(nls, vv!==null, LAYOUT_CHATROOM);
           nls = flexyAttr_toggleFlag(nls, false, LAYOUT_CHATROOM_COLLAPSED);
         }
+
         break;
       case 'is-two-columns_':
         b = isWideScreenWithTwoColumns();
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_TWO_COLUMNS);
         break;
 
-      case 'tabview-selection':
+      case 'tyt-tab':
         attrElm = kRef(ytdFlexy);
-        b = isNonEmptyString(attrElm.getAttribute('tabview-selection'));
+        b = isNonEmptyString(attrElm.getAttribute('tyt-tab'));
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_TAB_EXPANDED);
         break;
 
@@ -4413,9 +5058,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_FULLSCREEN);
         break;
 
-      case 'userscript-engagement-panel':
+      case 'tyt-ep-visible':
         attrElm = kRef(ytdFlexy);
-        v = attrElm.getAttribute('userscript-engagement-panel');
+        v = attrElm.getAttribute('tyt-ep-visible');
         b = (+v > 0)
         nls = flexyAttr_toggleFlag(nls, b, LAYOUT_ENGAGEMENT_PANEL_EXPAND);
         break;
@@ -4429,14 +5074,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   const mtf_attrFlexy_functions = {
-    'userscript-chatblock': () => {
+    'tyt-chat': () => {
       if (!scriptEnable) return;
       //delayed call => check with the "no active focus" condition with chatroom status
       if (!isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()) {
         setToActiveTab();
       }
     },
-    'userscript-engagement-panel': () => {
+    'tyt-ep-visible': () => {
       if (!scriptEnable) return;
       //delayed call => check with the "no active focus" condition with engagement panel status
       if (!isAnyActiveTab() && !isEngagementPanelExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()) {
@@ -4445,13 +5090,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
+  function iof_details(entries, observer){
+    if(!detailsTriggerReset) return;
+    if(!entries || entries.length!==1) return; // unlikely
+    let entry = entries[0];
+    //console.log(entries)
+    if(entry.isIntersecting === true){
+
+      if ((wls.layoutStatus & (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN) ) !== (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN)) 
+      return;
+
+      let dom = entry.target;
+      if(!dom) return; //unlikely
+
+      let descClickable = dom.closest('#description.item.style-scope.ytd-watch-metadata')
+      if(descClickable){
+        detailsTriggerReset = false;
+        descClickable.click();
+      }
+
+
+    }
+
+  }
 
   const mtf_attrFlexy = (mutations, observer) => {
 
     //attr mutation checker - $$ytdFlexyElm$$ {ytd-watch-flexy} \single
     //::attr    
-    // ~ 'userscript-chat-collapsed', 'userscript-chatblock', 'theater', 'is-two-columns_', 
-    // ~ 'tabview-selection', 'fullscreen', 'userscript-engagement-panel', 
+    // ~ 'tyt-chat', 'theater', 'is-two-columns_', 
+    // ~ 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 
     // ~ 'hidden'
 
     //console.log(15330, scriptEnable, kRef(ytdFlexy), mutations)
@@ -4472,47 +5140,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     for (const mutation of mutations) {
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
       _console.log(8221,18, mutation.attributeName )
-      if (mutation.attributeName == 'userscript-chat-collapsed' || mutation.attributeName == 'userscript-chatblock') {
+      if (mutation.attributeName == 'tyt-chat') {
 
         if (!checkedChat) {
           checkedChat = true; // avoid double call
 
-          if (cssElm.getAttribute('userscript-chatblock') === 'chat-live') {
-            // assigned new attribute - "chat-live" => disable comments section
-
+          if ((cssElm.getAttribute('tyt-chat') || '').indexOf('chat$live') >= 0) {
+            // assigned new attribute - "chat$live" => disable comments section
 
             //console.log(3712,2)
             _disableComments();
           }
 
-          if (!cssElm.hasAttribute('userscript-chatblock')) {
+          if (!cssElm.hasAttribute('tyt-chat')) {
             // might or might not collapsed before
-            timeline.setTimeout(mtf_attrFlexy_functions['userscript-chatblock'], 240);
+            timeline.setTimeout(mtf_attrFlexy_functions['tyt-chat'], 240);
           }
         }
 
-      } else if (mutation.attributeName == 'userscript-engagement-panel') {
+      } else if (mutation.attributeName == 'tyt-ep-visible') {
         // assume any other active component such as tab content and chatroom
 
-        if (+(cssElm.getAttribute('userscript-engagement-panel') || 0) === 0 && +mutation.oldValue > 0) {
-          timeline.setTimeout(mtf_attrFlexy_functions['userscript-engagement-panel'], 240);
+        if (+(cssElm.getAttribute('tyt-ep-visible') || 0) === 0 && +mutation.oldValue > 0) {
+          timeline.setTimeout(mtf_attrFlexy_functions['tyt-ep-visible'], 240);
         }
       }
     }
 
     new_layoutStatus = fixLayoutStatus(new_layoutStatus);
 
-
     if (new_layoutStatus !== old_layoutStatus) {
       wls.layoutStatus = new_layoutStatus
 
-      // resize => is-two-columns_
-      if (((new_layoutStatus ^ old_layoutStatus) & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
-        requestAnimationFrame(() => {
-          pageCheck();
-          singleColumnScrolling(true); //initalize sticky
-        })
-      }
+      
 
     }
 
@@ -4538,10 +5198,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           attr_chatblock = false;
           attr_chatcollapsed = false;
         }
-        wAttr(ytdFlexyElm, 'userscript-chatblock', attr_chatblock)
+        let v = attr_chatblock;
+        if(typeof v ==='string'){
+          if(attr_chatcollapsed===true) v='-'+v;
+          if(attr_chatcollapsed===false) v='+'+v;
+        }
+        wAttr(ytdFlexyElm, 'tyt-chat', v)
 
-        _console.log(322, ytdFlexyElm.hasAttribute('userscript-chatblock'))
-        wAttr(ytdFlexyElm, 'userscript-chat-collapsed', attr_chatcollapsed)
       }
     }
 
@@ -4549,26 +5212,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       .map(elm => ({ elm, hidden: elm.classList.contains('tab-btn-hidden') }));
 
     if (rTabSelection.length === 0) {
-      wAttr(ytdFlexyElm, 'tabview-selection', false);
+      wAttr(ytdFlexyElm, 'tyt-tab', false);
     } else {
       rTabSelection = rTabSelection.filter(entry => entry.hidden !== true); // all available tabs
-      if (rTabSelection.length === 0) wAttr(ytdFlexyElm, 'tabview-selection', '');
+      if (rTabSelection.length === 0) wAttr(ytdFlexyElm, 'tyt-tab', '');
     }
     rTabSelection = null;
 
     let rEP = engagement_panels_();
-    if (rEP && rEP.count > 0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', false);
-    //else wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
-    else if (rEP.value > 0) wAttr(ytdFlexyElm, 'userscript-engagement-panel', rEP.value + ""); // can be 0
+    if (rEP && rEP.count > 0) wAttr(ytdFlexyElm, 'tyt-ep-visible', false);
+    //else wAttr(ytdFlexyElm, 'tyt-ep-visible', rEP.value + ""); // can be 0
+    else if (rEP.value > 0) wAttr(ytdFlexyElm, 'tyt-ep-visible', rEP.value + ""); // can be 0
 
     let ls = LAYOUT_VAILD;
     ls = flexAttr_toLayoutStatus(ls, 'theater')
-    ls = flexAttr_toLayoutStatus(ls, 'userscript-chat-collapsed')
-    ls = flexAttr_toLayoutStatus(ls, 'userscript-chatblock')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-chat')
     ls = flexAttr_toLayoutStatus(ls, 'is-two-columns_')
-    ls = flexAttr_toLayoutStatus(ls, 'tabview-selection')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-tab')
     ls = flexAttr_toLayoutStatus(ls, 'fullscreen')
-    ls = flexAttr_toLayoutStatus(ls, 'userscript-engagement-panel')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-ep-visible')
 
     fixLayoutStatus(ls)
 
@@ -4577,7 +5239,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     mtoFlexyAttr.bindElement(ytdFlexyElm, {
       attributes: true,
-      attributeFilter: ['userscript-chat-collapsed', 'userscript-chatblock', 'theater', 'is-two-columns_', 'tabview-selection', 'fullscreen', 'userscript-engagement-panel', 'hidden'],
+      attributeFilter: [ 'tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'hidden'],
       attributeOldValue: true
     })
 
@@ -4610,15 +5272,85 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
+  async function makeVideosAutoLoad2() {
+    let sVideosList = document.querySelector('ytd-watch-flexy #tab-videos [placeholder-videos]');
+
+    if (!sVideosList) return null;
+
+    //let ab = sVideosList.getAttribute('tabview-videos-autoload')
+    await Promise.resolve(0);
+
+    let endPosDOM = document.querySelector('tabview-videos-end-pos')
+    if (endPosDOM) endPosDOM.remove(); // just in case
+    endPosDOM = document.createElement('tabview-videos-end-pos')
+    sVideosList.parentNode.insertBefore(endPosDOM, sVideosList.nextSibling);
+
+    await Promise.resolve(0);
 
 
-  function setDisplayedPlaylist() {
-    //override the default youtube coding event prevention
-    let cssElm = kRef(ytdFlexy);
-    if (!scriptEnable || !cssElm) return;
-    displayedPlaylist = mWeakRef(document.querySelector('ytd-watch-flexy #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer[tabview-true-playlist]') || null);
+    //sVideosList.setAttribute('tabview-videos-autoload', '1')
+
+    _console.log(9333)
+    if (!sVideosITO) {
+
+      sVideosITO = new IntersectionObserver((entries) => {
+
+        _console.log(9334, entries)
+        if (entries.length !== 1) return;
+        if (entries[0].isIntersecting !== true) return;
+        let elm = ((entries[0] || 0).target || 0);
+        if (!elm) return;
+
+        setTimeout(() => {
+
+          let res = setVideosTwoColumns(2 | 4, true)
+
+          _console.log(9335, res)
+
+          if (res.m2 && res.m3) {
+            let m4 = res.m2.closest('ytd-continuation-item-renderer');
+            let m5, m6;
+
+            _console.log(9336, m4)
+            if (m4) {
+              m5 = m4.querySelector('ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
+
+              // YouTube coding bug - correct is 'ytd-button-renderer'. If the page is redirected under single column mode, the tag become 'yt-button-renderer'
+              // under 'yt-button-renderer', the 
+
+              if (m5)
+                m6 = m5.querySelector('button.yt-spec-button-shape-next--call-to-action'); // main
+
+              _console.log(9337, m4, m5, m6)
+
+              if (m6) {
+                m6.click() // generic solution
+              } else if (m5) {
+                m5.click(); // not sure
+              } else {
+                m4.dispatchEvent(new Event('yt-service-request-sent-button-renderer')); // only for correct YouTube coding
+              }
+            }
+          }
+
+        }, 30); // delay required to allow YouTube generate the continuation elements
+
+        /*
+        if (elm && entries[0].isIntersecting === true) {
+          elm.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
+        }*/
+      }, {
+        rootMargin: `0px`, // refer to css margin-top:-30vh
+        threshold: [0]
+      })
+      sVideosITO.observe(endPosDOM);
+    } else {
+      sVideosITO.disconnect();
+      sVideosITO.observe(endPosDOM);
+    }
+
+
   }
-
 
 
 
@@ -4639,35 +5371,37 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       //console.log(12312)
 
+
       if (activeLink) {
         lstTab.lastTab = activeLink.getAttribute('userscript-tab-content')
         lstTab.lastPanel = null;
-      }
 
-      displayedPlaylist = null;
-      scrollingVideosList = null;
+        if(!document.querySelector(`${lstTab.lastTab}.tab-content-cld tabview-tab-expander`)){
 
-      if (activeLink && lstTab.lastTab == '#tab-list') {
-        setDisplayedPlaylist();
-      } else if (activeLink && lstTab.lastTab == '#tab-videos') {
-        scrollingVideosList = mWeakRef(document.querySelector('ytd-watch-flexy #tab-videos:not(.tab-content-hidden) [placeholder-videos]'));
-      }
+          let secondary = document.querySelector('#secondary');
+          if (secondary) {
+            secondary.dispatchEvent(new CustomEvent('tabview-hover-slider-restore'))
+            //console.log(1995)
+          }
 
-
-      ytdFlexyElm.setAttribute('tabview-selection', activeLink ? lstTab.lastTab : '')
-
-      if (activeLink && lstTab.lastTab == '#tab-comments' && (ytdFlexyElm.getAttribute('tabview-youtube-comments') || '').lastIndexOf('S') >= 0) {
-
-
-        if (mtf_forceCheckLiveVideo_disable === 2) { }
-        else {
-          akAttr(ytdFlexyElm, 'tabview-youtube-comments', false, 'L');
-
-          _console.log(2909, 3)
 
         }
-
       }
+
+      //displayedPlaylist = null;
+
+      if (activeLink && lstTab.lastTab == '#tab-list') {
+        //setDisplayedPlaylist();
+      } else if (activeLink && lstTab.lastTab == '#tab-videos') {
+     
+      }
+
+
+      ytdFlexyElm.setAttribute('tyt-tab', activeLink ? lstTab.lastTab : '')
+
+
+
+      
 
 
 
@@ -4725,131 +5459,158 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+  
+  async function handlerMaterialTabClickInner(tabBtn){
 
+    await Promise.resolve(0);
+
+    const layoutStatusMutexUnlock = await new Promise(resolve => {
+      layoutStatusMutex.lockWith(unlock => {
+        resolve(unlock)
+      })
+    });
+
+    //console.log(8514)
+    let unlock = layoutStatusMutexUnlock;
+
+    //console.log(8515)
+    switchTabActivity_lastTab = tabBtn.getAttribute('userscript-tab-content');
+
+    let isActiveAndVisible = tabBtn.classList.contains('tab-btn') && tabBtn.classList.contains('active') && !tabBtn.classList.contains('tab-btn-hidden')
+
+    _console.log(8221, 15, isActiveAndVisible)
+
+    if (isFullScreen()) {
+
+
+      const fullScreenTabScrollIntoView=() => {
+        let scrollElement = document.querySelector('ytd-app[scrolling]')
+        if (!scrollElement) return;
+        // single column view; click button; scroll to tab content area 100%
+        let rightTabs = document.querySelector('#right-tabs');
+        let pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
+        if (rightTabs && pTop > 0 && tabBtn.classList.contains('active')) {
+          rightTabs.scrollIntoView(true);
+        }
+      }
+
+      _console.log(8221, 16, 1)
+
+      if (isActiveAndVisible) {
+        timeline.setTimeout(unlock, 80);
+        switchTabActivity(null);
+      } else {
+
+        if (isChatExpand() && isWideScreenWithTwoColumns()) {
+          ytBtnCollapseChat();
+        } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
+          ytBtnCloseEngagementPanels();
+        }
+
+        timeline.setTimeout(fullScreenTabScrollIntoView, 60)
+
+        timeline.setTimeout(unlock, 80);
+        switchTabActivity(tabBtn)
+      }
+
+
+    } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
+
+      _console.log(8221, 16, 2)
+      //optional
+      timeline.setTimeout(unlock, 80);
+      switchTabActivity(null);
+      ytBtnSetTheater();
+    } else if (isActiveAndVisible) {
+
+      _console.log(8221, 16, 3)
+      timeline.setTimeout(unlock, 80);
+      switchTabActivity(null);
+    } else {
+
+      _console.log(8221, 16, 4)
+
+      if (isChatExpand() && isWideScreenWithTwoColumns()) {
+        ytBtnCollapseChat();
+      } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
+        ytBtnCloseEngagementPanels();
+      } else if (isWideScreenWithTwoColumns() && isTheater() && !isFullScreen()) {
+        ytBtnCancelTheater(); //ytd-watch-flexy attr [theater]
+      }
+
+      timeline.setTimeout(() => {
+        // single column view; click button; scroll to tab content area 100%
+        let rightTabs = document.querySelector('#right-tabs');
+        if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && tabBtn.classList.contains('active')) {
+          let tabButtonBar = document.querySelector('#material-tabs');
+          let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
+          window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
+
+
+          singleColumnScrolling(true); //necessary
+
+        }
+      }, 60)
+      // _console.log(8519)
+
+      timeline.setTimeout(unlock, 80)
+      switchTabActivity(tabBtn)
+
+
+
+    }
+
+
+
+
+  }
+
+  function handlerMaterialTabClick(/** @type {MouseEvent} */ evt) {
+
+    //console.log(8510)
+    let ytdFlexyElm = kRef(ytdFlexy);
+    if (!scriptEnable || !ytdFlexyElm) return null;
+
+    let tabBtn = this;
+
+    if (!tabBtn.hasAttribute('userscript-tab-content')) return;
+
+    /** @type {HTMLElement | null} */
+    let dom = evt.target;
+    if (!dom) return;
+
+    if (dom.classList.contains('font-size-btn')) return;
+
+
+    evt.preventDefault();
+
+    handlerMaterialTabClickInner(tabBtn);
+
+
+
+
+  }
 
   function prepareTabBtn() {
 
     const materialTab = document.querySelector("#material-tabs")
     if (!materialTab) return;
 
-    let noActiveTab = !!document.querySelector('ytd-watch-flexy[userscript-chatblock]:not([userscript-chat-collapsed])')
+    let noActiveTab = !!document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')
 
     const activeLink = querySelectorFromAnchor.call(materialTab, 'a[userscript-tab-content].active:not(.tab-btn-hidden)')
     if (activeLink) switchTabActivity(noActiveTab ? null : activeLink)
 
     if (!tabsUiScript_setclick) {
       tabsUiScript_setclick = true;
-      $(materialTab).on("click", "a", function (evt) {
+      
+      //let _last_click =null;
 
-        //console.log(8510)
-        let ytdFlexyElm = kRef(ytdFlexy);
-        if (!scriptEnable || !ytdFlexyElm) return null;
+      $(materialTab).on("click", "a", handlerMaterialTabClick);
 
-        if (!this.hasAttribute('userscript-tab-content')) return;
-
-        if (evt.target.matches('.font-size-btn')) return;
-
+      $(materialTab).on("dblclick", "a", function(evt){
 
         evt.preventDefault();
-
-        //console.log(8511)
-
-
-        //console.log(8513)
-        new Promise(requestAnimationFrame).then(() => {
-
-
-          //console.log(8514)
-          layoutStatusMutex.lockWith(unlock => {
-
-            //console.log(8515)
-            switchTabActivity_lastTab = this.getAttribute('userscript-tab-content');
-
-            let isActiveAndVisible = this.classList.contains('tab-btn') && this.classList.contains('active') && !this.classList.contains('tab-btn-hidden')
-
-            _console.log(8221,15, isActiveAndVisible)
-
-            if (isFullScreen()) {
-              _console.log(8221,16,1)
-
-              //console.log(isActiveAndVisible, this)
-              if (isActiveAndVisible) {
-                timeline.setTimeout(unlock, 80);
-                switchTabActivity(null);
-              } else {
-
-                if (isChatExpand() && isWideScreenWithTwoColumns()) {
-                  ytBtnCollapseChat();
-                } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
-                  ytBtnCloseEngagementPanels();
-                }
-
-
-                timeline.setTimeout(() => {
-                  let scrollElement = document.querySelector('ytd-app[scrolling]')
-                  if (!scrollElement) return;
-                  // single column view; click button; scroll to tab content area 100%
-                  let rightTabs = document.querySelector('#right-tabs');
-                  let pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
-                  if (rightTabs && pTop > 0 && this.classList.contains('active')) {
-                    rightTabs.scrollIntoView(true);
-                  }
-                }, 60)
-
-                timeline.setTimeout(unlock, 80);
-                switchTabActivity(this)
-              }
-
-
-            } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
-              
-              _console.log(8221,16,2)
-              //optional
-              timeline.setTimeout(unlock, 80);
-              switchTabActivity(null);
-              ytBtnSetTheater();
-            } else if (isActiveAndVisible) {
-              
-              _console.log(8221,16,3)
-              timeline.setTimeout(unlock, 80);
-              switchTabActivity(null);
-            } else {
-              
-              _console.log(8221,16,4)
-
-              if (isChatExpand() && isWideScreenWithTwoColumns()) {
-                ytBtnCollapseChat();
-              } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
-                ytBtnCloseEngagementPanels();
-              } else if (isWideScreenWithTwoColumns() && isTheater() && !isFullScreen()) {
-                ytBtnCancelTheater(); //ytd-watch-flexy attr [theater]
-              }
-
-              timeline.setTimeout(() => {
-                // single column view; click button; scroll to tab content area 100%
-                let rightTabs = document.querySelector('#right-tabs');
-                if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && this.classList.contains('active')) {
-                  let tabButtonBar = document.querySelector('#material-tabs');
-                  let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
-                  window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
-                }
-              }, 60)
-              // _console.log(8519)
-
-              timeline.setTimeout(unlock, 80)
-              switchTabActivity(this)
-
-
-
-            }
-
-
-          })
-
-        })
-
-
-
 
       });
 
@@ -4873,9 +5634,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         evt.stopPropagation();
         evt.stopImmediatePropagation();
 
-        let value = evt.target.matches('.font-size-plus') ? 1 : evt.target.matches('.font-size-minus') ? -1 : 0;
+        /** @type {HTMLElement | null} */
+        let dom = evt.target;
+        if(!dom) return;
 
-        let active_tab_content = closestDOM.call(evt.target, '[userscript-tab-content]').getAttribute('userscript-tab-content');
+
+        let value = dom.classList.contains('font-size-plus') ? 1 : dom.classList.contains('font-size-minus') ? -1 : 0;
+
+        let active_tab_content = closestDOM.call(dom, '[userscript-tab-content]').getAttribute('userscript-tab-content');
 
         let store = getStore();
         let settingKey = `font-size-${active_tab_content}`
@@ -4904,23 +5670,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  let singleColumnScrolling_dt = 0;
-
-  const singleColumnScrolling = async function (/** @type {boolean} */ scrolling_lastF) {
+  const singleColumnScrolling = async function () {
+    //makeHeaderFloat
 
     if (!scriptEnable || pageType !== 'watch') return;
 
-    let pageY = 0;
-
-    if (scrolling_lastD === 0) {
-      if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
-        return;
-      }
-      pageY = scrollY;
-      if (pageY < 10 && !scrolling_lastF) return;
-    } else {
-      pageY = scrollY;
+    if (!isStickyHeaderEnabled && (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+      return;
     }
+    let pageY = scrollY;
+
 
     let tdt = Date.now();
     singleColumnScrolling_dt = tdt;
@@ -4987,8 +5746,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       
       if(singleColumnScrolling_dt !== tdt) return null;
 
-      if ((xyStatus == 2 || xyStatus == 3) && (scrolling_lastD === 0 || scrolling_lastF)) {
-        scrolling_lastD = 1;
+      if ((xyStatus == 2 || xyStatus == 3)) { 
         let {
           offsetHeight
         } = header
@@ -5000,11 +5758,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         targetElm.style.setProperty("--userscript-sticky", offsetHeight + 'px')
 
         wAttr(targetElm, 'userscript-sticky', true);
+        isStickyHeaderEnabled = true;
 
-      } else if ((xyStatus == 1) && (scrolling_lastD === 1 || scrolling_lastF)) {
-        scrolling_lastD = 0;
+      } else if ((xyStatus == 1)) {
 
         wAttr(targetElm, 'userscript-sticky', false);
+        isStickyHeaderEnabled = false;
       }
 
 
@@ -5030,7 +5789,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     scriptEnable = true;
 
-    //mtf_forceCheckLiveVideo_disable = 0;
     _console.log(27056)
 
 
@@ -5047,7 +5805,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
     const new_isExpandEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND;
 
-    if (ytdFlexyElm.getAttribute('tabview-selection') === '' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat) {
+    if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat) {
       // e.g. engage panel removed after miniview and change video
       setToActiveTab();
     } else if (new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]').length === 0) {
@@ -5144,7 +5902,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const chatBlockR = liveChatRenderer ? (isReplay ? 3 : 1) : 0
     const initialDisplayState = liveChatRenderer ? liveChatRenderer.initialDisplayState : null;
 
-    let f = () => {
+    let f = () => { 
 
       _console.log(932, 1, 1)
       let ytdFlexyElm = kRef(ytdFlexy);
@@ -5156,8 +5914,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(932, 1, 3)
 
 
-      let attr_chatblock = chatBlockR === 1 ? 'chat-live' : chatBlockR === 3 ? 'chat-playback' : false;
+      let attr_chatblock = chatBlockR === 1 ? 'chat$live' : chatBlockR === 3 ? 'chat$playback' : false;
       let attr_chatcollapsed = false;
+
 
       if (attr_chatblock) {
         let p = document.querySelector('ytd-live-chat-frame#chat')
@@ -5180,7 +5939,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-      let chatTypeChanged = mtf_chatBlockQ !== chatBlockR
+      let chatTypeChanged = mtf_chatBlockQ !== chatBlockR 
 
       if (chatTypeChanged) {
         mtf_chatBlockQ = chatBlockR
@@ -5191,10 +5950,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         //LIVE_CHAT_DISPLAY_STATE_COLLAPSED
         //LIVE_CHAT_DISPLAY_STATE_EXPANDED
-        wAttr(ytdFlexyElm, 'userscript-chatblock', attr_chatblock)
-        wAttr(ytdFlexyElm, 'userscript-chat-collapsed', attr_chatcollapsed)
+        let v = attr_chatblock
+        if(typeof attr_chatblock=='string'){
 
-        _console.log(932, 3, ytdFlexyElm.hasAttribute('userscript-chatblock'))
+          if(attr_chatcollapsed===true) v = '-' + attr_chatblock
+          if(attr_chatcollapsed=== false) v= '+'+attr_chatblock;
+        }
+        wAttr(ytdFlexyElm, 'tyt-chat', v)
+
+        _console.log(932, 3, ytdFlexyElm.hasAttribute('tyt-chat'))
 
 
       }
@@ -5209,7 +5973,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (chatTypeChanged) {
 
-        if (attr_chatblock == 'chat-live') {
+        if (attr_chatblock == 'chat$live') {
 
           _console.log(932, 4)
 
@@ -5247,7 +6011,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // restore Fetching only
 
 
-        if (mtf_forceCheckLiveVideo_disable !== 2 && (attr_chatblock === false || attr_chatblock === 'chat-playback')) {
+        if (mtf_forceCheckLiveVideo_disable !== 2 && (attr_chatblock === false || attr_chatblock === 'chat$playback')) {
 
           emptyCommentSection();
           _console.log(9360, 77);
@@ -5405,8 +6169,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _console.log(601, evt.detail);
 
     if(d_page === 'watch'){
-      dispatchWindowResize(); // player control positioning
+      //dispatchWindowResize(); // player control positioning //try to omit
       pageFetchedData = evt.detail;
+      
       /*
       console.log(pageFetchedData)
       try{
@@ -5420,8 +6185,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         console.log(desc1===desc2, JSON.stringify(desc1),JSON.stringify(desc2), desc1, desc2)
 
 
+        console.log(pageFetchedData.pageData)
+
       }catch(e){}
       */
+      
     }else{
       pageFetchedData = null;
     }
@@ -5489,98 +6257,139 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // ---------------------------------------------------------------------------------------------
 
+  async function updateFloatingSlider_A(secondaryInner) {
+
+    // [is-extra-wide-video_]
+
+    let secondary = secondaryInner.parentNode;
+    if (!secondary) return;
+
+
+    if (secondary.classList.contains('tabview-hover-slider-enable')) {
+      return;
+    }
+
+
+    await new Promise(r => setTimeout(r), 30); // time allowed for dom changes and value change of enableHoverSliderDetection
+    let bool = enableHoverSliderDetection;
+
+    
+    let previousHasClass = secondary.classList.contains('tabview-hover-slider-hover');
+
+    if (bool || previousHasClass) {
+    }else{
+      return;
+    }
+
+    
+    let columns = secondary.parentNode;
+    if (!columns) return;
+
+
+    let primary = columns.querySelector('#primary');
+    if (!primary) return;
+
+
+    let res = await Promise.all([
+      new Promise(f => f(columns.getBoundingClientRect())),
+      new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
+      new Promise(f => f(secondary.getBoundingClientRect())),
+      new Promise(f => f(secondaryInner.getBoundingClientRect()))
+    ]);
+    
+
+    const [rectC, screenWidth, rect, rectI] = res;
+
+
+
+
+    const setOffset = () => {
+
+      let offset = rectC.width - screenWidth;
+
+      let k = 1.0
+      if (offset >= 125) {
+        k = 1.0
+      } else if (offset >= 75) {
+        k = 1.0;
+      } else if (offset >= 25) {
+        k = 0.25;
+      } else {
+        k = 0.0
+      }
+      secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
+      secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
+
+    }
+
+
+
+
+    await Promise.resolve(0);
+
+    secondary.classList.add('tabview-hover-final')
+
+    if (previousHasClass && !bool) {
+      secondaryInner.style.removeProperty('--tabview-slider-right')
+      secondaryInner.style.removeProperty('--tabview-slider-offset')
+    } else {
+
+      if (!previousHasClass) { //secondary.classList.contains('tabview-hover-slider');
+        secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+      }
+
+      setOffset();
+    }
+
+    if (bool && previousHasClass) { }
+    else if (!bool && !previousHasClass) { }
+    else {
+      secondary.classList.toggle('tabview-hover-slider', bool)
+      secondary.classList.toggle('tabview-hover-slider-hover', bool)
+    }
+
+    await Promise.resolve(0);
+
+
+    setTimeout(() => {
+      secondary.classList.remove('tabview-hover-final')
+    }, 350)
+
+    
+
+  } 
+
+
   function updateFloatingSlider(){
 
+    let secondaryInner = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')
 
-    let secondary = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')
+    if(!secondaryInner) return;
       
-
+    let secondary = secondaryInner.parentNode;
     if(!secondary) return;
+
+    if(secondary.classList.contains('tabview-hover-slider-enable')){
+      return;
+    }
 
     let t = document.documentElement.clientWidth; //integer
 
-    siderMutex.lockWith(unlock=>{
+    sliderMutex.lockWith(unlock=>{
 
       let v = document.documentElement.clientWidth; //integer
 
-      if(t!==v) {
+      if(t===v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')){
+       
+        updateFloatingSlider_A(secondaryInner ).then(unlock);
+      }else{
         unlock();
-        return;
       }
-
-      if(!secondary.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy')){
-        unlock();
-        return;
-      }
-
-      let previousHasClass = secondary.classList.contains('tabview-hover-sider');
-      if(previousHasClass){
-
-        secondary.classList.remove('tabview-hover-sider') // avoid css rules changed the native position of the element.
-
-      }
-      requestAnimationFrame(() => {
-
-
-        //const widthProp = '--ytd-watch-flexy-sidebar-min-width'; //'--ytd-watch-flexy-sidebar-width'
-        const widthProp = '--ytd-watch-flexy-sidebar-width';
-
-        Promise.all([
-          new Promise(f => f(window.getComputedStyle(secondary))),
-          new Promise(f => f(secondary.getBoundingClientRect())),
-          new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
-
-        ]).then(res => {
-          const [cprops, rect, screenWidth] = res;
-
-          let targetSize = +cprops.getPropertyValue(widthProp).replace('px', '')
-          let currentWidth = rect.width;
-
-          let bool = (targetSize > 100 && currentWidth > 100 && screenWidth < rect.right);
-
-          if(bool || previousHasClass){
-
-              
-            if(previousHasClass && !bool){
-              secondary.style.removeProperty('--tabview-sider-right')
-              secondary.style.removeProperty('--tabview-sider-offset')
-              secondary.style.removeProperty('--tabview-sider-basewidth')
-            
-            }else{
-
-              //secondary.style.setProperty('--tabview-sider-right', `${screen.width-rect.right}px`)
-              let pr = +cprops.getPropertyValue('padding-right').replace('px', '');
-              secondary.style.setProperty('--tabview-sider-right', `${pr}px`)
-              secondary.style.setProperty('--tabview-sider-offset', `${rect.right - (screenWidth - pr) }px`)
-              secondary.style.setProperty('--tabview-sider-basewidth', `${rect.width}px`)
-
-              //console.log(targetSize, currentWidth, screenWidth, pr, rect.right)
-              
-            }
-
-            secondary.classList.toggle('tabview-hover-sider', bool)
-
-          }
-
-          unlock();
-
-
-        })
-
-
-
-      })
 
     })
 
   }
-  
-  window.addEventListener("scroll", function () {
-    singleColumnScrolling(false)
-  }, bubblePassive)
 
-
-  let siderMutex = new Mutex();
   function manualResize(isTrusted){
 
     if (!scriptEnable) return;
@@ -5589,7 +6398,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _console.log(2233, isTrusted)
 
-    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) !== LAYOUT_TWO_COLUMNS) {
+    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0 ) {
 
       requestAnimationFrame(() => {
         singleColumnScrolling(true)
@@ -5607,25 +6416,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-  //let lastResizeAt = 0; 
+  //let lastResizeAt = 0;  
   window.addEventListener('resize', function (evt) {
 
     let isTrusted = evt.isTrusted;
-    if (isTrusted) {
+    if (isTrusted) { 
+      //console.log(evt)
       let tcw = document.documentElement.clientWidth;
       setTimeout(() => {
         // avoid duplicate calling during resizing
         if (tcw !== document.documentElement.clientWidth) return;
-        manualResize(isTrusted);
+        manualResize(true);
       }, 160)
     } else {
-      manualResize(false);
+     manualResize(false);
     }
 
   }, bubblePassive)
 
 
 
+  /*
   document.addEventListener('wheel', function (evt) {
 
     if (!scriptEnable) return;
@@ -5635,83 +6446,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       evt.stopImmediatePropagation();
     }
   }, capturePassive);
-
-
-
-  let scrollEvtDT = 0;
-
-  window.addEventListener('scroll', function (evt) {
-
-    //console.log(evt.target)
-
-    if (!scriptEnable) return;
-
-    let isTwoCol = (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS
-    if (isTwoCol) return;
-
-    if (!kRef(scrollingVideosList)) return;
-    if (videoListBeforeSearch) return;
-
-
-    let tdt=Date.now();
-    scrollEvtDT=tdt;
-
-    new Promise(resolve => {
-
-      if(scrollEvtDT!==tdt) return resolve(null);
-
-
-      let scrollingElement = document.scrollingElement;
-      let visibleHeight = scrollingElement.clientHeight;
-      let totalHeight = scrollingElement.scrollHeight;
-
-
-      if (totalHeight < visibleHeight * 1.5) return resolve(null); // filter out two column view;
-
-      let z = window.pageYOffset + visibleHeight;
-      let h_advanced = totalHeight - (visibleHeight > 5 * 40 ? visibleHeight * 0.5 : 40);
-
-      if (z > h_advanced) resolve(true);
-      resolve(null);
-
-    }).then(zh => {
-
-
-      if (!zh) return null;
-
-      if(scrollEvtDT!==tdt) return null;
-
-
-      let ct = Date.now();
-      if (ct - lastScrollFetch < 500) return null; //prevent continuous calling
-
-      lastScrollFetch = ct;
-
-      let res = setVideosTwoColumns(2 | 4, true)
-      if (res.m3 && res.m2) {
-
-        //wait for DOM change, just in case
-        requestAnimationFrame(() => {
-          let { offsetTop } = res.m2 // as visibility of m2 & m3 switched.
-
-          if (offsetTop - lastOffsetTop < 40) return null; // in case bug, or repeating calling.  // the next button shall below the this button 
-          lastOffsetTop = offsetTop
-
-          res.m2.parentNode.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
-
-          res = null
-        })
-
-      } else {
-
-        res = null
-      }
-
-
-    })
-
-
-  }, bubblePassive)
+  */
 
 
 
@@ -5735,7 +6470,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  document.documentElement.setAttribute('plugin-tabview-youtube', '')
+  document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
 
 
   function nestedObjectFlatten(prefix, obj) {
