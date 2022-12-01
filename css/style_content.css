@@ -3701,7 +3701,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         /* remove YouTube default background background */
     }
 
-    ytd-watch-flexy[cinematics-enabled] #right-tabs {
+    html[dark] ytd-watch-flexy[cinematics-enabled] #right-tabs {
         --tabview-tab-container-background: rgba(255, 255, 255, 0.04);
     }
 
@@ -3734,11 +3734,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         /* constant value will slow down the performance; default auto */
     }
 
-    ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer {
+    html[dark] ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer {
         background-color: rgba(32.5, 32.5, 32.5, 0.875);
     }
 
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer {
+    html[dark] ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer {
 
 
         background: var(--yt-spec-raised-background);
@@ -3749,8 +3749,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #left-arrow,
-    ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow {
+    html[dark] ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #left-arrow,
+    html[dark] ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer #right-arrow {
 
         opacity: 0.9;
     }
@@ -3977,3 +3977,19 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 }
 
+
+
+/* force YouTube experimental feature */
+
+/*
+ytd-playlist-panel-video-renderer[selected][use-color-palette], ytd-playlist-panel-video-renderer[selected][use-color-palette]:hover:not(.dragging) {
+    background-color: var(--yt-active-playlist-panel-background-color);
+}
+
+ytd-playlist-panel-video-renderer[selected][use-color-palette] #video-title.ytd-playlist-panel-video-renderer {
+    color: var(--yt-lightsource-primary-title-color);
+}
+
+ytd-playlist-panel-video-renderer[selected][use-color-palette] #index.ytd-playlist-panel-video-renderer, ytd-playlist-panel-video-renderer[selected][use-color-palette] #byline.ytd-playlist-panel-video-renderer, ytd-playlist-panel-video-renderer[selected][use-color-palette] #video-info.ytd-playlist-panel-video-renderer {
+    color: var(--yt-lightsource-secondary-title-color);
+}*/
