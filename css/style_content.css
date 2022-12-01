@@ -101,6 +101,60 @@ ytd-watch-flexy {
 
 
 
+
+
+
+/* <<< pre-fix for japanese layout native bug */
+/* remove if YouTube fixed this bug */
+
+html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
+    display: inline-flex;
+    width: 2em;
+    color:transparent;
+}
+
+html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
+    content:'Join';
+    display:inline;
+    color: var(--yt-spec-text-primary);
+}
+
+html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
+    display: inline-flex;
+    width: 4.5em;
+    color:transparent;
+}
+
+html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
+    content:'Subscribe';
+    display:inline;
+    color: var(--yt-spec-text-primary-inverse);
+}
+
+
+html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録を解除"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
+    display: inline-flex;
+    width: 5em;
+    color:transparent;
+}
+
+html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録を解除"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
+    content:'Subscribed';
+    display:inline;
+    color: var(--yt-spec-text-primary);
+}
+
+
+
+
+
+/* <<< pre-fix for japanese layout native bug >>> */
+
+
+
+
+
+
 /* << animationstart */
 
 
