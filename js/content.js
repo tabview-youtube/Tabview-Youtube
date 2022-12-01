@@ -5175,8 +5175,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (+(cssElm.getAttribute('tyt-ep-visible') || 0) === 0 && +mutation.oldValue > 0) {
           timeline.setTimeout(mtf_attrFlexy_functions['tyt-ep-visible'], 240);
         }
-      } else if (mutation.attributeName==='is-extra-wide-video_'){
-        dispatchWindowResize(); //required for hover slider // eg video after ads
+      } else if (mutation.attributeName === 'is-extra-wide-video_') {
+        setTimeout(() => {
+          let elmA = document.querySelector('tabview-column-pos');
+          let elmAP = elmA.parentNode;
+          let elmAB = elmA.nextSibling;
+          elmA.remove();
+          elmAP.insertBefore(elmA, elmAB);
+          dispatchWindowResize(); //required for hover slider // eg video after ads
+        }, 130);
       }
     }
 
