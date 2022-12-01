@@ -3922,6 +3922,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               checkDuplicatedInfo();
             }
           }, 270)
+        } else {
+
+
+          let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+          if (ytdFlexyElm) {
+            let cssbool_c1 = false;
+            let cssbool_c2 = false;
+            let cssbool_c3 = false;
+            ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
+          }
+
         }
 
 
@@ -5120,7 +5131,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //::attr    
     // ~ 'tyt-chat', 'theater', 'is-two-columns_', 
     // ~ 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 
-    // ~ 'hidden'
+    // ~ 'hidden', 'is-extra-wide-video_'
 
     //console.log(15330, scriptEnable, kRef(ytdFlexy), mutations)
 
@@ -5140,7 +5151,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     for (const mutation of mutations) {
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
       _console.log(8221,18, mutation.attributeName )
-      if (mutation.attributeName == 'tyt-chat') {
+      if (mutation.attributeName === 'tyt-chat') {
 
         if (!checkedChat) {
           checkedChat = true; // avoid double call
@@ -5158,12 +5169,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         }
 
-      } else if (mutation.attributeName == 'tyt-ep-visible') {
+      } else if (mutation.attributeName === 'tyt-ep-visible') {
         // assume any other active component such as tab content and chatroom
 
         if (+(cssElm.getAttribute('tyt-ep-visible') || 0) === 0 && +mutation.oldValue > 0) {
           timeline.setTimeout(mtf_attrFlexy_functions['tyt-ep-visible'], 240);
         }
+      } else if (mutation.attributeName==='is-extra-wide-video_'){
+        dispatchWindowResize(); //required for hover slider // eg video after ads
       }
     }
 
@@ -5239,7 +5252,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     mtoFlexyAttr.bindElement(ytdFlexyElm, {
       attributes: true,
-      attributeFilter: [ 'tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'hidden'],
+      attributeFilter: [ 'tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'hidden', 'is-extra-wide-video_'],
       attributeOldValue: true
     })
 
@@ -5390,11 +5403,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       //displayedPlaylist = null;
 
-      if (activeLink && lstTab.lastTab == '#tab-list') {
-        //setDisplayedPlaylist();
-      } else if (activeLink && lstTab.lastTab == '#tab-videos') {
+      // if (activeLink && lstTab.lastTab == '#tab-list') {
+      //   //setDisplayedPlaylist();
+      // } else if (activeLink && lstTab.lastTab == '#tab-videos') {
      
-      }
+      // }
 
 
       ytdFlexyElm.setAttribute('tyt-tab', activeLink ? lstTab.lastTab : '')
