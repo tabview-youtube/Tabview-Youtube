@@ -3581,6 +3581,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   
   let g_check_detail_A=0;
   let checkDuplicateRes = null;
+  function checkDuplicatedInfo_then(isCheck){
+
+      const ytdFlexyElm = kRef(ytdFlexy)
+      if (!ytdFlexyElm) return; //unlikely
+
+      let cssbool_c1 = false, cssbool_c2= false, cssbool_c3= false;
+      if(isCheck === 5 && ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')){
+        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
+      }
+
+      ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1?'A':'a'}${cssbool_c2?'B':'b'}${cssbool_c3?'C':'c'}`);
+
+      
+
+  }
   function checkDuplicatedInfo(){
 
 
@@ -3803,26 +3820,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
       checkDuplicateRes= infoDuplicated;
 
+
+      return 5; // other than 5, duplicated check = false
+
       
 
     };
 
-    checkEqual_B().then(()=>{
-      
-      const ytdFlexyElm = kRef(ytdFlexy)
-      if (!ytdFlexyElm) return; //unlikely
-
-      let cssbool_c1 = false, cssbool_c2= false, cssbool_c3= false;
-      if(ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')){
-        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
-      }
-
-      ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1?'A':'a'}${cssbool_c2?'B':'b'}${cssbool_c3?'C':'c'}`);
-
-      
-    });
+    checkEqual_B().then(checkDuplicatedInfo_then);
 
   }
 
@@ -4041,14 +4046,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }, 270)
         } else {
 
-
-          let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
-          if (ytdFlexyElm) {
-            let cssbool_c1 = false;
-            let cssbool_c2 = false;
-            let cssbool_c3 = false;
-            ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
-          }
+          checkDuplicatedInfo_then(0);
 
         }
 
