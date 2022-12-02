@@ -99,6 +99,7 @@ ytd-watch-flexy {
     --userscript-zoom-videos: var(--ut2257-videos, 1.00);
     --userscript-zoom-list: var(--ut2257-list, 1.00);
 
+    --tyt-native-ui-autohide-visibility: collapse;
 
 
 }
@@ -593,14 +594,19 @@ body .ytp-autohide .ytp-unmute,
         contain: strict;
     }
     
-    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class],
-    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] div,
-    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] canvas {
-        contain: layout size style;
-        user-select: none;
-        touch-action: none;
-        pointer-events: none;
-        transform: translateZ(1px);
+
+    @supports (color: var(--rendering-fix-cinematic)){
+
+        html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class],
+        html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] div,
+        html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] canvas {
+            contain: layout size style;
+            user-select: none;
+            touch-action: none;
+            pointer-events: none;
+            transform: translateZ(1px);
+        }
+        
     }
     
 
@@ -2998,6 +3004,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
 
+        html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy]{
+            --tyt-native-ui-autohide-visibility: '--NULL-';
+        }
+
+
     }
 
     @supports (color: var(--comment-input-panel-emoji)) {
@@ -3247,6 +3258,16 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     #primary-inner #player ~ #below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
         display: none;
+    }
+
+    
+  
+    @supports (color:var(--rendering-autohide-visibility)){
+        
+        .ytp-autohide .ytp-playlist-menu-button,.ytp-autohide .ytp-back-button,.ytp-autohide .ytp-title-channel,.ytp-autohide .ytp-title,.ytp-autohide .ytp-chrome-top .ytp-watch-later-button,.ytp-autohide .ytp-chrome-top .ytp-share-button,.ytp-autohide .ytp-chrome-top .ytp-copylink-button,.ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-button,.ytp-autohide .ytp-overflow-button,.ytp-autohide .ytp-chrome-bottom,.ytp-chrome-top[aria-hidden=true],.ytp-chrome-bottom[aria-hidden=true] {
+            visibility: var(--tyt-native-ui-autohide-visibility);
+        }
+
     }
 
 }
@@ -4011,10 +4032,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 
-  
-    .ytp-autohide .ytp-playlist-menu-button,.ytp-autohide .ytp-back-button,.ytp-autohide .ytp-title-channel,.ytp-autohide .ytp-title,.ytp-autohide .ytp-chrome-top .ytp-watch-later-button,.ytp-autohide .ytp-chrome-top .ytp-share-button,.ytp-autohide .ytp-chrome-top .ytp-copylink-button,.ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-button,.ytp-autohide .ytp-overflow-button,.ytp-autohide .ytp-chrome-bottom,.ytp-chrome-top[aria-hidden=true],.ytp-chrome-bottom[aria-hidden=true] {
-        visibility: collapse;
-    }
 
 
 
