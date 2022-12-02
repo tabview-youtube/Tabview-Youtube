@@ -494,8 +494,9 @@
 
 
 
+  /** @type {Map<string, Function>} */
   let handleDOMAppearFN = new Map();
-  function handleDOMAppear(fn, func) {
+  function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
 
     if (handleDOMAppearFN.size === 0) {
       document.addEventListener('animationstart', (evt) => {
@@ -917,33 +918,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //   document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
   // }
 
-  function isCommentsK(ytdFlexyElm) {
-    return (ytdFlexyElm.getAttribute('tyt-comments') || '').indexOf('K') >= 0
-  }
-
-  function akAttr(/** @type {HTMLElement} */ cssElm, /** @type {String} */ attrName, /** @type {boolean} */ isNegative, /** @type {string | any} */ flag) {
-    // isNegative => incomplete loading
-
-    let u = parseInt(cssElm.getAttribute(attrName) || 0) || 0;
-    let ak = Math.abs(u);
-
-    if (ak > 100 && isNegative && u < 0) {
-
-    } else if (ak > 100 && !isNegative && u > 0) {
-
-    } else {
-      if (ak <= 100) {
-        ak = 101;
-      } else {
-        ak++;
-        if (ak >= 800) ak = 101;
-      }
-      // 101, 102, ... 799, 101 
-    }
-
-    cssElm.setAttribute(attrName, `${isNegative ? -ak : ak}${flag || ''}`)
-  }
-
   async function dispatchWindowResize() {
     // for youtube to detect layout resize for adjusting Player tools
     return window.dispatchEvent(new Event('resize'));
@@ -973,6 +947,310 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
     }
+  }
+
+  
+  function handlerTabExpanderClick() {
+
+    async function b(){
+      
+      let h1 = document.documentElement.clientHeight;
+      let h2 = (document.querySelector('#right-tabs')||0).clientHeight;
+
+      await Promise.resolve(0);
+      if(h1>300 && h2>300){
+        let ratio = h2/h1; // positive below 1.0
+
+        return ratio;
+      }
+      return 0;
+    }
+
+    async function a(){
+
+
+      let secondary = document.querySelector('#secondary');
+      if (secondary) {
+        
+
+        if (!secondary.classList.contains('tabview-hover-slider-enable')) {
+
+          let secondaryInner = secondary.querySelector('#secondary-inner');
+
+          if (!secondary.classList.contains('tabview-hover-slider')) {
+            // without hover
+
+            let rect = secondary.getBoundingClientRect();
+            let rectI = secondaryInner.getBoundingClientRect();
+
+            secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+
+          }
+          
+          let ratio = await b();
+          if(ratio > 0.0 && ratio <= 1.0){
+
+            secondaryInner.style.setProperty('--ytd-watch-flexy-sidebar-width-d', `${ Math.round(100*ratio*10)/10 }vw`);
+            secondary.classList.add('tabview-hover-slider')
+            secondary.classList.add('tabview-hover-slider-enable')
+          }
+
+
+        } else {
+
+
+          secondary.dispatchEvent(new CustomEvent("tabview-hover-slider-restore"));
+          //console.log(1994)
+
+        }
+
+      }
+
+
+      
+    }
+
+
+    a();
+
+
+  }
+
+  function setupHoverSlider(secondary, columns){
+
+    if (secondary && columns) {
+      let attrName = `o4r-${uidGEN('tabview-hover-slider-restore')}`;
+
+      if (!secondary.hasAttribute(attrName)) {
+
+        secondary.setAttribute(attrName, '');
+
+        let elmA = document.createElement('tabview-column-pos')
+        let itoA = new IntersectionObserver((entries) => {
+          let t = null;
+          let w = enableHoverSliderDetection
+          for (const entry of entries) {
+            if (entry.rootBounds === null) continue;
+            t = !entry.isIntersecting; // if entries.length>1 (unlikely); take the last intersecting
+          }
+          if (w !== t && t !== null) {
+            // t can be true when the layout enters single column mode
+            enableHoverSliderDetection = t;
+          }
+          //console.log(entries, enableHoverSliderDetection, t)
+        })
+        columns.appendChild(elmA); // append to dom first before observe
+        itoA.observe(elmA);
+
+
+
+        secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
+
+          let secondary = evt.target;
+
+          if (secondary.classList.contains('tabview-hover-slider-enable')) {
+
+            let secondaryInner = secondary.querySelector('#secondary-inner')
+
+            if (secondary.classList.contains('tabview-hover-slider-hover')) {
+
+              if (secondaryInner) {
+
+                Promise.resolve(0).then(() => {
+                  secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+                }).then(() => {
+                  secondary.classList.remove('tabview-hover-slider-enable')
+                })
+
+              }
+
+            } else {
+
+              let secondary = evt.target;
+              secondary.classList.remove('tabview-hover-slider')
+              secondary.classList.remove('tabview-hover-slider-enable')
+
+              if (secondaryInner) {
+                secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+                secondaryInner.style.removeProperty('--tabview-slider-right')
+              }
+
+            }
+
+            setTimeout(() => {
+              updateFloatingSlider()
+            }, 30);
+
+
+          }
+
+
+        }, false)
+
+      }
+
+    }
+
+  }
+  function addTabExpander(tabContent){
+
+    if (!tabContent) return null;
+    let id = tabContent.id;
+    if (!id || typeof id !== 'string') return null;
+
+    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-tab-expander`)) return false;
+
+    let elm = document.createElement('tabview-tab-expander')
+    tabContent.insertBefore(elm, tabContent.firstChild);
+    elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
+    elm.addEventListener('click', handlerTabExpanderClick, false);
+    return true;
+
+  }
+
+  async function updateFloatingSlider_A(secondaryInner) {
+
+    // [is-extra-wide-video_]
+
+    let secondary = secondaryInner.parentNode;
+    if (!secondary) return;
+
+
+    if (secondary.classList.contains('tabview-hover-slider-enable')) {
+      return;
+    }
+
+
+    await new Promise(r => setTimeout(r), 30); // time allowed for dom changes and value change of enableHoverSliderDetection
+    let bool = enableHoverSliderDetection;
+
+    
+    let previousHasClass = secondary.classList.contains('tabview-hover-slider-hover');
+
+    if (bool || previousHasClass) {
+    }else{
+      return;
+    }
+
+    
+    let columns = secondary.parentNode;
+    if (!columns) return;
+
+
+    let primary = columns.querySelector('#primary');
+    if (!primary) return;
+
+
+    let res = await Promise.all([
+      new Promise(f => f(columns.getBoundingClientRect())),
+      new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
+      new Promise(f => f(secondary.getBoundingClientRect())),
+      new Promise(f => f(secondaryInner.getBoundingClientRect()))
+    ]);
+    
+
+    const [rectC, screenWidth, rect, rectI] = res;
+
+
+
+
+    const setOffset = () => {
+
+      let offset = rectC.width - screenWidth;
+
+      let k = 1.0
+      if (offset >= 125) {
+        k = 1.0
+      } else if (offset >= 75) {
+        k = 1.0;
+      } else if (offset >= 25) {
+        k = 0.25;
+      } else {
+        k = 0.0
+      }
+      secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
+      secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
+
+    }
+
+
+
+
+    await Promise.resolve(0);
+
+    secondary.classList.add('tabview-hover-final')
+
+    if (previousHasClass && !bool) {
+      secondaryInner.style.removeProperty('--tabview-slider-right')
+      secondaryInner.style.removeProperty('--tabview-slider-offset')
+    } else {
+
+      if (!previousHasClass) { //secondary.classList.contains('tabview-hover-slider');
+        secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+      }
+
+      setOffset();
+    }
+
+    if (bool && previousHasClass) { }
+    else if (!bool && !previousHasClass) { }
+    else {
+      secondary.classList.toggle('tabview-hover-slider', bool)
+      secondary.classList.toggle('tabview-hover-slider-hover', bool)
+    }
+
+    await Promise.resolve(0);
+
+
+    setTimeout(() => {
+      secondary.classList.remove('tabview-hover-final')
+    }, 350)
+
+    
+
+  } 
+
+
+  function updateFloatingSlider(){
+
+    let secondaryInner = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')
+
+    if(!secondaryInner) return;
+      
+    let secondary = secondaryInner.parentNode;
+    if(!secondary) return;
+
+    if(secondary.classList.contains('tabview-hover-slider-enable')){
+      return;
+    }
+
+    let t = document.documentElement.clientWidth; //integer
+
+    sliderMutex.lockWith(unlock=>{
+
+      let v = document.documentElement.clientWidth; //integer
+
+      if(t===v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')){
+       
+        updateFloatingSlider_A(secondaryInner ).then(unlock);
+      }else{
+        unlock();
+      }
+
+    })
+
+  }
+
+
+  function setToActiveTab(defaultTab) { 
+    if (isTheater() && isWideScreenWithTwoColumns()) return; 
+    const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
+      document.querySelector(`a[userscript-tab-content="${(defaultTab || settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
+      document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
+      null; 
+
+    switchTabActivity(jElm);
+    return !!jElm;
   }
 
   function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
@@ -1548,34 +1826,86 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  function chatFrameContentDocument() {
-    // non-null if iframe exist && contentDocument && readyState = complete
-    /** @type {HTMLIFrameElement | null} */
-    let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
-    if (!iframe) return null; //iframe must be there
-    /** @type {Document | null} */
-    let cDoc = null;
-    try {
-      cDoc = iframe.contentDocument;
-    } catch (e) { }
-    if (!cDoc) return null;
-    if (cDoc.readyState != 'complete') return null; //we must wait for its completion
 
-    return cDoc;
+  
+  async function makeVideosAutoLoad2() {
+    let sVideosList = document.querySelector('ytd-watch-flexy #tab-videos [placeholder-videos]');
 
-  }
+    if (!sVideosList) return null;
 
-  function chatFrameElement(/** @type {string} */ cssSelector) {
-    let cDoc = chatFrameContentDocument();
-    if (!cDoc) return null;
-    /** @type {HTMLElement | null} */
-    let elm = null;
-    try {
-      elm = cDoc.querySelector(cssSelector)
-    } catch (e) {
-      console.log('iframe error', e)
+    //let ab = sVideosList.getAttribute('tabview-videos-autoload')
+    await Promise.resolve(0);
+
+    let endPosDOM = document.querySelector('tabview-videos-end-pos')
+    if (endPosDOM) endPosDOM.remove(); // just in case
+    endPosDOM = document.createElement('tabview-videos-end-pos')
+    sVideosList.parentNode.insertBefore(endPosDOM, sVideosList.nextSibling);
+
+    await Promise.resolve(0);
+
+
+    //sVideosList.setAttribute('tabview-videos-autoload', '1')
+
+    _console.log(9333)
+    if (!sVideosITO) {
+
+      sVideosITO = new IntersectionObserver((entries) => {
+
+        _console.log(9334, entries)
+        if (entries.length !== 1) return;
+        if (entries[0].isIntersecting !== true) return;
+        let elm = ((entries[0] || 0).target || 0);
+        if (!elm) return;
+
+        setTimeout(() => {
+
+          let res = setVideosTwoColumns(2 | 4, true)
+
+          _console.log(9335, res)
+
+          if (res.m2 && res.m3) {
+            let m4 = res.m2.closest('ytd-continuation-item-renderer');
+            let m5, m6;
+
+            _console.log(9336, m4)
+            if (m4) {
+              m5 = m4.querySelector('ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
+
+              // YouTube coding bug - correct is 'ytd-button-renderer'. If the page is redirected under single column mode, the tag become 'yt-button-renderer'
+              // under 'yt-button-renderer', the 
+
+              if (m5)
+                m6 = m5.querySelector('button.yt-spec-button-shape-next--call-to-action'); // main
+
+              _console.log(9337, m4, m5, m6)
+
+              if (m6) {
+                m6.click() // generic solution
+              } else if (m5) {
+                m5.click(); // not sure
+              } else {
+                m4.dispatchEvent(new Event('yt-service-request-sent-button-renderer')); // only for correct YouTube coding
+              }
+            }
+          }
+
+        }, 30); // delay required to allow YouTube generate the continuation elements
+
+        /*
+        if (elm && entries[0].isIntersecting === true) {
+          elm.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
+        }*/
+      }, {
+        rootMargin: `0px`, // refer to css margin-top:-30vh
+        threshold: [0]
+      })
+      sVideosITO.observe(endPosDOM);
+    } else {
+      sVideosITO.disconnect();
+      sVideosITO.observe(endPosDOM);
     }
-    return elm;
+
+
   }
 
 
@@ -1874,67 +2204,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function base_ChatExist() {
-
-    let ytdFlexyElm = kRef(ytdFlexy);
-    if (!scriptEnable || !ytdFlexyElm) return null;
-
-    // no mutation triggering if the changes are inside the iframe 
-
-    // 1) Detection of #continuations inside iframe
-    // iframe ownerDocument is accessible due to same origin
-    // if the chatroom is collapsed, no determination of live chat or replay (as no #continuations and somehow a blank iframe doc)
-
-    // 2) Detection of meta tag
-    // This is fastest but not reliable. It is somehow a bug that the navigation might not update the meta tag content
-
-    // 3) Detection of HTMLElement inside video player for live video
-
-    // (1)+(3) = solution
-
-    let attr_chatblock = null
-    let attr_chatcollapsed = null;
-
-    const elmChat = document.querySelector('ytd-live-chat-frame#chat')
-    let elmCont = null;
-    if (elmChat) {
-      elmCont = chatFrameElement('yt-live-chat-renderer #continuations')
-
-
-      let s = 0;
-      if (elmCont) {
-        //not found if it is collapsed.
-        s |= querySelectorFromAnchor.call(elmCont, 'yt-timed-continuation') ? 1 : 0;
-        s |= querySelectorFromAnchor.call(elmCont, 'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
-        //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
-        if (s == 1) {
-          attr_chatblock = 'chat$live';
-        } else if (s == 2) attr_chatblock = 'chat$playback';
-
-        if (s == 1) $("span#tyt-cm-count").text('');
-
-      } else if (!ytdFlexyElm.hasAttribute('tyt-chat')) {
-        // live chat frame but type not known
-
-        attr_chatblock = '';
-
-      }
-      //keep unknown as original    
-
-
-      let isCollapsed = !!elmChat.hasAttribute('collapsed');
-      attr_chatcollapsed = isCollapsed;
-
-    } else {
-      attr_chatblock = false;
-      attr_chatcollapsed = false;
-
-    }
-
-    return { attr_chatblock, attr_chatcollapsed }
-
-  }
-
+  
 
 
 /*
@@ -2011,6 +2281,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+
   handleDOMAppear('chatFrameToggleBtnAppended1', (evt)=>{
 
     _console.log(5099, 'chatFrameToggleBtnAppended', evt)
@@ -2042,7 +2313,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // continuous check for element relocation
   // fired at begining & window resize, etc
   // might moved to #primary
-  function mtf_append_playlist(playlist) {
+  function mtf_append_playlist(/** @type {HTMLElement | null} */ playlist) {
 
 
     if(playlist === null){
@@ -2424,7 +2695,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _console.log(2901)
 
-    if (isCommentsK(ytdFlexyElm)) return;
+    if ( (ytdFlexyElm.getAttribute('tyt-comments') || '').indexOf('K') >= 0 ) return;
 
     _console.log(2902)
 
@@ -3305,86 +3576,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function handlerTabExpanderClick() {
 
-    async function b(){
-      
-      let h1 = document.documentElement.clientHeight;
-      let h2 = (document.querySelector('#right-tabs')||0).clientHeight;
-
-      await Promise.resolve(0);
-      if(h1>300 && h2>300){
-        let ratio = h2/h1; // positive below 1.0
-
-        return ratio;
-      }
-      return 0;
-    }
-
-    async function a(){
-
-
-      let secondary = document.querySelector('#secondary');
-      if (secondary) {
-
-        if (!secondary.classList.contains('tabview-hover-slider-enable')) {
-
-          let secondaryInner = secondary.querySelector('#secondary-inner');
-
-          if (!secondary.classList.contains('tabview-hover-slider')) {
-            // without hover
-
-            let rect = secondary.getBoundingClientRect();
-            let rectI = secondaryInner.getBoundingClientRect();
-
-            secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
-
-          }
-          
-          let ratio = await b();
-          if(ratio > 0.0 && ratio <= 1.0){
-
-            secondaryInner.style.setProperty('--ytd-watch-flexy-sidebar-width-d', `${ Math.round(100*ratio*10)/10 }vw`);
-            secondary.classList.add('tabview-hover-slider')
-            secondary.classList.add('tabview-hover-slider-enable')
-          }
-
-
-        } else {
-
-
-          secondary.dispatchEvent(new CustomEvent("tabview-hover-slider-restore"));
-          //console.log(1994)
-
-        }
-
-      }
-
-
-      
-    }
-
-
-    a();
-
-
-  }
-
-  function addTabExpander(tabContent){
-
-    if (!tabContent) return null;
-    let id = tabContent.id;
-    if (!id || typeof id !== 'string') return null;
-
-    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-tab-expander`)) return false;
-
-    let elm = document.createElement('tabview-tab-expander')
-    tabContent.insertBefore(elm, tabContent.firstChild);
-    elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
-    elm.addEventListener('click', handlerTabExpanderClick, false);
-    return true;
-
-  }
 
   
   let g_check_detail_A=0;
@@ -3634,82 +3826,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function setupHoverSlider(secondary, columns){
 
-    if (secondary && columns) {
-      let attrName = `o4r-${uidGEN('tabview-hover-slider-restore')}`;
-
-      if (!secondary.hasAttribute(attrName)) {
-
-        secondary.setAttribute(attrName, '');
-
-        let elmA = document.createElement('tabview-column-pos')
-        let itoA = new IntersectionObserver((entries) => {
-          let t = null;
-          let w = enableHoverSliderDetection
-          for (const entry of entries) {
-            if (entry.rootBounds === null) continue;
-            t = !entry.isIntersecting; // if entries.length>1 (unlikely); take the last intersecting
-          }
-          if (w !== t && t !== null) {
-            // t can be true when the layout enters single column mode
-            enableHoverSliderDetection = t;
-          }
-          //console.log(entries, enableHoverSliderDetection, t)
-        })
-        columns.appendChild(elmA); // append to dom first before observe
-        itoA.observe(elmA);
-
-
-
-        secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
-
-          let secondary = evt.target;
-
-          if (secondary.classList.contains('tabview-hover-slider-enable')) {
-
-            let secondaryInner = secondary.querySelector('#secondary-inner')
-
-            if (secondary.classList.contains('tabview-hover-slider-hover')) {
-
-              if (secondaryInner) {
-
-                Promise.resolve(0).then(() => {
-                  secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
-                }).then(() => {
-                  secondary.classList.remove('tabview-hover-slider-enable')
-                })
-
-              }
-
-            } else {
-
-              let secondary = evt.target;
-              secondary.classList.remove('tabview-hover-slider')
-              secondary.classList.remove('tabview-hover-slider-enable')
-
-              if (secondaryInner) {
-                secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
-                secondaryInner.style.removeProperty('--tabview-slider-right')
-              }
-
-            }
-
-            setTimeout(() => {
-              updateFloatingSlider()
-            }, 30);
-
-
-          }
-
-
-        }, false)
-
-      }
-
-    }
-
-  }
 
   function findChatFrameDOM() {
 
@@ -4525,6 +4642,116 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+
+  
+
+  function addIframeStyle(cDoc) {
+    if (cDoc.querySelector('#userscript-tabview-chatroom-css')) return false;
+    addStyle((iframeCSS()||''), cDoc.documentElement).id = 'userscript-tabview-chatroom-css'
+    return true;
+  }
+
+  function chatFrameContentDocument() {
+    // non-null if iframe exist && contentDocument && readyState = complete
+    /** @type {HTMLIFrameElement | null} */
+    let iframe = document.querySelector('ytd-live-chat-frame iframe#chatframe');
+    if (!iframe) return null; //iframe must be there
+    /** @type {Document | null} */
+    let cDoc = null;
+    try {
+      cDoc = iframe.contentDocument;
+    } catch (e) { }
+    if (!cDoc) return null;
+    if (cDoc.readyState != 'complete') return null; //we must wait for its completion
+
+    return cDoc;
+
+  }
+
+  function chatFrameElement(/** @type {string} */ cssSelector) {
+    let cDoc = chatFrameContentDocument();
+    if (!cDoc) return null;
+    /** @type {HTMLElement | null} */
+    let elm = null;
+    try {
+      elm = cDoc.querySelector(cssSelector)
+    } catch (e) {
+      console.log('iframe error', e)
+    }
+    return elm;
+  }
+
+  
+  function forceDisplayChatReplay() {
+    let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
+    if (items && items.childElementCount !== 0) return;
+
+    let ytd_player = document.querySelector('ytd-player#ytd-player');
+    if (!ytd_player) return;
+    let videoElm = querySelectorFromAnchor.call(ytd_player, 'video');
+    if (!videoElm) return;
+
+    let ct = videoElm.currentTime;
+    if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
+      let chat = document.querySelector('ytd-live-chat-frame#chat');
+      if (chat) {
+        nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": ct }])
+      }
+    }
+
+  }
+  
+  function checkIframeDblClick(){
+    setTimeout(()=>{
+        
+      let Itemslist = chatFrameElement('#contents.yt-live-chat-renderer');
+      if(Itemslist && typeof Itemslist.ondblclick ==='function') iframePointEventsAllow=true;
+
+      if(iframePointEventsAllow){
+        chatFrameElement('body').classList.add('tabview-allow-pointer-events');
+      }
+
+    },300)
+  }
+
+  function iFrameContentReady(cDoc) {
+
+    if (!cDoc) return;
+
+    if (addIframeStyle(cDoc) === false) return;
+
+    let frc = 0;
+    let cid = 0;
+
+    let fullReady = () => {
+
+      if (!cDoc.documentElement.hasAttribute('style') && ++frc < 900) return;
+      clearInterval(cid);
+
+      if (!scriptEnable || !isChatExpand()) return;
+
+      let iframe = document.querySelector('body ytd-watch-flexy ytd-live-chat-frame iframe#chatframe');
+
+      if (!iframe) return; //prevent iframe is detached from the page
+
+      if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
+        $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded', '')
+      }
+
+      forceDisplayChatReplay();
+      checkIframeDblClick(); //user request for compatible with https://greasyfork.org/en/scripts/452335
+      iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
+
+    }
+    cid = setInterval(fullReady, 10)
+    fullReady();
+
+
+
+
+
+  }
+  
   const iframeLoadHookA = function (evt) {
 
     
@@ -4698,16 +4925,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function setToActiveTab(defaultTab) { 
-    if (isTheater() && isWideScreenWithTwoColumns()) return; 
-    const jElm = document.querySelector(`a[userscript-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
-      document.querySelector(`a[userscript-tab-content="${(defaultTab || settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
-      document.querySelector("a[userscript-tab-content]:not(.tab-btn-hidden)") ||
-      null; 
-
-    switchTabActivity(jElm);
-    return !!jElm;
-  }
 
   function getWrapper(wrapperId) {
     let $wrapper = $(`#${wrapperId}`);
@@ -4794,15 +5011,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  // reference: https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
-  String.replacei = String.prototype.replacei = function (rep, rby) {
-    var pos = this.toLowerCase().indexOf(rep.toLowerCase());
-    return pos == -1 ? this : this.substring(0, pos) + rby(this.substring(pos, pos + rep.length)) + this.substring(pos + rep.length);
-  };
 
   function setKeywords(){
 
     return;
+
+    if(typeof String.prototype.replacei !== 'function'){
+      // reference: https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
+      String.replacei = String.prototype.replacei = function (rep, rby) {
+        var pos = this.toLowerCase().indexOf(rep.toLowerCase());
+        return pos == -1 ? this : this.substring(0, pos) + rby(this.substring(pos, pos + rep.length)) + this.substring(pos + rep.length);
+      };
+    }
 
     let data = pageFetchedData;
     console.log(data)
@@ -4950,83 +5170,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-  function forceDisplayChatReplay() {
-    let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
-    if (items && items.childElementCount !== 0) return;
-
-    let ytd_player = document.querySelector('ytd-player#ytd-player');
-    if (!ytd_player) return;
-    let videoElm = querySelectorFromAnchor.call(ytd_player, 'video');
-    if (!videoElm) return;
-
-    let ct = videoElm.currentTime;
-    if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
-      let chat = document.querySelector('ytd-live-chat-frame#chat');
-      if (chat) {
-        nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": ct }])
-      }
-    }
-
-  }
-
-
-
-  function addIframeStyle(cDoc) {
-    if (cDoc.querySelector('#userscript-tabview-chatroom-css')) return false;
-    addStyle((iframeCSS()||''), cDoc.documentElement).id = 'userscript-tabview-chatroom-css'
-    return true;
-  }
-
-  function checkIframeDblClick(){
-    setTimeout(()=>{
-        
-      let Itemslist = chatFrameElement('#contents.yt-live-chat-renderer');
-      if(Itemslist && typeof Itemslist.ondblclick ==='function') iframePointEventsAllow=true;
-
-      if(iframePointEventsAllow){
-        chatFrameElement('body').classList.add('tabview-allow-pointer-events');
-      }
-
-    },300)
-  }
-
-  function iFrameContentReady(cDoc) {
-
-    if (!cDoc) return;
-
-    if (addIframeStyle(cDoc) === false) return;
-
-    let frc = 0;
-    let cid = 0;
-
-    let fullReady = () => {
-
-      if (!cDoc.documentElement.hasAttribute('style') && ++frc < 900) return;
-      clearInterval(cid);
-
-      if (!scriptEnable || !isChatExpand()) return;
-
-      let iframe = document.querySelector('body ytd-watch-flexy ytd-live-chat-frame iframe#chatframe');
-
-      if (!iframe) return; //prevent iframe is detached from the page
-
-      if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
-        $(document.querySelector('ytd-live-chat-frame#chat')).attr('yt-userscript-iframe-loaded', '')
-      }
-
-      forceDisplayChatReplay();
-      checkIframeDblClick(); //user request for compatible with https://greasyfork.org/en/scripts/452335
-      iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
-
-    }
-    cid = setInterval(fullReady, 10)
-    fullReady();
 
 
 
 
-
-  }
 
   function flexyAttr_toggleFlag(mFlag, b, flag) {
     return b ? (mFlag | flag) : (mFlag & ~flag);
@@ -5193,6 +5340,107 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  
+  function setupChatFrameDisplayState1(chatBlockR, initialDisplayState) {
+
+    let chatTypeChanged = mtf_chatBlockQ !== chatBlockR;
+
+    let attr_chatblock = chatBlockR === 1 ? 'chat$live' : chatBlockR === 3 ? 'chat$playback' : false;
+    let attr_chatcollapsed = false;
+
+
+    if (attr_chatblock) {
+      let chatFrame = document.querySelector('ytd-live-chat-frame#chat')
+      if (chatFrame) {
+        attr_chatcollapsed = chatFrame.hasAttribute('collapsed');
+        if (!attr_chatcollapsed) {
+
+          //nativeFunc(p,'setupPlayerProgressRelay')
+          //if(!p.isFrameReady)
+          //nativeFunc(p, "urlChanged")
+          //console.log(12399,1)
+          chatFrame.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
+
+        }
+      } else {
+        attr_chatcollapsed = initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false;
+      }
+    }
+
+    if (chatTypeChanged) {
+      mtf_chatBlockQ = chatBlockR
+
+      _console.log(932, 2, attr_chatblock, attr_chatcollapsed)
+
+      //LIVE_CHAT_DISPLAY_STATE_COLLAPSED
+      //LIVE_CHAT_DISPLAY_STATE_EXPANDED
+      let v = attr_chatblock
+      if (typeof attr_chatblock == 'string') {
+
+        if (attr_chatcollapsed === true) v = '-' + attr_chatblock
+        if (attr_chatcollapsed === false) v = '+' + attr_chatblock;
+      }
+      wAttr(ytdFlexyElm, 'tyt-chat', v)
+
+      _console.log(932, 3, ytdFlexyElm.hasAttribute('tyt-chat'))
+
+
+    }
+
+    return { attr_chatblock, attr_chatcollapsed, chatTypeChanged }
+  }
+  
+  function setupChatFrameDisplayState2() {
+
+    let ytdFlexyElm = kRef(ytdFlexy);
+    if (!scriptEnable || !ytdFlexyElm) return null;
+
+    // this is a backup solution only; should be abandoned
+
+    let attr_chatblock = null
+    let attr_chatcollapsed = null;
+
+    const elmChat = document.querySelector('ytd-live-chat-frame#chat')
+    let elmCont = null;
+    if (elmChat) {
+      elmCont = chatFrameElement('yt-live-chat-renderer #continuations')
+
+
+      let s = 0;
+      if (elmCont) {
+        //not found if it is collapsed.
+        s |= querySelectorFromAnchor.call(elmCont, 'yt-timed-continuation') ? 1 : 0;
+        s |= querySelectorFromAnchor.call(elmCont, 'yt-live-chat-replay-continuation, yt-player-seek-continuation') ? 2 : 0;
+        //s |= elmCont.querySelector('yt-live-chat-restricted-participation-renderer')?4:0;
+        if (s == 1) {
+          attr_chatblock = 'chat$live';
+        } else if (s == 2) attr_chatblock = 'chat$playback';
+
+        if (s == 1) $("span#tyt-cm-count").text('');
+
+      } else if (!ytdFlexyElm.hasAttribute('tyt-chat')) {
+        // live chat frame but type not known
+
+        attr_chatblock = '';
+
+      }
+      //keep unknown as original    
+
+
+      let isCollapsed = !!elmChat.hasAttribute('collapsed');
+      attr_chatcollapsed = isCollapsed;
+
+    } else {
+      attr_chatblock = false;
+      attr_chatcollapsed = false;
+
+    }
+
+    return { attr_chatblock, attr_chatcollapsed }
+
+  }
+
+
   const mtf_checkFlexy = () => {
     // once per $$native-ytd-watch-flexy$$ {ytd-watch-flexy} detection
 
@@ -5205,7 +5453,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let isFlexyHidden = (ytdFlexyElm.hasAttribute('hidden'));
 
     if (!isFlexyHidden) {
-      let rChatExist = base_ChatExist();
+      let rChatExist = setupChatFrameDisplayState2();
       if (rChatExist) {
         let { attr_chatblock, attr_chatcollapsed } = rChatExist;
         if (attr_chatblock === null) {
@@ -5249,7 +5497,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     fixLayoutStatus(ls)
 
-
     wls.layoutStatus = ls
 
     mtoFlexyAttr.bindElement(ytdFlexyElm, {
@@ -5257,8 +5504,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       attributeFilter: [ 'tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'hidden', 'is-extra-wide-video_'],
       attributeOldValue: true
     })
-
-
 
     let columns = document.querySelector('ytd-page-manager#page-manager #columns')
     if (columns) {
@@ -5286,86 +5531,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-
-  async function makeVideosAutoLoad2() {
-    let sVideosList = document.querySelector('ytd-watch-flexy #tab-videos [placeholder-videos]');
-
-    if (!sVideosList) return null;
-
-    //let ab = sVideosList.getAttribute('tabview-videos-autoload')
-    await Promise.resolve(0);
-
-    let endPosDOM = document.querySelector('tabview-videos-end-pos')
-    if (endPosDOM) endPosDOM.remove(); // just in case
-    endPosDOM = document.createElement('tabview-videos-end-pos')
-    sVideosList.parentNode.insertBefore(endPosDOM, sVideosList.nextSibling);
-
-    await Promise.resolve(0);
-
-
-    //sVideosList.setAttribute('tabview-videos-autoload', '1')
-
-    _console.log(9333)
-    if (!sVideosITO) {
-
-      sVideosITO = new IntersectionObserver((entries) => {
-
-        _console.log(9334, entries)
-        if (entries.length !== 1) return;
-        if (entries[0].isIntersecting !== true) return;
-        let elm = ((entries[0] || 0).target || 0);
-        if (!elm) return;
-
-        setTimeout(() => {
-
-          let res = setVideosTwoColumns(2 | 4, true)
-
-          _console.log(9335, res)
-
-          if (res.m2 && res.m3) {
-            let m4 = res.m2.closest('ytd-continuation-item-renderer');
-            let m5, m6;
-
-            _console.log(9336, m4)
-            if (m4) {
-              m5 = m4.querySelector('ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
-
-              // YouTube coding bug - correct is 'ytd-button-renderer'. If the page is redirected under single column mode, the tag become 'yt-button-renderer'
-              // under 'yt-button-renderer', the 
-
-              if (m5)
-                m6 = m5.querySelector('button.yt-spec-button-shape-next--call-to-action'); // main
-
-              _console.log(9337, m4, m5, m6)
-
-              if (m6) {
-                m6.click() // generic solution
-              } else if (m5) {
-                m5.click(); // not sure
-              } else {
-                m4.dispatchEvent(new Event('yt-service-request-sent-button-renderer')); // only for correct YouTube coding
-              }
-            }
-          }
-
-        }, 30); // delay required to allow YouTube generate the continuation elements
-
-        /*
-        if (elm && entries[0].isIntersecting === true) {
-          elm.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
-        }*/
-      }, {
-        rootMargin: `0px`, // refer to css margin-top:-30vh
-        threshold: [0]
-      })
-      sVideosITO.observe(endPosDOM);
-    } else {
-      sVideosITO.disconnect();
-      sVideosITO.observe(endPosDOM);
-    }
-
-
-  }
 
 
 
@@ -5505,7 +5670,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let rightTabs = document.querySelector('#right-tabs');
         let pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
         if (rightTabs && pTop > 0 && tabBtn.classList.contains('active')) {
-          rightTabs.scrollIntoView(true);
+          rightTabs.scrollIntoView(false);
         }
       }
 
@@ -5878,6 +6043,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+
   function newVideoPage(evt_detail) {
 
     //toggleBtnDC = 1;
@@ -5928,55 +6094,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       _console.log(932, 1, 3)
 
+      
 
-      let attr_chatblock = chatBlockR === 1 ? 'chat$live' : chatBlockR === 3 ? 'chat$playback' : false;
-      let attr_chatcollapsed = false;
+      let displayState = setupChatFrameDisplayState1(chatBlockR, initialDisplayState);
 
-
-      if (attr_chatblock) {
-        let p = document.querySelector('ytd-live-chat-frame#chat')
-        if (p) {
-          attr_chatcollapsed = p.hasAttribute('collapsed');
-          if (!attr_chatcollapsed) {
-
-            //nativeFunc(p,'setupPlayerProgressRelay')
-            //if(!p.isFrameReady)
-            //nativeFunc(p, "urlChanged")
-            //console.log(12399,1)
-            p.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
-
-          }
-        } else {
-          attr_chatcollapsed = initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' ? true : false;
-        }
-      }
-
-
-
-
-      let chatTypeChanged = mtf_chatBlockQ !== chatBlockR 
-
-      if (chatTypeChanged) {
-        mtf_chatBlockQ = chatBlockR
-
-
-
-        _console.log(932, 2, attr_chatblock, attr_chatcollapsed)
-
-        //LIVE_CHAT_DISPLAY_STATE_COLLAPSED
-        //LIVE_CHAT_DISPLAY_STATE_EXPANDED
-        let v = attr_chatblock
-        if(typeof attr_chatblock=='string'){
-
-          if(attr_chatcollapsed===true) v = '-' + attr_chatblock
-          if(attr_chatcollapsed=== false) v= '+'+attr_chatblock;
-        }
-        wAttr(ytdFlexyElm, 'tyt-chat', v)
-
-        _console.log(932, 3, ytdFlexyElm.hasAttribute('tyt-chat'))
-
-
-      }
+      let {attr_chatblock, attr_chatcollapsed, chatTypeChanged}  = displayState;
 
 
 
@@ -6221,7 +6343,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
       if (ytdFlexyElm) {
-        ytdFlexyElm.classList.toggle('tv-chat-toggleable', !!chatroomDetails);
+        ytdFlexyElm.classList.toggle('tyt-chat-toggleable', !!chatroomDetails);
       }
 
       resolve(0)
@@ -6272,138 +6394,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // ---------------------------------------------------------------------------------------------
 
-  async function updateFloatingSlider_A(secondaryInner) {
-
-    // [is-extra-wide-video_]
-
-    let secondary = secondaryInner.parentNode;
-    if (!secondary) return;
-
-
-    if (secondary.classList.contains('tabview-hover-slider-enable')) {
-      return;
-    }
-
-
-    await new Promise(r => setTimeout(r), 30); // time allowed for dom changes and value change of enableHoverSliderDetection
-    let bool = enableHoverSliderDetection;
-
-    
-    let previousHasClass = secondary.classList.contains('tabview-hover-slider-hover');
-
-    if (bool || previousHasClass) {
-    }else{
-      return;
-    }
-
-    
-    let columns = secondary.parentNode;
-    if (!columns) return;
-
-
-    let primary = columns.querySelector('#primary');
-    if (!primary) return;
-
-
-    let res = await Promise.all([
-      new Promise(f => f(columns.getBoundingClientRect())),
-      new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
-      new Promise(f => f(secondary.getBoundingClientRect())),
-      new Promise(f => f(secondaryInner.getBoundingClientRect()))
-    ]);
-    
-
-    const [rectC, screenWidth, rect, rectI] = res;
-
-
-
-
-    const setOffset = () => {
-
-      let offset = rectC.width - screenWidth;
-
-      let k = 1.0
-      if (offset >= 125) {
-        k = 1.0
-      } else if (offset >= 75) {
-        k = 1.0;
-      } else if (offset >= 25) {
-        k = 0.25;
-      } else {
-        k = 0.0
-      }
-      secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
-      secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
-
-    }
-
-
-
-
-    await Promise.resolve(0);
-
-    secondary.classList.add('tabview-hover-final')
-
-    if (previousHasClass && !bool) {
-      secondaryInner.style.removeProperty('--tabview-slider-right')
-      secondaryInner.style.removeProperty('--tabview-slider-offset')
-    } else {
-
-      if (!previousHasClass) { //secondary.classList.contains('tabview-hover-slider');
-        secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
-      }
-
-      setOffset();
-    }
-
-    if (bool && previousHasClass) { }
-    else if (!bool && !previousHasClass) { }
-    else {
-      secondary.classList.toggle('tabview-hover-slider', bool)
-      secondary.classList.toggle('tabview-hover-slider-hover', bool)
-    }
-
-    await Promise.resolve(0);
-
-
-    setTimeout(() => {
-      secondary.classList.remove('tabview-hover-final')
-    }, 350)
-
-    
-
-  } 
-
-
-  function updateFloatingSlider(){
-
-    let secondaryInner = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')
-
-    if(!secondaryInner) return;
-      
-    let secondary = secondaryInner.parentNode;
-    if(!secondary) return;
-
-    if(secondary.classList.contains('tabview-hover-slider-enable')){
-      return;
-    }
-
-    let t = document.documentElement.clientWidth; //integer
-
-    sliderMutex.lockWith(unlock=>{
-
-      let v = document.documentElement.clientWidth; //integer
-
-      if(t===v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')){
-       
-        updateFloatingSlider_A(secondaryInner ).then(unlock);
-      }else{
-        unlock();
-      }
-
-    })
-
-  }
 
   function manualResize(isTrusted){
 
