@@ -1,6 +1,6 @@
 
 
-@supports (color:var(--reference-dimension)){
+@supports (color: var(--reference-dimension)){
     /* reference dimension */
 
 /* --ytd-watch-flexy-panel-max-height: 549px */
@@ -121,7 +121,7 @@ ytd-watch-flexy {
 
 
 
-@supports (color:var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
+@supports (color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
 
 
 /* <<< pre-fix for japanese layout native bug */
@@ -170,6 +170,412 @@ ytd-watch-flexy {
 
 
 
+@supports (display:var(--hide-duplicate-info)) {
+
+    /* 2022/11/06 - hide new layout repeated info */
+    
+    @media all {
+        /* repeated info hidden */
+
+        /* tabview-info-c1 | :has(>#description-inner:only-child) */
+        /* tabview-info-c2 | :has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer)  */
+
+        ytd-watch-flexy:not([tyt-has*="a"]) ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
+            margin-top: 3px;
+        }
+
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
+            overflow: hidden;
+        }
+
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
+            margin-top: 3px;
+        }
+
+        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata {
+            margin: 5px 12px 3px 12px;
+        }
+
+        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy[clickable-description] #description.ytd-watch-metadata #info-container.ytd-watch-metadata[tabview-info-toggler] {
+            cursor: pointer;
+        }
+
+        /* rollback at 2022/11/30;  buggy for :has(:hover) */
+        /*
+        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tabview-info-toggler]:hover) {
+            background: var(--yt-spec-button-chip-background-hover);
+        }*/
+
+    }
+    
+    @media not all and (display-mode: fullscreen) {
+
+        /* repeated info hidden */
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata>yt-attributed-string.ytd-text-inline-expander~yt-formatted-string.ytd-text-inline-expander {
+            content-visibility: hidden;
+            display: none
+        }
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            content-visibility: hidden;
+            display: none
+        }
+
+        /* 2022/11/23 */
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
+            content-visibility: hidden;
+            display: none
+        }
+
+        ytd-watch-flexy:not([fullscreen]):not([tyt-has*="c"]) #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer {
+            margin-right: 0;
+        }
+
+        /* 2022/11/27 */
+
+        ytd-watch-flexy[tyt-chat*="chat$live"]:not([fullscreen]).tabview-info-duplicated ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata {
+            pointer-events: none;
+        }
+
+    }
+
+
+    @media all and (display-mode: fullscreen) {
+
+
+        /* repeated info hidden */
+
+        ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
+            overflow: auto;
+        }
+
+        ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
+            overflow-x: hidden;
+        }
+
+        
+
+    }
+
+
+
+}
+
+
+
+@supports (not (color:var(--backup-code-for-autohide))){
+/*
+
+body .ytp-autohide {
+    cursor: none
+}
+
+body .ytp-autohide .ytp-player-content:not(.html5-endscreen),
+body .ytp-autohide .ytp-player-content:not(.ytp-upnext),
+.ytp-hide-info-bar .ytp-player-content {
+    top: 0;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), top .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), top .1s cubic-bezier(0.4, 0, 1, 1);
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide .ytp-ypc-player-content,
+.ytp-hide-controls .ytp-player-content {
+    bottom: 0
+}
+
+body .ytp-autohide:not(.ytp-ad-overlay-open) .ytp-iv-player-content,
+.ytp-hide-controls .ytp-iv-player-content {
+    bottom: 12px
+}
+
+.ytp-big-mode.ytp-autohide:not(.ytp-ad-overlay-open) .ytp-iv-player-content,
+.ytp-big-mode.ytp-hide-controls .ytp-iv-player-content {
+    bottom: 24px
+}
+
+body .ytp-autohide .ytp-playlist-menu-button,
+body .ytp-autohide .ytp-back-button,
+body .ytp-autohide .ytp-title-channel,
+body .ytp-autohide .ytp-title,
+body .ytp-autohide .ytp-chrome-top .ytp-watch-later-button,
+body .ytp-autohide .ytp-chrome-top .ytp-share-button,
+body .ytp-autohide .ytp-chrome-top .ytp-copylink-button,
+body .ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-button,
+body .ytp-autohide .ytp-overflow-button,
+body .ytp-autohide .ytp-chrome-bottom,
+.ytp-chrome-top[aria-hidden=true],
+.ytp-chrome-bottom[aria-hidden=true] {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-playlist-menu-button,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-back-button,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-title-channel,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-title,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-chrome-top .ytp-watch-later-button,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-chrome-top .ytp-share-button,
+body .ytp-autohide:not(.ytp-autohide-active):not(.ytp-cards-teaser-shown) .ytp-cards-button,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-overflow-button {
+    display: none;
+    display: flex;
+}
+
+
+.ytp-gradient-top[aria-hidden=true],
+.ytp-gradient-bottom[aria-hidden=true],
+body .ytp-autohide .ytp-gradient-top,
+body .ytp-autohide .ytp-gradient-bottom {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-gradient-top,
+body .ytp-autohide:not(.ytp-autohide-active) .ytp-gradient-bottom {
+    display: none;
+    display: flex;
+}
+
+.ad-showing.ytp-autohide .video-ad-status-bar,
+.ad-showing.ytp-hide-controls .video-ad-status-bar {
+    bottom: 0
+}
+
+
+body .ytp-autohide.ytp-ad-overlay-closed .ad-overlay {
+    opacity: 0;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1)
+}
+
+.ytp-hide-controls .ytp-ad-player-overlay-instream-info,
+.ytp-hide-controls .ytp-ad-survey-player-overlay-instream-info,
+body .ytp-autohide .ytp-ad-player-overlay-instream-info,
+body .ytp-autohide .ytp-ad-survey-player-overlay-instream-info,
+.ytp-iv-drawer-open .ytp-ad-player-overlay-instream-info,
+.ytp-iv-drawer-open .ytp-ad-survey-player-overlay-instream-info,
+.ytp-embed.ytp-hide-controls .ytp-ad-player-overlay-instream-info,
+.ytp-embed.ytp-hide-controls .ytp-ad-survey-player-overlay-instream-info,
+.ytp-embed.ytp-autohide .ytp-ad-player-overlay-instream-info,
+.ytp-embed.ytp-autohide .ytp-ad-survey-player-overlay-instream-info,
+.ytp-embed.ytp-iv-drawer-open .ytp-ad-player-overlay-instream-info,
+.ytp-embed.ytp-iv-drawer-open .ytp-ad-survey-player-overlay-instream-info {
+    bottom: 6px;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1)
+}
+
+body .ytp-autohide.ytp-ad-overlay-closed .ytp-ad-overlay-slot {
+    opacity: 0;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide .ytp-ad-persistent-progress-bar-container {
+    opacity: 1;
+    bottom: 0;
+    -webkit-transition: bottom .25s cubic-bezier(0, 0, 0.2, 1), opacity .25s cubic-bezier(0, 0, 0.2, 1);
+    transition: bottom .25s cubic-bezier(0, 0, 0.2, 1), opacity .25s cubic-bezier(0, 0, 0.2, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide .iv-promo-website-card-cta-redesign.iv-promo-collapsed .iv-promo-img {
+    opacity: .8;
+    -webkit-transition: transform .2s cubic-bezier(0, 0, 0.2, 1), -webkit-transform .2s cubic-bezier(0, 0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0, 1, 1) .8s;
+    transition: transform .2s cubic-bezier(0, 0, 0.2, 1), -webkit-transform .2s cubic-bezier(0, 0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0, 1, 1) .8s;
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide.ytp-embed-overlays-autohide .iv-drawer {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide .iv-drawer {
+    display: none;
+    display:flex;
+}
+
+
+body .ytp-autohide .iv-drawer-content::-webkit-scrollbar-thumb {
+    background-color: transparent
+}
+
+
+body .ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-teaser,
+.ytp-iv-drawer-open .ytp-cards-teaser {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1) .33s;
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1) .33s;
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide.ytp-embed-overlays-autohide.ytp-contextmenu {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide.ytp-contextmenu {
+    display: none;
+    display:flex;
+}
+
+
+body .ytp-autohide:not(.ytp-mweb-player) .ytp-watermark {
+    opacity: 0;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+
+.ytp-big-mode.ytp-autohide .ytp-info-panel-preview,
+.ytp-big-mode.ytp-hide-info-bar .ytp-info-panel-preview,
+.ytp-embed.ytp-autohide .ytp-info-panel-preview,
+.ytp-embed.ytp-hide-info-bar .ytp-info-panel-preview {
+    top: 12px
+}
+
+.ytp-inline-preview-mode.ytp-autohide .ytp-time-display {
+    display: none;
+    display:flex;
+}
+
+
+.ytp-inline-preview-mode.ytp-autohide .ytp-inline-preview-scrim {
+    opacity: 0
+}
+
+
+#inline-preview-player.ytp-autohide .caption-window.ytp-caption-window-bottom {
+    margin-bottom: 12px
+}
+
+
+body .ytp-autohide .ytp-offline-slate-bar,
+.ytp-hide-controls .ytp-offline-slate-bar {
+    bottom: 12px;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide .ytp-big-mode .ytp-offline-slate-bar,
+.ytp-hide-controls .ytp-big-mode .ytp-offline-slate-bar {
+    bottom: 18px
+}
+
+
+body .ytp-autohide.ytp-embed-overlays-autohide .ytp-overflow-panel {
+    opacity: 0;
+    -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide .ytp-overflow-panel {
+    display: none
+    display:flex;
+}
+
+
+.ytp-exp-ppp-update.ytp-big-mode.ytp-autohide .ytp-paid-content-overlay,
+.ytp-exp-ppp-update.ytp-big-mode.ytp-hide-info-bar .ytp-paid-content-overlay,
+.ytp-exp-ppp-update.ytp-embed.ytp-autohide .ytp-paid-content-overlay,
+.ytp-exp-ppp-update.ytp-embed.ytp-hide-info-bar .ytp-paid-content-overlay {
+    top: 16px
+}
+
+body .ytp-autohide .ytp-paid-content-overlay,
+.ytp-iv-drawer-open .ytp-paid-content-overlay {
+    bottom: 6px;
+    -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: bottom .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+.ytp-big-mode.ytp-autohide .ytp-paid-content-overlay,
+.ytp-big-mode.ytp-iv-drawer-open .ytp-paid-content-overlay {
+    bottom: 12px
+}
+
+body .ytp-autohide .ytp-webgl-spherical-control,
+.ytp-hide-info-bar .ytp-webgl-spherical-control {
+    top: 12px;
+    -webkit-transition: top .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: top .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+body .ytp-autohide .caption-window.ytp-caption-window-top,
+.ytp-hide-info-bar .caption-window.ytp-caption-window-top {
+    margin-top: 0;
+    -webkit-transition: margin-bottom .1s cubic-bezier(0.4, 0, 1, 1), margin-top .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: margin-bottom .1s cubic-bezier(0.4, 0, 1, 1), margin-top .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+
+body .ytp-autohide .caption-window.ytp-caption-window-bottom,
+.ytp-hide-controls .caption-window.ytp-caption-window-bottom {
+    margin-bottom: 0;
+    -webkit-transition: margin-bottom .1s cubic-bezier(0.4, 0, 1, 1), margin-top .1s cubic-bezier(0.4, 0, 1, 1);
+    transition: margin-bottom .1s cubic-bezier(0.4, 0, 1, 1), margin-top .1s cubic-bezier(0.4, 0, 1, 1);
+    opacity:1;
+    -webkit-transition: none;
+    transition: none;
+}
+
+
+body .ytp-autohide .ytp-unmute,
+.ytp-hide-info-bar .ytp-unmute {
+    top: 0
+}
+*/
+}
+
 
 @media all {
 
@@ -186,10 +592,32 @@ ytd-watch-flexy {
         visibility: collapse;
         contain: strict;
     }
+    
+    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class],
+    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] div,
+    html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] canvas {
+        contain: layout size style;
+        user-select: none;
+        touch-action: none;
+        pointer-events: none;
+        transform: translateZ(1px);
+    }
+    
 
 
+    @supports (color: var(--tabview-fix-cinematic)){
+        body ytd-watch-flexy[cinematics-enabled] #below.ytd-watch-flexy{
+            position:static; /* fix tooltips overlap issue */
+            z-index: 0; /* fix cinematic rendering issue */
+        }
+        ytd-watch-flexy[cinematics-enabled] #above-the-fold.style-scope.ytd-watch-metadata{
+            z-index: 0; /* fix cinematic rendering issue @ single column mode */
+        }
+    }
 
-    @supports (color:var(--dom-appearance-triggering)) {
+    
+
+    @supports (color: var(--dom-appearance-triggering)) {
 
 
 
@@ -351,7 +779,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--page-columns-resizing-trigger)){
+    @supports (color: var(--page-columns-resizing-trigger)){
 
 
         tabview-column-pos {
@@ -364,6 +792,7 @@ ytd-watch-flexy {
             contain: strict;
             pointer-events: none !important;
             user-select: none !important;
+            touch-action: none !important;
             overflow: hidden;
             padding: 0;
             margin: 0;
@@ -371,7 +800,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--page-videos-reaching-the-end-trigger)) {
+    @supports (color: var(--page-videos-reaching-the-end-trigger)) {
 
         tabview-videos-end-pos {
 
@@ -406,7 +835,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tabview-tab-expander-btn-define)){
+    @supports (color: var(--tabview-tab-expander-btn-define)){
 
 
 
@@ -418,7 +847,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tabview-font-size-btn-define)) {
+    @supports (color: var(--tabview-font-size-btn-define)) {
 
 
         .font-size-right {
@@ -480,7 +909,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--stylish-scrollbar)) {
+    @supports (color: var(--stylish-scrollbar)) {
 
 
 
@@ -543,7 +972,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--page-info-ytd-watch-metadata-stylish)){
+    @supports (color: var(--page-info-ytd-watch-metadata-stylish)){
 
 
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
@@ -585,7 +1014,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tabview-tab-container-layouting)){
+    @supports (color: var(--tabview-tab-container-layouting)){
 
         ytd-watch-flexy #right-tabs {
             position: relative;
@@ -764,7 +1193,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tabview-tab-btn-define)) {
+    @supports (color: var(--tabview-tab-btn-define)) {
 
         /* give background color; otherwise it will be transparent in dark mode, single column*/
         ytd-watch-flexy #right-tabs .tab-btn {
@@ -871,7 +1300,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tyt-cm-count-define)){
+    @supports (color: var(--tyt-cm-count-define)){
 
 
         ytd-watch-flexy {
@@ -916,7 +1345,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports not (color:var(--removed-page-old-design-sentiment-bar-renderer-adjustment)){
+    @supports (not (color: var(--removed-page-old-design-sentiment-bar-renderer-adjustment))){
 
         /* for page info - old desing */
         /* REMOVED */
@@ -1066,7 +1495,7 @@ ytd-watch-flexy {
 
 
 
-    @supports not (color:var(--removed-page-old-info-1)){
+    @supports (not (color: var(--removed-page-old-info-1))){
 
         /* left side - like menu smaller */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
@@ -1092,7 +1521,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports not (color:var(--removed-page-old-info-2-single-column)) {
+    @supports (not (color: var(--removed-page-old-info-2-single-column))) {
 
         /* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
@@ -1163,7 +1592,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports not (color:var(--removed-page-old-info-3-two-columns)) {
+    @supports (not (color: var(--removed-page-old-info-3-two-columns))) {
 
 
         /* ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents */
@@ -1236,7 +1665,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports not (color:var(--removed-page-old-info-4)){
+    @supports (not (color: var(--removed-page-old-info-4))){
             
         /* two column mainly;  theater view make font smaller */
         ytd-watch-flexy[theater] #player ~ #info #info-contents .title {
@@ -1251,7 +1680,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--videos-row-menu-renderer-icon-size)) {
+    @supports (color: var(--videos-row-menu-renderer-icon-size)) {
 
 
 
@@ -1271,7 +1700,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--videos-row-metadata-UI-adjustment)) {
+    @supports (color: var(--videos-row-metadata-UI-adjustment)) {
 
         /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata  */
 
@@ -1312,7 +1741,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--feature-chrome-only-tab-content-zoom)) and (zoom:1.5) {
+    @supports (color: var(--feature-chrome-only-tab-content-zoom)) and (zoom:1.5) {
 
         /* --- zoom --- */
 
@@ -1341,7 +1770,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tab-info-layout-adjustment)) {
+    @supports (color: var(--tab-info-layout-adjustment)) {
 
 
         /* #tab-info ytd-expander */
@@ -1385,7 +1814,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tab-comments-header-layout-adjustment)) {
+    @supports (color: var(--tab-comments-header-layout-adjustment)) {
 
         #tab-comments ytd-comments-header-renderer {
             padding: 0;
@@ -1397,7 +1826,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--tab-playlist-layout-adjustment)) {
+    @supports (color: var(--tab-playlist-layout-adjustment)) {
 
 
 
@@ -1517,7 +1946,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--rendering-hide-elements)) {
+    @supports (color: var(--rendering-hide-elements)) {
 
         /* hide playlist border & toggle button */
 
@@ -1559,7 +1988,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--columns-layout-adjustment)) {
+    @supports (color: var(--columns-layout-adjustment)) {
 
         /* responsive to non-column flexy */
         ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy {
@@ -1590,7 +2019,7 @@ ytd-watch-flexy {
 
 
 
-    @supports (color:var(--tab-header-sticky)){
+    @supports (color: var(--tab-header-sticky)){
 
         /* <<< sticky right-tabs header --- */
 
@@ -1624,7 +2053,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--page-scroll)){
+    @supports (color: var(--page-scroll)){
 
 
 
@@ -1660,7 +2089,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--chat-frame)){
+    @supports (color: var(--chat-frame)){
 
         /* ytd-live-chat-frame#chat:not([collapsed]) */
 
@@ -1720,7 +2149,7 @@ ytd-watch-flexy {
         --tabview-has-selector-enabled: 1;
     }
 
-    @supports (color:var(--tab-info-extra-videos-arrows-stylish)) and (selector(:has(:hover))) {
+    @supports (color: var(--tab-info-extra-videos-arrows-stylish)) and (selector(:has(:hover))) {
 
 
         #tab-info #video-lockups>#left-arrow-container.style-scope.arrow-container {
@@ -1756,7 +2185,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--make-channel-name-full-display)) and (overflow-x: hidden) and (min-width: max-content) {
+    @supports (color: var(--make-channel-name-full-display)) and (overflow-x: hidden) and (min-width: max-content) {
 
         /* 2022/11/24 */
         
@@ -1767,9 +2196,20 @@ ytd-watch-flexy {
 
         body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
             min-width: max-content;
-            flex-basis: auto;
+            flex-basis: 50%;
         }
 
+        body #primary #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover + #actions.ytd-watch-metadata {
+            flex-basis: 50%;
+        }
+
+        /*
+            ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata{
+                flex-basis: 50% !important;
+            }
+            ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata{
+                flex-basis: 50% !important;
+            }*/
     }
 
     @supports(color: var(--uploader-info-auto-expand-transition-triggering)){
@@ -2042,7 +2482,7 @@ ytd-watch-flexy {
 
     
 
-    @supports (color:var(--compatibile-with-youtube-search-while-watching-video)){
+    @supports (color: var(--compatibile-with-youtube-search-while-watching-video)){
 
         
 
@@ -2093,7 +2533,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--compatibile-with-youtube-play-next-queue-renderer)){
+    @supports (color: var(--compatibile-with-youtube-play-next-queue-renderer)){
 
 
 
@@ -2147,7 +2587,7 @@ ytd-watch-flexy {
 
     }
 
-    @supports (color:var(--compatibile-with-youtube-live-filled-up-view)){
+    @supports (color: var(--compatibile-with-youtube-live-filled-up-view)){
 
 
 
@@ -2255,7 +2695,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         height: var(--yt-button-icon-size, var(--yt-icon-width, 40px));
     }
 
-    @supports (color:var(--transcript-segment-fix)){
+    @supports (color: var(--transcript-segment-fix)){
 
          /*  Some CSS fix for transcript */
 
@@ -2297,7 +2737,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--compatibile-with-youtube-genius-lyrics)){
+    @supports (color: var(--compatibile-with-youtube-genius-lyrics)){
 
         /*  Userscript - Youtube Genius Lyrics */
 
@@ -2374,7 +2814,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--tabview-cmt-height-for-contain-intrinsic)) and (contain-intrinsic-size: 1px 1px) {
+    @supports (color: var(--tabview-cmt-height-for-contain-intrinsic)) and (contain-intrinsic-size: 1px 1px) {
         /*  contain-intrinsic-size - guess the size = 1.2 x SizeMax */
 
         ytd-comment-thread-renderer[style*="--tabview-cmt-height"] {
@@ -2428,7 +2868,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-    @supports (color:var(--compatibile-with-youtube-downloader-buttons)){
+    @supports (color: var(--compatibile-with-youtube-downloader-buttons)){
 
 
 
@@ -2475,7 +2915,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--chat-frame-stylish)){
+    @supports (color: var(--chat-frame-stylish)){
 
 
         /* 2022/11/06 - fix round border */
@@ -2525,7 +2965,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
     
-    @supports (color:var(--compatibile-with-chrome-plugin-youtube-live-clock)) {
+    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock)) {
 
         /* 2022/11/07 - specific fix for YouTubeLiveClock - chrome only */
         html:has(style#ytlctn-style-for-native-control) #columns #player::after {
@@ -2560,7 +3000,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--comment-input-panel-emoji)) {
+    @supports (color: var(--comment-input-panel-emoji)) {
 
 
         /* 2022/11/07 - fix comment emoji box size */
@@ -2576,7 +3016,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--page-cinematics)) {
+    @supports (color: var(--page-cinematics)) {
 
 
         /* 2022/11/07 - integrate with cinematics background */
@@ -2627,7 +3067,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--disable-ytd-will-change-optimization)) {
+    @supports (color: var(--disable-ytd-will-change-optimization)) {
 
 
 
@@ -2657,7 +3097,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
     }
 
-    @supports (color:var(--super-title-better-color)) {
+    @supports (color: var(--super-title-better-color)) {
 
 
         /* 2022/11/09 added coloring css to make the super title looks better */
@@ -2729,12 +3169,71 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         display: none;
     }
 
-
+ 
+    
     /* 2022/11/07 - adjust spacing */
-
+/*
     #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
         margin-top: 2px;
     }
+
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata:not([is-empty]):not(.use-shadow) {
+        transform: translateY(-4px);
+        display: inline-block;
+    }
+    */
+    
+    
+    .sste{
+        contain: strict;
+        content-visibility: auto;
+        display:none;
+    }
+
+    tyt-caption-window{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    pointer-events: none;
+}
+    
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
+        --tyt-primary-main-title-mt: 2px;
+    }
+
+    #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata:not([is-empty]):not(.use-shadow) {
+        --tyt-primary-super-title-mt: -4px;
+        --tyt-primary-super-title-mb: 4px;
+        --tyt-primary-super-title-display: inline-block;
+        /* default inline cannot make margin / translateY */
+        /*transform: translateY(-4px);*/
+    }
+
+    #super-title.ytd-watch-metadata {
+
+        margin-top: var(--tyt-primary-super-title-mt);
+        margin-bottom: var(--tyt-primary-super-title-mb);
+        display: var(--tyt-primary-super-title-display);
+
+    }
+
+    #super-title+h1.ytd-watch-metadata {
+        margin-top: var(--tyt-primary-main-title-mt);
+
+    }
+
+    ytd-watch-metadata.ytd-watch-flexy{
+        --tyt-primary-metadata-mt: 0;
+        --tyt-primary-metadata-mb: 0;
+    }
+    body ytd-watch-metadata.ytd-watch-flexy{
+        margin-top:var(--tyt-primary-metadata-mt);
+        margin-bottom:var(--tyt-primary-metadata-mb);
+    }
+
+    
+
 
     ytd-watch-flexy[flexy][is-two-columns_] #primary-inner #player ~ #below.style-scope.ytd-watch-flexy {
         overflow-y: auto;
@@ -2756,7 +3255,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 @media not all and (display-mode: fullscreen) {
 
 
-    @supports (color:var(--rendering-contain)){
+    @supports (color: var(--rendering-contain)){
 
 
         /* contain 321 */
@@ -3059,7 +3558,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
     
-    @supports (color:var(--page-scroll)){
+    @supports (color: var(--page-scroll)){
 
         /* two column height = 100vh */
         ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #columns.ytd-watch-flexy {
@@ -3129,7 +3628,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
         
-    @supports (color:var(--tabview-hover-slider)){
+    @supports (color: var(--tabview-hover-slider)){
         
         /* ---- v3.7.0 ---- */
         /* 2022/11/21 css fix wide layout */
@@ -3161,6 +3660,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         }
 
+        @keyframes tabviewSiderAnimationNone {
+
+            0% {
+                background-position-x: 1px;
+            }
+
+            100% {
+                background-position-x: 2px;
+            }
+
+        }
 
 
         .tabview-hover-slider>#secondary-inner {
@@ -3217,7 +3727,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transition-delay: 48ms, 192ms, 192ms, 4ms;
             */
 
-            animation: initial;
+            animation: tabviewSiderAnimationNone 1ms ease-in-out 0s 1 normal forwards;
 
             background-color: rgba(0, 0, 0, 0.0);
             outline: 0px solid var(--ytd-searchbox-background);
@@ -3366,7 +3876,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 
 
-    @supports not (color:var(--removed-teaser-ui-layout-adjustment)){
+    @supports (not (color: var(--removed-teaser-ui-layout-adjustment))){
 
         /**  ==== for Teaser UI  ===  */
 
@@ -3501,6 +4011,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 
+  
+    .ytp-autohide .ytp-playlist-menu-button,.ytp-autohide .ytp-back-button,.ytp-autohide .ytp-title-channel,.ytp-autohide .ytp-title,.ytp-autohide .ytp-chrome-top .ytp-watch-later-button,.ytp-autohide .ytp-chrome-top .ytp-share-button,.ytp-autohide .ytp-chrome-top .ytp-copylink-button,.ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-button,.ytp-autohide .ytp-overflow-button,.ytp-autohide .ytp-chrome-bottom,.ytp-chrome-top[aria-hidden=true],.ytp-chrome-bottom[aria-hidden=true] {
+        visibility: collapse;
+    }
+
 
 
 
@@ -3531,6 +4046,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         opacity: 0;
         user-select: none;
         pointer-events: none;
+        touch-action: none;
         transition: none;
         animation: none;
         width: 0px;
@@ -3545,7 +4061,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
  
 
 
-    @supports (color:var(--compatibile-with-iridium-for-youtube)){
+    @supports (color: var(--compatibile-with-iridium-for-youtube)){
 
         /*  fix Iridium CSS  */
         /* https://greasyfork.org/en/scripts/37902-iridium */
@@ -3572,99 +4088,28 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     
   
 
+    ytd-watch-flexy[fullscreen] #cinematics.ytd-watch-flexy{
+        /*display: none;*/
+        visibility: collapse;
+        /*content-visibility: hidden;*/
+    }
 
-}
-
-
-
-@supports (display:var(--hide-duplicate-info)) {
-
-    /* 2022/11/06 - hide new layout repeated info */
-    
-    @media all {
-        /* repeated info hidden */
-
-        /* tabview-info-c1 | :has(>#description-inner:only-child) */
-        /* tabview-info-c2 | :has(#tab-info ytd-expander #description.ytd-video-secondary-info-renderer)  */
-
-        ytd-watch-flexy:not([tyt-has*="a"]) ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
-            margin-top: 3px;
-        }
-
-        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
-            overflow: hidden;
-        }
-
-        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata {
-            margin-top: 3px;
-        }
-
-        ytd-watch-flexy:not([tyt-has*="a"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata {
-            margin: 5px 12px 3px 12px;
-        }
-
-        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy[clickable-description] #description.ytd-watch-metadata #info-container.ytd-watch-metadata[tabview-info-toggler] {
-            cursor: pointer;
-        }
-
-        /* rollback at 2022/11/30;  buggy for :has(:hover) */
-        /*
-        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tabview-info-toggler]:hover) {
-            background: var(--yt-spec-button-chip-background-hover);
-        }*/
-
+    /*
+    #player-theater-container{
+        z-index:3333;
+        transform: translateZ(1px);
     }
     
-    @media not all and (display-mode: fullscreen) {
-
-        /* repeated info hidden */
-
-        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata>yt-attributed-string.ytd-text-inline-expander~yt-formatted-string.ytd-text-inline-expander {
-            content-visibility: hidden;
-            display: none
-        }
-
-        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
-            content-visibility: hidden;
-            display: none
-        }
-
-        /* 2022/11/23 */
-
-        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #primary #below ytd-watch-metadata ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer {
-            content-visibility: hidden;
-            display: none
-        }
-
-        ytd-watch-flexy:not([fullscreen]):not([tyt-has*="c"]) #primary #below ytd-watch-metadata #contents.ytd-rich-metadata-row-renderer {
-            margin-right: 0;
-        }
-
-        /* 2022/11/27 */
-
-        ytd-watch-flexy[tyt-chat*="chat$live"]:not([fullscreen]).tabview-info-duplicated ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata {
-            pointer-events: none;
-        }
-
+    #player-theater-container .caption-window {
+        z-index:5555;
+        transform: translateZ(1px);
     }
-
-
-    @media all and (display-mode: fullscreen) {
-
-
-        /* repeated info hidden */
-
-        ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
-            max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
-            overflow: auto;
-        }
-
-        ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
-            overflow-x: hidden;
-        }
-
-
+    .ytp-native-controls .caption-window{
+        
+        z-index:3333;
     }
+    */
+
+    
 
 }
-

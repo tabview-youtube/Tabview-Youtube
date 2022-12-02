@@ -718,10 +718,13 @@ function injection_script_1() {
             if (entry.target.style.getPropertyValue("--tabview-cmt-height") !== m) {
               entry.target.style.setProperty("--tabview-cmt-height", m)
             }
+            
+            entry.target.classList.remove('tyt-visible-comment')
 
           } else {
             //invisible -> visible
             entry.target.style.removeProperty("--tabview-cmt-height")
+            entry.target.classList.add('tyt-visible-comment')
           }
 
         }
@@ -1855,7 +1858,159 @@ function injection_script_1() {
     node.addEventListener('click',tabviewInfoTogglerOnClick, false)
   }, true);
 
+  document.addEventListener('tabview-resize-comments-rows',(evt)=>{
+    //slightly delayed
+    //console.log('tabview-resize-comments-rows')
+    for(const s of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')){
+      Promise.resolve(s).then(()=>{
+        s.calculateCanCollapse();
+      });
+    }
 
+  }, false)
+  
+  /*
+  class TytCaptionWindow extends HTMLElement { // (1)
+    constructor() {
+      // Always call super first in constructor
+      super();
+      var shadowRoot = this.attachShadow({mode: "open"});
+
+  
+      this.__shadowRoot = shadowRoot;
+      // write element functionality in here
+    }
+
+    connectedCallback() { 
+     
+      let shadowRoot = this.__shadowRoot;
+    shadowRoot.innerHTML = `
+    <style>
+        
+    
+        .ytp-caption-window-container {
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          top: 0;
+          pointer-events: none;
+      }
+
+      canvas, caption, center, cite, code, dd, del, dfn, div, dl, dt, em, embed, fieldset, font, form, h1, h2, h3, h4, h5, h6, hr, i, iframe, img, ins, kbd, label, legend, li, menu, object, ol, p, pre, q, s, samp, small, span, strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, tt, u, ul, var {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+
+    .caption-window.ytp-caption-window-bottom {
+      margin-bottom: 61px;
+      -webkit-transition: margin-bottom .25s cubic-bezier(0,0,0.2,1),margin-top .25s cubic-bezier(0,0,0.2,1);
+      transition: margin-bottom .25s cubic-bezier(0,0,0.2,1),margin-top .25s cubic-bezier(0,0,0.2,1);
+  }
+
+  .caption-window {
+    position: absolute;
+    line-height: normal;
+    z-index: 40;
+    pointer-events: auto;
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+}
+
+
+.caption-visual-line .ytp-caption-segment:last-child {
+  padding-right: .25em;
+  padding-bottom: 0;
+}
+
+@keyframes abc{
+  0%{
+    z-index:55;
+    transform: translateZ(1px);
+  }
+  100%{
+    z-index:66;
+    transform: translateZ(9px);
+  }
+}
+
+main *{
+  animation: .5s linear 1s infinite alternate abc;
+}
+
+        </style>
+
+        <main></main>
+
+    `
+
+    let td = '';
+    let p = document.querySelector('.sste')
+    let main = shadowRoot.querySelector('main')
+    let f = ()=>{
+
+      let t = p.innerHTML
+
+      if(t!==td){
+
+        td = t;
+
+        main.innerHTML = `${t}`
+   
+        console.log(t)
+
+
+      }
+
+
+      requestAnimationFrame(f);
+    }
+    requestAnimationFrame(f)
+
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.log('Custom square element attributes changed.');
+      updateStyle(this);
+    }
+
+    disconnectedCallback() {
+      console.log('Custom square element removed from page.');
+    }
+    
+    adoptedCallback() {
+      console.log('Custom square element moved to new page.');
+    }
+  
+  }
+  
+  customElements.define("tyt-caption-window", TytCaptionWindow); // (2)
+
+  setInterval(()=>{
+
+
+    let elms = document.querySelectorAll('.ytp-caption-window-container:not(.sste)');
+    
+    for(const s of elms){
+      s.classList.add('sste');
+      let w= document.createElement('div');
+      w.classList.add('sstf')
+      s.parentNode.insertBefore(w,s);
+      w.appendChild(s); 
+      w.appendChild(new (customElements.get('tyt-caption-window')))
+    }
+
+
+
+  },100)
+  */
 
   document.documentElement.setAttribute('tabview-unwrapjs','1')
 
