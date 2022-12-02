@@ -3458,9 +3458,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             singleColumnScrolling(true);
           })
 
-        }else{
+        } else if (isStickyHeaderEnabled) {
 
           singleColumnScrolling(true);
+
+        } else {
+          
+          singleColumnScrolling(true);
+          setTimeout(() => {
+            singleColumnScrolling(true); // required; coding bug
+          }, 130);
+          
         }
 
         /*
