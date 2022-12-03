@@ -2899,10 +2899,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             pointer-events: none;
         }
 
-        #tab-info > ytd-expander,
-        #tab-comments > #comments,
-        #tab-videos > #related,
-        #tab-list > #ytd-userscript-playlist {
+        #tab-info > *,
+        #tab-comments > *,
+        #tab-videos > *,
+        #tab-list > * {
             pointer-events: all;
         }
 
