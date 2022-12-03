@@ -704,6 +704,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let layoutStatusMutex = new Mutex();
   
   let sliderMutex = new Mutex();
+  let renderDeferred = new Deferred(); //pageRendered
+  let pageRendered = 0;
+  let renderIdentifier = 0;
 
 
   function scriptInjector(script_id, url_chrome, response_id) {
@@ -2682,7 +2685,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   ]
 
 
-  function _innerCommentsLoader() {
+  let innerDOMCommentsCountTextCache = null;
+  function innerDOMCommentsCountLoader() {
     // independent of tabs initialization
     // f() is executed after tabs being ready
 
@@ -2701,7 +2705,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let qmElms = [...document.querySelectorAll('ytd-comments#comments #count.ytd-comments-header-renderer, ytd-comments#comments ytd-item-section-renderer.ytd-comments#sections #header ~ #contents > ytd-message-renderer.ytd-item-section-renderer')]
 
 
-    let eTime = +`${Date.now() - mTime}00`;
+    const eTime = +`${Date.now() - mTime}00`;
 
     let res = new Array(qmElms.length);
     res.newFound = false;
@@ -2762,12 +2766,54 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
     if (res.length > ci) res.length = ci;
+ 
+    if(latest>=0){
 
-    if (latest >= 0) {
       res[latest].isLatest = true;
+
+
+      let elm = kRef(res[latest].elm);
+      if (elm)
+        innerDOMCommentsCountTextCache = elm.textContent;
+
+    }else if(res.length ===1){
+
+      let qmElm = kRef(res[0].elm);
+      let t = null;
+      if (qmElm) {
+
+        let t = qmElm.textContent;
+        if (t !== innerDOMCommentsCountTextCache) {
+
+
+          loadedCommentsDT.set(qmElm, eTime + 1);
+          res.newFound = true;
+
+          res[0].isNew = true;
+          latest = 0;
+
+          res[latest].isLatest = true;
+
+        }
+
+        innerDOMCommentsCountTextCache = t;
+
+
+      }
+
+
     }
 
+
     _console.log(2908, res, Q.comments_section_loaded)
+
+    _console.log(696, res.map(e=>({
+
+      text: kRef(e.elm).textContent,
+      isNew: e.isNew,
+      isLatest: e.isLatest
+
+    })))
 
     return res;
 
@@ -2811,7 +2857,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  const comments_caching = (res) => {
+  const resultCommentsCountCaching = (res) => {
+    // update fetchCounts by res
+    // indepedent of previous state of fetchCounts
     _console.log(2908, 10, res)
     if (!res) return;
     fetchCounts.count = res.length;
@@ -2976,7 +3024,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // *** consider this can happen immediately after pop state. timeout / interval might clear out.
 
-      _innerCommentsLoader();
+      renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader()); 
+      // this is triggered by mutationobserver, the comment count update might have ouccred
 
       if (pageType !== 'watch') return;
 
@@ -3566,21 +3615,42 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (tabsDeferred.resolved) {
       comments_loader = 1;
       tabsDeferred.reset();
+      renderIdentifier++;
+      if (renderIdentifier > 88) renderIdentifier = 9;
+      renderDeferred.reset();
       if(!(firstLoadStatus&8)){
-        _innerCommentsLoader();
+        console.log(3446)
+        innerDOMCommentsCountLoader(); //ensure the previous record is saved
+        // no need to cache to the rendering state
+        console.log(3447)
         _pageBeingInit();
       }else if(firstLoadStatus&2){
         firstLoadStatus-=2;
         script_inject_js1.inject();
       }
       _console.log('pageBeingInit', firstLoadStatus)
+    }else if(renderDeferred.resolved){
+      // in case , rarely, tabsDeferred not yet resolved but animateLoadDeferred resolved
+
+      renderIdentifier++;
+      if (renderIdentifier > 88) renderIdentifier = 9;
+      renderDeferred.reset();
+      
     }
+
+
+    if(pageRendered===2){
+      let elmPL = document.querySelector('tabview-page-loader');
+      elmPL.remove();
+      pageRendered=0;
+    } 
+
   };
 
   const advanceFetch = async function () {
     if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
-      comments_caching(_innerCommentsLoader());
-      if (!fetchCounts.new) {
+      renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader());
+      if (renderDeferred.resolved && !fetchCounts.new) {
         window.dispatchEvent(new Event("scroll"));
       }
     }
@@ -3609,89 +3679,108 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if ((comments_loader & 3) === 3) { } else return;
     comments_loader = 0;
 
-    if (fetchCounts.fetched) return;
+    let ei = 0;
+
+    function execute(){
+      //sync -> animateLoadDeferred.resolved always true
+
+      if(!renderDeferred.resolved) return;
+
+      _console.log(2323)
+
+      if (Q.comments_section_loaded !== 0) return;
+      if (fetchCounts.fetched) return;
 
 
-    let ret = _innerCommentsLoader();
-    comments_caching(ret);
+      let ret = innerDOMCommentsCountLoader();
+      resultCommentsCountCaching(ret);
+  
+      if (fetchCounts.new && !fetchCounts.fetched) {
+        
+        _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
+        if(fetchCounts.new.f()){
+          fetchCounts.fetched = true;
+          _console.log(9972, 'fetched = true')
+          fetchCommentsFinished();
+        }
 
-    if (fetchCounts.new && !fetchCounts.fetched) {
-      
-      _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
-      if(fetchCounts.new.f()){
-        fetchCounts.fetched = true;
-        _console.log(9972, 'fetched = true')
-        fetchCommentsFinished();
+        return;
       }
-    } else {
-
-      _console.log(4512, 8, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
-
-      let ei = 0;
-      timeout(() => {
-        if (Q.comments_section_loaded !== 0) return;
+        
 
 
 
-        ret = _innerCommentsLoader()
+      ei++;
 
-        _console.log(4555, 'fetch comments', fetchCounts, ret)
-
-        comments_caching(ret);
-
-        _console.log(4556, 1, !!fetchCounts.new, !!fetchCounts.fetched, !!fetchCounts.base, fetchCounts.count)
+      if (fetchCounts.base && !fetchCounts.new && !fetchCounts.fetched && fetchCounts.count === 1) {
 
 
-        ei++;
+        let elm = kRef(fetchCounts.base.elm);
+        let txt = elm ? getCountHText(elm) : null;
+        let condi1 = ei > 7;
+        let condi2 = txt === m_last_count;
+        if (condi1 || condi2) {
 
-        if (fetchCounts.new && !fetchCounts.fetched) {
-
-          if(fetchCounts.new.f()){
+          if (fetchCounts.base.f()) {
             fetchCounts.fetched = true;
             _console.log(9972, 'fetched = true')
+            //return true;
             fetchCommentsFinished();
           }
 
-        } else if (fetchCounts.base && !fetchCounts.new && !fetchCounts.fetched && fetchCounts.count === 1) {
-
-
-          let elm = kRef(fetchCounts.base.elm);
-          let txt = elm ? getCountHText(elm):null;
-          let condi1 = ei>7;
-          let condi2 = txt === m_last_count;
-          if(condi1 || condi2){
-
-            if(fetchCounts.base.f()){
-              fetchCounts.fetched = true;
-              _console.log(9972, 'fetched = true')
-              //return true;
-              fetchCommentsFinished();
-            }
-
-          }
-
-        }
-        
-        if(!fetchCounts.fetched){
-          if(ei>7){
-            let elm = ret.length === 1?kRef(ret[0].elm):null;
-            let txt = elm?getCountHText(elm):null;
-            if (elm && txt !== m_last_count) {
-              fetchCounts.base = null;
-              fetchCounts.new = ret[0];
-              fetchCounts.new.f();
-              fetchCounts.fetched = true;
-              _console.log(9979, 'fetched = true')
-              fetchCommentsFinished();
-            }
-            return;
-          }
-          return true;
         }
 
-      }, 420, 9)
+      }
+
+      if (!fetchCounts.fetched) {
+        if (ei > 7) {
+          let elm = ret.length === 1 ? kRef(ret[0].elm) : null;
+          let txt = elm ? getCountHText(elm) : null;
+          if (elm && txt !== m_last_count) {
+            fetchCounts.base = null;
+            fetchCounts.new = ret[0];
+            fetchCounts.new.f();
+            fetchCounts.fetched = true;
+            _console.log(9979, 'fetched = true')
+            fetchCommentsFinished();
+          }
+          return;
+        }
+        return true;
+      }
+
+   
+
 
     }
+
+ 
+    async function alCheckFn (ks){
+      
+      let alCheckCount = 9;
+      let alCheckInterval = 420;
+ 
+      do {
+
+        if (renderIdentifier !== ks) break;
+        if (alCheckCount === 0) break;
+        if(execute()!==true) break;
+        --alCheckCount;
+
+        await new Promise(r => setTimeout(r, alCheckInterval));
+
+      } while (true)
+
+    }
+    let ks = renderIdentifier;
+    renderDeferred.debounce(()=>{
+
+      alCheckFn(ks);
+
+    });
+
+
+ 
 
   }
 
@@ -3719,112 +3808,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
   function checkDuplicatedInfo(){
-
-
-    
-
-    async function checkEqual_A(){
-
-      const ytdFlexyElm = kRef(ytdFlexy)
-      if (!ytdFlexyElm) return; //unlikely
-
-      let t = Date.now();
-      g_check_detail_A=t;
-
-      ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
-
-      await new Promise(resolve=>setTimeout(resolve,1)); // mcrcr might be not yet initalized
-
-
-      if(g_check_detail_A!==t) return;
-      
-      
-      // the class added before can be removed from the external coding
-
-      function mrcrf(mrcr) {
-        let tmp;
-        if (mrcr) {
-          if (tmp = querySelectorFromAnchor.call(mrcr, '#always-shown[hidden]:empty')) tmp.removeAttribute('hidden')
-          if (tmp = querySelectorFromAnchor.call(mrcr, '#collapsible[hidden]:empty')) tmp.removeAttribute('hidden')
-        }
-      }
-
-      let mrcr1 = document.querySelector('ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] > ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata')
-      mrcrf(mrcr1);
-      await Promise.resolve(0);
-      let mrcr2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer ytd-metadata-row-container-renderer.style-scope.ytd-video-secondary-info-renderer')
-      mrcrf(mrcr2); 
-      await Promise.resolve(0);
-      
-      let desc1 = null;
-      let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
-      await Promise.resolve(0);
-
-      let plainText = false;
-      if(desc2 && desc2.firstElementChild === null){
-        plainText = true;
-        desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
-      } 
-      if(!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
-      await Promise.resolve(0);
-
-      let infoDuplicated = true;
-
-
-      if((desc1 === null) ^ (desc2===null) ){
-        infoDuplicated = false;
-      }else if((mrcr1 === null) ^ (mrcr2===null) ){
-        infoDuplicated = false;
-      }else{
-
-
-        await Promise.all([
-
-          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ? 
-          isChildElementNodesEqual(mrcr1, mrcr2).then((o) => {
-            //console.log('mrcr', o.res)
-            let { res, pNodeA, pNodeB } = o;
-
-            if (res !== true) infoDuplicated = false;
-          }) : null,
-
-          plainText?((desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
-          isChildTextNodesEqual(desc1, desc2).then((o) => {
-            //console.log('desc', o.res)
-            let { res, pNodeA, pNodeB } = o;
-
-            if (res !== true) infoDuplicated = false;
-
-          }) : null):
-          ((desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
-          isChildElementNodesEqual(desc1, desc2).then((o) => {
-            //console.log('desc', o.res)
-            let { res, pNodeA, pNodeB } = o;
-
-            if (res !== true) infoDuplicated = false;
-
-          }) : null)
-
-        ]);
-
-      }
-
-      
-      //console.log(desc1, desc2, infoDuplicated)
-      if(desc1){
-        Promise.resolve(desc1).then(desc1=>{
-          let snippet = closestDOM.call(desc1, '#snippet.style-scope.ytd-text-inline-expander');
-          let dom = snippet || desc1; //desc1 might be hidden and thus cannot trigger interception change
-          if(dom) mtoObservationDetails.bindElement(dom);
-        })
-      }
-      
-
-      if(g_check_detail_A!==t) return;
-
-      ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
-
-    };
 
 
     async function checkEqual_bb(desc1, desc2){
@@ -3886,6 +3869,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if(!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
       await Promise.resolve(0);
 
+      if(desc1){ 
+        let parentContainer = desc1.closest('ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata');
+        //console.log(3434,querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander'))
+        // hidden
+
+        // example video
+        // https://www.youtube.com/watch?v=R65uouhSYJ0
+
+        if (parentContainer) {
+
+          let m = querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
+
+          if (m.hasAttribute('hidden')) {
+
+            let expandBtn = querySelectorFromAnchor.call(parentContainer, 'tp-yt-paper-button#expand.ytd-text-inline-expander:not([hidden])'); if (expandBtn) {
+
+              expandBtn.click();
+              await new Promise(r => setTimeout(r, 30));
+              if (!m.hasAttribute('hidden')) desc1 = m;
+            }
+
+
+          }
+
+        }
+      }
+
       let infoDuplicated = true;
 
 
@@ -3937,7 +3947,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if(g_check_detail_A!==t) return;
 
-      ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
+      //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
       checkDuplicateRes= infoDuplicated;
 
 
@@ -3947,7 +3957,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     };
 
-    checkEqual_B().then(checkDuplicatedInfo_then);
+
+    return checkEqual_B();
+    
 
   }
 
@@ -4042,22 +4054,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           comments_loader = comments_loader | 4;
 
-          if (!fetchCounts.new && !fetchCounts.fetched) {
-
-
-
-            comments_caching(_innerCommentsLoader());
-
-            _console.log(3205, 2, 'fetch comments', Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
-
-
-            if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-              fetchCounts.new.f();
-              fetchCounts.fetched = true;
-              fetchCommentsFinished();
-            }
-
-          }
           getFinalComments();
 
 
@@ -4123,7 +4119,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if(!scriptEnable) return;
 
-        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
           fetchCounts.fetched = true;
 
@@ -4158,12 +4154,48 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         if (REMOVE_DUPLICATE_INFO) {
-          checkDuplicatedInfo();
-          setTimeout(() => {
-            if (checkDuplicateRes !== true) {
-              checkDuplicatedInfo();
-            }
-          }, 270)
+
+          checkDuplicateRes = null;
+          async function alCheckFn (ks){
+            
+            let alCheckCount = 4;
+            let alCheckInterval = 270;
+
+            checkDuplicateRes = null;
+            do {
+
+              if (renderIdentifier !== ks) break;
+              if (alCheckCount === 0) break;
+              if (checkDuplicateRes === true) break;
+              checkDuplicateRes = null;
+        
+              let res = await checkDuplicatedInfo(); //async
+              if (res === 5) {
+                
+
+                let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+                if (checkDuplicateRes === true) {
+                  ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
+                  checkDuplicatedInfo_then(res);
+                } else if (checkDuplicateRes === false && alCheckCount === 1) {
+                  ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
+                  checkDuplicatedInfo_then(res);
+                }
+              }
+              --alCheckCount;
+
+              await new Promise(r => setTimeout(r, alCheckInterval));
+
+            } while (true)
+
+          }
+          let ks = renderIdentifier;
+          renderDeferred.debounce(()=>{
+
+            alCheckFn(ks);
+
+          });
+
         } else {
 
           checkDuplicatedInfo_then(0);
@@ -4226,7 +4258,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (!tabsDeferredSess.isValid) return;
 
 
-        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
           fetchCounts.fetched = true;
 
@@ -4364,7 +4396,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (!tabsDeferredSess.isValid) return;
 
 
-        if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
           fetchCounts.new.f();
           fetchCounts.fetched = true;
 
@@ -6371,7 +6403,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-      if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+      if ( renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
         fetchCounts.new.f();
         fetchCounts.fetched = true;
         _console.log(9972, 'fetched = true')
@@ -6569,6 +6601,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   
         if (pageFetchedData !== null) {
           newVideoPage(pageFetchedData);
+          
+          let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+          if(ytdFlexyElm){
+            if(pageRendered===0){
+                
+              handleDOMAppear('pageLoaderAnimation',(evt)=>{
+                //console.log(3434)
+                pageRendered = 2;
+                renderDeferred.resolve();
+                console.log('pageLoaded(front)')
+              });
+                
+              let elmPL = document.createElement('tabview-page-loader');
+              pageRendered = 1;
+              ytdFlexyElm.appendChild(elmPL);
+              // pageRendered keeps at 1 if the video is continuously playing at the background
+              // pageRendered would not be resolve but will reset for each change of video
+              
+            }
+          }
         }
   
       });
@@ -6655,24 +6707,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }, capturePassive);
   */
 
-
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === 'visible') {
-      requestAnimationFrame(()=>{
-        if (!fetchCounts.new && !fetchCounts.fetched) {
-          comments_caching(_innerCommentsLoader());
-          if (Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-            fetchCounts.new.f();
-            fetchCounts.fetched = true;
-            fetchCommentsFinished();
-          }
-        }
-      })
-    } else {
-      //
-    }
-  });
 
 
 

@@ -697,6 +697,38 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
+    @supports (color: var(--tabview-page-loader)) {
+
+
+        @keyframes pageLoaderAnimation {
+
+            0% {
+                background-position-x: 3px;
+            }
+
+            100% {
+                background-position-x: 4px;
+
+            }
+        }
+
+
+        tabview-page-loader {
+            position: fixed;
+            left: 1px;
+            top: 50vh;
+            width: 1px;
+            height: 1px;
+            visibility: collapse;
+            opacity: 0;
+            pointer-events: none !important;
+            user-select: none !important;
+            background: none;
+            touch-action: none !important;
+            z-index: 0;
+            animation: pageLoaderAnimation 1ms;
+        }
+    }
 
     @supports (color: var(--dom-appearance-triggering)) {
 
