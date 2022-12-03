@@ -87,6 +87,11 @@ ytd-watch-flexy {
     --meta-contents-default-height-inner: calc(var(--meta-contents-default-height-outer) - var(--meta-contents-padding-vertical) * 2);
 
     /* recalculation of right-tab height */
+    /*
+    --ytd-masthead-height
+    --ytd-toolbar-height 
+    --ytd-watch-flexy-masthead-height
+    */
     --userscript-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
     --userscript-below-height: calc(100vh - var(--userscript-top-bar-height) - var(--ytd-watch-flexy-panel-max-height));
     --userscript-h1: calc(var(--ytd-watch-flexy-panel-max-height) + var(--userscript-below-height));
@@ -621,7 +626,6 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
-    
 
     @supports (color: var(--dom-appearance-triggering)) {
 
@@ -1435,7 +1439,7 @@ body .ytp-autohide .ytp-unmute,
     }
 
 
-    ytd-watch-flexy:not([is-two-columns_]) #right-tabs[userscript-sticky] {
+    ytd-watch-flexy:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
         min-height: 0px;
     }
 
@@ -2027,6 +2031,42 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tab-header-sticky)){
 
+
+        #right-tabs>tabview-tabs-header-position {
+            display: none;
+            position: relative;
+            transform: translateY(calc(-1*var(--ytd-watch-flexy-masthead-height)));
+            width: 100%;
+            height: 0px;
+            pointer-events: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            margin:0;
+            padding:0;
+            box-sizing: border-box;
+        }
+
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs>tabview-tabs-header-position {
+            display: flex;
+        }
+
+        
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs {
+            --tyt-stickybar-h2: 0px;
+        }
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
+            --tyt-stickybar-h2: var(--tyt-stickybar-h);
+        }
+
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-tabs-header-position {
+            position: relative;
+            margin-bottom: var(--tyt-stickybar-h2);
+            box-sizing: border-box;
+        }
+
+
         /* <<< sticky right-tabs header --- */
 
         /* keep the single column view css as simple as possible */
@@ -2043,17 +2083,19 @@ body .ytp-autohide .ytp-unmute,
             background-color: var(--yt-spec-general-background-a);
         }
 
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky]>header {
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>header {
             z-index: 2;
             position: fixed;
             top: var(--ytd-watch-flexy-masthead-height);
-            width: var(--userscript-sticky-width, 100%);
         }
-
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[userscript-sticky] {
-            padding-top: var(--userscript-sticky);
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]:not([style*="--tyt-stickybar-r"])>header {
+            width: var(--tyt-stickybar-w, 100%);
         }
-
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar][style*="--tyt-stickybar-r"]>header {
+            left:var(--tyt-stickybar-l);
+            right:var(--tyt-stickybar-r);
+        }
 
         /* --- sticky right-tabs header >>> */
 
@@ -3538,7 +3580,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     /* css fix for responsive two columns flex , align {#secondary} style like {#primary} */
 
     ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #ytd-userscript-playlist #container {
-        max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--ytd-margin-6x) - var(--userscript-sticky));
+        max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--ytd-margin-6x) - var(--tyt-stickybar-h2));
     }
 
     ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #primary.ytd-watch-flexy {

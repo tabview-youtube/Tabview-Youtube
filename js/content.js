@@ -3321,12 +3321,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let addHTML = `
         <div id="right-tabs">
+            <tabview-tabs-header-position></tabview-tabs-header-position>
             <header>
                 <div id="material-tabs">
                     ${str_tabs}
                 </div>
             </header>
-            <tabview-tabs-header-position></tabview-tabs-header-position>
             <div class="tab-content">
                 <div id="tab-info" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
                 <div id="tab-comments" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
@@ -3440,48 +3440,56 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     ]);
  
 
-    let ito= new IntersectionObserver((entries)=>{
+    let ito_dt = 0;
+    let ito = new IntersectionObserver((entries) => {
 
-      //console.log(entries)
+      let xyStatus = null;
 
-      let bool = entries.length > 0 ? (
-        (entries[entries.length-1].isIntersecting === isStickyHeaderEnabled) // intersecting = isStickyHeaderEnabled = true / false
-      ) : false;
-      // if scroll fast, multiple entries. take the last one
+      //console.log(entries);
+ 
+      let xRect = null;
+      let rRect = null;
 
-      if (bool) {
+      for (const entry of entries) {
+        if (!entry.boundingClientRect || !entry.rootBounds) continue; // disconnected from DOM tree
+        if (!entry.isIntersecting && entry.boundingClientRect.y <= entry.rootBounds.top && entry.boundingClientRect.y < entry.rootBounds.bottom) {
+          xyStatus = 2; 
+          xRect= entry.boundingClientRect;
+          rRect=entry.rootBounds;
+        } else if (entry.isIntersecting && entry.boundingClientRect.y >= entry.rootBounds.top && entry.boundingClientRect.y < entry.rootBounds.bottom) {
+          xyStatus = 1; 
+          xRect= entry.boundingClientRect;
+          rRect=entry.rootBounds;
+        }
+      }
+      let p = wls.layoutStatus;
+      //console.log(document.documentElement.clientWidth)
+      if (xyStatus !== null) {
 
+        if (xyStatus === 2 && isStickyHeaderEnabled === true) {
 
-        if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
-
-          requestAnimationFrame(() => {
-            singleColumnScrolling(true);
-          })
-
-        } else if (isStickyHeaderEnabled) {
-
-          singleColumnScrolling(true);
+        } else if (xyStatus === 1 && isStickyHeaderEnabled === false) {
 
         } else {
-          
-          singleColumnScrolling(true);
-          setTimeout(() => {
-            singleColumnScrolling(true); // required; coding bug
-          }, 130);
-          
+          singleColumnScrolling2(xyStatus, xRect.width, {
+            left: xRect.left,
+            right: rRect.width - xRect.right
+          });
         }
 
-        /*
-        requestAnimationFrame(() => {
-          singleColumnScrolling(true) // coding bug -> delay required
-        })
-        */
       }
 
+      let tdt = Date.now();
+      ito_dt= tdt;
+      setTimeout(() => {
+        if(ito_dt !==tdt ) return;
+        if (p !== wls.layoutStatus) singleColumnScrolling();
+      }, 300)
 
     },
     {
-      rootMargin:`-${navElm.offsetHeight + header.offsetHeight }px 0px 0px 0px`
+      rootMargin:`0px 0px 0px 0px`,
+      threshold: [0]
     }) 
 
     ito.observe(headerP)
@@ -5838,7 +5846,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
 
 
-          singleColumnScrolling(true); //necessary
+          //singleColumnScrolling(true); //necessary
 
         }
       }, 60)
@@ -5960,15 +5968,51 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight) {
+
+    //if(isStickyHeaderEnabled===bool) return; // no update
+
+    if (bool === true) {
+      const { width, height } = getWidthHeight();
+      targetElm.style.setProperty("--tyt-stickybar-w", width + 'px')
+      targetElm.style.setProperty("--tyt-stickybar-h", height + 'px')
+      const res = getLeftRight();
+      if (res) {
+
+        targetElm.style.setProperty("--tyt-stickybar-l", (res.left) + 'px')
+        targetElm.style.setProperty("--tyt-stickybar-r", (res.right) + 'px')
+
+      }
+      wAttr(targetElm, 'tyt-stickybar', true);
+      isStickyHeaderEnabled = true;
+
+    } else if (bool === false) {
+
+      wAttr(targetElm, 'tyt-stickybar', false);
+      isStickyHeaderEnabled = false;
+    }
+
+
+  }
 
   const singleColumnScrolling = async function () {
     //makeHeaderFloat
+    // required for 1) init 2) layout change 3) resizing
 
     if (!scriptEnable || pageType !== 'watch') return;
 
-    if (!isStickyHeaderEnabled && (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+    
+    let isTwoCol = (wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS;
+    if(isTwoCol){
+
+      if(isStickyHeaderEnabled){
+
+        let targetElm = document.querySelector("#right-tabs");
+        setStickyHeader(targetElm, false, null, null);
+      }
       return;
     }
+ 
     let pageY = scrollY;
 
 
@@ -5980,33 +6024,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _console.log(7891, 'scrolling')
 
-    Promise.all([
-      new Promise(f=>f(document.querySelector("#right-tabs"))),
+    function getXYStatus(res){
       
-      new Promise(f=>f(document.querySelector("#right-tabs header"))),
-      
-      new Promise(f=>f(document.querySelector('#masthead-container, #masthead'))),
-      
-    ]).then(res=>{
-      const [_targetElm, _header, _navElm] = res;
-      targetElm=_targetElm;
-      header=_header;
-      navElm=_navElm;
-      if(!targetElm || !header) {
-        return null;
-      }
-      if(singleColumnScrolling_dt !== tdt) return null;
-      return Promise.all([
-        new Promise(f=>f(navElm ? navElm.offsetHeight : 0)),
-        new Promise(f=>f(targetElm.offsetTop))
-      ])
-    }).then(res=>{
-      if(!res) return null;
       const [navHeight, elmY] = res;
 
-      
-      if(singleColumnScrolling_dt !== tdt) return null;
-        
       let xyz = [elmY + navHeight, pageY, elmY - navHeight]
 
       let xyStatus = 0
@@ -6029,37 +6050,67 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
       }
-      return xyStatus
 
-    }).then((xyStatus) => {
+      return xyStatus;
+    }
 
-      if(xyStatus === null) return;
-      
-      if(singleColumnScrolling_dt !== tdt) return null;
+    Promise.all([
+      new Promise(f => f(document.querySelector("#right-tabs"))),
 
-      if ((xyStatus == 2 || xyStatus == 3)) { 
-        let {
-          offsetHeight
-        } = header
-        let {
-          offsetWidth
-        } = targetElm
+      new Promise(f => f(document.querySelector("#right-tabs header"))),
 
-        targetElm.style.setProperty("--userscript-sticky-width", offsetWidth + 'px')
-        targetElm.style.setProperty("--userscript-sticky", offsetHeight + 'px')
+      new Promise(f => f(document.querySelector('#masthead-container, #masthead'))),
 
-        wAttr(targetElm, 'userscript-sticky', true);
-        isStickyHeaderEnabled = true;
+    ]).then(res => {
+      const [_targetElm, _header, _navElm] = res;
+      targetElm = _targetElm;
+      header = _header;
+      navElm = _navElm;
+      if (!targetElm || !header) {
+        return null;
+      }
+      if (singleColumnScrolling_dt !== tdt) return null;
+      return Promise.all([
+        new Promise(f => f(navElm ? navElm.offsetHeight : 0)),
+        new Promise(f => f(targetElm.offsetTop))
+      ])
+    }).then(res => {
 
-      } else if ((xyStatus == 1)) {
+      if (res === null) return;
 
-        wAttr(targetElm, 'userscript-sticky', false);
-        isStickyHeaderEnabled = false;
+      if (singleColumnScrolling_dt !== tdt) return null;
+
+
+      const xyStatus = getXYStatus(res);
+
+
+      function getLeftRight() {
+
+        let thp = document.querySelector('tabview-tabs-header-position');
+        if (thp) {
+
+          let rect = thp.getBoundingClientRect()
+          if (rect) {
+            return {
+              left: rect.left,
+              right: document.documentElement.clientWidth - rect.right
+            };
+          }
+        }
+        return null;
       }
 
+      let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
+
+      function getWidthHeight() {
+        return { width: targetElm.offsetWidth, height: header.offsetHeight };
+      }
+
+      setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
 
 
-    }).then(()=>{
+
+    }).then(() => {
 
       targetElm = null;
       header = null;
@@ -6068,6 +6119,51 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
 
   };
+
+
+
+  const singleColumnScrolling2 = async function (xyStatus, width, xRect) {
+    //makeHeaderFloat
+
+    if (!scriptEnable || pageType !== 'watch') return;
+
+
+    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+      return;
+    } 
+ 
+
+    Promise.all([
+      new Promise(f => f(document.querySelector("#right-tabs"))),
+
+      new Promise(f => f(document.querySelector("#right-tabs header")))
+
+    ]).then(res => { 
+
+      
+      const [targetElm, header] = res; 
+      if (!targetElm || !header) {
+        return null;
+      }
+
+      function getLeftRight() {
+        return xRect;
+      }
+
+      let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
+
+      function getWidthHeight() {
+        return { width: (width || targetElm.offsetWidth), height: header.offsetHeight };
+      }
+
+      setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
+
+
+
+    })
+
+  };
+
 
 
   function resetBuggyLayoutForNewVideoPage() {
