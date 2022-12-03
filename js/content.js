@@ -3619,10 +3619,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (renderIdentifier > 88) renderIdentifier = 9;
       renderDeferred.reset();
       if(!(firstLoadStatus&8)){
-        console.log(3446)
+        //console.log(3446)
         innerDOMCommentsCountLoader(); //ensure the previous record is saved
         // no need to cache to the rendering state
-        console.log(3447)
+        //console.log(3447)
         _pageBeingInit();
       }else if(firstLoadStatus&2){
         firstLoadStatus-=2;
