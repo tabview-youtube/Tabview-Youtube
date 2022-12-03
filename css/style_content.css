@@ -105,6 +105,8 @@ ytd-watch-flexy {
     --userscript-zoom-list: var(--ut2257-list, 1.00);
 
     --tyt-native-ui-autohide-visibility: collapse;
+    
+    --tyt-tab-panel-scrollbar-margin: 16px; /* by default, in case */
 
 
 }
@@ -180,6 +182,66 @@ Same for #secondary
     }
 
 /* <<< pre-fix for japanese layout native bug >>> */
+
+}
+
+
+@supports (color: var(--tabview-tab-panel-scrollbar-spacing)){
+
+
+
+    @supports (color: var(--scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
+        /* Chrome: >=94 ; FireFox: >= 97 */
+        /* FireFox >= 107 stil have the incorrect spacing, indepedent of scrollbar-gutter setting */
+        #tab-info, #tab-comments,
+        #tab-list, #tab-videos{
+            scrollbar-gutter: stable; /* for rendering */
+        }
+        /*
+        body ytd-watch-flexy{
+            --tyt-tab-panel-scrollbar-margin: 0px;
+        }
+        */
+    }
+    
+
+    @supports (color: var(--scrollbar-webkit-spacing)) and (-webkit-box-shadow: none){
+        /* edge/chrome relative layout count scrollbar */
+        body ytd-watch-flexy{
+            --tyt-tab-panel-scrollbar-margin: 0px;
+        }
+    }
+
+    @supports (color: var(--scrollbar-firefox-spacing)) and (-moz-appearance: none){
+        /* firefox relative layout DON'T count scrollbar */
+        body ytd-watch-flexy{
+            --tyt-tab-panel-scrollbar-margin: 16px;
+        }
+    }
+
+    /*
+    @supports (color: var(--fix-firefox-scrollbar-style)) and (-moz-appearance: none) {
+
+
+        #tab-info,
+        #tab-comments,
+        #tab-videos,
+        #tab-list {
+            pointer-events: none;
+        }
+
+        #tab-info > *,
+        #tab-comments > *,
+        #tab-videos > *,
+        #tab-list > * {
+            pointer-events: all;
+        }
+
+    
+
+    }
+    */
+
 
 }
 
@@ -2882,44 +2944,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    ytd-watch-flexy{
-        --tyt-tab-panel-scrollbar-margin: 16px;
-    }
-
-    @supports (color: var(--tabview-tab-panel-scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
-        #tab-info, #tab-comments{
-            scrollbar-gutter: stable; /* for expander */
-        }
-        #tab-list, #tab-videos{
-            scrollbar-gutter: stable; /* for rendering */
-        }
-        body ytd-watch-flexy{
-            --tyt-tab-panel-scrollbar-margin: 0px;
-        }
-    }
-
-    /*
-    @supports (color: var(--fix-firefox-scrollbar-style)) and (-moz-appearance: none) {
-
-
-        #tab-info,
-        #tab-comments,
-        #tab-videos,
-        #tab-list {
-            pointer-events: none;
-        }
-
-        #tab-info > *,
-        #tab-comments > *,
-        #tab-videos > *,
-        #tab-list > * {
-            pointer-events: all;
-        }
-
-    
-
-    }
-    */
 
 
 
@@ -3830,7 +3854,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /* 2022/12/25 added for firefox css (rendering) bug fixing */
-        @supports (-moz-appearance:none) {
+        @supports (-moz-appearance: none) {
 
             ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
                 border: 1px solid transparent;
