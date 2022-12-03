@@ -2359,13 +2359,12 @@ body .ytp-autohide .ytp-unmute,
             --tabview-tab-expander-mt1: 8px;
             --tabview-tab-expander-mr1: 2px;
         }
-
+        
         [tyt-tab] #right-tabs tabview-tab-expander>div {
             margin-top: calc(var(--tabview-tab-expander-mt1, 0px) - 6px);
-            margin-right: calc(var(--tabview-tab-expander-mr1, 0px) - 6px);
+            --tabview-tab-expander-mr2: calc(var(--tabview-tab-expander-mr1) + var(--tyt-tab-panel-scrollbar-margin, 0px));
+            margin-right: calc(var(--tabview-tab-expander-mr2, 0px) - 6px);
         }
-
-
 
         [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander {
             animation: tabviewTabExpanderChover 1750ms normal forwards;
@@ -2430,6 +2429,7 @@ body .ytp-autohide .ytp-unmute,
             right: 0;
             top: 0;
             z-index: 45;
+            margin:0;
         }
 
         tabview-tab-expander svg.svg-expand {
@@ -2872,7 +2872,44 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
     }
- 
+
+    ytd-watch-flexy{
+        --tyt-tab-panel-scrollbar-margin: 16px;
+    }
+
+    @supports (color: var(--tabview-tab-panel-scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
+        #tab-info, #tab-comments{
+            scrollbar-gutter: stable; /* for expander */
+        }
+        #tab-list, #tab-videos{
+            scrollbar-gutter: stable; /* for rendering */
+        }
+        body ytd-watch-flexy{
+            --tyt-tab-panel-scrollbar-margin: 0px;
+        }
+    }
+
+    @supports (color: var(--fix-firefox-scrollbar-style)) and (-moz-appearance: none) {
+
+
+        #tab-info,
+        #tab-comments,
+        #tab-videos,
+        #tab-list {
+            pointer-events: none;
+        }
+
+        #tab-info > ytd-expander,
+        #tab-comments > #comments,
+        #tab-videos > #related,
+        #tab-list > #ytd-userscript-playlist {
+            pointer-events: all;
+        }
+
+    
+
+    }
+
 
 
     /* 2022/07/30 #primary-inner > #player + #below */
