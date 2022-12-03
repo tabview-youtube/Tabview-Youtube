@@ -987,42 +987,45 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     async function a(){
 
 
-      let secondary = document.querySelector('#secondary');
+      let secondary = document.querySelector('#secondary.ytd-watch-flexy');
       if (secondary) {
         
 
         if (!secondary.classList.contains('tabview-hover-slider-enable')) {
 
-          let secondaryInner = secondary.querySelector('#secondary-inner');
+          let secondaryInner = querySelectorFromAnchor.call(secondary, '#secondary-inner.ytd-watch-flexy');
 
-          if (!secondary.classList.contains('tabview-hover-slider')) {
-            // without hover
+          if(secondaryInner){
 
-            let rect = secondary.getBoundingClientRect();
-            let rectI = secondaryInner.getBoundingClientRect();
+            if (!secondary.classList.contains('tabview-hover-slider')) {
+              // without hover
 
-            secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+              let rect = secondary.getBoundingClientRect();
+              let rectI = secondaryInner.getBoundingClientRect();
 
-          }
-          
-          let ratio = await b();
-          if(ratio > 0.0 && ratio <= 1.0){
+              secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
 
-            secondaryInner.style.setProperty('--ytd-watch-flexy-sidebar-width-d', `${ Math.round(100*ratio*10)/10 }vw`);
-            secondary.classList.add('tabview-hover-slider')
-            secondary.classList.add('tabview-hover-slider-enable')
+            }
+            
+            let ratio = await b();
+            if(ratio > 0.0 && ratio <= 1.0){
+
+              secondaryInner.style.setProperty('--ytd-watch-flexy-sidebar-width-d', `${ Math.round(100*ratio*10)/10 }vw`);
+              secondary.classList.add('tabview-hover-slider')
+              secondary.classList.add('tabview-hover-slider-enable')
 
 
-            let video = document.querySelector('#player video')
-            if(video && typeof video.requestPictureInPicture ==='function' && isVideoPlaying(video)){
-              
-              video.requestPictureInPicture().then(res=>{
+              let video = document.querySelector('#player video')
+              if(video && typeof video.requestPictureInPicture ==='function' && isVideoPlaying(video)){
+                
+                video.requestPictureInPicture().then(res=>{
 
-              }).catch(console.warn)
+                }).catch(console.warn)
+              }
+
             }
 
           }
-
 
 
 
@@ -1115,7 +1118,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               }
             }
 
-            let secondaryInner = secondary.querySelector('#secondary-inner')
+            let secondaryInner = querySelectorFromAnchor.call(secondary,'#secondary-inner.ytd-watch-flexy')
 
             if (secondary.classList.contains('tabview-hover-slider-hover')) {
 
@@ -1215,7 +1218,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!columns) return;
 
 
-    let primary = columns.querySelector('#primary');
+    let primary = querySelectorAllFromAnchor.call(columns, '#primary.ytd-watch-flexy');
     if (!primary) return;
 
 
@@ -1955,13 +1958,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             _console.log(9336, m4)
             if (m4) {
-              m5 = m4.querySelector('ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
+              m5 = querySelectorFromAnchor.call(m4, 'ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
 
               // YouTube coding bug - correct is 'ytd-button-renderer'. If the page is redirected under single column mode, the tag become 'yt-button-renderer'
               // under 'yt-button-renderer', the 
 
               if (m5)
-                m6 = m5.querySelector('button.yt-spec-button-shape-next--call-to-action'); // main
+                m6 = querySelectorFromAnchor.call(m5, 'button.yt-spec-button-shape-next--call-to-action'); // main
 
               _console.log(9337, m4, m5, m6)
 
@@ -2026,7 +2029,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           s.setAttribute('tyt-null', '')
         }
 
-        let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner, ytd-watch-flexy[is-two-columns_] #secondary-inner')
+        let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner.ytd-watch-flexy, ytd-watch-flexy[is-two-columns_] #secondary-inner.ytd-watch-flexy')
 
         if (target_container) target_container.append(right_tabs) // last-child
 
@@ -2316,7 +2319,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement | null} */
     const rootElement = ytdFlexyElm;
 
-    let comments = querySelectorFromAnchorFizzy(rootElement, 'comments', '#primary ytd-watch-metadata ~ ytd-comments#comments');
+    let comments = querySelectorFromAnchorFizzy(rootElement, 'comments', '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
       $(comments).appendTo('#tab-comments')
     }
@@ -2547,13 +2550,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       new Promise(resolve => {
 
 
-        let subscribersCount = document.querySelector('#primary #below ytd-watch-metadata #owner #owner-sub-count')
+        let subscribersCount = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #owner #owner-sub-count')
 
         if (subscribersCount) {
           if (!subscribersCount.hasAttribute('title')) {
             // assume YouTube native coding would not implement [title]
 
-            let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
+            let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
             if (ytdWatchMetaDataElm) {
               ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover', '')
               let _h = 0;
@@ -4180,7 +4183,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }, 420)
 
 
-          let secondary = document.querySelector('#columns #secondary');
+          let secondary = document.querySelector('#columns #secondary.ytd-watch-flexy');
 
           let columns = secondary ? closestDOM.call(secondary, '#columns') : null;
 
@@ -5269,9 +5272,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }).then(() => {
 
-      // let elem = document.querySelector('#primary #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child > yt-formatted-string#info.style-scope.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
-
-      let elem = document.querySelector('#primary #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
+      let elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
       if (elem) {
 
         elem.setAttribute('tabview-info-toggler', '')
@@ -5677,7 +5678,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if(!document.querySelector(`${lstTab.lastTab}.tab-content-cld tabview-tab-expander`)){
 
-          let secondary = document.querySelector('#secondary');
+          let secondary = document.querySelector('#secondary.ytd-watch-flexy');
           if (secondary) {
             secondary.dispatchEvent(new CustomEvent('tabview-hover-slider-restore'))
             //console.log(1995)
