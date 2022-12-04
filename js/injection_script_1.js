@@ -20,13 +20,16 @@ function injection_script_1() {
   // /** @type {(wr: Object | null) => Object | null} */
   // const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
   
+
+  
+  const DEBUG_e32 = false;
+
   let calledOnce = false;
   let ptcBusy= false;
   let _ceHack_calledOnce = false;
   let cid_teaserInfo = 0;
   let isPageRendered = false;
 
-  const DEBUG_e32 = false;
 
   DEBUG_e32 && console.log(9442, 103);
 
@@ -668,6 +671,7 @@ function injection_script_1() {
 
   }
 
+  
 
   //const round = x => x + 0.5 << 0
   function getInsObserver() {
@@ -910,6 +914,53 @@ function injection_script_1() {
 
   }
 
+  let resetChatroomFlags = null;
+
+
+  let pageID = 0;
+
+  let pageType = null;
+
+  function onPageFetched(evt) {
+    if((pageID%2) ===1) pageID++;
+    
+    translateHanlder = null;  // release the memory used for previous page
+    Promise.resolve(0).then(() => {
+      translateHanlder = getTranslate(); // release the memory used for previous page
+    })
+
+    pageType = ((evt.detail || 0).pageData || 0).page;
+
+
+  }
+
+  function pageLoad() {
+
+    isPageRendered = false;
+    if((pageID %2) ===0) pageID++;
+    if (resetChatroomFlags) resetChatroomFlags();
+  }
+
+
+  /* align content.js */
+
+  document.addEventListener('yt-navigate', pageLoad)
+  document.addEventListener('yt-navigate-start', pageLoad)
+  document.addEventListener('yt-navigate-cache', pageLoad)
+  document.addEventListener('yt-navigate-redirect', pageLoad)
+
+  /*
+  document.addEventListener('yt-navigate', resetChatroomFlags)
+  document.addEventListener('yt-navigate-start', resetChatroomFlags)
+  document.addEventListener('yt-player-updated', resetChatroomFlags)
+  document.addEventListener('yt-page-data-fetched', onPageFetched)
+  document.addEventListener('yt-navigate-finish', resetChatroomFlags)
+  document.addEventListener('yt-page-data-updated', resetChatroomFlags) 
+  */
+
+
+  document.addEventListener('yt-page-data-fetched', onPageFetched)
+
 
   function getFunc_postToContentWindow(){
     DEBUG_e32 && console.log(9442, '-postToContent');
@@ -925,42 +976,10 @@ function injection_script_1() {
     let _lastPT = 0;
     let activeFlag = 0;
     
-
-
-
-    function resetChatroomFlags(){
+    resetChatroomFlags = ()=>{
       activeFlag = 0;
       _lastPT = 0;
-      isPageRendered = false;
-    }
-
-    function onPageFetched(){
-      translateHanlder = null;  // release the memory used for previous page
-      Promise.resolve(0).then(()=>{
-        translateHanlder = getTranslate(); // release the memory used for previous page
-      })
-    }
-
-
-
-    /* align content.js */
-    
-    document.addEventListener('yt-navigate', resetChatroomFlags)
-    document.addEventListener('yt-navigate-start', resetChatroomFlags)
-    document.addEventListener('yt-navigate-cache', resetChatroomFlags)
-    document.addEventListener('yt-navigate-redirect', resetChatroomFlags)
-
-    /*
-    document.addEventListener('yt-navigate', resetChatroomFlags)
-    document.addEventListener('yt-navigate-start', resetChatroomFlags)
-    document.addEventListener('yt-player-updated', resetChatroomFlags)
-    document.addEventListener('yt-page-data-fetched', onPageFetched)
-    document.addEventListener('yt-navigate-finish', resetChatroomFlags)
-    document.addEventListener('yt-page-data-updated', resetChatroomFlags) 
-    */
-    
-    
-    document.addEventListener('yt-page-data-fetched', onPageFetched)
+    };
 
     let cnpCID = 0;
     document.addEventListener('tabview-chatroom-newpage', function(evt){
@@ -1558,7 +1577,7 @@ function injection_script_1() {
 
     function createPanel(){
 
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
       if(!ytdFlexyElm) return null;
 
 
@@ -1629,7 +1648,7 @@ function injection_script_1() {
     function $f() {
 
       if (++count > 30) return;
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
       if (!ytdFlexyElm) return setTimeout($f, 100);
 
       
@@ -1747,24 +1766,27 @@ function injection_script_1() {
     if (!evt || !evt.target) return;
     /** @type {HTMLElement} */
     let elm = evt.target;
-    if (elm.matches('#tab-comments #contents.style-scope.ytd-item-section-renderer > ytd-comment-thread-renderer.style-scope.ytd-item-section-renderer ytd-expander#expander[max-number-of-lines]')) {
-      //setTimeout(()=>{
-      let cmRender = elm.closest('ytd-comment-renderer')
-      let tabComments = cmRender.closest('#tab-comments')
-      let cmRenderRect = cmRender.getBoundingClientRect()
-      let tabCommentsRect = tabComments.getBoundingClientRect()
-      let eTop = cmRenderRect.top
-      let cTop = tabCommentsRect.top
-      
-      if (cTop - eTop > 0) {
-        cmRender.scrollIntoView();
-        //tabComments.scrollTop -= cTop - eTop  + Math.max(cmRenderRect.left - tabCommentsRect.left, 0)
-        //note: {cmRenderRect.left - tabCommentsRect.left} is larger for reply of comments
-      }
-      
-      //},30)
 
-    }
+    Promise.resolve(elm).then((elm) => {
+
+      const selector = '#tab-comments #contents.style-scope.ytd-item-section-renderer > ytd-comment-thread-renderer.style-scope.ytd-item-section-renderer ytd-expander#expander[max-number-of-lines]';
+      if (elm.matches(selector)) {
+        //setTimeout(()=>{
+        let cmRender = elm.closest('ytd-comment-renderer')
+        let tabComments = cmRender.closest('#tab-comments')
+        let cmRenderRect = cmRender.getBoundingClientRect()
+        let tabCommentsRect = tabComments.getBoundingClientRect()
+        let eTop = cmRenderRect.top
+        let cTop = tabCommentsRect.top
+
+        if (cTop - eTop > 0) {
+          cmRender.scrollIntoView();
+        }
+
+      }
+
+    })
+
 
   }, true);
 
@@ -1892,157 +1914,179 @@ function injection_script_1() {
 
   }, false)
   
-  /*
-  class TytCaptionWindow extends HTMLElement { // (1)
-    constructor() {
-      // Always call super first in constructor
-      super();
-      var shadowRoot = this.attachShadow({mode: "open"});
 
-  
-      this.__shadowRoot = shadowRoot;
-      // write element functionality in here
-    }
-
-    connectedCallback() { 
-     
-      let shadowRoot = this.__shadowRoot;
-    shadowRoot.innerHTML = `
-    <style>
-        
-    
-        .ytp-caption-window-container {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          top: 0;
-          pointer-events: none;
-      }
-
-      canvas, caption, center, cite, code, dd, del, dfn, div, dl, dt, em, embed, fieldset, font, form, h1, h2, h3, h4, h5, h6, hr, i, iframe, img, ins, kbd, label, legend, li, menu, object, ol, p, pre, q, s, samp, small, span, strike, strong, sub, sup, table, tbody, td, tfoot, th, thead, tr, tt, u, ul, var {
-        margin: 0;
-        padding: 0;
-        border: 0;
-        background: transparent;
-    }
-
-
-    .caption-window.ytp-caption-window-bottom {
-      margin-bottom: 61px;
-      -webkit-transition: margin-bottom .25s cubic-bezier(0,0,0.2,1),margin-top .25s cubic-bezier(0,0,0.2,1);
-      transition: margin-bottom .25s cubic-bezier(0,0,0.2,1),margin-top .25s cubic-bezier(0,0,0.2,1);
-  }
-
-  .caption-window {
-    position: absolute;
-    line-height: normal;
-    z-index: 40;
-    pointer-events: auto;
-    cursor: move;
-    cursor: -webkit-grab;
-    cursor: -moz-grab;
-    cursor: grab;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-}
-
-
-.caption-visual-line .ytp-caption-segment:last-child {
-  padding-right: .25em;
-  padding-bottom: 0;
-}
-
-@keyframes abc{
-  0%{
-    z-index:55;
-    transform: translateZ(1px);
-  }
-  100%{
-    z-index:66;
-    transform: translateZ(9px);
-  }
-}
-
-main *{
-  animation: .5s linear 1s infinite alternate abc;
-}
-
-        </style>
-
-        <main></main>
-
-    `
-
-    let td = '';
-    let p = document.querySelector('.sste')
-    let main = shadowRoot.querySelector('main')
-    let f = ()=>{
-
-      let t = p.innerHTML
-
-      if(t!==td){
-
-        td = t;
-
-        main.innerHTML = `${t}`
-   
-        console.log(t)
-
-
-      }
-
-
-      requestAnimationFrame(f);
-    }
-    requestAnimationFrame(f)
-
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-      console.log('Custom square element attributes changed.');
-      updateStyle(this);
-    }
-
-    disconnectedCallback() {
-      console.log('Custom square element removed from page.');
-    }
-    
-    adoptedCallback() {
-      console.log('Custom square element moved to new page.');
-    }
-  
-  }
-  
-  customElements.define("tyt-caption-window", TytCaptionWindow); // (2)
-
-  setInterval(()=>{
-
-
-    let elms = document.querySelectorAll('.ytp-caption-window-container:not(.sste)');
-    
-    for(const s of elms){
-      s.classList.add('sste');
-      let w= document.createElement('div');
-      w.classList.add('sstf')
-      s.parentNode.insertBefore(w,s);
-      w.appendChild(s); 
-      w.appendChild(new (customElements.get('tyt-caption-window')))
-    }
-
-
-
-  },100)
-  */
-
-  document.addEventListener('tabview-page-rendered',()=>{
+  document.addEventListener('tabview-page-rendered', () => {
     isPageRendered = true;
   })
 
-  document.documentElement.setAttribute('tabview-unwrapjs','1')
-  if(document.documentElement.hasAttribute('plugin-tabview-youtube')){
+
+  document.addEventListener("tabview-miniview-browser-enable", () => {
+
+    const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+    // https://caniuse.com/?search=observer
+    // https://caniuse.com/?search=addEventListener%20passive
+
+    if (!isPassiveArgSupport) return;
+
+    console.log("tabview-miniview-browser-enable")
+
+    document.addEventListener('click', function (evt) {
+
+
+      if (!evt || !evt.target) return;
+      let node = evt.target;
+
+      if (node.nodeName === 'SPAN') node = node.parentNode;
+
+      if (node && node.nodeName === 'A') {
+
+        let valid = false;
+        let endpoint = node.data;
+
+        if (endpoint && endpoint.browseEndpoint && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+          if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+
+            let meta = endpoint.commandMetadata.webCommandMetadata
+            if (meta.apiUrl && meta.url && meta.webPageType) {
+              valid = true;
+            }
+
+          }
+        }
+
+        if (!valid) return;
+        
+        if (!node.matches('ytd-watch-flexy:not([playlist]) a.yt-simple-endpoint.style-scope[href]')) return;
+
+
+        if(pageType === null){
+          pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+          if (pageType) {
+            pageType = (pageType.data || 0).page;
+          }
+        }
+        if (pageType !== "watch") return;
+
+
+        if (node.id === 'author-text') {
+        } else if (node.childElementCount > 0) return;
+
+
+        let btn = document.querySelector('#player button.ytp-miniplayer-button.ytp-button');
+
+        if (!btn) return;
+
+        evt.stopImmediatePropagation()
+        evt.stopPropagation()
+        evt.preventDefault();
+
+
+        if (pageID > 800) pageID = (pageID % 800);
+
+        let kid = pageID;
+
+
+        async function step() {
+
+          let evtYtPageTypeChanged = await new Promise(resolve => {
+
+            document.addEventListener('yt-page-type-changed', (evt) => {
+
+              resolve(evt);
+
+            }, { once: true })
+
+
+            Promise.resolve(0).then(() => {
+              document.documentElement.classList.add('tyt-no-display')
+              btn.click();
+            });
+
+          });
+
+
+          // mini player is set
+
+          if (!(pageID <= kid + 2)) return;
+          evtYtPageTypeChanged.stopImmediatePropagation()
+          evtYtPageTypeChanged.stopPropagation()
+          evtYtPageTypeChanged.preventDefault();
+
+          evtYtPageTypeChanged = null;
+
+
+          let evtYtPageDataFetched = await new Promise(resolve => {
+
+            document.addEventListener('yt-page-data-fetched', (evt) => {
+
+              resolve(evt);
+            }, { once: true })
+
+            // navigate url
+            document.querySelector('ytd-app').handleNavigate(
+              {
+                "type": 0,
+                "command": endpoint,
+                "form": {
+                  "tempData": {},
+                  "reload": false
+                }
+              })
+
+          });
+
+
+          // new url page fetched
+          
+          document.documentElement.classList.remove('tyt-no-display')
+
+          if (!(pageID <= kid + 4)) return;
+          let gid = pageID;
+          let phref = location.href;
+
+          function stopVideo() {
+            if (pageID !== gid) return;
+
+            if (location.href !== phref) return;
+
+            for (const video of document.querySelectorAll('ytd-browse video')) {
+              video.pause();
+            }
+
+          }
+          
+          stopVideo();
+
+          setTimeout(() => {
+            stopVideo();
+          }, 100);
+
+          setTimeout(() => {
+            stopVideo();
+          }, 300);
+
+          setTimeout(() => {
+            stopVideo();
+          }, 700);
+
+        }
+        step();
+
+      }
+
+
+    }, true)
+
+
+  })
+
+
+  document.documentElement.setAttribute('tabview-unwrapjs', '1')
+  if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {
     document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
   }
+
+
 
   //effected subtitle - https://www.youtube.com/watch?v=Ud73fm4Uoq0
 

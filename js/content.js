@@ -47,6 +47,7 @@
   const svgDiag2 = `<svg stroke="currentColor" fill="none"><path d="M7 3v2h2M7 5l3-3M5 9V7H3m-1 3l3-3"/></svg>`;
 
   const REMOVE_DUPLICATE_INFO = true;
+  const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
 
   const LAYOUT_VAILD = 1;
@@ -3825,18 +3826,28 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (parentContainer) {
 
           let m = querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
+          
+          if(m){
 
-          if (m.hasAttribute('hidden')) {
+            if (m.hasAttribute('hidden')) {
 
-            let expandBtn = querySelectorFromAnchor.call(parentContainer, 'tp-yt-paper-button#expand.ytd-text-inline-expander:not([hidden])'); if (expandBtn) {
-
-              expandBtn.click();
-              await new Promise(r => setTimeout(r, 30));
-              if (!m.hasAttribute('hidden')) desc1 = m;
+              let expandBtn = querySelectorFromAnchor.call(parentContainer, 'tp-yt-paper-button#expand.ytd-text-inline-expander:not([hidden])');
+  
+              if (expandBtn) {
+  
+                expandBtn.click();
+                await new Promise(r => setTimeout(r, 30));
+                if (!m.hasAttribute('hidden')) desc1 = m;
+              }
+  
+            } else {
+  
+              desc1 = m;
+  
             }
 
-
           }
+
 
         }
       }
@@ -3869,6 +3880,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             //console.log('desc', o.res)
             let { res, pNodeA, pNodeB } = o;
             mb2=res;
+
+            if(!mb2){
+             // console.log('mb2', desc1, desc2, desc1.textContent, desc2.textContent)
+            }
 
             if (res !== true) infoDuplicated = false;
 
@@ -6701,6 +6716,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   document.addEventListener("tabview-plugin-loaded",()=>{
 
     scriptletDeferred.resolve();
+
+    if(MINIVIEW_BROWSER_ENABLE){
+      document.dispatchEvent(new CustomEvent("tabview-miniview-browser-enable"));
+    }
 
   })
 

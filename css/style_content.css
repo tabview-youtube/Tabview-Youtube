@@ -671,6 +671,10 @@ body .ytp-autohide .ytp-unmute,
 
     /* Global */
 
+    .tyt-no-display ytd-browse{
+        content-visibility: hidden;
+    }
+
 
     #columns.ytd-watch-flexy > yt-img-shadow,
     #columns.ytd-watch-flexy > img {
