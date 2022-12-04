@@ -2088,11 +2088,24 @@ function injection_script_1() {
         //console.log(332,req)
         if(isBusy){
 
-          arguments[0].command = mReq.command; 
-          // not 100% guarantee. but it might help to not load the default page
+          let oriCommand = arguments[0].command;
+          let newCommand = mReq.command;
+          let ret = null;
+          if( oriCommand && newCommand && ((oriCommand||0).browseEndpoint||0).browseId === "FEwhat_to_watch"){
+            try{
+              arguments[0].command = newCommand;
+              // not 100% guarantee. but it might help to not load the default page
+              ret = handleNavigate.apply(this, arguments);
+              arguments[0].command = oriCommand;
+            }catch(e){
+              arguments[0].command = oriCommand;
+              ret = handleNavigate.apply(this, arguments);
+            }
+          }else{
+            ret = handleNavigate.apply(this, arguments);
+          }
 
-          //console.log(arguments[0], mReq)
-          return handleNavigate.apply(this, arguments);
+          return ret;
         } 
 
 
@@ -2154,16 +2167,23 @@ function injection_script_1() {
         if (!endpoint) return handleNavigate.apply(this, arguments);
        
 
-        isBusy = true;
-        mReq = req;
-
-
         if (pageID > 800) pageID = (pageID % 800);
 
         let kid = pageID;
 
 
         let mArgs = [this, arguments];
+
+        function finalizer(a){
+          if(a!==null){
+            console.log('error', arguments)
+          }
+          if(isBusy){
+            isBusy = false;
+            mReq = null;
+            document.documentElement.classList.remove('tyt-no-display');
+          }
+        }
 
         async function step() {
 
@@ -2177,16 +2197,21 @@ function injection_script_1() {
 
 
             Promise.resolve(0).then(() => {
+              
+              isBusy = true;
+              mReq = req;
               document.documentElement.classList.add('tyt-no-display')
-              btn.click();
-            });
 
-          });
+
+              btn.click();
+            }).catch(finalizer);
+
+          }).catch(finalizer);
 
 
           // mini player is set
 
-          if (!(pageID <= kid + 2)) return;
+          if (!(pageID <= kid + 2)) return finalizer();
 
           let evtYtPageDataFetched = await new Promise(resolve => {
 
@@ -2198,19 +2223,18 @@ function injection_script_1() {
             // navigate url
             handleNavigate.apply(mArgs[0], mArgs[1]);
 
-          });
+          }).catch(finalizer);
 
 
           // new url page fetched
-
-          document.documentElement.classList.remove('tyt-no-display');
+          finalizer(null);
 
           if (!(pageID <= kid + 4)) return;
           let gid = pageID;
           let phref = location.href;
 
           function stopVideo() {
-            if (pageID !== gid) return;
+            if (pageID !== gid) return ;
 
             if (location.href !== phref) return;
 
@@ -2234,7 +2258,6 @@ function injection_script_1() {
             stopVideo();
           }, 700);
 
-          isBusy = false;
 
         }
         step();
