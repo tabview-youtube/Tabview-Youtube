@@ -1920,7 +1920,10 @@ function injection_script_1() {
   })
 
 
+  let miniview_enabled = false
   document.addEventListener("tabview-miniview-browser-enable", () => {
+
+    if(miniview_enabled) return;
 
     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
     // https://caniuse.com/?search=observer
@@ -1929,6 +1932,8 @@ function injection_script_1() {
     if (!isPassiveArgSupport) return;
 
     console.log("tabview-miniview-browser-enable")
+
+    miniview_enabled = true;
 
     document.addEventListener('click', function (evt) {
 
@@ -1972,7 +1977,8 @@ function injection_script_1() {
         } else if (node.childElementCount > 0) return;
 
 
-        let btn = document.querySelector('#player button.ytp-miniplayer-button.ytp-button');
+        let btn = document.querySelector('#movie_player button.ytp-miniplayer-button.ytp-button');
+        // #movie_player for both theater and normal view
 
         if (!btn) return;
 
@@ -1994,7 +2000,7 @@ function injection_script_1() {
 
               resolve(evt);
 
-            }, { once: true })
+            }, { once: true });
 
 
             Promise.resolve(0).then(() => {
@@ -2008,8 +2014,8 @@ function injection_script_1() {
           // mini player is set
 
           if (!(pageID <= kid + 2)) return;
-          evtYtPageTypeChanged.stopImmediatePropagation()
-          evtYtPageTypeChanged.stopPropagation()
+          evtYtPageTypeChanged.stopImmediatePropagation();
+          evtYtPageTypeChanged.stopPropagation();
           evtYtPageTypeChanged.preventDefault();
 
           evtYtPageTypeChanged = null;
@@ -2031,14 +2037,14 @@ function injection_script_1() {
                   "tempData": {},
                   "reload": false
                 }
-              })
+              });
 
           });
 
 
           // new url page fetched
           
-          document.documentElement.classList.remove('tyt-no-display')
+          document.documentElement.classList.remove('tyt-no-display');
 
           if (!(pageID <= kid + 4)) return;
           let gid = pageID;
@@ -2054,7 +2060,7 @@ function injection_script_1() {
             }
 
           }
-          
+
           stopVideo();
 
           setTimeout(() => {
