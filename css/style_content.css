@@ -193,8 +193,11 @@ Same for #secondary
     @supports (color: var(--scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
         /* Chrome: >=94 ; FireFox: >= 97 */
         /* FireFox >= 107 stil have the incorrect spacing, indepedent of scrollbar-gutter setting */
-        #tab-info, #tab-comments,
-        #tab-list, #tab-videos{
+        #tab-info, 
+        #tab-comments, 
+        #tab-videos,
+        #tab-list #items.playlist-items.style-scope.ytd-playlist-panel-renderer
+        {
             scrollbar-gutter: stable; /* for rendering */
         }
         /*
