@@ -1921,6 +1921,146 @@ function injection_script_1() {
 
 
   let miniview_enabled = false
+
+
+
+  document.addEventListener("tabview-miniview-browser-enable2", () => {
+
+    if(miniview_enabled) return;
+
+    const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+    // https://caniuse.com/?search=observer
+    // https://caniuse.com/?search=addEventListener%20passive
+
+    if (!isPassiveArgSupport) return;
+
+    console.log("tabview-miniview-browser-enable")
+
+    miniview_enabled = true;
+
+    let ytdApp = document.querySelector('ytd-app');
+
+    if(!ytdApp) return;
+
+    let mReq = null;
+    ytdApp.handleNavigate=((handleNavigate)=>{
+
+      return function (req) {
+
+
+        console.log(req)
+        if(mReq){
+
+          req.command = mReq.command;
+          mReq = null;
+          return handleNavigate.call(this, req);
+
+        } 
+        console.log(req)
+
+        let endpoint = null;
+        if (req && req.command) {
+          /*
+              
+              {
+                "type": 0,
+                "command": endpoint,
+                "form": {
+                  "tempData": {},
+                  "reload": false
+                }
+              }
+  
+          */
+          endpoint = req.command;
+
+          let valid = false;
+
+          if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+            if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+
+              let meta = endpoint.commandMetadata.webCommandMetadata
+              if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+                valid = true;
+              }
+
+            }
+          }
+
+          if (!valid) endpoint = null;
+
+        }
+
+        if (endpoint) {
+
+          if (pageType === null) {
+            pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+            if (pageType) {
+              pageType = (pageType.data || 0).page;
+            }
+          }
+          if (pageType !== "watch") endpoint = null;
+
+        }
+
+        let btn; 
+        if (endpoint) {
+
+          btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+
+          if (!btn) endpoint = null;
+
+        }
+
+        if (!endpoint) return handleNavigate.apply(this, arguments);
+
+        mReq = req;
+
+        let gid = null;
+        let phref = null;
+
+        function stopVideo() {
+          if (pageID !== gid) return;
+
+          if (location.href !== phref) return;
+
+          for (const video of document.querySelectorAll('ytd-browse video')) {
+            video.pause();
+          }
+
+        }
+
+        document.addEventListener('yt-page-data-fetched', (evt) => {
+
+          gid = pageID
+          phref = location.href;
+
+          stopVideo();
+
+          setTimeout(() => {
+            stopVideo();
+          }, 100);
+
+          setTimeout(() => {
+            stopVideo();
+          }, 300);
+
+          setTimeout(() => {
+            stopVideo();
+          }, 700);
+
+        },{once:true})
+
+        btn.click();
+
+
+
+      };
+
+    })(ytdApp.handleNavigate);
+  });
+
+
   document.addEventListener("tabview-miniview-browser-enable", () => {
 
     if(miniview_enabled) return;
@@ -1935,62 +2075,95 @@ function injection_script_1() {
 
     miniview_enabled = true;
 
-    document.addEventListener('click', function (evt) {
+    let ytdApp = document.querySelector('ytd-app');
+
+    if(!ytdApp) return;
+
+    let isBusy = false;
+    let mReq = null;
+    ytdApp.handleNavigate=((handleNavigate)=>{
+
+      return function (req) {
+
+        //console.log(332,req)
+        if(isBusy){
+
+          arguments[0].command = mReq.command; 
+          // not 100% guarantee. but it might help to not load the default page
+
+          //console.log(arguments[0], mReq)
+          return handleNavigate.apply(this, arguments);
+        } 
 
 
-      if (!evt || !evt.target) return;
-      let node = evt.target;
+        let endpoint = null;
+        if (req && req.command) {
+          /*
+              
+              {
+                "type": 0,
+                "command": endpoint,
+                "form": {
+                  "tempData": {},
+                  "reload": false
+                }
+              }
+  
+          */
+          endpoint = req.command;
 
-      if (node.nodeName === 'SPAN') node = node.parentNode;
+          let valid = false;
 
-      if (node && node.nodeName === 'A') {
+          if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+            if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
-        let valid = false;
-        let endpoint = node.data;
+              let meta = endpoint.commandMetadata.webCommandMetadata
+              if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+                valid = true;
+              }
 
-        if (endpoint && endpoint.browseEndpoint && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
-          if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
-
-            let meta = endpoint.commandMetadata.webCommandMetadata
-            if (meta.apiUrl && meta.url && meta.webPageType) {
-              valid = true;
             }
-
           }
+
+          if (!valid) endpoint = null;
+
         }
+         
 
-        if (!valid) return;
-        
-        if (!node.matches('ytd-watch-flexy:not([playlist]) a.yt-simple-endpoint.style-scope[href]')) return;
+        if (endpoint) {
 
-
-        if(pageType === null){
-          pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-          if (pageType) {
-            pageType = (pageType.data || 0).page;
+          if (pageType === null) {
+            pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+            if (pageType) {
+              pageType = (pageType.data || 0).page;
+            }
           }
+          if (pageType !== "watch") endpoint = null;
+
         }
-        if (pageType !== "watch") return;
+ 
+        let btn; 
+        if (endpoint) {
 
+          btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
 
-        if (node.id === 'author-text') {
-        } else if (node.childElementCount > 0) return;
+          if (!btn) endpoint = null;
 
+        }
+ 
+        if (!endpoint) return handleNavigate.apply(this, arguments);
+       
 
-        let btn = document.querySelector('#movie_player button.ytp-miniplayer-button.ytp-button');
-        // #movie_player for both theater and normal view
-
-        if (!btn) return;
-
-        evt.stopImmediatePropagation()
-        evt.stopPropagation()
-        evt.preventDefault();
+        isBusy = true;
+        mReq = req;
 
 
         if (pageID > 800) pageID = (pageID % 800);
 
         let kid = pageID;
 
+
+        let mArgs = [this, arguments];
 
         async function step() {
 
@@ -2014,12 +2187,6 @@ function injection_script_1() {
           // mini player is set
 
           if (!(pageID <= kid + 2)) return;
-          evtYtPageTypeChanged.stopImmediatePropagation();
-          evtYtPageTypeChanged.stopPropagation();
-          evtYtPageTypeChanged.preventDefault();
-
-          evtYtPageTypeChanged = null;
-
 
           let evtYtPageDataFetched = await new Promise(resolve => {
 
@@ -2029,21 +2196,13 @@ function injection_script_1() {
             }, { once: true })
 
             // navigate url
-            document.querySelector('ytd-app').handleNavigate(
-              {
-                "type": 0,
-                "command": endpoint,
-                "form": {
-                  "tempData": {},
-                  "reload": false
-                }
-              });
+            handleNavigate.apply(mArgs[0], mArgs[1]);
 
           });
 
 
           // new url page fetched
-          
+
           document.documentElement.classList.remove('tyt-no-display');
 
           if (!(pageID <= kid + 4)) return;
@@ -2075,13 +2234,18 @@ function injection_script_1() {
             stopVideo();
           }, 700);
 
+          isBusy = false;
+
         }
         step();
 
-      }
+        
+
+      };
+
+    })(ytdApp.handleNavigate);
 
 
-    }, true)
 
 
   })
