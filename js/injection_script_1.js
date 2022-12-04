@@ -24,6 +24,7 @@ function injection_script_1() {
   let ptcBusy= false;
   let _ceHack_calledOnce = false;
   let cid_teaserInfo = 0;
+  let isPageRendered = false;
 
   const DEBUG_e32 = false;
 
@@ -930,18 +931,36 @@ function injection_script_1() {
     function resetChatroomFlags(){
       activeFlag = 0;
       _lastPT = 0;
+      isPageRendered = false;
     }
 
+    function onPageFetched(){
+      translateHanlder = null;  // release the memory used for previous page
+      Promise.resolve(0).then(()=>{
+        translateHanlder = getTranslate(); // release the memory used for previous page
+      })
+    }
+
+
+
+    /* align content.js */
     
     document.addEventListener('yt-navigate', resetChatroomFlags)
     document.addEventListener('yt-navigate-start', resetChatroomFlags)
+    document.addEventListener('yt-navigate-cache', resetChatroomFlags)
+    document.addEventListener('yt-navigate-redirect', resetChatroomFlags)
+
+    /*
+    document.addEventListener('yt-navigate', resetChatroomFlags)
+    document.addEventListener('yt-navigate-start', resetChatroomFlags)
     document.addEventListener('yt-player-updated', resetChatroomFlags)
-    document.addEventListener('yt-page-data-fetched', resetChatroomFlags)
+    document.addEventListener('yt-page-data-fetched', onPageFetched)
     document.addEventListener('yt-navigate-finish', resetChatroomFlags)
-    
     document.addEventListener('yt-page-data-updated', resetChatroomFlags) 
-
-
+    */
+    
+    
+    document.addEventListener('yt-page-data-fetched', onPageFetched)
 
     let cnpCID = 0;
     document.addEventListener('tabview-chatroom-newpage', function(evt){
@@ -994,7 +1013,10 @@ function injection_script_1() {
       let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
       let pt = arguments[0]['yt-player-video-progress'];
 
-      if (boolz && pt>0) {
+      if (boolz && pt>=0) {
+
+        if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
+        // reduce memory usage; avoid tab killing
 
         if (ptcBusy === true) return;
 
@@ -1106,6 +1128,7 @@ function injection_script_1() {
     return g_postToContentWindow;
   }
 
+  let translateHanlder = null;
   
   function ceHack(evt){
 
@@ -1151,8 +1174,6 @@ function injection_script_1() {
     });
 
 
-    let translate = getTranslate();
-
     const s6 = Symbol();
 
     // assume initialTranscriptsRenderer is not called before ceHack()
@@ -1169,7 +1190,9 @@ function injection_script_1() {
             nv[s6] = true;
             //console.log(955, 'translate')
             //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
-            nv.initialSegments = translate(nv.initialSegments)
+            if(translateHanlder !== null){
+              nv.initialSegments = translateHanlder(nv.initialSegments)
+            }
             //console.log(344,nv, nv.initialSegments.length)
           }
 
@@ -2012,7 +2035,14 @@ main *{
   },100)
   */
 
+  document.addEventListener('tabview-page-rendered',()=>{
+    isPageRendered = true;
+  })
+
   document.documentElement.setAttribute('tabview-unwrapjs','1')
+  if(document.documentElement.hasAttribute('plugin-tabview-youtube')){
+    document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
+  }
 
   //effected subtitle - https://www.youtube.com/watch?v=Ud73fm4Uoq0
 
