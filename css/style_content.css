@@ -1448,8 +1448,9 @@ body .ytp-autohide .ytp-unmute,
         }
     
         html:lang(zh-Hant) {
-            --tabview-text-loading: "加載中";
-            --tabview-text-fetching: "抓取中";
+            /* 資訊科技名詞 @ https://terms.naer.edu.tw/ */
+            --tabview-text-loading: "載入中";
+            --tabview-text-fetching: "擷取中";
         }
     
         html:lang(zh-Hans) {
