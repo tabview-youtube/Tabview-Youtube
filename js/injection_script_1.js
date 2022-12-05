@@ -15,10 +15,10 @@ function injection_script_1() {
   const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
 
   // /** @type {(o: Object | null) => WeakRef | null} */
-  // const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
+  const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
 
   // /** @type {(wr: Object | null) => Object | null} */
-  // const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
+  const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
   
 
   
@@ -921,24 +921,52 @@ function injection_script_1() {
 
   let pageType = null;
 
+
+
   function onPageFetched(evt) {
-    if((pageID%2) ===1) pageID++;
+
     
-    translateHanlder = null;  // release the memory used for previous page
-    Promise.resolve(0).then(() => {
-      translateHanlder = getTranslate(); // release the memory used for previous page
-    })
+    
+    //console.log(evt.type, pageID)
 
     pageType = ((evt.detail || 0).pageData || 0).page;
 
 
   }
 
-  function pageLoad() {
+  function onPageFinished(evt) {
 
-    isPageRendered = false;
-    if((pageID %2) ===0) pageID++;
-    if (resetChatroomFlags) resetChatroomFlags();
+    
+    //console.log(evt.type, pageID)
+
+    if((pageID%2) ===1){
+      pageID++;
+
+      translateHanlder = null;  // release the memory used for previous page
+      Promise.resolve(0).then(() => {
+        translateHanlder = getTranslate(); // release the memory used for previous page
+      })
+
+    } 
+    
+ 
+
+
+  }
+
+
+  function pageLoad(evt) {
+
+    //console.log(evt.type, pageID)
+
+    if((pageID %2) ===0){
+
+      isPageRendered = false;
+      pageID++;
+      if (resetChatroomFlags) resetChatroomFlags();
+
+    } 
+    
   }
 
 
@@ -960,6 +988,7 @@ function injection_script_1() {
 
 
   document.addEventListener('yt-page-data-fetched', onPageFetched)
+  document.addEventListener('yt-navigate-finish', onPageFinished)
 
 
   function getFunc_postToContentWindow(){
@@ -1924,146 +1953,575 @@ function injection_script_1() {
 
 
 
-  document.addEventListener("tabview-miniview-browser-enable2", () => {
+//   document.addEventListener("tabview-miniview-browser-enable2", () => {
 
-    if(miniview_enabled) return;
+//     if(miniview_enabled) return;
 
-    const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
-    // https://caniuse.com/?search=observer
-    // https://caniuse.com/?search=addEventListener%20passive
+//     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+//     // https://caniuse.com/?search=observer
+//     // https://caniuse.com/?search=addEventListener%20passive
 
-    if (!isPassiveArgSupport) return;
+//     if (!isPassiveArgSupport) return;
 
-    console.log("tabview-miniview-browser-enable")
+//     console.log("tabview-miniview-browser-enable")
 
-    miniview_enabled = true;
+//     miniview_enabled = true;
 
-    let ytdApp = document.querySelector('ytd-app');
+//     let ytdApp = document.querySelector('ytd-app');
 
-    if(!ytdApp) return;
+//     if(!ytdApp) return;
 
-    let mReq = null;
-    ytdApp.handleNavigate=((handleNavigate)=>{
+//     let mReq = null;
+//     ytdApp.handleNavigate=((handleNavigate)=>{
 
-      return function (req) {
+//       return function (req) {
 
 
-        console.log(req)
-        if(mReq){
+//         console.log(req)
+//         if(mReq){
 
-          req.command = mReq.command;
-          mReq = null;
-          return handleNavigate.call(this, req);
+//           req.command = mReq.command;
+//           mReq = null;
+//           return handleNavigate.call(this, req);
 
-        } 
-        console.log(req)
+//         } 
+//         console.log(req)
 
-        let endpoint = null;
-        if (req && req.command) {
-          /*
+//         let endpoint = null;
+//         if (req && req.command) {
+//           /*
               
-              {
-                "type": 0,
-                "command": endpoint,
-                "form": {
-                  "tempData": {},
-                  "reload": false
-                }
-              }
+//               {
+//                 "type": 0,
+//                 "command": endpoint,
+//                 "form": {
+//                   "tempData": {},
+//                   "reload": false
+//                 }
+//               }
   
-          */
-          endpoint = req.command;
+//           */
+//           endpoint = req.command;
 
-          let valid = false;
+//           let valid = false;
 
-          if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
-            if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+//           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+//             if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
-              let meta = endpoint.commandMetadata.webCommandMetadata
-              if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
-                valid = true;
-              }
+//               let meta = endpoint.commandMetadata.webCommandMetadata
+//               if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+//                 valid = true;
+//               }
 
-            }
-          }
+//             }
+//           }
 
-          if (!valid) endpoint = null;
+//           if (!valid) endpoint = null;
 
-        }
+//         }
 
-        if (endpoint) {
+//         if (endpoint) {
 
-          if (pageType === null) {
-            pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-            if (pageType) {
-              pageType = (pageType.data || 0).page;
-            }
-          }
-          if (pageType !== "watch") endpoint = null;
+//           if (pageType === null) {
+//             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+//             if (pageType) {
+//               pageType = (pageType.data || 0).page;
+//             }
+//           }
+//           if (pageType !== "watch") endpoint = null;
 
-        }
+//         }
 
-        let btn; 
-        if (endpoint) {
+//         let btn; 
+//         if (endpoint) {
 
-          btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+//           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
 
-          if (!btn) endpoint = null;
+//           if (!btn) endpoint = null;
 
-        }
+//         }
 
-        if (!endpoint) return handleNavigate.apply(this, arguments);
+//         if (!endpoint) return handleNavigate.apply(this, arguments);
 
-        mReq = req;
+//         mReq = req;
 
-        let gid = null;
-        let phref = null;
+//         let gid = null;
+//         let phref = null;
 
-        function stopVideo() {
-          if (pageID !== gid) return;
+//         function stopVideo() {
+//           if (pageID !== gid) return;
 
-          if (location.href !== phref) return;
+//           if (location.href !== phref) return;
 
-          for (const video of document.querySelectorAll('ytd-browse video')) {
-            video.pause();
-          }
+//           for (const video of document.querySelectorAll('ytd-browse video')) {
+//             video.pause();
+//           }
 
-        }
+//         }
 
-        document.addEventListener('yt-page-data-fetched', (evt) => {
+//         document.addEventListener('yt-page-data-fetched', (evt) => {
 
-          gid = pageID
-          phref = location.href;
+//           gid = pageID
+//           phref = location.href;
 
-          stopVideo();
+//           stopVideo();
 
-          setTimeout(() => {
-            stopVideo();
-          }, 100);
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 100);
 
-          setTimeout(() => {
-            stopVideo();
-          }, 300);
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 300);
 
-          setTimeout(() => {
-            stopVideo();
-          }, 700);
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 700);
 
-        },{once:true})
+//         },{once:true})
 
-        btn.click();
+//         btn.click();
 
 
 
-      };
+//       };
 
-    })(ytdApp.handleNavigate);
-  });
+//     })(ytdApp.handleNavigate);
+//   });
 
+
+//   document.addEventListener("tabview-miniview-browser-enable3", () => {
+
+//     if(miniview_enabled) return;
+
+//     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+//     // https://caniuse.com/?search=observer
+//     // https://caniuse.com/?search=addEventListener%20passive
+
+//     if (!isPassiveArgSupport) return;
+
+//     console.log("tabview-miniview-browser-enable")
+
+//     miniview_enabled = true;
+
+//     let ytdApp = document.querySelector('ytd-app');
+
+//     if(!ytdApp) return;
+
+//     let isBusy = false;
+//     let mReq = null;
+//     let mReqC = 0;
+
+
+//     let saveAndPush = ytdApp.saveAndPush
+//     ytdApp.saveAndPush=function(url, command, pageData, int){
+//       console.log(`SaveAndPush-${!!mReq}`, this, arguments)
+
+
+//       if(mReq){
+//         console.log(3430, mReq.command===command, mReq.command,command)
+//         if(mReq.command === command){
+          
+//           mReqC++;
+
+//           if(mReqC===1){
+
+//             console.log(3434)
+//             return saveAndPush.apply(this,arguments)
+//           }
+ 
+//         }
+//       }else{
+//         return saveAndPush.apply(this,arguments)
+//       }
+
+
+//       /*
+
+//       if(mReq && mReq === command){
+
+//       }else{
+
+//         if(mReq) return;
+//       }
+
+//       if(pageData.page!=='watch') return;
+//       if(!command.watchEndpoint) return;
+
+      
+
+
+//       console.log(`SaveAndPush-${!!mReq}-2`, this, arguments)
+      
+//       return saveAndPush.apply(this,arguments)
+//       */
+//     }
+
+//     ytdApp.handleNavigate=((handleNavigate)=>{
+
+//       return function (req) {
+
+//         const $this = this;
+//         const $arguments = arguments;
+
+//         console.log(550,arguments.length, req)
+//         if(isBusy){
+
+//           let oriCommand = ($arguments[0]||0).command;
+//           let newCommand = (mReq||0).command;
+//           let ret = null;
+//           let gt = 0;
+//           console.log(665, req, mReq)
+//           if( oriCommand && newCommand && ((oriCommand||0).browseEndpoint||0).browseId === "FEwhat_to_watch"){
+//             console.log(666, req, mReq)
+//             try{
+//               //$arguments[0].command = JSON.parse(JSON.stringify(newCommand));
+//               //oriCommand.browseEndpoint = newCommand.browseEndpoint ;
+//               //oriCommand.clickTrackingParams = newCommand.clickTrackingParams ;
+//               //oriCommand.commandMetadata = null; 
+//               $arguments[0].command = newCommand;
+//               gt = 1;
+//               // not 100% guarantee. but it might help to not load the default page
+//               ret = handleNavigate.apply($this, $arguments);
+//               gt = 2;
+//               //$arguments[0].command = oriCommand;
+//               gt = 3;
+//             }catch(e){
+//               console.warn('command error', e, gt)
+//               if(gt===1 || gt===2) arguments[0].command = oriCommand;
+//               if(gt===1 || gt===0) ret = handleNavigate.apply($this, $arguments);
+//             }
+//           }else{
+//             ret = handleNavigate.apply($this, $arguments);
+//           }
+
+//           return ret;
+//         } 
+
+
+//         let endpoint = null;
+//         if (req && req.command) {
+//           /*
+              
+//               {
+//                 "type": 0,
+//                 "command": endpoint,
+//                 "form": {
+//                   "tempData": {},
+//                   "reload": false
+//                 }
+//               }
+  
+//           */
+//           endpoint = req.command;
+
+//           console.log(554, endpoint, req)
+
+//           let valid = false;
+
+//           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+            
+//             if(endpoint.browseEndpoint && endpoint.browseEndpoint.browseId==="FEwhat_to_watch"){
+//               valid = false;
+//             }else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+
+//               let meta = endpoint.commandMetadata.webCommandMetadata
+//               if (meta && /*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+//                 valid = true;
+//               }
+
+//             }
+//           }
+
+//           if (!valid) endpoint = null;
+
+//         }
+         
+
+//         if (endpoint) {
+
+//           if (pageType === null) {
+//             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+//             if (pageType) {
+//               pageType = (pageType.data || 0).page;
+//             }
+//           }
+//           if (pageType !== "watch") endpoint = null;
+
+//         }
+ 
+//         let btn = null; 
+//         if (endpoint) {
+
+//           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+
+//           if (!btn) endpoint = null;
+
+//         }
+ 
+//         if (!endpoint) return handleNavigate.apply($this, $arguments);
+
+//         let ytdApp = document.querySelector('ytd-app');
+//         let count = 0;
+
+//         let object = null;
+//         try{
+//           object = ytdApp.data.response.currentVideoEndpoint.watchEndpoint || null;
+//         }catch(e){
+//           object = null;
+//         }
+
+//         if(typeof object !=='object') object =null;
+
+//         let wObject = null;
+//         if(object !== null){
+//           wObject = mWeakRef(object)
+
+//           const N = 3;
+
+
+//           Object.defineProperty(kRef(wObject), 'playlistId', {
+//             get() {
+//               count++;
+//               if (count === N) {
+//                 delete this.playlistId;
+//               }
+//               return '*';
+//             },
+//             set(value) {
+
+//               delete this.playlistId;
+//               this.playlistId = value;
+//             },
+//             enumerable: false,
+//             configurable: true
+//           });
+
+
+//           Promise.race([
+
+//             new Promise(r => {
+//               setTimeout(r, 4000)
+//             }),
+//             new Promise(r => {
+
+
+//               document.addEventListener('yt-page-type-changed', (evt) => {
+
+//                 r();
+
+//               }, { once: true });
+
+//             })
+//           ]).then(() => {
+
+//             count = N - 1;
+//             return kRef(wObject).playlistId;
+//           })
+
+
+          
+  
+  
+
+
+//         }
+
+//         return handleNavigate.apply($this, $arguments);
+//         window.history.pushState({}, '', location.href);
+       
+
+//         if (pageID > 800) pageID = (pageID % 800);
+
+//         let kid = pageID;
+
+
+//         let mArgs = [$this, $arguments];
+
+//         //let saveAndPush = null, replaceState = null;
+
+
+//         function initializer(){
+
+//           isBusy = true;
+//           mReqC = 0;
+//           mReq = req;
+//           document.documentElement.classList.add('tyt-no-display');
+
+//           let ytdApp = document.querySelector('ytd-app');
+//           //saveAndPush.call(ytdApp);
+// /*
+//           if(ytdApp){
+
+//             saveAndPush = ytdApp.saveAndPush;
+//             console.log(saveAndPush)
+//             if(typeof saveAndPush !=='function') saveAndPush= null;
+//             //replaceState = history.constructor.prototype.replaceState;
+//             if(typeof replaceState !=='function') replaceState= null;
+//             if(saveAndPush){
+
+
+ 
+//              ytdApp.saveAndPush=function(){
+//                console.log('saveAndPush', this, arguments)
+//                //if(arguments[1]!==mReq.command) return;
+//                return;
+//                return saveAndPush.apply(this,arguments)
+//              }
+//              saveAndPush.call(ytdApp);
+//             }
+//             if(replaceState){
+ 
+//              history.constructor.prototype.replaceState=function(){
+//                console.log('replaceState', this, arguments)
+//                return replaceState.apply(this,arguments)
+//              }
+
+//             }
+//           }*/
+
+//         }
+
+//         function finalizer(a){
+//           try{
+
+//             if(a!==null){
+//               console.log('error', arguments)
+//             }
+//             if(isBusy){
+//               isBusy = false;
+//               mReqC = 0;
+//               mReq = null;
+//               document.documentElement.classList.remove('tyt-no-display');
+//               let ytdApp = document.querySelector('ytd-app');
+//               /*
+//               if(saveAndPush){
+//                 ytdApp.saveAndPush=saveAndPush;
+//               }
+//               if(replaceState){
+//                 history.constructor.prototype.replaceState=replaceState;
+//               }*/
+//             }
+
+//           }catch(e){}
+//         }
+
+//         console.log(555, endpoint)
+//         async function step() {
+
+//           try{
+
+//             initializer();
+
+//             console.log(history.pushState)
+//             console.log(history.replaceState)
+
+//             let evtYtPageTypeChanged = await new Promise((resolve, reject) => {
+
+//               document.addEventListener('yt-page-type-changed', (evt) => {
+
+//                 try{
+//                   resolve(evt);
+//                 }catch(e){
+//                   reject(e);
+//                 }
+  
+//               }, { once: true });
+  
+//               Promise.resolve(0).then(() => {
+//                 btn.click();
+//               }).catch(reject);
+  
+//             });
+
+              
+//             // mini player is set
+
+//             //console.log(pageID, kid) // initail: 2;  later: 1
+
+//             if (!(pageID <= kid + 2)) throw new Error('pageID incorrect');
+
+//             let evtYtPageDataFetched = await new Promise((resolve,reject) => {
+
+//               document.addEventListener('yt-page-data-fetched', (evt) => {
+
+//                 try{
+//                   resolve(evt);
+//                 }catch(e){
+//                   reject(e);
+//                 }
+
+//               }, { once: true });
+
+//               // navigate url
+//               //handleNavigate.apply($this, $arguments);
+//                throw new Error('done')
+
+//             });
+            
+
+//             // new url page fetched
+//             finalizer(null);
+
+//           }catch(e){
+
+//             console.log('error', e)
+//             finalizer(e);
+//           }
+
+
+          
+//           if (!(pageID <= kid + 4)) return;
+//           let gid = pageID;
+//           let phref = (location||0).href;
+//           if(!phref) return;
+
+//           function stopVideo() {
+//             if (pageID !== gid) return ;
+
+//             if (location.href !== phref) return;
+
+//             for (const video of document.querySelectorAll('ytd-browse video')) {
+//               video.pause();
+//             }
+
+//           }
+
+//           stopVideo();
+
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 100);
+
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 300);
+
+//           setTimeout(() => {
+//             stopVideo();
+//           }, 700);
+
+//         }
+//         step();
+
+//       };
+
+//     })(ytdApp.handleNavigate);
+
+
+
+
+//   })
+
+
+
+  function isVideoPlaying(video) {
+    return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
+  }
 
   document.addEventListener("tabview-miniview-browser-enable", () => {
 
-    if(miniview_enabled) return;
+    if (miniview_enabled) return;
 
     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
     // https://caniuse.com/?search=observer
@@ -2071,43 +2529,31 @@ function injection_script_1() {
 
     if (!isPassiveArgSupport) return;
 
-    console.log("tabview-miniview-browser-enable")
+    console.log("tabview-miniview-browser-enable");
 
     miniview_enabled = true;
 
     let ytdApp = document.querySelector('ytd-app');
 
-    if(!ytdApp) return;
+    if (!ytdApp) return;
 
-    let isBusy = false;
+    /*
+    
     let mReq = null;
-    ytdApp.handleNavigate=((handleNavigate)=>{
+    let mReqC = 0;
+    let saveAndPush = ytdApp.saveAndPush
+    ytdApp.saveAndPush=function(url, command, pageData, int){
+      console.log(`SaveAndPush-${!!mReq}`, this, arguments)
+      return saveAndPush.apply(this,arguments)
+    }
+    */
+
+    ytdApp.handleNavigate = ((handleNavigate) => {
 
       return function (req) {
 
-        //console.log(332,req)
-        if(isBusy){
-
-          let oriCommand = arguments[0].command;
-          let newCommand = mReq.command;
-          let ret = null;
-          if( oriCommand && newCommand && ((oriCommand||0).browseEndpoint||0).browseId === "FEwhat_to_watch"){
-            try{
-              arguments[0].command = newCommand;
-              // not 100% guarantee. but it might help to not load the default page
-              ret = handleNavigate.apply(this, arguments);
-              arguments[0].command = oriCommand;
-            }catch(e){
-              arguments[0].command = oriCommand;
-              ret = handleNavigate.apply(this, arguments);
-            }
-          }else{
-            ret = handleNavigate.apply(this, arguments);
-          }
-
-          return ret;
-        } 
-
+        const $this = this;
+        const $arguments = arguments;
 
         let endpoint = null;
         if (req && req.command) {
@@ -2128,10 +2574,13 @@ function injection_script_1() {
           let valid = false;
 
           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
-            if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+
+            if (endpoint.browseEndpoint && endpoint.browseEndpoint.browseId === "FEwhat_to_watch") {
+              valid = false;
+            } else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
               let meta = endpoint.commandMetadata.webCommandMetadata
-              if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+              if (meta && /*meta.apiUrl &&*/ meta.url && meta.webPageType) {
                 valid = true;
               }
 
@@ -2141,7 +2590,7 @@ function injection_script_1() {
           if (!valid) endpoint = null;
 
         }
-         
+
 
         if (endpoint) {
 
@@ -2154,8 +2603,8 @@ function injection_script_1() {
           if (pageType !== "watch") endpoint = null;
 
         }
- 
-        let btn; 
+
+        let btn = null;
         if (endpoint) {
 
           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
@@ -2163,113 +2612,159 @@ function injection_script_1() {
           if (!btn) endpoint = null;
 
         }
- 
-        if (!endpoint) return handleNavigate.apply(this, arguments);
-       
 
-        if (pageID > 800) pageID = (pageID % 800);
+        if (!endpoint) return handleNavigate.apply($this, $arguments);
 
-        let kid = pageID;
+        let ytdApp = document.querySelector('ytd-app');
 
-
-        let mArgs = [this, arguments];
-
-        function finalizer(a){
-          if(a!==null){
-            console.log('error', arguments)
-          }
-          if(isBusy){
-            isBusy = false;
-            mReq = null;
-            document.documentElement.classList.remove('tyt-no-display');
-          }
+        let object = null;
+        try {
+          object = ytdApp.data.response.currentVideoEndpoint.watchEndpoint || null;
+        } catch (e) {
+          object = null;
         }
 
-        async function step() {
+        if (typeof object !== 'object') object = null;
+        
+        const once= { once: true };
 
-          let evtYtPageTypeChanged = await new Promise(resolve => {
+        if (object !== null && !('playlistId' in object)) {
 
-            document.addEventListener('yt-page-type-changed', (evt) => {
+          let wObject = mWeakRef(object)
 
-              resolve(evt);
+          const N = 3;
 
-            }, { once: true });
+          let count = 0;
+
+          /*
+ 
+rcb(b) => a = playlistId = undefinded
+ 
+ var scb = function(a, b, c, d) {
+        a.isInitialized() && (B("kevlar_miniplayer_navigate_to_shorts_killswitch") ? c || d ? ("watch" !== Xu(b) && "shorts" !== Xu(b) && os(a.miniplayerEl, "yt-cache-miniplayer-page-action", [b]),
+        qs(a.miniplayerEl, "yt-deactivate-miniplayer-action")) : "watch" === Xu(b) && rcb(b) && (qt.getInstance().playlistWatchPageActivation = !0,
+        a.activateMiniplayer(b)) : c ? ("watch" !== Xu(b) && os(a.miniplayerEl, "yt-cache-miniplayer-page-action", [b]),
+        qs(a.miniplayerEl, "yt-deactivate-miniplayer-action")) : d ? qs(a.miniplayerEl, "yt-pause-miniplayer-action") : "watch" === Xu(b) && rcb(b) && (qt.getInstance().playlistWatchPageActivation = !0,
+        a.activateMiniplayer(b)))
+    };
+ 
+          */
+
+          Object.defineProperty((kRef(wObject) || {}), 'playlistId', {
+            get() {
+              count++;
+              if (count === N) {
+                delete this.playlistId;
+              }
+              return '*';
+            },
+            set(value) {
+              delete this.playlistId;
+              this.playlistId = value;
+            },
+            enumerable: false,
+            configurable: true
+          });
+
+          let playlistClearout = null;
+
+          let timeoutid = 0;
+          Promise.race([
+            new Promise(r => {
+              timeoutid = setTimeout(r, 4000)
+            }),
+            new Promise(r => {
+              playlistClearout = () => {
+                if (timeoutid > 0) {
+                  clearTimeout(timeoutid);
+                  timeoutid = 0;
+                }
+                r();
+              }
+              document.addEventListener('yt-page-type-changed', playlistClearout, once);
+            })
+          ]).then(() => {
+
+            if (timeoutid !== 0) {
+              playlistClearout && document.removeEventListener('yt-page-type-changed', playlistClearout, once);
+              timeoutid = 0;
+            }
+            count = N - 1;
+            let object = kRef(wObject)
+            wObject = null;
+            return object ? object.playlistId : null;
+          })
+
+        }
 
 
-            Promise.resolve(0).then(() => {
-              
-              isBusy = true;
-              mReq = req;
-              document.documentElement.classList.add('tyt-no-display')
+        let videoElm = document.querySelector('.tabview-normal-player #movie_player video[src]');
 
+        if (videoElm && isVideoPlaying(videoElm)) {
 
-              btn.click();
-            }).catch(finalizer);
+          let gid = null;
+          let phref = null;
 
-          }).catch(finalizer);
+          let kid = pageID;
 
+          let pmr = null;
+          let pm = new Promise(r => { pmr = r });
 
-          // mini player is set
-
-          if (!(pageID <= kid + 2)) return finalizer();
-
-          let evtYtPageDataFetched = await new Promise(resolve => {
-
-            document.addEventListener('yt-page-data-fetched', (evt) => {
-
-              resolve(evt);
-            }, { once: true })
-
-            // navigate url
-            handleNavigate.apply(mArgs[0], mArgs[1]);
-
-          }).catch(finalizer);
-
-
-          // new url page fetched
-          finalizer(null);
-
-          if (!(pageID <= kid + 4)) return;
-          let gid = pageID;
-          let phref = location.href;
-
-          function stopVideo() {
-            if (pageID !== gid) return ;
-
+          let loadStartFx = (evt) => {
+            if (pageID !== gid) return;
             if (location.href !== phref) return;
+            let video = (evt || 0).target;
+            if (((video || 0).nodeName || 0) === 'VIDEO') {
+              Promise.all([video, pm]).then((x) => {
+                x[0].pause();
+              })
+            }
+          }
 
-            for (const video of document.querySelectorAll('ytd-browse video')) {
-              video.pause();
+          document.addEventListener('loadstart', loadStartFx, true)
+
+          let videoStopClearout = null;
+
+          let timeoutid = 0;
+          Promise.race([
+            new Promise(r => {
+              timeoutid = setTimeout(r, 4000)
+            }),
+            new Promise(r => {
+              videoStopClearout = () => {
+                if (timeoutid > 0) {
+                  clearTimeout(timeoutid);
+                  timeoutid = 0;
+                }
+                r();
+              }
+              document.addEventListener('yt-navigate-finish', videoStopClearout, once);
+            })
+          ]).then(() => {
+
+            if (timeoutid !== 0) {
+              videoStopClearout && document.removeEventListener('yt-navigate-finish', videoStopClearout, once);
+              timeoutid = 0;
+              document.removeEventListener('loadstart', loadStartFx, true)
+            } else {
+              if (pageID - kid === 2 && (kid % 2) === 0) { } else { return; }
+              gid = pageID;
+              phref = location.href;
+              if (pmr) pmr();
+              setTimeout(() => {
+                document.removeEventListener('loadstart', loadStartFx, true)
+              }, 700);
             }
 
-          }
-
-          stopVideo();
-
-          setTimeout(() => {
-            stopVideo();
-          }, 100);
-
-          setTimeout(() => {
-            stopVideo();
-          }, 300);
-
-          setTimeout(() => {
-            stopVideo();
-          }, 700);
-
+          });
 
         }
-        step();
 
-        
+        handleNavigate.apply($this, $arguments);
 
-      };
+      }
 
     })(ytdApp.handleNavigate);
-
-
-
 
   })
 

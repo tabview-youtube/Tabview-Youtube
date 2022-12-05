@@ -671,11 +671,12 @@ body .ytp-autohide .ytp-unmute,
 
     /* Global */
 
+    /*
     .tyt-no-display ytd-browse.style-scope.ytd-page-manager,
     .tyt-no-display ytd-search.style-scope.ytd-page-manager,
     .tyt-no-display [role="main"].style-scope.ytd-page-manager{
         content-visibility: hidden;
-    }
+    }*/
 
 
     #columns.ytd-watch-flexy > yt-img-shadow,
