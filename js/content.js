@@ -1031,7 +1031,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               let rect = secondary.getBoundingClientRect();
               let rectI = secondaryInner.getBoundingClientRect();
 
-              secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+              secondaryInner.style.setProperty('--tabview-slider-right', `${ getSecondaryInnerRight() }px`)
 
             }
             
@@ -1061,6 +1061,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
         
         // no animation event triggered for hover -> enable
+        rePosColumns();
         dispatchCommentRowResize();
 
       }
@@ -1084,7 +1085,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         secondary.setAttribute(attrName, '');
 
-        let elmA = document.createElement('tabview-column-pos')
+        let elmA;
+
+        if (elmA = document.querySelector('tabview-column-pos')) elmA.remove();
+        elmA = document.createElement('tabview-column-pos')
         let itoA = new IntersectionObserver((entries) => {
           let t = null;
           let w = enableHoverSliderDetection
@@ -1092,9 +1096,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (entry.rootBounds === null) continue;
             t = !entry.isIntersecting; // if entries.length>1 (unlikely); take the last intersecting
           }
+
+          
+          let columns = document.querySelector('#columns.style-scope.ytd-watch-flexy');
+          if (columns) columns.classList.toggle('tyt-column-overflow', t);
+
           if (w !== t && t !== null) {
             // t can be true when the layout enters single column mode
             enableHoverSliderDetection = t;
+
+
           }
           //console.log(entries, enableHoverSliderDetection, t)
         })
@@ -1184,6 +1195,46 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function getColumnOverflowWidth(){
+    
+    let screenWidth = document.documentElement.getBoundingClientRect().width;
+
+    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+
+    if (posElm1) {
+
+      let offset = posElm1.getBoundingClientRect().x - screenWidth;
+      return offset
+
+    }
+    return null
+  }
+
+  function getSecondaryInnerRight(){
+
+    
+    if (!document.querySelector('tabview-secondary-empty-view')) {
+      prependTo(document.createElement('tabview-secondary-empty-view'), document.querySelector('#secondary'))
+    } 
+    
+    let screenWidth = document.documentElement.getBoundingClientRect().width;
+
+    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+
+    let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view');
+
+    if (posElm2) {
+
+      let offset =  posElm1.getBoundingClientRect().x - posElm2.getBoundingClientRect().right;
+      return offset
+
+    }
+    return null
+
+    
+
+  }
+
   async function updateFloatingSlider_A(secondaryInner) {
 
     // [is-extra-wide-video_]
@@ -1232,20 +1283,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const setOffset = () => {
 
-      let offset = rectC.width - screenWidth;
+      let posElm = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+      if(posElm){
 
-      let k = 1.0
-      if (offset >= 125) {
-        k = 1.0
-      } else if (offset >= 75) {
-        k = 1.0;
-      } else if (offset >= 25) {
-        k = 0.25;
-      } else {
-        k = 0.0
+        let offset = getColumnOverflowWidth();
+
+        let k = 1.0
+        if (offset >= 125) {
+          k = 1.0
+        } else if (offset >= 75) {
+          k = 1.0;
+        } else if (offset >= 25) {
+          k = 0.25;
+        } else {
+          k = 0.0
+        }
+        secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
+        secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
       }
-      secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
-      secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
 
     }
 
@@ -1262,7 +1317,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     } else {
 
       if (!previousHasClass) { //secondary.classList.contains('tabview-hover-slider');
-        secondaryInner.style.setProperty('--tabview-slider-right', `${rect.right - rectI.right}px`)
+        secondaryInner.style.setProperty('--tabview-slider-right', `${ getSecondaryInnerRight() }px`)
       }
 
       setOffset();
@@ -1271,6 +1326,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (bool && previousHasClass) { }
     else if (!bool && !previousHasClass) { }
     else {
+      /*
+      let emptyView = secondary.querySelector('tabview-hover-slider-empty-view')
+      if(!emptyView){
+        emptyView = document.createElement('tabview-hover-slider-empty-view')
+        secondary.appendChild(emptyView);
+      }
+      emptyView.style.setProperty('--tyt-slider-width', `${rectI.width}px`);*/
+
       secondary.classList.toggle('tabview-hover-slider', bool)
       secondary.classList.toggle('tabview-hover-slider-hover', bool)
     }
@@ -4259,11 +4322,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         mtf_fix_details().then(() => {
           // setKeywords();
           setToggleInfo();
-          setTimeout(() => {
-            //dispatchWindowResize(); //try to omit
-            dispatchWindowResize(); //add once for safe
-            manualResize(true);
-          }, 420)
+          renderDeferred.debounce(()=>{
+            setTimeout(() => {
+              //dispatchWindowResize(); //try to omit
+              rePosColumns();
+              dispatchWindowResize(); //add once for safe
+              manualResize(true);
+            }, 420)
+          })
 
 
           let secondary = document.querySelector('#columns #secondary.ytd-watch-flexy');
@@ -6692,6 +6758,52 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
   //let lastResizeAt = 0;  
   let resizeCount = 0;
+
+  function rePosColumns(){
+
+    try{
+
+      if (!document.querySelector('tabview-secondary-empty-view')) {
+        prependTo(document.createElement('tabview-secondary-empty-view'), document.querySelector('#secondary'))
+      } 
+
+
+    }catch(e){}
+
+
+
+    /*
+
+    try{
+
+
+      let columnWidth = document.querySelector('#columns.ytd-watch-flexy').clientWidth;
+      let docWidth = document.documentElement.clientWidth;
+      
+
+      if(columnWidth>docWidth){
+        document.querySelector('#columns.ytd-watch-flexy').style.marginLeft=`${columnWidth-docWidth}px`;
+      }
+
+    let columnLeft = document.querySelector('#columns.ytd-watch-flexy').getBoundingClientRect().left
+    let primaryLeft = document.querySelector('#columns.ytd-watch-flexy > #primary.ytd-watch-flexy').getBoundingClientRect().left
+
+    let columnML = +(getComputedStyle(document.querySelector('#columns.ytd-watch-flexy')).marginLeft||'').replace('px','')
+    
+    if(columnML-10000<0){
+
+      document.querySelector('#columns.ytd-watch-flexy').style.marginLeft=`${((-primaryLeft) + columnLeft)}px`;
+
+    }
+
+    }catch(e){
+
+    }
+
+    */
+    
+
+  }
   window.addEventListener('resize', function (evt) {
 
     if (evt.isTrusted === true) { 
@@ -6702,6 +6814,8 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         setTimeout(() => {
           // avoid duplicate calling during resizing
           if (tcw !== resizeCount) return;
+          
+          rePosColumns();
           resizeCount = 0;
           manualResize(true);
           dispatchCommentRowResize();
