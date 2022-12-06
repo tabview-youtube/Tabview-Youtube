@@ -1310,12 +1310,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
         secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
 
+        let oriWidth = posElm2.getBoundingClientRect().width;
+
+        secondaryInner.style.setProperty('--tabview-slider-ow', `${oriWidth}px`)
 
         
         let s1 = 'var(--ytd-watch-flexy-sidebar-width-d)';
         // new width 
 
-        let s2 = `${posElm2.getBoundingClientRect().width}px`;
+        let s2 = `var(--tabview-slider-ow)`;
         // ori width - youtube changing the code -> not reliable to use css prop.
 
         let s3 = `${offset}px`;

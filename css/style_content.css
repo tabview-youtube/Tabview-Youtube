@@ -745,11 +745,13 @@ body .ytp-autohide .ytp-unmute,
         */
 
         
+        /*
+        // this is to anit css rule of the new layout css
         body ytd-watch-flexy[flexy] #secondary.ytd-watch-flexy {
             width: var(--ytd-watch-flexy-sidebar-width) !important;
             min-width: var(--ytd-watch-flexy-sidebar-min-width) !important;
         }
-        
+        */
 
         body ytd-live-chat-frame, 
         div#secondary .tab-content-cld div#related, 
@@ -757,6 +759,12 @@ body .ytp-autohide .ytp-unmute,
         div#secondary .tab-content-cld div#donation-shelf, 
         div#secondary .tab-content-cld #playlist  {
             width: unset;
+        }
+
+        
+        ytd-watch-flexy[flexy] #secondary.ytd-watch-flexy,
+        ytd-watch-flexy[flexy] #secondary-inner.ytd-watch-flexy{
+            max-width: 100%;
         }
 
         /*
@@ -3947,7 +3955,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
             --tabview-slider-offset-k2: 1.0;
 
-            --tabview-slider-offset-p: calc(var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width) - var(--ytd-watch-flexy-sidebar-min-width)));
+
+            /*
+            k = 0 -> --tabview-slider-ow
+            k = 1 -> --ytd-watch-flexy-sidebar-width
+            */
+
+            --tabview-slider-offset-p: calc(var(--tabview-slider-ow) + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width) - var(--tabview-slider-ow)));
 
             --ytd-watch-flexy-sidebar-width-d: var(--tabview-slider-offset-p);
 
@@ -4007,9 +4021,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transition: initial;
 
             transition-delay: initial;
-
+/*
             max-width: var(--ytd-watch-flexy-sidebar-width-d);
-
+*/
 
         }
 
