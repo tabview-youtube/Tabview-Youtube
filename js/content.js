@@ -1085,10 +1085,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         secondary.setAttribute(attrName, '');
 
+
+        let elmB = document.querySelector('tabview-secondary-empty-view')
+        if (!elmB) {
+          elmB = document.createElement('tabview-secondary-empty-view');
+          prependTo(elmB, document.querySelector('#secondary'))
+        } 
+
         let elmA;
 
         if (elmA = document.querySelector('tabview-column-pos')) elmA.remove();
-        elmA = document.createElement('tabview-column-pos')
+        elmA = document.createElement('tabview-column-pos');
+
+            
+
         let itoA = new IntersectionObserver((entries) => {
           let t = null;
           let w = enableHoverSliderDetection
@@ -1213,12 +1223,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function getSecondaryInnerRight(){
 
     
-    if (!document.querySelector('tabview-secondary-empty-view')) {
-      prependTo(document.createElement('tabview-secondary-empty-view'), document.querySelector('#secondary'))
-    } 
-    
-    let screenWidth = document.documentElement.getBoundingClientRect().width;
-
+     
     let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
 
     let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view');
@@ -1283,8 +1288,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const setOffset = () => {
 
-      let posElm = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
-      if(posElm){
+
+      let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+
+      let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view');
+  
+      if(posElm1 && posElm2){
 
         let offset = getColumnOverflowWidth();
 
@@ -1300,6 +1309,50 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
         secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
         secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
+
+
+        
+        let s1 = 'var(--ytd-watch-flexy-sidebar-width-d)';
+        // new width 
+
+        let s2 = `${posElm2.getBoundingClientRect().width}px`;
+        // ori width - youtube changing the code -> not reliable to use css prop.
+
+        let s3 = `${offset}px`;
+        // how many px wider than the page
+ 
+
+        secondaryInner.style.setProperty('--tabview-slider-offset-actual', `calc(${s1} - ${s2} + ${s3})`)
+        
+          /*
+
+          (
+          posElm1.getBoundingClientRect().left
+
+          + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width))
+
+          )
+
+          -
+
+          (
+
+
+            
+   document.documentElement.getBoundingClientRect().width
+
+   -
+
+   (posElm1.getBoundingClientRect().x - posElm2.getBoundingClientRect().right)
+            
+
+          )
+
+          */
+
+
+        
+        
       }
 
     }
@@ -6760,16 +6813,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   let resizeCount = 0;
 
   function rePosColumns(){
-
-    try{
-
-      if (!document.querySelector('tabview-secondary-empty-view')) {
-        prependTo(document.createElement('tabview-secondary-empty-view'), document.querySelector('#secondary'))
-      } 
-
-
-    }catch(e){}
-
+ 
 
 
     /*

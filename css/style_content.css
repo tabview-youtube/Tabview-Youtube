@@ -733,7 +733,8 @@ body .ytp-autohide .ytp-unmute,
             pointer-events: none !important;
             user-select: none !important;
             background: none !important;
-            touch-action: none !important;
+            touch-action: none!important;
+            max-width: 100%;
 
         }
 
@@ -743,6 +744,21 @@ body .ytp-autohide .ytp-unmute,
         }
         */
 
+        
+        body ytd-watch-flexy[flexy] #secondary.ytd-watch-flexy {
+            width: var(--ytd-watch-flexy-sidebar-width) !important;
+            min-width: var(--ytd-watch-flexy-sidebar-min-width) !important;
+        }
+        
+
+        body ytd-live-chat-frame, 
+        div#secondary .tab-content-cld div#related, 
+        div#secondary .tab-content-cld div#panels, 
+        div#secondary .tab-content-cld div#donation-shelf, 
+        div#secondary .tab-content-cld #playlist  {
+            width: unset;
+        }
+
         /*
         body ytd-live-chat-frame,
         body div#secondary.style-scope.ytd-watch-flexy .tab-content-cld div#related, 
@@ -751,6 +767,7 @@ body .ytp-autohide .ytp-unmute,
         body div#secondary.style-scope.ytd-watch-flexy .tab-content-cld #playlist {
             width: auto;
          }*/
+         
 
     }
 
@@ -3932,13 +3949,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
             --tabview-slider-offset-p: calc(var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width) - var(--ytd-watch-flexy-sidebar-min-width)));
 
-
             --ytd-watch-flexy-sidebar-width-d: var(--tabview-slider-offset-p);
 
+/*
             --tabview-slider-offset-actual-old: calc(var(--ytd-watch-flexy-sidebar-width-d) - var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset));
 
             --tabview-slider-offset-actual: calc( var(--tabview-slider-offset));
-
+*/
 
 
             --tabview-hover-slider-x1: 0px;
@@ -3990,6 +4007,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transition: initial;
 
             transition-delay: initial;
+
+            max-width: var(--ytd-watch-flexy-sidebar-width-d);
 
 
         }
