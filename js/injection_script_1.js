@@ -1,12 +1,13 @@
 "use strict";
 
 function injection_script_1() {
-  
-  if(!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
+  "use strict";
 
-  if(document.documentElement.hasAttribute('tabview-unwrapjs'))return;
-  document.documentElement.setAttribute('tabview-unwrapjs','')
-  
+  if (!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
+
+  if (document.documentElement.hasAttribute('tabview-unwrapjs')) return;
+  document.documentElement.setAttribute('tabview-unwrapjs', '')
+
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
@@ -19,33 +20,34 @@ function injection_script_1() {
 
   // /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
-  
 
-  
+
+
   const DEBUG_e32 = false;
 
   let calledOnce = false;
-  let ptcBusy= false;
+  let ptcBusy = false;
   let _ceHack_calledOnce = false;
   let cid_teaserInfo = 0;
   let isPageRendered = false;
+  let isLoadStartListened = false;
 
 
   DEBUG_e32 && console.log(9442, 103);
 
 
   // let lvoSymbol = Symbol();
-  document.addEventListener('tabview-chatroom-ready',function(evt){
+  document.addEventListener('tabview-chatroom-ready', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
 
     /** @type {HTMLIFrameElement} */
     let iframe = evt.target;
-    if(!iframe || iframe.nodeType!==1 || !iframe.matches('ytd-live-chat-frame #chatframe')) return;
+    if (!iframe || iframe.nodeType !== 1 || !iframe.matches('ytd-live-chat-frame #chatframe')) return;
 
-  },true)
+  }, true)
 
-  document.addEventListener('userscript-call-dom',function(evt){
+  document.addEventListener('userscript-call-dom', function (evt) {
     //console.log(1233)
     DEBUG_e32 && console.log(9442, evt.type);
 
@@ -54,41 +56,41 @@ function injection_script_1() {
 
     let detail = evt.detail;
     //console.log(detail)
-    if(!detail || !detail.length) return;
+    if (!detail || !detail.length) return;
 
-    for(const obj of detail){
+    for (const obj of detail) {
 
-      const {method, property, args, value} = obj
-      if(method && typeof method=='string'){
-        const f=dom[method];
-        if(!f) console.log('This method is not supported');
-        else if(args&&args.length>=1){
-          try{
-            f.apply(dom,args)
-            
-          }catch(e){
+      const { method, property, args, value } = obj
+      if (method && typeof method == 'string') {
+        const f = dom[method];
+        if (!f) console.log('This method is not supported');
+        else if (args && args.length >= 1) {
+          try {
+            f.apply(dom, args)
+
+          } catch (e) {
             console.log(`Dom Method Failed: ${method}`)
           }
-        }else {
-          try{
+        } else {
+          try {
             f.call(dom)
-            
-          }catch(e){
+
+          } catch (e) {
             console.log(`Dom Method Failed: ${method}`)
           }
         }
-      }else if(property && typeof property=='string'){
-        if(!(property in dom)) console.log('This propert is not supported')
-        else if (value===undefined) console.log('undefined value is not supported')
+      } else if (property && typeof property == 'string') {
+        if (!(property in dom)) console.log('This propert is not supported')
+        else if (value === undefined) console.log('undefined value is not supported')
         else {
-          
-          try{
-            dom[property]=value;
-            
-          }catch(e){
+
+          try {
+            dom[property] = value;
+
+          } catch (e) {
             console.log(`Dom Property Failed: ${property}`)
           }
-        } 
+        }
       }
 
     }
@@ -281,7 +283,7 @@ function injection_script_1() {
       }
 
 
-      
+
 
 
       //return translateV2(initialSegments);
@@ -342,7 +344,7 @@ function injection_script_1() {
           //mapRej.add(initialSegment)
           continue;
         }
-        if(endMs - startMs < 30){
+        if (endMs - startMs < 30) {
           continue;
         }
 
@@ -451,9 +453,9 @@ function injection_script_1() {
       const sj_length = initialSegments.length;
 
 
-      Promise.resolve(0).then(()=>{
+      Promise.resolve(0).then(() => {
         cacheTexts.clear();
-        cacheTexts=null;
+        cacheTexts = null;
         mh1.clear();
         mh1 = null;
       });
@@ -526,7 +528,7 @@ function injection_script_1() {
               
             }*/
             let xv = tMap.get(mt) || 0;
-            if(endMs>=startMs){
+            if (endMs >= startMs) {
               xv += 1 + (endMs - startMs);
             }
             tMap.set(mt, xv);
@@ -551,7 +553,7 @@ function injection_script_1() {
         //     /--*
         //     e1/e2 = d1/d2 && k1+k2 = segmentGap;
         //     (end1+k1 - start1 ) / (end2-start2+k2) = (end1 - start1 ) / (end2-start2) && k1+k2== segmentgap
-            
+
         //     (end1+k1 - start1 ) * (end2-start2) = (end1 - start1 ) * (end2-start2+k2)
 
         //     (end1 - start1 ) * (end2-start2) + k1 * (end2-start2) = (end1 - start1 ) * (end2-start2)+(end1 - start1 ) * k2
@@ -590,7 +592,7 @@ function injection_script_1() {
 
         // }
 
-       
+
 
 
 
@@ -671,7 +673,7 @@ function injection_script_1() {
 
   }
 
-  
+
 
   //const round = x => x + 0.5 << 0
   function getInsObserver() {
@@ -723,7 +725,7 @@ function injection_script_1() {
             if (entry.target.style.getPropertyValue("--tabview-cmt-height") !== m) {
               entry.target.style.setProperty("--tabview-cmt-height", m)
             }
-            
+
             entry.target.classList.remove('tyt-visible-comment')
 
           } else {
@@ -841,8 +843,8 @@ function injection_script_1() {
 
   }
 
-  
-  function getMutObserverChipCloud(){
+
+  function getMutObserverChipCloud() {
 
 
     let mutObserver = null;
@@ -851,55 +853,55 @@ function injection_script_1() {
       let wm = new WeakMap();
 
 
-      async function callReset(target,value){
+      async function callReset(target, value) {
 
-        if(wm.get(target)!==value){
+        if (wm.get(target) !== value) {
           wm.set(target, value)
           target.reset();
         }
-        setTimeout(()=>{
-          if(target.atStart===true) target.reset();
-        },160)
+        setTimeout(() => {
+          if (target.atStart === true) target.reset();
+        }, 160)
 
       }
 
       let t = 0;
       let cid_mset = 0;
-      function mSet(target){
+      function mSet(target) {
 
 
-        let c= Date.now();
-        t=c;
-        if(cid_mset) clearTimeout(cid_mset);
-        cid_mset=setTimeout(()=>{
+        let c = Date.now();
+        t = c;
+        if (cid_mset) clearTimeout(cid_mset);
+        cid_mset = setTimeout(() => {
 
-          if(t!==c)return;
-          
+          if (t !== c) return;
+
           let chips = querySelectorFromAnchor.call(target, 'iron-selector#chips');
 
-          if(!chips) return;
+          if (!chips) return;
 
           callReset(target, chips.offsetWidth)
 
-        },160)
+        }, 160)
 
       }
 
 
       mutObserver = new MutationObserver(function (mutationList, observer) {
-        
+
         for (const mutation of mutationList) {
 
-            let target = mutation.target;
-            target = closestFromAnchor.call(target,'yt-chip-cloud-renderer')
+          let target = mutation.target;
+          target = closestFromAnchor.call(target, 'yt-chip-cloud-renderer')
 
-            if(target&&target.reset){
+          if (target && target.reset) {
 
-              mSet(target)
+            mSet(target)
 
 
-            }
-            
+          }
+
         }
       })
 
@@ -925,8 +927,8 @@ function injection_script_1() {
 
   function onPageFetched(evt) {
 
-    
-    
+
+
     //console.log(evt.type, pageID)
 
     pageType = ((evt.detail || 0).pageData || 0).page;
@@ -936,10 +938,10 @@ function injection_script_1() {
 
   function onPageFinished(evt) {
 
-    
+
     //console.log(evt.type, pageID)
 
-    if((pageID%2) ===1){
+    if ((pageID % 2) === 1) {
       pageID++;
 
       translateHanlder = null;  // release the memory used for previous page
@@ -947,9 +949,9 @@ function injection_script_1() {
         translateHanlder = getTranslate(); // release the memory used for previous page
       })
 
-    } 
-    
- 
+    }
+
+
 
 
   }
@@ -959,14 +961,14 @@ function injection_script_1() {
 
     //console.log(evt.type, pageID)
 
-    if((pageID %2) ===0){
+    if ((pageID % 2) === 0) {
 
       isPageRendered = false;
       pageID++;
       if (resetChatroomFlags) resetChatroomFlags();
 
-    } 
-    
+    }
+
   }
 
 
@@ -991,63 +993,63 @@ function injection_script_1() {
   document.addEventListener('yt-navigate-finish', onPageFinished)
 
 
-  function getFunc_postToContentWindow(){
+  function getFunc_postToContentWindow() {
     DEBUG_e32 && console.log(9442, '-postToContent');
     let refreshAt = 0;
-    let rfaId=0;
-    const tf_gtcw2=function(x){
-      if(rfaId > 0){
+    let rfaId = 0;
+    const tf_gtcw2 = function (x) {
+      if (rfaId > 0) {
         rfaId = 0;
-        refreshAt = Date.now()+460;
+        refreshAt = Date.now() + 460;
       }
     };
 
     let _lastPT = 0;
     let activeFlag = 0;
-    
-    resetChatroomFlags = ()=>{
+
+    resetChatroomFlags = () => {
       activeFlag = 0;
       _lastPT = 0;
     };
 
     let cnpCID = 0;
-    document.addEventListener('tabview-chatroom-newpage', function(evt){
+    document.addEventListener('tabview-chatroom-newpage', function (evt) {
 
-      if(cnpCID) clearTimeout(cnpCID);
-      cnpCID=0;
+      if (cnpCID) clearTimeout(cnpCID);
+      cnpCID = 0;
 
       //console.log(12399,2)
-      let nodeName =(( evt||0).target||0).nodeName
-      if(nodeName!=='YTD-LIVE-CHAT-FRAME') return;
-      
+      let nodeName = ((evt || 0).target || 0).nodeName
+      if (nodeName !== 'YTD-LIVE-CHAT-FRAME') return;
+
       //console.log(12399,3)
-      let chat = evt.target 
+      let chat = evt.target
       let iframe = chat.querySelector('iframe#chatframe[src]')
-      if(!iframe) return;
-      
+      if (!iframe) return;
+
 
       //let cc=3;
-      cnpCID = setTimeout(function(){
+      cnpCID = setTimeout(function () {
 
-        cnpCID=0;
+        cnpCID = 0;
 
 
         //console.log(12399,4)
         let cDoc = iframe.contentDocument
-        if(!cDoc) return;
-        
+        if (!cDoc) return;
+
         //console.log(12399,5, chat.isFrameReady , chat.isListeningForPlayerProgress, cDoc.querySelector('body:empty'))
-        
-        if(chat.isFrameReady && chat.isListeningForPlayerProgress && cDoc.querySelector('body:empty')){
+
+        if (chat.isFrameReady && chat.isListeningForPlayerProgress && cDoc.querySelector('body:empty')) {
           chat.urlChanged();
 
-        } 
-  
+        }
+
         //console.log(12399,6)
 
-      },46); // delay in case empty body cannot be detected
+      }, 46); // delay in case empty body cannot be detected
 
-      
+
 
 
     }, true);
@@ -1061,7 +1063,7 @@ function injection_script_1() {
       let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
       let pt = arguments[0]['yt-player-video-progress'];
 
-      if (boolz && pt>=0) {
+      if (boolz && pt >= 0) {
 
         if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
         // reduce memory usage; avoid tab killing
@@ -1075,60 +1077,60 @@ function injection_script_1() {
         _lastPT = pt;
         isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
 
-        DEBUG_e32 && console.log(573,2, pt, lastPT)
+        DEBUG_e32 && console.log(573, 2, pt, lastPT)
 
 
         if (isRefreshRequired) {
-          
-          if(!isFirstBatchMsgDispatched) return;
+
+          if (!isFirstBatchMsgDispatched) return;
           // isFirstBatchMsgDispatched can be true when the page is not loaded
           isFirstBatchMsgDispatched = false;
 
-          Promise.resolve(0).then(()=>{
+          Promise.resolve(0).then(() => {
             //avoid long scripting within a single call of g_postToContentWindow()
 
 
             let pageLoaded = false;
 
-            try{
-              if( this.querySelector('iframe').contentDocument.querySelector('yt-live-chat-renderer #continuations')){
+            try {
+              if (this.querySelector('iframe').contentDocument.querySelector('yt-live-chat-renderer #continuations')) {
                 // isFirstBatchMsgDispatched was wrongly set as true
-                pageLoaded=true; 
+                pageLoaded = true;
               }
-            }catch(e){}
-            
-            
-            if(!pageLoaded) return;
-  
+            } catch (e) { }
+
+
+            if (!pageLoaded) return;
+
             //console.log(9371,2)
             let taf = Date.now();
             activeFlag = taf;
             ptcBusy = true;
-  
-  
+
+
             setTimeout(() => {
               if (taf !== activeFlag) return;
-  
+
               // this.urlChanged()
               // this.detached();
               // this.attached();
-   
-                
-  
-                this.currentPageUrl = "";//  necessary
-                this.isListeningForPlayerProgress = false;
-                this.setPlayer(null);
-                this.isFrameReady = false;
-                this.currentPageUrl = window.location.href;
-                this.setupPlayerProgressRelay();
-  
-                setTimeout(()=>{
-                  activeFlag = 0;
-                  ptcBusy = false;
-                  
-                }, 230) // time delay for iframe reloading
-              
-  
+
+
+
+              this.currentPageUrl = "";//  necessary
+              this.isListeningForPlayerProgress = false;
+              this.setPlayer(null);
+              this.isFrameReady = false;
+              this.currentPageUrl = window.location.href;
+              this.setupPlayerProgressRelay();
+
+              setTimeout(() => {
+                activeFlag = 0;
+                ptcBusy = false;
+
+              }, 230) // time delay for iframe reloading
+
+
             }, 460); //just some delay - allow user operation
 
 
@@ -1145,30 +1147,30 @@ function injection_script_1() {
         if (rfaId > 0 && Date.now() > refreshAt) {
           //console.log(1723,1)
           $cancelAnimationFrame(rfaId); //rfaId is still >0
-          tf_gtcw2(); 
+          tf_gtcw2();
         } else if (rfaId === 0) {
           //console.log(1723,2)
           rfaId = $requestAnimationFrame(tf_gtcw2);
-        }else{
+        } else {
           exec = false;
 
         }
 
-        if(exec){
-          isFirstBatchMsgDispatched=true; // first batch of messages are dispatched
+        if (exec) {
+          isFirstBatchMsgDispatched = true; // first batch of messages are dispatched
           let ret = this.__$$postToContentWindow$$__(...arguments)
-          DEBUG_e32 && console.log(573,6, ret)
+          DEBUG_e32 && console.log(573, 6, ret)
         }
 
         ptcBusy = false;
 
 
       } else {
-        
+
         //{'yt-player-state-change': 3}
         //{'yt-player-state-change': 2}
         //{'yt-player-state-change': 1}
-        DEBUG_e32 && console.log(573,25, this.isListeningForPlayerProgress , this.isFrameReady, arguments)
+        DEBUG_e32 && console.log(573, 25, this.isListeningForPlayerProgress, this.isFrameReady, arguments)
         //isFrameReady is false if iframe is not shown
         this.__$$postToContentWindow$$__(...arguments)
       }
@@ -1177,14 +1179,14 @@ function injection_script_1() {
   }
 
   let translateHanlder = null;
-  
-  function ceHack(evt){
 
-    if(_ceHack_calledOnce) return;
+  function ceHack(evt) {
+
+    if (_ceHack_calledOnce) return;
     _ceHack_calledOnce = true;
     console.log('ce-hack')
 
-    if(typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
+    if (typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
     // note: YouTube implements its on window.customElements when it detects the browser is old.
 
     let s1 = Symbol();
@@ -1238,7 +1240,7 @@ function injection_script_1() {
             nv[s6] = true;
             //console.log(955, 'translate')
             //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
-            if(translateHanlder !== null){
+            if (translateHanlder !== null) {
               nv.initialSegments = translateHanlder(nv.initialSegments)
             }
             //console.log(344,nv, nv.initialSegments.length)
@@ -1256,22 +1258,22 @@ function injection_script_1() {
 
     let trial55 = 20;
 
-    let cid55 = setInterval(()=>{
+    let cid55 = setInterval(() => {
       let frameCE_prototype = customElements.get('ytd-live-chat-frame').prototype;
       //p&&(p.configurable=!0,Object.defineProperty(a,m,p))}}
 
-      if(frameCE_prototype && !frameCE_prototype.__$$postToContentWindow$$__ && typeof frameCE_prototype.postToContentWindow == 'function'){
+      if (frameCE_prototype && !frameCE_prototype.__$$postToContentWindow$$__ && typeof frameCE_prototype.postToContentWindow == 'function') {
         const g_postToContentWindow = getFunc_postToContentWindow();
         frameCE_prototype.__$$postToContentWindow$$__ = frameCE_prototype.postToContentWindow
         frameCE_prototype.postToContentWindow = g_postToContentWindow
         clearInterval(cid55)
-        cid55=0;
+        cid55 = 0;
       }
-      if(--trial55===0 && cid55>0){
+      if (--trial55 === 0 && cid55 > 0) {
         clearInterval(cid55);
-        cid55=0;
+        cid55 = 0;
       }
-    },150)
+    }, 150)
 
 
 
@@ -1285,8 +1287,8 @@ function injection_script_1() {
       },
       set(nv) {
         if (insObserverChipCloud) insObserverChipCloud.observe(this);
-        if (mutObserverChipCloud) mutObserverChipCloud.observe(this,{
-          attributes: false, childList: true, subtree: true 
+        if (mutObserverChipCloud) mutObserverChipCloud.observe(this, {
+          attributes: false, childList: true, subtree: true
         });
         this[s32] = nv;
       },
@@ -1295,12 +1297,12 @@ function injection_script_1() {
     });
 
 
-    document.addEventListener('tabview-fix-popup-refit',function(){
+    document.addEventListener('tabview-fix-popup-refit', function () {
 
       const P = customElements.get('tp-yt-iron-dropdown').prototype;
-      if(!P) return;
+      if (!P) return;
 
-      if(P.__refit)return;
+      if (P.__refit) return;
       let _refit = P.refit;
       let refitFunc = function () {
         if (this.horizontalAlign || this.verticalAlign) {
@@ -1315,7 +1317,7 @@ function injection_script_1() {
             }
           }
         }
-        if(this.__refit) return this.__refit();
+        if (this.__refit) return this.__refit();
       };
       if (_refit) {
 
@@ -1328,7 +1330,7 @@ function injection_script_1() {
 
       }
 
-    },false)
+    }, false)
 
     // ((P) => {
 
@@ -1359,9 +1361,9 @@ function injection_script_1() {
     //     P.refit = refitFunc;
 
     //   }else{
-        
+
     //     //let s65 = Symbol();
-        
+
     //     console.log(12356)
 
     //     Object.defineProperty(P, 'refit', {
@@ -1544,13 +1546,13 @@ function injection_script_1() {
 
   }
 
-  function textsMatch(runs1,runs2){
+  function textsMatch(runs1, runs2) {
 
-    let i=runs1.length-runs2.length;
-    if(i<0) return false;
-    let j=0;
-    while(i<runs1.length && j<runs2.length){
-      if(runs1[i].text!==runs2[j].text)return false;
+    let i = runs1.length - runs2.length;
+    if (i < 0) return false;
+    let j = 0;
+    while (i < runs1.length && j < runs2.length) {
+      if (runs1[i].text !== runs2[j].text) return false;
       i++;
       j++;
     }
@@ -1559,12 +1561,12 @@ function injection_script_1() {
   }
 
 
-  function teaserInfoMatchCondition (lineExpander){
+  function teaserInfoMatchCondition(lineExpander) {
 
-    if(!lineExpander) return null;
+    if (!lineExpander) return null;
     let watch_metadata = lineExpander.__dataHost;
-    if(!watch_metadata || watch_metadata === lineExpander) return null;
-    if(!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer ) return null;
+    if (!watch_metadata || watch_metadata === lineExpander) return null;
+    if (!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer) return null;
 
 
 
@@ -1572,7 +1574,7 @@ function injection_script_1() {
     let detail = watch_metadata.__data.videoSecondaryInfoRenderer.description.runs
     let content = lineExpander.text.runs
 
-    return [ watch_metadata, full, detail, content]
+    return [watch_metadata, full, detail, content]
 
 
   }
@@ -1582,17 +1584,17 @@ function injection_script_1() {
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
   }
 
-  
+
   document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
-  
+
     function getEPC(ep) {
 
       if (!ep) return null;
-      let epc = querySelectorFromAnchor.call(ep,'#content');
+      let epc = querySelectorFromAnchor.call(ep, '#content');
       if (!epc) return null;
 
-      let epc1 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer #content')
-      let epc2 = querySelectorFromAnchor.call(epc,'ytd-ads-engagement-panel-content-renderer')
+      let epc1 = querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer #content')
+      let epc2 = querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer')
 
       return epc1 || epc2 || epc;
 
@@ -1604,10 +1606,10 @@ function injection_script_1() {
 
     // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
 
-    function createPanel(){
+    function createPanel() {
 
       const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
-      if(!ytdFlexyElm) return null;
+      if (!ytdFlexyElm) return null;
 
 
       /** @type {HTMLElement} */
@@ -1654,7 +1656,7 @@ function injection_script_1() {
         },
         "content": {
           "adsEngagementPanelContentRenderer": {
-          //"engagementPanelGeniusTranscriptRenderer":{
+            //"engagementPanelGeniusTranscriptRenderer":{
 
           }
         },
@@ -1664,9 +1666,9 @@ function injection_script_1() {
         }
       }
 
-      newPanel.classList.add('style-scope','ytd-watch-flexy')
+      newPanel.classList.add('style-scope', 'ytd-watch-flexy')
 
-      querySelectorFromAnchor.call(ytdFlexyElm,'#panels').appendChild(newPanel)
+      querySelectorFromAnchor.call(ytdFlexyElm, '#panels').appendChild(newPanel)
 
       return newPanel;
 
@@ -1680,7 +1682,7 @@ function injection_script_1() {
       const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
       if (!ytdFlexyElm) return setTimeout($f, 100);
 
-      
+
 
       function closeBtn() {
         return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
@@ -1693,30 +1695,30 @@ function injection_script_1() {
         let panel = mutations[0].target;
         if (!panel) return;
         if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
-          setTimeout(function(){
+          setTimeout(function () {
 
             let hideBtn = closeBtn();
             if (hideBtn) hideBtn.dispatchEvent(new Event("click"));
-          },30);
+          }, 30);
           //panel.querySelector('#lyricsiframe').remove();
         }
 
       })
 
       const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
-      
+
       let isLoading = false
 
       let tf = null;
-      const closeClick = function(){
+      const closeClick = function () {
         let panel = document.querySelector(panel_cssSelector)
-        if ( panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
+        if (panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
           panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
         }
       }
-      setInterval(tf=()=>{
+      setInterval(tf = () => {
 
-        if(!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')){
+        if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
           let newPanel = createPanel();
           visObserver.takeRecords();
           visObserver.disconnect();
@@ -1727,17 +1729,17 @@ function injection_script_1() {
           })
         }
 
-        
+
         let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
 
-        if(isLoading!==isLoading_current){
+        if (isLoading !== isLoading_current) {
           isLoading = isLoading_current;
-          
+
           let panel = document.querySelector(panel_cssSelector)
-          if(panel){
+          if (panel) {
             panel.classList.toggle('epanel-lyrics-loading', isLoading);
           }
-        
+
         }
 
 
@@ -1746,10 +1748,10 @@ function injection_script_1() {
         if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
 
           let panel = document.querySelector(panel_cssSelector)
-          if(panel) {
-              
+          if (panel) {
+
             let epc = getEPC(panel);
-            if(epc) {
+            if (epc) {
 
               epc.innerHTML = '';
               epc.appendChild(elm)
@@ -1759,21 +1761,21 @@ function injection_script_1() {
           }
         }
 
-        
-  
-        for(const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')){
+
+
+        for (const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')) {
           let lctc = clickable.textContent.toLocaleLowerCase()
           clickable.setAttribute('lctc', lctc)
-          if(/\bhide\b/.test(lctc)){
+          if (/\bhide\b/.test(lctc)) {
             clickable.classList.add('lctc-hide')
-            clickable.addEventListener('click',closeClick,false)
+            clickable.addEventListener('click', closeClick, false)
           }
         }
 
 
-      },250)
+      }, 250)
       tf();
-      
+
 
     }
     $f();
@@ -1781,10 +1783,10 @@ function injection_script_1() {
   })
 
 
-  if(document.documentElement.hasAttribute('tabview-loaded'))ceHack();else
-  document.addEventListener('tabview-ce-hack',ceHack, true);
+  if (document.documentElement.hasAttribute('tabview-loaded')) ceHack(); else
+    document.addEventListener('tabview-ce-hack', ceHack, true);
 
-  
+
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
 
@@ -1820,87 +1822,87 @@ function injection_script_1() {
   }, true);
 
 
-  document.addEventListener('tabview-no-duplicate-info',function(evt){
+  document.addEventListener('tabview-no-duplicate-info', function (evt) {
     DEBUG_e32 && console.log(9442, evt.type);
 
-    if(cid_teaserInfo){
+    if (cid_teaserInfo) {
       clearInterval(cid_teaserInfo)
-      cid_teaserInfo=0;
+      cid_teaserInfo = 0;
     }
-    let mid='';
+    let mid = '';
 
-    cid_teaserInfo = setInterval(()=>{
+    cid_teaserInfo = setInterval(() => {
 
       let lineExpander = document.querySelector('ytd-watch-metadata ytd-text-inline-expander');
       let [watch_metadata, full, detail, content] = teaserInfoMatchCondition(lineExpander)
-        
+
       let tid = `${content.length},${full.length},${detail.length}`
-      if(mid===tid) return null;
-      mid=tid;
+      if (mid === tid) return null;
+      mid = tid;
 
-      let b1 = content.length===full.length && full.length>detail.length && content.length>full.length-detail.length
+      let b1 = content.length === full.length && full.length > detail.length && content.length > full.length - detail.length
 
-      if(b1 && textsMatch(full,detail)){
+      if (b1 && textsMatch(full, detail)) {
 
-        let newLen = full.length-detail.length
+        let newLen = full.length - detail.length
 
-          if(newLen>1 && /^\s*[\u2022\u2023\u25E6\u2043\u2219\.\,]?\s*$/.test(content[newLen-1].text||'0')) newLen--;
-          content.length=newLen
+        if (newLen > 1 && /^\s*[\u2022\u2023\u25E6\u2043\u2219\.\,]?\s*$/.test(content[newLen - 1].text || '0')) newLen--;
+        content.length = newLen
 
-          lineExpander.alwaysShowExpandButton=false;
+        lineExpander.alwaysShowExpandButton = false;
 
-          lineExpander.resize(true);
+        lineExpander.resize(true);
       }
 
-    },150);
+    }, 150);
 
 
-  },true);
-  
-  
-  document.addEventListener('tabview-fix-autocomplete',function(evt){
+  }, true);
+
+
+  document.addEventListener('tabview-fix-autocomplete', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
-      // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
+    // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
 
-      for(const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')){
-
-
-          let sc = s.sc;
-          if(sc instanceof HTMLElement){
-
-              let id=Date.now();
-              s.setAttribute('data-autocomplete-results-id',id);
-              sc.setAttribute('data-autocomplete-input-id', id);
-              
-              if(typeof WeakRef === 'function'){
-                  s._sc=new WeakRef(sc);
-                  s.sc=null;
-                  delete s.sc;
-                  Object.defineProperty(s,'sc',{
-                      get: function() { return s._sc.deref()||null; },
-                      enumerable: true,
-                      configurable: true
-                  })
-              }
-
-              if(sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC =='function'){
-
-                  window.removeEventListener('resize', s.updateSC);
-                  s.updateSC=function(){};
-
-              }
-
-              sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+    for (const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')) {
 
 
-          }
+      let sc = s.sc;
+      if (sc instanceof HTMLElement) {
+
+        let id = Date.now();
+        s.setAttribute('data-autocomplete-results-id', id);
+        sc.setAttribute('data-autocomplete-input-id', id);
+
+        if (typeof WeakRef === 'function') {
+          s._sc = new WeakRef(sc);
+          s.sc = null;
+          delete s.sc;
+          Object.defineProperty(s, 'sc', {
+            get: function () { return s._sc.deref() || null; },
+            enumerable: true,
+            configurable: true
+          })
+        }
+
+        if (sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC == 'function') {
+
+          window.removeEventListener('resize', s.updateSC);
+          s.updateSC = function () { };
+
+        }
+
+        sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+
 
       }
 
+    }
+
   }, false);
- 
-  
+
+
   // initial paging -> yt-page-data-fetched
   // page changing ->  yt-page-type-changed + yt-page-data-fetched
   document.addEventListener('yt-page-type-changed', (evt) => {
@@ -1914,35 +1916,35 @@ function injection_script_1() {
   }, false);
 
 
-  function tabviewInfoTogglerOnClick (evt){
+  function tabviewInfoTogglerOnClick(evt) {
     let dom = evt.target;
     let description = dom.closest('#description')
-    if(!description) return;
+    if (!description) return;
     let button = description.querySelector('tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
-    if(!button) return;
-    setTimeout(()=>{ //setTimeout / raf required - js event issue
+    if (!button) return;
+    setTimeout(() => { //setTimeout / raf required - js event issue
       button.click();
-    },30);
+    }, 30);
     evt.preventDefault();
   }
 
 
-  document.addEventListener('tabview-info-toggler', (evt)=>{
-    let node = (evt||0).target;
-    node.addEventListener('click',tabviewInfoTogglerOnClick, false)
+  document.addEventListener('tabview-info-toggler', (evt) => {
+    let node = (evt || 0).target;
+    node.addEventListener('click', tabviewInfoTogglerOnClick, false)
   }, true);
 
-  document.addEventListener('tabview-resize-comments-rows',(evt)=>{
+  document.addEventListener('tabview-resize-comments-rows', (evt) => {
     //slightly delayed
     //console.log('tabview-resize-comments-rows')
-    for(const s of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')){
-      Promise.resolve(s).then(()=>{
+    for (const s of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')) {
+      Promise.resolve(s).then(() => {
         s.calculateCanCollapse();
       });
     }
 
   }, false)
-  
+
 
   document.addEventListener('tabview-page-rendered', () => {
     isPageRendered = true;
@@ -1953,570 +1955,607 @@ function injection_script_1() {
 
 
 
-//   document.addEventListener("tabview-miniview-browser-enable2", () => {
+  //   document.addEventListener("tabview-miniview-browser-enable2", () => {
 
-//     if(miniview_enabled) return;
+  //     if(miniview_enabled) return;
 
-//     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
-//     // https://caniuse.com/?search=observer
-//     // https://caniuse.com/?search=addEventListener%20passive
+  //     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+  //     // https://caniuse.com/?search=observer
+  //     // https://caniuse.com/?search=addEventListener%20passive
 
-//     if (!isPassiveArgSupport) return;
+  //     if (!isPassiveArgSupport) return;
 
-//     console.log("tabview-miniview-browser-enable")
+  //     console.log("tabview-miniview-browser-enable")
 
-//     miniview_enabled = true;
+  //     miniview_enabled = true;
 
-//     let ytdApp = document.querySelector('ytd-app');
+  //     let ytdApp = document.querySelector('ytd-app');
 
-//     if(!ytdApp) return;
+  //     if(!ytdApp) return;
 
-//     let mReq = null;
-//     ytdApp.handleNavigate=((handleNavigate)=>{
+  //     let mReq = null;
+  //     ytdApp.handleNavigate=((handleNavigate)=>{
 
-//       return function (req) {
+  //       return function (req) {
 
 
-//         console.log(req)
-//         if(mReq){
+  //         console.log(req)
+  //         if(mReq){
 
-//           req.command = mReq.command;
-//           mReq = null;
-//           return handleNavigate.call(this, req);
+  //           req.command = mReq.command;
+  //           mReq = null;
+  //           return handleNavigate.call(this, req);
 
-//         } 
-//         console.log(req)
+  //         } 
+  //         console.log(req)
 
-//         let endpoint = null;
-//         if (req && req.command) {
-//           /*
-              
-//               {
-//                 "type": 0,
-//                 "command": endpoint,
-//                 "form": {
-//                   "tempData": {},
-//                   "reload": false
-//                 }
-//               }
-  
-//           */
-//           endpoint = req.command;
+  //         let endpoint = null;
+  //         if (req && req.command) {
+  //           /*
 
-//           let valid = false;
+  //               {
+  //                 "type": 0,
+  //                 "command": endpoint,
+  //                 "form": {
+  //                   "tempData": {},
+  //                   "reload": false
+  //                 }
+  //               }
 
-//           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
-//             if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+  //           */
+  //           endpoint = req.command;
 
-//               let meta = endpoint.commandMetadata.webCommandMetadata
-//               if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
-//                 valid = true;
-//               }
+  //           let valid = false;
 
-//             }
-//           }
+  //           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
+  //             if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
-//           if (!valid) endpoint = null;
+  //               let meta = endpoint.commandMetadata.webCommandMetadata
+  //               if (/*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+  //                 valid = true;
+  //               }
 
-//         }
+  //             }
+  //           }
 
-//         if (endpoint) {
+  //           if (!valid) endpoint = null;
 
-//           if (pageType === null) {
-//             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-//             if (pageType) {
-//               pageType = (pageType.data || 0).page;
-//             }
-//           }
-//           if (pageType !== "watch") endpoint = null;
+  //         }
 
-//         }
+  //         if (endpoint) {
 
-//         let btn; 
-//         if (endpoint) {
+  //           if (pageType === null) {
+  //             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+  //             if (pageType) {
+  //               pageType = (pageType.data || 0).page;
+  //             }
+  //           }
+  //           if (pageType !== "watch") endpoint = null;
 
-//           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+  //         }
 
-//           if (!btn) endpoint = null;
+  //         let btn; 
+  //         if (endpoint) {
 
-//         }
+  //           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
 
-//         if (!endpoint) return handleNavigate.apply(this, arguments);
+  //           if (!btn) endpoint = null;
 
-//         mReq = req;
+  //         }
 
-//         let gid = null;
-//         let phref = null;
+  //         if (!endpoint) return handleNavigate.apply(this, arguments);
 
-//         function stopVideo() {
-//           if (pageID !== gid) return;
+  //         mReq = req;
 
-//           if (location.href !== phref) return;
+  //         let gid = null;
+  //         let phref = null;
 
-//           for (const video of document.querySelectorAll('ytd-browse video')) {
-//             video.pause();
-//           }
+  //         function stopVideo() {
+  //           if (pageID !== gid) return;
 
-//         }
+  //           if (location.href !== phref) return;
 
-//         document.addEventListener('yt-page-data-fetched', (evt) => {
+  //           for (const video of document.querySelectorAll('ytd-browse video')) {
+  //             video.pause();
+  //           }
 
-//           gid = pageID
-//           phref = location.href;
+  //         }
 
-//           stopVideo();
+  //         document.addEventListener('yt-page-data-fetched', (evt) => {
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 100);
+  //           gid = pageID
+  //           phref = location.href;
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 300);
+  //           stopVideo();
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 700);
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 100);
 
-//         },{once:true})
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 300);
 
-//         btn.click();
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 700);
 
+  //         },{once:true})
 
+  //         btn.click();
 
-//       };
 
-//     })(ytdApp.handleNavigate);
-//   });
 
+  //       };
 
-//   document.addEventListener("tabview-miniview-browser-enable3", () => {
+  //     })(ytdApp.handleNavigate);
+  //   });
 
-//     if(miniview_enabled) return;
 
-//     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
-//     // https://caniuse.com/?search=observer
-//     // https://caniuse.com/?search=addEventListener%20passive
+  //   document.addEventListener("tabview-miniview-browser-enable3", () => {
 
-//     if (!isPassiveArgSupport) return;
+  //     if(miniview_enabled) return;
 
-//     console.log("tabview-miniview-browser-enable")
+  //     const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+  //     // https://caniuse.com/?search=observer
+  //     // https://caniuse.com/?search=addEventListener%20passive
 
-//     miniview_enabled = true;
+  //     if (!isPassiveArgSupport) return;
 
-//     let ytdApp = document.querySelector('ytd-app');
+  //     console.log("tabview-miniview-browser-enable")
 
-//     if(!ytdApp) return;
+  //     miniview_enabled = true;
 
-//     let isBusy = false;
-//     let mReq = null;
-//     let mReqC = 0;
+  //     let ytdApp = document.querySelector('ytd-app');
 
+  //     if(!ytdApp) return;
 
-//     let saveAndPush = ytdApp.saveAndPush
-//     ytdApp.saveAndPush=function(url, command, pageData, int){
-//       console.log(`SaveAndPush-${!!mReq}`, this, arguments)
+  //     let isBusy = false;
+  //     let mReq = null;
+  //     let mReqC = 0;
 
 
-//       if(mReq){
-//         console.log(3430, mReq.command===command, mReq.command,command)
-//         if(mReq.command === command){
-          
-//           mReqC++;
+  //     let saveAndPush = ytdApp.saveAndPush
+  //     ytdApp.saveAndPush=function(url, command, pageData, int){
+  //       console.log(`SaveAndPush-${!!mReq}`, this, arguments)
 
-//           if(mReqC===1){
 
-//             console.log(3434)
-//             return saveAndPush.apply(this,arguments)
-//           }
- 
-//         }
-//       }else{
-//         return saveAndPush.apply(this,arguments)
-//       }
+  //       if(mReq){
+  //         console.log(3430, mReq.command===command, mReq.command,command)
+  //         if(mReq.command === command){
 
+  //           mReqC++;
 
-//       /*
+  //           if(mReqC===1){
 
-//       if(mReq && mReq === command){
+  //             console.log(3434)
+  //             return saveAndPush.apply(this,arguments)
+  //           }
 
-//       }else{
+  //         }
+  //       }else{
+  //         return saveAndPush.apply(this,arguments)
+  //       }
 
-//         if(mReq) return;
-//       }
 
-//       if(pageData.page!=='watch') return;
-//       if(!command.watchEndpoint) return;
+  //       /*
 
-      
+  //       if(mReq && mReq === command){
 
+  //       }else{
 
-//       console.log(`SaveAndPush-${!!mReq}-2`, this, arguments)
-      
-//       return saveAndPush.apply(this,arguments)
-//       */
-//     }
+  //         if(mReq) return;
+  //       }
 
-//     ytdApp.handleNavigate=((handleNavigate)=>{
+  //       if(pageData.page!=='watch') return;
+  //       if(!command.watchEndpoint) return;
 
-//       return function (req) {
 
-//         const $this = this;
-//         const $arguments = arguments;
 
-//         console.log(550,arguments.length, req)
-//         if(isBusy){
 
-//           let oriCommand = ($arguments[0]||0).command;
-//           let newCommand = (mReq||0).command;
-//           let ret = null;
-//           let gt = 0;
-//           console.log(665, req, mReq)
-//           if( oriCommand && newCommand && ((oriCommand||0).browseEndpoint||0).browseId === "FEwhat_to_watch"){
-//             console.log(666, req, mReq)
-//             try{
-//               //$arguments[0].command = JSON.parse(JSON.stringify(newCommand));
-//               //oriCommand.browseEndpoint = newCommand.browseEndpoint ;
-//               //oriCommand.clickTrackingParams = newCommand.clickTrackingParams ;
-//               //oriCommand.commandMetadata = null; 
-//               $arguments[0].command = newCommand;
-//               gt = 1;
-//               // not 100% guarantee. but it might help to not load the default page
-//               ret = handleNavigate.apply($this, $arguments);
-//               gt = 2;
-//               //$arguments[0].command = oriCommand;
-//               gt = 3;
-//             }catch(e){
-//               console.warn('command error', e, gt)
-//               if(gt===1 || gt===2) arguments[0].command = oriCommand;
-//               if(gt===1 || gt===0) ret = handleNavigate.apply($this, $arguments);
-//             }
-//           }else{
-//             ret = handleNavigate.apply($this, $arguments);
-//           }
+  //       console.log(`SaveAndPush-${!!mReq}-2`, this, arguments)
 
-//           return ret;
-//         } 
+  //       return saveAndPush.apply(this,arguments)
+  //       */
+  //     }
 
+  //     ytdApp.handleNavigate=((handleNavigate)=>{
 
-//         let endpoint = null;
-//         if (req && req.command) {
-//           /*
-              
-//               {
-//                 "type": 0,
-//                 "command": endpoint,
-//                 "form": {
-//                   "tempData": {},
-//                   "reload": false
-//                 }
-//               }
-  
-//           */
-//           endpoint = req.command;
+  //       return function (req) {
 
-//           console.log(554, endpoint, req)
+  //         const $this = this;
+  //         const $arguments = arguments;
 
-//           let valid = false;
+  //         console.log(550,arguments.length, req)
+  //         if(isBusy){
 
-//           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
-            
-//             if(endpoint.browseEndpoint && endpoint.browseEndpoint.browseId==="FEwhat_to_watch"){
-//               valid = false;
-//             }else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
+  //           let oriCommand = ($arguments[0]||0).command;
+  //           let newCommand = (mReq||0).command;
+  //           let ret = null;
+  //           let gt = 0;
+  //           console.log(665, req, mReq)
+  //           if( oriCommand && newCommand && ((oriCommand||0).browseEndpoint||0).browseId === "FEwhat_to_watch"){
+  //             console.log(666, req, mReq)
+  //             try{
+  //               //$arguments[0].command = JSON.parse(JSON.stringify(newCommand));
+  //               //oriCommand.browseEndpoint = newCommand.browseEndpoint ;
+  //               //oriCommand.clickTrackingParams = newCommand.clickTrackingParams ;
+  //               //oriCommand.commandMetadata = null; 
+  //               $arguments[0].command = newCommand;
+  //               gt = 1;
+  //               // not 100% guarantee. but it might help to not load the default page
+  //               ret = handleNavigate.apply($this, $arguments);
+  //               gt = 2;
+  //               //$arguments[0].command = oriCommand;
+  //               gt = 3;
+  //             }catch(e){
+  //               console.warn('command error', e, gt)
+  //               if(gt===1 || gt===2) arguments[0].command = oriCommand;
+  //               if(gt===1 || gt===0) ret = handleNavigate.apply($this, $arguments);
+  //             }
+  //           }else{
+  //             ret = handleNavigate.apply($this, $arguments);
+  //           }
 
-//               let meta = endpoint.commandMetadata.webCommandMetadata
-//               if (meta && /*meta.apiUrl &&*/ meta.url && meta.webPageType) {
-//                 valid = true;
-//               }
+  //           return ret;
+  //         } 
 
-//             }
-//           }
 
-//           if (!valid) endpoint = null;
+  //         let endpoint = null;
+  //         if (req && req.command) {
+  //           /*
 
-//         }
-         
+  //               {
+  //                 "type": 0,
+  //                 "command": endpoint,
+  //                 "form": {
+  //                   "tempData": {},
+  //                   "reload": false
+  //                 }
+  //               }
 
-//         if (endpoint) {
+  //           */
+  //           endpoint = req.command;
 
-//           if (pageType === null) {
-//             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-//             if (pageType) {
-//               pageType = (pageType.data || 0).page;
-//             }
-//           }
-//           if (pageType !== "watch") endpoint = null;
+  //           console.log(554, endpoint, req)
 
-//         }
- 
-//         let btn = null; 
-//         if (endpoint) {
+  //           let valid = false;
 
-//           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+  //           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
 
-//           if (!btn) endpoint = null;
+  //             if(endpoint.browseEndpoint && endpoint.browseEndpoint.browseId==="FEwhat_to_watch"){
+  //               valid = false;
+  //             }else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
-//         }
- 
-//         if (!endpoint) return handleNavigate.apply($this, $arguments);
+  //               let meta = endpoint.commandMetadata.webCommandMetadata
+  //               if (meta && /*meta.apiUrl &&*/ meta.url && meta.webPageType) {
+  //                 valid = true;
+  //               }
 
-//         let ytdApp = document.querySelector('ytd-app');
-//         let count = 0;
+  //             }
+  //           }
 
-//         let object = null;
-//         try{
-//           object = ytdApp.data.response.currentVideoEndpoint.watchEndpoint || null;
-//         }catch(e){
-//           object = null;
-//         }
+  //           if (!valid) endpoint = null;
 
-//         if(typeof object !=='object') object =null;
+  //         }
 
-//         let wObject = null;
-//         if(object !== null){
-//           wObject = mWeakRef(object)
 
-//           const N = 3;
+  //         if (endpoint) {
 
+  //           if (pageType === null) {
+  //             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+  //             if (pageType) {
+  //               pageType = (pageType.data || 0).page;
+  //             }
+  //           }
+  //           if (pageType !== "watch") endpoint = null;
 
-//           Object.defineProperty(kRef(wObject), 'playlistId', {
-//             get() {
-//               count++;
-//               if (count === N) {
-//                 delete this.playlistId;
-//               }
-//               return '*';
-//             },
-//             set(value) {
+  //         }
 
-//               delete this.playlistId;
-//               this.playlistId = value;
-//             },
-//             enumerable: false,
-//             configurable: true
-//           });
+  //         let btn = null; 
+  //         if (endpoint) {
 
+  //           btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
 
-//           Promise.race([
+  //           if (!btn) endpoint = null;
 
-//             new Promise(r => {
-//               setTimeout(r, 4000)
-//             }),
-//             new Promise(r => {
+  //         }
 
+  //         if (!endpoint) return handleNavigate.apply($this, $arguments);
 
-//               document.addEventListener('yt-page-type-changed', (evt) => {
+  //         let ytdApp = document.querySelector('ytd-app');
+  //         let count = 0;
 
-//                 r();
+  //         let object = null;
+  //         try{
+  //           object = ytdApp.data.response.currentVideoEndpoint.watchEndpoint || null;
+  //         }catch(e){
+  //           object = null;
+  //         }
 
-//               }, { once: true });
+  //         if(typeof object !=='object') object =null;
 
-//             })
-//           ]).then(() => {
+  //         let wObject = null;
+  //         if(object !== null){
+  //           wObject = mWeakRef(object)
 
-//             count = N - 1;
-//             return kRef(wObject).playlistId;
-//           })
+  //           const N = 3;
 
 
-          
-  
-  
+  //           Object.defineProperty(kRef(wObject), 'playlistId', {
+  //             get() {
+  //               count++;
+  //               if (count === N) {
+  //                 delete this.playlistId;
+  //               }
+  //               return '*';
+  //             },
+  //             set(value) {
 
+  //               delete this.playlistId;
+  //               this.playlistId = value;
+  //             },
+  //             enumerable: false,
+  //             configurable: true
+  //           });
 
-//         }
 
-//         return handleNavigate.apply($this, $arguments);
-//         window.history.pushState({}, '', location.href);
-       
+  //           Promise.race([
 
-//         if (pageID > 800) pageID = (pageID % 800);
+  //             new Promise(r => {
+  //               setTimeout(r, 4000)
+  //             }),
+  //             new Promise(r => {
 
-//         let kid = pageID;
 
+  //               document.addEventListener('yt-page-type-changed', (evt) => {
 
-//         let mArgs = [$this, $arguments];
+  //                 r();
 
-//         //let saveAndPush = null, replaceState = null;
+  //               }, { once: true });
 
+  //             })
+  //           ]).then(() => {
 
-//         function initializer(){
+  //             count = N - 1;
+  //             return kRef(wObject).playlistId;
+  //           })
 
-//           isBusy = true;
-//           mReqC = 0;
-//           mReq = req;
-//           document.documentElement.classList.add('tyt-no-display');
 
-//           let ytdApp = document.querySelector('ytd-app');
-//           //saveAndPush.call(ytdApp);
-// /*
-//           if(ytdApp){
 
-//             saveAndPush = ytdApp.saveAndPush;
-//             console.log(saveAndPush)
-//             if(typeof saveAndPush !=='function') saveAndPush= null;
-//             //replaceState = history.constructor.prototype.replaceState;
-//             if(typeof replaceState !=='function') replaceState= null;
-//             if(saveAndPush){
 
 
- 
-//              ytdApp.saveAndPush=function(){
-//                console.log('saveAndPush', this, arguments)
-//                //if(arguments[1]!==mReq.command) return;
-//                return;
-//                return saveAndPush.apply(this,arguments)
-//              }
-//              saveAndPush.call(ytdApp);
-//             }
-//             if(replaceState){
- 
-//              history.constructor.prototype.replaceState=function(){
-//                console.log('replaceState', this, arguments)
-//                return replaceState.apply(this,arguments)
-//              }
 
-//             }
-//           }*/
 
-//         }
+  //         }
 
-//         function finalizer(a){
-//           try{
+  //         return handleNavigate.apply($this, $arguments);
+  //         window.history.pushState({}, '', location.href);
 
-//             if(a!==null){
-//               console.log('error', arguments)
-//             }
-//             if(isBusy){
-//               isBusy = false;
-//               mReqC = 0;
-//               mReq = null;
-//               document.documentElement.classList.remove('tyt-no-display');
-//               let ytdApp = document.querySelector('ytd-app');
-//               /*
-//               if(saveAndPush){
-//                 ytdApp.saveAndPush=saveAndPush;
-//               }
-//               if(replaceState){
-//                 history.constructor.prototype.replaceState=replaceState;
-//               }*/
-//             }
 
-//           }catch(e){}
-//         }
+  //         if (pageID > 800) pageID = (pageID % 800);
 
-//         console.log(555, endpoint)
-//         async function step() {
+  //         let kid = pageID;
 
-//           try{
 
-//             initializer();
+  //         let mArgs = [$this, $arguments];
 
-//             console.log(history.pushState)
-//             console.log(history.replaceState)
+  //         //let saveAndPush = null, replaceState = null;
 
-//             let evtYtPageTypeChanged = await new Promise((resolve, reject) => {
 
-//               document.addEventListener('yt-page-type-changed', (evt) => {
+  //         function initializer(){
 
-//                 try{
-//                   resolve(evt);
-//                 }catch(e){
-//                   reject(e);
-//                 }
-  
-//               }, { once: true });
-  
-//               Promise.resolve(0).then(() => {
-//                 btn.click();
-//               }).catch(reject);
-  
-//             });
+  //           isBusy = true;
+  //           mReqC = 0;
+  //           mReq = req;
+  //           document.documentElement.classList.add('tyt-no-display');
 
-              
-//             // mini player is set
+  //           let ytdApp = document.querySelector('ytd-app');
+  //           //saveAndPush.call(ytdApp);
+  // /*
+  //           if(ytdApp){
 
-//             //console.log(pageID, kid) // initail: 2;  later: 1
+  //             saveAndPush = ytdApp.saveAndPush;
+  //             console.log(saveAndPush)
+  //             if(typeof saveAndPush !=='function') saveAndPush= null;
+  //             //replaceState = history.constructor.prototype.replaceState;
+  //             if(typeof replaceState !=='function') replaceState= null;
+  //             if(saveAndPush){
 
-//             if (!(pageID <= kid + 2)) throw new Error('pageID incorrect');
 
-//             let evtYtPageDataFetched = await new Promise((resolve,reject) => {
 
-//               document.addEventListener('yt-page-data-fetched', (evt) => {
+  //              ytdApp.saveAndPush=function(){
+  //                console.log('saveAndPush', this, arguments)
+  //                //if(arguments[1]!==mReq.command) return;
+  //                return;
+  //                return saveAndPush.apply(this,arguments)
+  //              }
+  //              saveAndPush.call(ytdApp);
+  //             }
+  //             if(replaceState){
 
-//                 try{
-//                   resolve(evt);
-//                 }catch(e){
-//                   reject(e);
-//                 }
+  //              history.constructor.prototype.replaceState=function(){
+  //                console.log('replaceState', this, arguments)
+  //                return replaceState.apply(this,arguments)
+  //              }
 
-//               }, { once: true });
+  //             }
+  //           }*/
 
-//               // navigate url
-//               //handleNavigate.apply($this, $arguments);
-//                throw new Error('done')
+  //         }
 
-//             });
-            
+  //         function finalizer(a){
+  //           try{
 
-//             // new url page fetched
-//             finalizer(null);
+  //             if(a!==null){
+  //               console.log('error', arguments)
+  //             }
+  //             if(isBusy){
+  //               isBusy = false;
+  //               mReqC = 0;
+  //               mReq = null;
+  //               document.documentElement.classList.remove('tyt-no-display');
+  //               let ytdApp = document.querySelector('ytd-app');
+  //               /*
+  //               if(saveAndPush){
+  //                 ytdApp.saveAndPush=saveAndPush;
+  //               }
+  //               if(replaceState){
+  //                 history.constructor.prototype.replaceState=replaceState;
+  //               }*/
+  //             }
 
-//           }catch(e){
+  //           }catch(e){}
+  //         }
 
-//             console.log('error', e)
-//             finalizer(e);
-//           }
+  //         console.log(555, endpoint)
+  //         async function step() {
 
+  //           try{
 
-          
-//           if (!(pageID <= kid + 4)) return;
-//           let gid = pageID;
-//           let phref = (location||0).href;
-//           if(!phref) return;
+  //             initializer();
 
-//           function stopVideo() {
-//             if (pageID !== gid) return ;
+  //             console.log(history.pushState)
+  //             console.log(history.replaceState)
 
-//             if (location.href !== phref) return;
+  //             let evtYtPageTypeChanged = await new Promise((resolve, reject) => {
 
-//             for (const video of document.querySelectorAll('ytd-browse video')) {
-//               video.pause();
-//             }
+  //               document.addEventListener('yt-page-type-changed', (evt) => {
 
-//           }
+  //                 try{
+  //                   resolve(evt);
+  //                 }catch(e){
+  //                   reject(e);
+  //                 }
 
-//           stopVideo();
+  //               }, { once: true });
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 100);
+  //               Promise.resolve(0).then(() => {
+  //                 btn.click();
+  //               }).catch(reject);
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 300);
+  //             });
 
-//           setTimeout(() => {
-//             stopVideo();
-//           }, 700);
 
-//         }
-//         step();
+  //             // mini player is set
 
-//       };
+  //             //console.log(pageID, kid) // initail: 2;  later: 1
 
-//     })(ytdApp.handleNavigate);
+  //             if (!(pageID <= kid + 2)) throw new Error('pageID incorrect');
 
+  //             let evtYtPageDataFetched = await new Promise((resolve,reject) => {
 
+  //               document.addEventListener('yt-page-data-fetched', (evt) => {
 
+  //                 try{
+  //                   resolve(evt);
+  //                 }catch(e){
+  //                   reject(e);
+  //                 }
 
-//   })
+  //               }, { once: true });
+
+  //               // navigate url
+  //               //handleNavigate.apply($this, $arguments);
+  //                throw new Error('done')
+
+  //             });
+
+
+  //             // new url page fetched
+  //             finalizer(null);
+
+  //           }catch(e){
+
+  //             console.log('error', e)
+  //             finalizer(e);
+  //           }
+
+
+
+  //           if (!(pageID <= kid + 4)) return;
+  //           let gid = pageID;
+  //           let phref = (location||0).href;
+  //           if(!phref) return;
+
+  //           function stopVideo() {
+  //             if (pageID !== gid) return ;
+
+  //             if (location.href !== phref) return;
+
+  //             for (const video of document.querySelectorAll('ytd-browse video')) {
+  //               video.pause();
+  //             }
+
+  //           }
+
+  //           stopVideo();
+
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 100);
+
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 300);
+
+  //           setTimeout(() => {
+  //             stopVideo();
+  //           }, 700);
+
+  //         }
+  //         step();
+
+  //       };
+
+  //     })(ytdApp.handleNavigate);
+
+
+
+
+  //   })
 
 
 
   function isVideoPlaying(video) {
     return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
+  }
+
+
+  async function loadStartFxAsync(video) {
+
+    let video1 = document.querySelector('#movie_player video[src]');
+    let videos2 = document.querySelectorAll('ytd-browse[role="main"] video[src]');
+
+    if (video1 !== null && videos2.length > 0) {
+      if (video !== video1 && video1.paused === false) {
+        if (isVideoPlaying(video1)) {
+          Promise.resolve(video).then(video => video.paused === false && video.pause());
+        }
+      } else if (video1 === video) {
+
+        for (const s of videos2) {
+          if (s.paused === false) {
+            Promise.resolve(s).then(s => s.paused === false && s.pause())
+            break;
+          }
+        }
+      } else {
+        Promise.resolve(video1).then(video1 => video1.paused === false && video1.pause());
+      }
+    }
+
+  }
+
+
+  let loadStartFx = (evt) => {
+
+    let video = (evt || 0).target;
+    if (((video || 0).nodeName || 0) === 'VIDEO') { }
+    else return;
+
+    loadStartFxAsync(video);
+
   }
 
   document.addEventListener("tabview-miniview-browser-enable", () => {
@@ -2625,8 +2664,8 @@ function injection_script_1() {
         }
 
         if (typeof object !== 'object') object = null;
-        
-        const once= { once: true };
+
+        const once = { once: true };
 
         if (object !== null && !('playlistId' in object)) {
 
@@ -2689,6 +2728,7 @@ rcb(b) => a = playlistId = undefinded
               playlistClearout && document.removeEventListener('yt-page-type-changed', playlistClearout, once);
               timeoutid = 0;
             }
+            playlistClearout = null;
             count = N - 1;
             let object = kRef(wObject)
             wObject = null;
@@ -2697,68 +2737,16 @@ rcb(b) => a = playlistId = undefinded
 
         }
 
+        if (!isLoadStartListened) {
+          isLoadStartListened = true;
 
-        let videoElm = document.querySelector('.tabview-normal-player #movie_player video[src]');
 
-        if (videoElm && isVideoPlaying(videoElm)) {
 
-          let gid = null;
-          let phref = null;
-
-          let kid = pageID;
-
-          let pmr = null;
-          let pm = new Promise(r => { pmr = r });
-
-          let loadStartFx = (evt) => {
-            if (pageID !== gid) return;
-            if (location.href !== phref) return;
-            let video = (evt || 0).target;
-            if (((video || 0).nodeName || 0) === 'VIDEO') {
-              Promise.all([video, pm]).then((x) => {
-                x[0].pause();
-              })
-            }
-          }
 
           document.addEventListener('loadstart', loadStartFx, true)
 
-          let videoStopClearout = null;
-
-          let timeoutid = 0;
-          Promise.race([
-            new Promise(r => {
-              timeoutid = setTimeout(r, 4000)
-            }),
-            new Promise(r => {
-              videoStopClearout = () => {
-                if (timeoutid > 0) {
-                  clearTimeout(timeoutid);
-                  timeoutid = 0;
-                }
-                r();
-              }
-              document.addEventListener('yt-navigate-finish', videoStopClearout, once);
-            })
-          ]).then(() => {
-
-            if (timeoutid !== 0) {
-              videoStopClearout && document.removeEventListener('yt-navigate-finish', videoStopClearout, once);
-              timeoutid = 0;
-              document.removeEventListener('loadstart', loadStartFx, true)
-            } else {
-              if (pageID - kid === 2 && (kid % 2) === 0) { } else { return; }
-              gid = pageID;
-              phref = location.href;
-              if (pmr) pmr();
-              setTimeout(() => {
-                document.removeEventListener('loadstart', loadStartFx, true)
-              }, 700);
-            }
-
-          });
-
         }
+
 
         handleNavigate.apply($this, $arguments);
 

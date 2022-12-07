@@ -719,7 +719,7 @@ body .ytp-autohide .ytp-unmute,
             width:auto;
         }
 
-        ytd-watch-flexy[flexy][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view{
+        ytd-watch-flexy[flexy][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander{
 
             display: flex;
             width: var(--ytd-watch-flexy-sidebar-width);
@@ -727,7 +727,7 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-        tabview-secondary-empty-view{
+        tabview-view-secondary-xpander{
 
             visibility: collapse !important;
             pointer-events: none !important;
@@ -790,7 +790,7 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
-    @supports (color: var(--tabview-page-loader)) {
+    @supports (color: var(--tabview-view-ploader)) {
 
 
         @keyframes pageLoaderAnimation {
@@ -806,7 +806,7 @@ body .ytp-autohide .ytp-unmute,
         }
 
 
-        tabview-page-loader {
+        tabview-view-ploader {
             position: fixed;
             left: 1px;
             top: 50vh;
@@ -818,6 +818,8 @@ body .ytp-autohide .ytp-unmute,
             user-select: none !important;
             background: none;
             touch-action: none !important;
+            padding: 0;
+            margin: 0;
             z-index: 0;
             animation: pageLoaderAnimation 1ms;
         }
@@ -988,7 +990,7 @@ body .ytp-autohide .ytp-unmute,
     @supports (color: var(--page-columns-resizing-trigger)){
 
 
-        tabview-column-pos {
+        tabview-view-columns-endpos {
 
             position: relative;
             width: 0;
@@ -996,21 +998,23 @@ body .ytp-autohide .ytp-unmute,
             display: flex;
             top: 0;
             contain: strict;
+            visibility: collapse;
             pointer-events: none !important;
             user-select: none !important;
             touch-action: none !important;
             overflow: hidden;
             padding: 0;
             margin: 0;
+            z-index:0;
         }
 
     }
 
     @supports (color: var(--page-videos-reaching-the-end-trigger)) {
 
-        tabview-videos-end-pos {
+        tabview-view-videos-endpos {
 
-            display: var(--tabview-videos-end-pos-display, none);
+            display: var(--tabview-view-videos-endpos-display, none);
 
             position: absolute;
             width: 0;
@@ -1028,25 +1032,25 @@ body .ytp-autohide .ytp-unmute,
         }
 
         ytd-watch-flexy[tyt-tab="#tab-videos"] #tab-videos.tab-content-cld {
-            --tabview-videos-end-pos-display: flex;
+            --tabview-view-videos-endpos-display: flex;
         }
 
         body ytd-watch-flexy[flexy][is-two-columns_] #tab-videos.tab-content-cld {
-            --tabview-videos-end-pos-display: none;
+            --tabview-view-videos-endpos-display: none;
         }
 
         body ytd-watch-flexy #tab-videos.tab-content-cld.tab-content-hidden {
-            --tabview-videos-end-pos-display: none;
+            --tabview-view-videos-endpos-display: none;
         }
 
     }
 
-    @supports (color: var(--tabview-tab-expander-btn-define)){
+    @supports (color: var(--tabview-view-tab-expander-btn-define)){
 
 
 
         @media all and (display-mode: fullscreen) {
-            tabview-tab-expander{
+            tabview-view-tab-expander{
                 display: none;
             }
         }
@@ -2230,21 +2234,23 @@ body .ytp-autohide .ytp-unmute,
     @supports (color: var(--tab-header-sticky)){
 
 
-        #right-tabs>tabview-tabs-header-position {
+        #right-tabs>tabview-view-pos-thead {
             display: none;
             position: relative;
             transform: translateY(calc(-1*var(--ytd-watch-flexy-masthead-height)));
             width: 100%;
             height: 0px;
+            visibility: collapse;
             pointer-events: none !important;
             user-select: none !important;
             touch-action: none !important;
             margin:0;
             padding:0;
+            z-index: 0;
             box-sizing: border-box;
         }
 
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs>tabview-tabs-header-position {
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs>tabview-view-pos-thead {
             display: flex;
         }
 
@@ -2258,7 +2264,7 @@ body .ytp-autohide .ytp-unmute,
         }
 
         
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-tabs-header-position {
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-view-pos-thead {
             position: relative;
             margin-bottom: var(--tyt-stickybar-h2);
             box-sizing: border-box;
@@ -2397,6 +2403,7 @@ body .ytp-autohide .ytp-unmute,
     html:has(body) {
         --tabview-has-selector-enabled: 1;
     }
+    
 
     @supports (color: var(--tab-info-extra-videos-arrows-stylish)) and (selector(:has(:hover))) {
 
@@ -2510,92 +2517,92 @@ body .ytp-autohide .ytp-unmute,
 
         @keyframes tabviewTabExpanderChover {
             0% {
-                opacity: var(--tabview-tab-expander-opacity2);
+                opacity: var(--tabview-view-tab-expander-opacity2);
                 transform: translateY(0);
                 z-index: 4;
             }
 
             4% {
-                opacity: var(--tabview-tab-expander-opacity2);
+                opacity: var(--tabview-view-tab-expander-opacity2);
             }
 
             8% {
-                opacity: var(--tabview-tab-expander-opacity1);
+                opacity: var(--tabview-view-tab-expander-opacity1);
                 /* 4% of 1750ms */
             }
 
             90% {
-                opacity: var(--tabview-tab-expander-opacity1);
+                opacity: var(--tabview-view-tab-expander-opacity1);
             }
 
             99% {
-                opacity: var(--tabview-tab-expander-opacity2);
+                opacity: var(--tabview-view-tab-expander-opacity2);
                 /* 8% of 1750ms */
             }
 
             100% {
-                opacity: var(--tabview-tab-expander-opacity2);
+                opacity: var(--tabview-view-tab-expander-opacity2);
                 transform: translateY(0);
                 z-index: 4;
             }
         }
 
-        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander {
+        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander {
             animation: tabviewTabExpanderChover 1750ms normal forwards;
         }
 
-        body [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander:hover {
-            --tabview-tab-expander-opacity2: 1.0;
-            --tabview-tab-expander-opacity1: 1.0;
+        body [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander:hover {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
             z-index: 4;
             transform: translateY(0);
         }
 
-        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-tab-expander>div {
-            --tabview-tab-expander-mt1: 0px;
-            --tabview-tab-expander-mr1: -6px;
+        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander>div {
+            --tabview-view-tab-expander-mt1: 0px;
+            --tabview-view-tab-expander-mr1: -6px;
         }
 
-        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander>div {
-            --tabview-tab-expander-mt1: 8px;
-            --tabview-tab-expander-mr1: 2px;
+        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander>div {
+            --tabview-view-tab-expander-mt1: 8px;
+            --tabview-view-tab-expander-mr1: 2px;
         }
         
-        [tyt-tab] #right-tabs tabview-tab-expander>div {
-            margin-top: calc(var(--tabview-tab-expander-mt1, 0px) - 6px);
-            --tabview-tab-expander-mr2: calc(var(--tabview-tab-expander-mr1) + var(--tyt-tab-panel-scrollbar-margin, 0px));
-            margin-right: calc(var(--tabview-tab-expander-mr2, 0px) - 6px);
+        [tyt-tab] #right-tabs tabview-view-tab-expander>div {
+            margin-top: calc(var(--tabview-view-tab-expander-mt1, 0px) - 6px);
+            --tabview-view-tab-expander-mr2: calc(var(--tabview-view-tab-expander-mr1) + var(--tyt-tab-panel-scrollbar-margin, 0px));
+            margin-right: calc(var(--tabview-view-tab-expander-mr2, 0px) - 6px);
         }
 
-        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander {
+        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander {
             animation: tabviewTabExpanderChover 1750ms normal forwards;
         }
 
-        body [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-tab-expander:hover {
-            --tabview-tab-expander-opacity2: 1.0;
-            --tabview-tab-expander-opacity1: 1.0;
+        body [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander:hover {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
             z-index: 4;
             transform: translateY(0);
         }
 
-        .tabview-hover-slider-enable tabview-tab-expander {
-            --tabview-tab-expander-opacity2: 1.0;
-            --tabview-tab-expander-opacity1: 1.0;
+        .tabview-hover-slider-enable tabview-view-tab-expander {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
         }
 
 
-        /* .tabview-hover-slider:not(.tabview-hover-slider-enable) tabview-tab-expander,*/
-        ytd-watch-flexy[fullscreen] tabview-tab-expander,
-        ytd-watch-flexy:not([is-two-columns_]) tabview-tab-expander {
-            --tabview-tab-expander-opacity2: 0.0;
-            --tabview-tab-expander-opacity1: 0.0;
+        /* .tabview-hover-slider:not(.tabview-hover-slider-enable) tabview-view-tab-expander,*/
+        ytd-watch-flexy[fullscreen] tabview-view-tab-expander,
+        ytd-watch-flexy:not([is-two-columns_]) tabview-view-tab-expander {
+            --tabview-view-tab-expander-opacity2: 0.0;
+            --tabview-view-tab-expander-opacity1: 0.0;
             display: none;
         }
 
-        tabview-tab-expander {
+        tabview-view-tab-expander {
 
-            --tabview-tab-expander-opacity1: 0.8;
-            --tabview-tab-expander-opacity2: 0.0;
+            --tabview-view-tab-expander-opacity1: 0.8;
+            --tabview-view-tab-expander-opacity2: 0.0;
 
             transform: translateY(-300px);
             position: sticky;
@@ -2613,13 +2620,13 @@ body .ytp-autohide .ytp-unmute,
             opacity: 0.8;
         }
 
-        tabview-tab-expander:hover {
+        tabview-view-tab-expander:hover {
             transform: translateY(0);
             opacity: 1.0;
             color: var(--yt-spec-call-to-action-hover);
         }
 
-        tabview-tab-expander>div {
+        tabview-view-tab-expander>div {
             box-sizing: border-box;
             position: absolute;
             padding: 3px;
@@ -2633,19 +2640,19 @@ body .ytp-autohide .ytp-unmute,
             margin:0;
         }
 
-        tabview-tab-expander svg.svg-expand {
+        tabview-view-tab-expander svg.svg-expand {
             display: block;
         }
 
-        tabview-tab-expander svg.svg-collapse {
+        tabview-view-tab-expander svg.svg-collapse {
             display: none;
         }
 
-        .tabview-hover-slider-enable tabview-tab-expander svg.svg-expand {
+        .tabview-hover-slider-enable tabview-view-tab-expander svg.svg-expand {
             display: none;
         }
 
-        .tabview-hover-slider-enable tabview-tab-expander svg.svg-collapse {
+        .tabview-hover-slider-enable tabview-view-tab-expander svg.svg-collapse {
             display: block;
         }
 
@@ -4052,6 +4059,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transition: min-width 1ms, transform 0.13s ease-out, outline 250ms linear;
             transition-delay: 48ms, 192ms, 4ms;*/
             outline: 8px solid var(--ytd-searchbox-background);
+            /*box-shadow: 45px 65px 102px 76px var(--ytd-searchbox-background);*/
 
             transform: translateX(0px);
             right: var(--tabview-slider-right);

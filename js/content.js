@@ -574,6 +574,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     debounce(f) {
       return Promise.race([this.promise]).then(f).catch(console.warn); // avoid promise.then.then.then ...
     }
+    d(){
+      return Promise.race([this.promise]).catch(console.warn);
+    }
     reset() {
       this.resolved = false;
       this.promise = new Promise((resolve, reject) => {
@@ -582,8 +585,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
     }
     resolve() {
+      if (this._resolve === null) return null;
+      if (this.resolved !== false) return false;
       this.resolved = true;
       this._resolve(...arguments);
+      return true;
     }
   }
 
@@ -1028,8 +1034,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (!secondary.classList.contains('tabview-hover-slider')) {
               // without hover
 
-              let rect = secondary.getBoundingClientRect();
-              let rectI = secondaryInner.getBoundingClientRect();
+              //let rect = secondary.getBoundingClientRect();
+              //let rectI = secondaryInner.getBoundingClientRect();
 
               secondaryInner.style.setProperty('--tabview-slider-right', `${ getSecondaryInnerRight() }px`)
 
@@ -1061,7 +1067,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
         
         // no animation event triggered for hover -> enable
-        rePosColumns();
         dispatchCommentRowResize();
 
       }
@@ -1086,16 +1091,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         secondary.setAttribute(attrName, '');
 
 
-        let elmB = document.querySelector('tabview-secondary-empty-view')
+        let elmB = document.querySelector('tabview-view-secondary-xpander')
         if (!elmB) {
-          elmB = document.createElement('tabview-secondary-empty-view');
+          elmB = document.createElement('tabview-view-secondary-xpander');
           prependTo(elmB, document.querySelector('#secondary'))
         } 
 
         let elmA;
 
-        if (elmA = document.querySelector('tabview-column-pos')) elmA.remove();
-        elmA = document.createElement('tabview-column-pos');
+        if (elmA = document.querySelector('tabview-view-columns-endpos')) elmA.remove();
+        elmA = document.createElement('tabview-view-columns-endpos');
 
             
 
@@ -1104,7 +1109,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let w = enableHoverSliderDetection
           for (const entry of entries) {
             if (entry.rootBounds === null) continue;
-            t = !entry.isIntersecting; // if entries.length>1 (unlikely); take the last intersecting
+            let bcr = entry.boundingClientRect;
+            let rb = entry.rootBounds;
+            t = (bcr.left > rb.right) && (rb.left <= 0) ? !entry.isIntersecting : false;
+            // if entries.length>1 (unlikely); take the last intersecting
+            // supplement cond 1. ensure the col element is in the right side
+            // supplement cond 2. ensure column is wide enough for overflow checking
           }
 
           
@@ -1195,9 +1205,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let id = tabContent.id;
     if (!id || typeof id !== 'string') return null;
 
-    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-tab-expander`)) return false;
+    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-view-tab-expander`)) return false;
 
-    let elm = document.createElement('tabview-tab-expander')
+    let elm = document.createElement('tabview-view-tab-expander')
     tabContent.insertBefore(elm, tabContent.firstChild);
     elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
     elm.addEventListener('click', handlerTabExpanderClick, false);
@@ -1209,7 +1219,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     
     let screenWidth = document.documentElement.getBoundingClientRect().width;
 
-    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
 
     if (posElm1) {
 
@@ -1224,11 +1234,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     
      
-    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
 
-    let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view');
+    let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander');
 
-    if (posElm2) {
+    if (posElm1 && posElm2) {
 
       let offset =  posElm1.getBoundingClientRect().x - posElm2.getBoundingClientRect().right;
       return offset
@@ -1273,15 +1283,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!primary) return;
 
 
-    let res = await Promise.all([
-      new Promise(f => f(columns.getBoundingClientRect())),
-      new Promise(f => f(document.documentElement.getBoundingClientRect().width)),
-      new Promise(f => f(secondary.getBoundingClientRect())),
-      new Promise(f => f(secondaryInner.getBoundingClientRect()))
-    ]);
-    
-
-    const [rectC, screenWidth, rect, rectI] = res;
+    let res = await Promise.resolve(0);
 
 
 
@@ -1289,9 +1291,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const setOffset = () => {
 
 
-      let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-column-pos');
+      let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
 
-      let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-secondary-empty-view');
+      let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander');
   
       if(posElm1 && posElm2){
 
@@ -1308,7 +1310,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           k = 0.0
         }
         secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
-        secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`)
+        secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`) // unnecessary 
 
         let oriWidth = posElm2.getBoundingClientRect().width;
 
@@ -2039,9 +2041,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //let ab = sVideosList.getAttribute('tabview-videos-autoload')
     await Promise.resolve(0);
 
-    let endPosDOM = document.querySelector('tabview-videos-end-pos')
+    let endPosDOM = document.querySelector('tabview-view-videos-endpos')
     if (endPosDOM) endPosDOM.remove(); // just in case
-    endPosDOM = document.createElement('tabview-videos-end-pos')
+    endPosDOM = document.createElement('tabview-view-videos-endpos')
     sVideosList.parentNode.insertBefore(endPosDOM, sVideosList.nextSibling);
 
     await Promise.resolve(0);
@@ -2168,7 +2170,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let chatroom = null;
     if (chatroom = document.querySelector('*:not([data-positioner="before|#chat"]) + ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')) {
 
-      let positioner = document.querySelector('tabview-youtube-positioner[data-positioner="before|#chat"]');
+      let positioner = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
       if (positioner) positioner.remove();
 
 
@@ -2181,7 +2183,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-      $(positioner ? positioner : document.createElement('tabview-youtube-positioner')).attr('data-positioner', 'before|#chat').insertBefore(chatroom)
+      $(positioner ? positioner : document.createElement('tabview-view-pholder')).attr('data-positioner', 'before|#chat').insertBefore(chatroom)
 
 
 
@@ -3442,7 +3444,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let addHTML = `
         <div id="right-tabs">
-            <tabview-tabs-header-position></tabview-tabs-header-position>
+            <tabview-view-pos-thead></tabview-view-pos-thead>
             <header>
                 <div id="material-tabs">
                     ${str_tabs}
@@ -3553,7 +3555,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const [header, headerP, navElm] = await Promise.all([
       new Promise(f=>f(document.querySelector("#right-tabs header"))),
       
-      new Promise(f=>f(document.querySelector("#right-tabs tabview-tabs-header-position"))),
+      new Promise(f=>f(document.querySelector("#right-tabs tabview-view-pos-thead"))),
       
       new Promise(f=>f(document.querySelector('#masthead-container, #masthead')))
       
@@ -3717,7 +3719,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     if(pageRendered===2){
-      let elmPL = document.querySelector('tabview-page-loader');
+      let elmPL = document.querySelector('tabview-view-ploader');
       elmPL.remove();
       pageRendered=0;
     } 
@@ -4381,16 +4383,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           renderDeferred.debounce(()=>{
             setTimeout(() => {
               //dispatchWindowResize(); //try to omit
-              rePosColumns();
               dispatchWindowResize(); //add once for safe
               manualResize(true);
             }, 420)
           })
 
 
-          let secondary = document.querySelector('#columns #secondary.ytd-watch-flexy');
+          let secondary = document.querySelector('#columns.ytd-watch-flexy #secondary.ytd-watch-flexy');
 
-          let columns = secondary ? closestDOM.call(secondary, '#columns') : null;
+          let columns = secondary ? closestDOM.call(secondary, '#columns.ytd-watch-flexy') : null;
 
           setupHoverSlider(secondary, columns)
 
@@ -5405,13 +5406,8 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
 
   function setToggleInfo() {
-    new Promise(resolve => {
 
-      scriptletDeferred.debounce(()=>{
-        resolve();
-      })
-
-    }).then(() => {
+    scriptletDeferred.d().then(() => {
 
       let elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
       if (elem) {
@@ -5768,7 +5764,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       attributeOldValue: true
     })
 
-    let columns = document.querySelector('ytd-page-manager#page-manager #columns')
+    let columns = document.querySelector('ytd-page-manager#page-manager #columns.ytd-watch-flexy')
     if (columns) {
       wAttr(columns, 'userscript-scrollbar-render', true);
     }
@@ -5821,7 +5817,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         lstTab.lastTab = activeLink.getAttribute('tyt-tab-content')
         lstTab.lastPanel = null;
 
-        if(!document.querySelector(`${lstTab.lastTab}.tab-content-cld tabview-tab-expander`)){
+        if(!document.querySelector(`${lstTab.lastTab}.tab-content-cld tabview-view-tab-expander`)){
 
           let secondary = document.querySelector('#secondary.ytd-watch-flexy');
           if (secondary) {
@@ -6146,20 +6142,19 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       }
       return;
     }
- 
+
     let pageY = scrollY;
 
 
     let tdt = Date.now();
     singleColumnScrolling_dt = tdt;
-
-    let targetElm, header, navElm;
+ 
 
 
     _console.log(7891, 'scrolling')
 
-    function getXYStatus(res){
-      
+    function getXYStatus(res) {
+
       const [navHeight, elmY] = res;
 
       let xyz = [elmY + navHeight, pageY, elmY - navHeight]
@@ -6188,69 +6183,65 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       return xyStatus;
     }
 
-    Promise.all([
+    let [targetElm, header, navElm] = await Promise.all([
       new Promise(f => f(document.querySelector("#right-tabs"))),
 
       new Promise(f => f(document.querySelector("#right-tabs header"))),
 
       new Promise(f => f(document.querySelector('#masthead-container, #masthead'))),
 
-    ]).then(res => {
-      const [_targetElm, _header, _navElm] = res;
-      targetElm = _targetElm;
-      header = _header;
-      navElm = _navElm;
-      if (!targetElm || !header) {
-        return null;
-      }
-      if (singleColumnScrolling_dt !== tdt) return null;
-      return Promise.all([
-        new Promise(f => f(navElm ? navElm.offsetHeight : 0)),
-        new Promise(f => f(targetElm.offsetTop))
-      ])
-    }).then(res => {
+    ]);
 
-      if (res === null) return;
-
-      if (singleColumnScrolling_dt !== tdt) return null;
-
-
-      const xyStatus = getXYStatus(res);
-
-
-      function getLeftRight() {
-
-        let thp = document.querySelector('tabview-tabs-header-position');
-        if (thp) {
-
-          let rect = thp.getBoundingClientRect()
-          if (rect) {
-            return {
-              left: rect.left,
-              right: document.documentElement.clientWidth - rect.right
-            };
-          }
-        }
-        return null;
-      }
-
-      let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
-
-      function getWidthHeight() {
-        return { width: targetElm.offsetWidth, height: header.offsetHeight };
-      }
-
-      setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
-
-
-
-    }).then(() => {
-
+    function emptyForGC(){
       targetElm = null;
       header = null;
       navElm = null;
+    }
+ 
+    if (!targetElm || !header) {
+      return emptyForGC();
+    }
+    if (singleColumnScrolling_dt !== tdt) return emptyForGC();
 
-    });
+    let res2 = await Promise.all([
+      new Promise(f => f(navElm ? navElm.offsetHeight : 0)),
+      new Promise(f => f(targetElm.offsetTop))
+    ])
+
+    if (res2 === null) return emptyForGC();
+
+    if (singleColumnScrolling_dt !== tdt) return emptyForGC();
+
+
+    const xyStatus = getXYStatus(res2);
+
+
+    function getLeftRight() {
+
+      let thp = document.querySelector('tabview-view-pos-thead');
+      if (thp) {
+
+        let rect = thp.getBoundingClientRect()
+        if (rect) {
+          return {
+            left: rect.left,
+            right: document.documentElement.clientWidth - rect.right
+          };
+        }
+      }
+      return null;
+    }
+
+    let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
+
+    function getWidthHeight() {
+      return { width: targetElm.offsetWidth, height: header.offsetHeight };
+    }
+
+    setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
+
+
+    emptyForGC();
 
   };
 
@@ -6264,37 +6255,36 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
       return;
-    } 
- 
+    }
 
-    Promise.all([
+    let [targetElm, header] = await Promise.all([
       new Promise(f => f(document.querySelector("#right-tabs"))),
-
       new Promise(f => f(document.querySelector("#right-tabs header")))
+    ]);
 
-    ]).then(res => { 
-
-      
-      const [targetElm, header] = res; 
-      if (!targetElm || !header) {
-        return null;
-      }
-
-      function getLeftRight() {
-        return xRect;
-      }
-
-      let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
-
-      function getWidthHeight() {
-        return { width: (width || targetElm.offsetWidth), height: header.offsetHeight };
-      }
-
-      setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
+    function emptyForGC() {
+      targetElm = null;
+      header = null;
+    }
 
 
+    if (!targetElm || !header) {
+      return emptyForGC();
+    }
 
-    })
+    function getLeftRight() {
+      return xRect;
+    }
+
+    let bool = (xyStatus == 2 || xyStatus == 3) ? true : ((xyStatus == 1) ? false : null);
+
+    function getWidthHeight() {
+      return { width: (width || targetElm.offsetWidth), height: header.offsetHeight };
+    }
+
+    setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight);
+
+    emptyForGC();
 
   };
 
@@ -6700,7 +6690,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
             });
 
-            let elmPL = document.createElement('tabview-page-loader');
+            let elmPL = document.createElement('tabview-view-ploader');
             pageRendered = 1;
             ytdFlexyElm.appendChild(elmPL);
             // pageRendered keeps at 1 if the video is continuously playing at the background
@@ -6814,43 +6804,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
   //let lastResizeAt = 0;  
   let resizeCount = 0;
-
-  function rePosColumns(){
- 
-
-
-    /*
-
-    try{
-
-
-      let columnWidth = document.querySelector('#columns.ytd-watch-flexy').clientWidth;
-      let docWidth = document.documentElement.clientWidth;
-      
-
-      if(columnWidth>docWidth){
-        document.querySelector('#columns.ytd-watch-flexy').style.marginLeft=`${columnWidth-docWidth}px`;
-      }
-
-    let columnLeft = document.querySelector('#columns.ytd-watch-flexy').getBoundingClientRect().left
-    let primaryLeft = document.querySelector('#columns.ytd-watch-flexy > #primary.ytd-watch-flexy').getBoundingClientRect().left
-
-    let columnML = +(getComputedStyle(document.querySelector('#columns.ytd-watch-flexy')).marginLeft||'').replace('px','')
-    
-    if(columnML-10000<0){
-
-      document.querySelector('#columns.ytd-watch-flexy').style.marginLeft=`${((-primaryLeft) + columnLeft)}px`;
-
-    }
-
-    }catch(e){
-
-    }
-
-    */
-    
-
-  }
   window.addEventListener('resize', function (evt) {
 
     if (evt.isTrusted === true) { 
@@ -6862,7 +6815,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           // avoid duplicate calling during resizing
           if (tcw !== resizeCount) return;
           
-          rePosColumns();
           resizeCount = 0;
           manualResize(true);
           dispatchCommentRowResize();
