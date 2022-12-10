@@ -6857,7 +6857,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
   let pageStartLoad = (evt) => {
-    console.log('ss', evt)
+    //console.log('ss', evt)
     pageBeingInit();
   }
 
