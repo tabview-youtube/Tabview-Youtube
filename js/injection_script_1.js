@@ -1859,48 +1859,101 @@ function injection_script_1() {
 
   }, true);
 
+  function scGet(){
+
+    let t = this;
+    let sc = t._sc.deref();
+    if (!t.hasAttribute('autocomplete')) {
+      sc.textContent = '';
+      // to make something for "document.body.removeChild(t.sc),"
+      let x = new Comment();
+      document.body.appendChild(x);
+      setTimeout(() => {
+        if (x.parentNode) document.body.removeChild(x);
+        x = null;
+      });
+      return x;
+    }
+    return sc || null;
+
+  }
 
   document.addEventListener('tabview-fix-autocomplete', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
     // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
 
-    for (const s of document.querySelectorAll('[autocomplete="off"]:not([data-autocomplete-results-id])')) {
+    let s = evt.target;
+    if (!s.matches('[autocomplete="off"]:not([data-autocomplete-results-id])')) return;
 
+    let sc = s.sc; //#autocomplete-suggestions 
+    if (sc instanceof HTMLElement) {
 
-      let sc = s.sc;
-      if (sc instanceof HTMLElement) {
+      let id = Date.now();
+      s.setAttribute('data-autocomplete-results-id', id);
+      sc.setAttribute('data-autocomplete-input-id', id);
 
-        let id = Date.now();
-        s.setAttribute('data-autocomplete-results-id', id);
-        sc.setAttribute('data-autocomplete-input-id', id);
-
-        if (typeof WeakRef === 'function') {
-          s._sc = new WeakRef(sc);
-          s.sc = null;
-          delete s.sc;
-          Object.defineProperty(s, 'sc', {
-            get: function () { return s._sc.deref() || null; },
-            enumerable: true,
-            configurable: true
-          })
+      if (typeof WeakRef === 'function') {
+        s._sc = new WeakRef(sc);
+        s.sc = null;
+        delete s.sc;
+        Object.defineProperty(s, 'sc', {
+          get: scGet,
+          enumerable: true,
+          configurable: true
+        })
+        s._scGet = ()=>{
+          return this._sc.deref();
         }
-
-        if (sc.hasAttribute('autocomplete-disable-updatesc') && typeof s.updateSC == 'function') {
-
-          window.removeEventListener('resize', s.updateSC);
-          s.updateSC = function () { };
-
+      }else{
+        s._scGet = ()=>{
+          return this.sc;
         }
-
-        sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
-
-
       }
 
-    }
+      if (typeof s.updateSC == 'function') {
 
-  }, false);
+        window.removeEventListener('resize', s.updateSC);
+        s.updateSC = function () {
+
+          //console.log(3434)
+          
+          this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
+
+         };
+
+      }
+      /*
+
+      sc._suggestionHeight = sc.suggestionHeight;
+      sc.suggestionHeight = null;
+      delete sc.suggestionHeight;
+
+      
+      Object.defineProperty(sc, 'suggestionHeight', {
+        get: ()=>{
+          return this._suggestionHeight;
+        },
+        set: (nv)=>{
+          this._suggestionHeight = nv;
+          console.log(2233)
+          this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
+        },
+        enumerable: true,
+        configurable: true
+      })
+      */
+
+      s.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+
+
+
+    }
+    
+    sc = null;
+
+
+  }, true);
 
 
   // initial paging -> yt-page-data-fetched
@@ -1929,7 +1982,7 @@ function injection_script_1() {
   }
 
 
-  document.addEventListener('tabview-info-toggler', (evt) => {
+  document.addEventListener('tyt-info-toggler', (evt) => {
     let node = (evt || 0).target;
     node.addEventListener('click', tabviewInfoTogglerOnClick, false)
   }, true);
@@ -2653,6 +2706,8 @@ function injection_script_1() {
         }
 
         if (!endpoint) return handleNavigate.apply($this, $arguments);
+
+        console.log('tabview-script-handleNavigate')
 
         let ytdApp = document.querySelector('ytd-app');
 

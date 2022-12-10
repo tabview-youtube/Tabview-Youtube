@@ -11,7 +11,7 @@
 
   if (inIframe()) return;
 
-  if (!$) return;
+  //if (!$) return;
 
   /**
    * SVG resources:
@@ -384,7 +384,6 @@
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
   //const elementRemove = HTMLElement.prototype.remove;
-  const elementInsertBefore = HTMLElement.prototype.insertBefore; // since 2022/07/12
   const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
 
@@ -622,12 +621,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-  }
-
-  function timeout(f, d, repeatCount) {
-    let res = new Timeout();
-    res.set(f, d, repeatCount);
-    return res;
   }
 
 
@@ -1081,134 +1074,123 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  let global_columns_end_ito = null;
+
   function setupHoverSlider(secondary, columns){
 
-    if (secondary && columns) {
-      let attrName = `o4r-${uidGEN('tabview-hover-slider-restore')}`;
+    if (!secondary || !columns) return;
+    let attrName = `o4r-${uidGEN('tabview-hover-slider-restore')}`;
 
-      if (!secondary.hasAttribute(attrName)) {
+    if (secondary.hasAttribute(attrName)) return;
+    secondary.setAttribute(attrName, '');
 
-        secondary.setAttribute(attrName, '');
+    let elmB = document.querySelector('tabview-view-secondary-xpander');
+    if (!elmB) {
+      elmB = document.createElement('tabview-view-secondary-xpander');
+      prependTo(elmB, secondary);
+    }
+
+    let elmA = document.querySelector('tabview-view-columns-endpos');
+    if (elmA) elmA.remove();
+    elmA = document.createElement('tabview-view-columns-endpos');
+
+    let itoA = new IntersectionObserver((entries) => {
+      let t = null;
+      let w = enableHoverSliderDetection
+      for (const entry of entries) {
+        if (entry.rootBounds === null) continue;
+        let bcr = entry.boundingClientRect;
+        let rb = entry.rootBounds;
+        t = !entry.isIntersecting && (bcr.left > rb.right) && (rb.left <= 0);
+        // if entries.length>1 (unlikely); take the last intersecting
+        // supplement cond 1. ensure the col element is in the right side
+        // supplement cond 2. ensure column is wide enough for overflow checking
+        // it can also avoid if the layout change happened but attribute not yet changed during the intersection observation
+      }
+
+      let columns = document.querySelector('#columns.style-scope.ytd-watch-flexy');
+      if (columns) columns.classList.toggle('tyt-column-overflow', t);
+
+      if (w !== t && t !== null) {
+        // t can be true when the layout enters single column mode
+        enableHoverSliderDetection = t;
+      }
+      //console.log(entries, enableHoverSliderDetection, t)
+    })
+    columns.appendChild(elmA); // append to dom first before observe
+    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+      //to trigger observation at the time layout being changed
+      itoA.observe(elmA);
+    }
+    global_columns_end_ito = itoA;
 
 
-        let elmB = document.querySelector('tabview-view-secondary-xpander')
-        if (!elmB) {
-          elmB = document.createElement('tabview-view-secondary-xpander');
-          prependTo(elmB, document.querySelector('#secondary'))
-        } 
+    let _tabviewSiderAnimated = false;
+    handleDOMAppear('tabviewSiderAnimation', (evt) => {
+      if (!_tabviewSiderAnimated) {
+        _tabviewSiderAnimated = true;
+        dispatchCommentRowResize();
+      }
+    })
 
-        let elmA;
-
-        if (elmA = document.querySelector('tabview-view-columns-endpos')) elmA.remove();
-        elmA = document.createElement('tabview-view-columns-endpos');
-
-            
-
-        let itoA = new IntersectionObserver((entries) => {
-          let t = null;
-          let w = enableHoverSliderDetection
-          for (const entry of entries) {
-            if (entry.rootBounds === null) continue;
-            let bcr = entry.boundingClientRect;
-            let rb = entry.rootBounds;
-            t = (bcr.left > rb.right) && (rb.left <= 0) ? !entry.isIntersecting : false;
-            // if entries.length>1 (unlikely); take the last intersecting
-            // supplement cond 1. ensure the col element is in the right side
-            // supplement cond 2. ensure column is wide enough for overflow checking
-          }
-
-          
-          let columns = document.querySelector('#columns.style-scope.ytd-watch-flexy');
-          if (columns) columns.classList.toggle('tyt-column-overflow', t);
-
-          if (w !== t && t !== null) {
-            // t can be true when the layout enters single column mode
-            enableHoverSliderDetection = t;
+    handleDOMAppear('tabviewSiderAnimationNone', (evt) => {
+      if (_tabviewSiderAnimated) {
+        _tabviewSiderAnimated = false;
+        dispatchCommentRowResize();
+      }
+    })
 
 
-          }
-          //console.log(entries, enableHoverSliderDetection, t)
+    secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
+
+      let secondary = evt.target;
+
+      if (!secondary.classList.contains('tabview-hover-slider-enable')) return;
+
+      let secondaryInner = querySelectorFromAnchor.call(secondary, '#secondary-inner.ytd-watch-flexy')
+
+      if (!secondaryInner) return;
+
+      if (secondary.classList.contains('tabview-hover-slider-hover')) {
+
+        Promise.resolve(0).then(() => {
+          secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+        }).then(() => {
+          secondary.classList.remove('tabview-hover-slider-enable')
+          exitPIP();
         })
-        columns.appendChild(elmA); // append to dom first before observe
-        itoA.observe(elmA);
 
+      } else {
 
-        let _tabviewSiderAnimated = false;
-        handleDOMAppear('tabviewSiderAnimation', (evt)=>{
+        let secondary = evt.target;
+        secondary.classList.remove('tabview-hover-slider')
+        secondary.classList.remove('tabview-hover-slider-enable')
 
-          if(!_tabviewSiderAnimated){
-            
-          _tabviewSiderAnimated = true;
-          dispatchCommentRowResize();
+        secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
+        secondaryInner.style.removeProperty('--tabview-slider-right')
 
-          }
-
-        })
-
-        handleDOMAppear('tabviewSiderAnimationNone', (evt)=>{
-
-          if(_tabviewSiderAnimated){
-            _tabviewSiderAnimated=false;
-            dispatchCommentRowResize();
-          }
-
-
-        })
-
-
-        secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
-
-          let secondary = evt.target;
-
-          if (!secondary.classList.contains('tabview-hover-slider-enable')) return;
-
-          let secondaryInner = querySelectorFromAnchor.call(secondary, '#secondary-inner.ytd-watch-flexy')
-
-          if (!secondaryInner) return;
-
-          if (secondary.classList.contains('tabview-hover-slider-hover')) {
-
-            Promise.resolve(0).then(() => {
-              secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
-            }).then(() => {
-              secondary.classList.remove('tabview-hover-slider-enable')
-              exitPIP();
-            })
-
-          } else {
-
-            let secondary = evt.target;
-            secondary.classList.remove('tabview-hover-slider')
-            secondary.classList.remove('tabview-hover-slider-enable')
-
-            secondaryInner.style.removeProperty('--ytd-watch-flexy-sidebar-width-d');
-            secondaryInner.style.removeProperty('--tabview-slider-right')
-
-            exitPIP();
-
-          }
-
-          setTimeout(() => {
-            updateFloatingSlider()
-          }, 30);
-
-        }, false)
+        exitPIP();
 
       }
 
-    }
+      setTimeout(() => {
+        updateFloatingSlider()
+      }, 30);
+
+    }, false);
 
   }
+
   function addTabExpander(tabContent){
 
     if (!tabContent) return null;
     let id = tabContent.id;
     if (!id || typeof id !== 'string') return null;
 
-    if (querySelectorFromAnchor.call(tabContent, `#${id}>tabview-view-tab-expander`)) return false;
+    if (querySelectorFromAnchor.call(tabContent, `#${id} > tabview-view-tab-expander`)) return false;
 
     let elm = document.createElement('tabview-view-tab-expander')
-    tabContent.insertBefore(elm, tabContent.firstChild);
+    prependTo(elm, tabContent);
     elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
     elm.addEventListener('click', handlerTabExpanderClick, false);
     return true;
@@ -1231,8 +1213,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function getSecondaryInnerRight(){
-
-    
      
     let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
 
@@ -1244,9 +1224,49 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return offset
 
     }
-    return null
+    return null    
 
-    
+  }
+
+  const setFloatingSliderOffset = (secondaryInner) => {
+
+
+    let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
+
+    let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander');
+
+    if(posElm1 && posElm2){
+
+      let offset = getColumnOverflowWidth();
+
+      let k = 1.0
+      if (offset >= 125) {
+        k = 1.0
+      } else if (offset >= 75) {
+        k = 1.0;
+      } else if (offset >= 25) {
+        k = 0.25;
+      } else {
+        k = 0.0
+      }
+      secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
+      secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`) // unnecessary 
+
+      let oriWidth = posElm2.getBoundingClientRect().width;
+      secondaryInner.style.setProperty('--tabview-slider-ow', `${oriWidth}px`)
+
+      let s1 = 'var(--ytd-watch-flexy-sidebar-width-d)';
+      // new width 
+
+      let s2 = `var(--tabview-slider-ow)`;
+      // ori width - youtube changing the code -> not reliable to use css prop.
+
+      let s3 = `${offset}px`;
+      // how many px wider than the page
+
+      secondaryInner.style.setProperty('--tabview-slider-offset-actual', `calc(${s1} - ${s2} + ${s3})`)
+      
+    }
 
   }
 
@@ -1254,144 +1274,44 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // [is-extra-wide-video_]
 
+    await new Promise(r => setTimeout(r, 30)); // time allowed for dom changes and value change of enableHoverSliderDetection    
+
     let secondary = secondaryInner.parentNode;
     if (!secondary) return;
-
 
     if (secondary.classList.contains('tabview-hover-slider-enable')) {
       return;
     }
 
-
-    await new Promise(r => setTimeout(r), 30); // time allowed for dom changes and value change of enableHoverSliderDetection
-    let bool = enableHoverSliderDetection;
-
-    
-    let previousHasClass = secondary.classList.contains('tabview-hover-slider-hover');
-
-    if (bool || previousHasClass) {
-    }else{
+    if (!secondary.matches('#columns.ytd-watch-flexy #primary.ytd-watch-flexy ~ #secondary.ytd-watch-flexy')) {
       return;
     }
 
-    
-    let columns = secondary.parentNode;
-    if (!columns) return;
+    const bool = enableHoverSliderDetection === true;
+    const hasClassHover = secondary.classList.contains('tabview-hover-slider-hover') === true;
 
-
-    let primary = querySelectorAllFromAnchor.call(columns, '#primary.ytd-watch-flexy');
-    if (!primary) return;
-
-
-    let res = await Promise.resolve(0);
-
-
-
-
-    const setOffset = () => {
-
-
-      let posElm1 = document.querySelector('#secondary.style-scope.ytd-watch-flexy + tabview-view-columns-endpos');
-
-      let posElm2 = document.querySelector('#secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander');
-  
-      if(posElm1 && posElm2){
-
-        let offset = getColumnOverflowWidth();
-
-        let k = 1.0
-        if (offset >= 125) {
-          k = 1.0
-        } else if (offset >= 75) {
-          k = 1.0;
-        } else if (offset >= 25) {
-          k = 0.25;
-        } else {
-          k = 0.0
-        }
-        secondaryInner.style.setProperty('--tabview-slider-offset-k2', `${k}`);
-        secondaryInner.style.setProperty('--tabview-slider-offset', `${offset}px`) // unnecessary 
-
-        let oriWidth = posElm2.getBoundingClientRect().width;
-
-        secondaryInner.style.setProperty('--tabview-slider-ow', `${oriWidth}px`)
-
-        
-        let s1 = 'var(--ytd-watch-flexy-sidebar-width-d)';
-        // new width 
-
-        let s2 = `var(--tabview-slider-ow)`;
-        // ori width - youtube changing the code -> not reliable to use css prop.
-
-        let s3 = `${offset}px`;
-        // how many px wider than the page
- 
-
-        secondaryInner.style.setProperty('--tabview-slider-offset-actual', `calc(${s1} - ${s2} + ${s3})`)
-        
-          /*
-
-          (
-          posElm1.getBoundingClientRect().left
-
-          + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width))
-
-          )
-
-          -
-
-          (
-
-
-            
-   document.documentElement.getBoundingClientRect().width
-
-   -
-
-   (posElm1.getBoundingClientRect().x - posElm2.getBoundingClientRect().right)
-            
-
-          )
-
-          */
-
-
-        
-        
-      }
-
+    if (bool || hasClassHover) {
+    } else {
+      return;
     }
-
-
-
 
     await Promise.resolve(0);
 
     secondary.classList.add('tabview-hover-final')
 
-    if (previousHasClass && !bool) {
+    if (hasClassHover && !bool) {
       secondaryInner.style.removeProperty('--tabview-slider-right')
       secondaryInner.style.removeProperty('--tabview-slider-offset')
     } else {
 
-      if (!previousHasClass) { //secondary.classList.contains('tabview-hover-slider');
-        secondaryInner.style.setProperty('--tabview-slider-right', `${ getSecondaryInnerRight() }px`)
+      if (!hasClassHover) {
+        secondaryInner.style.setProperty('--tabview-slider-right', `${getSecondaryInnerRight()}px`)
       }
 
-      setOffset();
+      setFloatingSliderOffset(secondaryInner);
     }
 
-    if (bool && previousHasClass) { }
-    else if (!bool && !previousHasClass) { }
-    else {
-      /*
-      let emptyView = secondary.querySelector('tabview-hover-slider-empty-view')
-      if(!emptyView){
-        emptyView = document.createElement('tabview-hover-slider-empty-view')
-        secondary.appendChild(emptyView);
-      }
-      emptyView.style.setProperty('--tyt-slider-width', `${rectI.width}px`);*/
-
+    if (bool ^ hasClassHover) {
       secondary.classList.toggle('tabview-hover-slider', bool)
       secondary.classList.toggle('tabview-hover-slider-hover', bool)
     }
@@ -1403,34 +1323,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       secondary.classList.remove('tabview-hover-final')
     }, 350)
 
-    
-
-  } 
 
 
-  function updateFloatingSlider(){
+  }
+
+
+  function updateFloatingSlider() {
 
     let secondaryInner = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')
 
-    if(!secondaryInner) return;
-      
-    let secondary = secondaryInner.parentNode;
-    if(!secondary) return;
+    if (!secondaryInner) return;
 
-    if(secondary.classList.contains('tabview-hover-slider-enable')){
+    let secondary = secondaryInner.parentNode;
+    if (!secondary) return;
+
+    if (secondary.classList.contains('tabview-hover-slider-enable')) {
       return;
     }
 
     let t = document.documentElement.clientWidth; //integer
 
-    sliderMutex.lockWith(unlock=>{
+    sliderMutex.lockWith(unlock => {
 
       let v = document.documentElement.clientWidth; //integer
 
-      if(t===v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')){
-       
-        updateFloatingSlider_A(secondaryInner ).then(unlock);
-      }else{
+      if (t === v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')) {
+
+        updateFloatingSlider_A(secondaryInner).then(unlock);
+      } else {
         unlock();
       }
 
@@ -1789,6 +1709,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       Promise.resolve(0).then(() => {
         pageCheck();
+        if (global_columns_end_ito !== null) {
+          //to trigger observation at the time layout being changed
+          if ((new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+            let endpos = document.querySelector('tabview-view-columns-endpos')
+            if (endpos !== null) {
+              global_columns_end_ito.observe(endpos)
+            }
+          } else {
+            global_columns_end_ito.disconnect();
+          }
+        }
         setTimeout3(() => {
           singleColumnScrolling(true); //initalize sticky
         });
@@ -1906,7 +1837,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function isAnyActiveTab() {
-    return $('#right-tabs .tab-btn.active').length > 0
+    return document.querySelectorAll('#right-tabs .tab-btn.active').length > 0
   }
 
   function isEngagementPanelExpanded() { //note: not checking the visual elements
@@ -2044,7 +1975,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let endPosDOM = document.querySelector('tabview-view-videos-endpos')
     if (endPosDOM) endPosDOM.remove(); // just in case
     endPosDOM = document.createElement('tabview-view-videos-endpos')
-    sVideosList.parentNode.insertBefore(endPosDOM, sVideosList.nextSibling);
+    insertAfterTo(endPosDOM, sVideosList);
 
     await Promise.resolve(0);
 
@@ -2055,6 +1986,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!sVideosITO) {
 
       sVideosITO = new IntersectionObserver((entries) => {
+
+        if((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) return;
 
         _console.log(9334, entries)
         if (entries.length !== 1) return;
@@ -2069,7 +2002,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           _console.log(9335, res)
 
           if (res.m2 && res.m3) {
-            let m4 = res.m2.closest('ytd-continuation-item-renderer');
+            let m4 = closestDOM.call(res.m2, 'ytd-continuation-item-renderer');
             let m5, m6;
 
             _console.log(9336, m4)
@@ -2116,22 +2049,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function fixTabs() {
 
-
     if (!scriptEnable) return;
 
-
-    let queryElement = document.querySelector('*:not(#tab-videos) > #related:not([tyt-null]) > ytd-watch-next-secondary-results-renderer')
+    let queryElement = document.querySelector('*:not(#tab-videos) > #related.ytd-watch-flexy > ytd-watch-next-secondary-results-renderer');
 
     let isRelocated = !!queryElement;
 
-
-
     if (isRelocated) {
 
-      
       _console.log(3202,2)
 
-      let relocatedRelated = closestDOM.call(queryElement, '#related'); // NOT NULL
+      let relatedElm = closestDOM.call(queryElement, '#related.ytd-watch-flexy'); // NOT NULL
 
       let right_tabs = document.querySelector('#right-tabs'); // can be NULL
 
@@ -2141,22 +2069,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         
         _console.log(3202,4)
 
-        for (const s of querySelectorAllFromAnchor.call(relocatedRelated, '#related')) {
-          s.setAttribute('tyt-null', '')
-        }
-
         let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner.ytd-watch-flexy, ytd-watch-flexy[is-two-columns_] #secondary-inner.ytd-watch-flexy')
+        if (target_container) target_container.appendChild(right_tabs) // last-child
 
-        if (target_container) target_container.append(right_tabs) // last-child
-
-
-        let videos_related = relocatedRelated; // NOT NULL
-        $('[placeholder-videos]').removeAttr('placeholder-videos');
-        $('[placeholder-for-youtube-play-next-queue]').removeAttr('placeholder-for-youtube-play-next-queue');
-
-        tab_videos.appendChild(videos_related);
-        videos_related.setAttribute('placeholder-for-youtube-play-next-queue', '')
-        videos_related.setAttribute('placeholder-videos', '')
+        tab_videos.appendChild(relatedElm);
+        // no any other element set these attr. only init / relocation
+        relatedElm.setAttribute('placeholder-for-youtube-play-next-queue', '')
+        relatedElm.setAttribute('placeholder-videos', '')
  
         makeVideosAutoLoad2();
 
@@ -2165,27 +2084,30 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-
     /** @type {HTMLElement | null} */
     let chatroom = null;
     if (chatroom = document.querySelector('*:not([data-positioner="before|#chat"]) + ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')) {
 
-      let positioner = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
-      if (positioner) positioner.remove();
-
+      let pHolderElm = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
+      if (pHolderElm) pHolderElm.remove();
 
       if (document.querySelector('.YouTubeLiveFilledUpView')) {
         // no relocation
       } else {
 
-        $(chatroom).insertBefore('#right-tabs')
+        let rightTabs = document.querySelector('#right-tabs');
+        if (rightTabs) {
+          insertBeforeTo(chatroom, rightTabs);
+        }
 
       }
 
-
-      $(positioner ? positioner : document.createElement('tabview-view-pholder')).attr('data-positioner', 'before|#chat').insertBefore(chatroom)
-
-
+      if(!pHolderElm){
+        pHolderElm=document.createElement('tabview-view-pholder');
+        pHolderElm.setAttribute('data-positioner', 'before|#chat');
+      }
+ 
+      insertBeforeTo(pHolderElm, chatroom)
 
     }
 
@@ -2196,39 +2118,280 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     /** @type {HTMLElement} */
-    let autoComplete = this;
+    let searchBox, autoComplete;
+    searchBox  = this;
+    this.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+    let domId = this.getAttribute('data-autocomplete-results-id') 
 
-    autoComplete.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
-
-    let domId = autoComplete.getAttribute('data-autocomplete-input-id')
-    let searchBox = autoComplete.ownerDocument.querySelector(`[data-autocomplete-results-id="${domId}"]`)
+    autoComplete = document.querySelector(`[data-autocomplete-input-id="${domId}"]`)
 
     if (!domId || !searchBox) return;
 
     let positioner = searchBox.nextSibling;
-    if (positioner && positioner.nodeName.toLowerCase() == "autocomplete-positioner") { } else if (positioner && positioner.nodeName.toLowerCase() != "autocomplete-positioner") {
-      $(positioner = document.createElement("autocomplete-positioner")).insertAfter(searchBox);
+    if (positioner) {
+      if (positioner.nodeName.toLowerCase() !== "autocomplete-positioner") {
+        positioner = document.createElement("autocomplete-positioner");
+        insertAfterTo(positioner, searchBox);
+      }
     } else {
-      $(positioner = document.createElement("autocomplete-positioner")).prependTo(searchBox.parentNode);
+      positioner = document.createElement("autocomplete-positioner");
+      prependTo(positioner, searchBox.parentNode);
     }
-    $(autoComplete).prependTo(positioner);
+    prependTo(autoComplete, positioner);
 
-    positioner.style.setProperty('--sb-margin-bottom', getComputedStyle(searchBox).marginBottom)
-    positioner.style.setProperty('--height', searchBox.offsetHeight + 'px')
+    positioner.style.setProperty('--tyt-autosearch-mb', getComputedStyle(searchBox).marginBottom)
+    positioner.style.setProperty('--tyt-autosearch-h', searchBox.offsetHeight + 'px')
+
+    mtf_autocomplete_search();
 
   }
 
-  function mtf_fixAutoCompletePosition(/** @type {HTMLElement} */ elmAutoComplete) {
+  // mtf_fixAutoCompletePosition
+  handleDOMAppear('SearchWhileWatchAutocomplete', (evt)=>{
 
-
-    elmAutoComplete.setAttribute('autocomplete-disable-updatesc', '')
-    elmAutoComplete.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
-
-    scriptletDeferred.debounce(()=>{
-      document.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'))
-    })
+    let elm = evt.target;
     
-    //script_inject_facp.inject();
+    elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+    
+    scriptletDeferred.debounce(()=>{
+      elm.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'));
+      elm = null;
+    })
+
+  })
+
+  function mtf_autocomplete_search(){
+
+    /** @type {HTMLElement | null} */
+    const ytdFlexyElm = es.ytdFlexy;
+    if (!scriptEnable || !ytdFlexyElm) return;
+
+    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
+
+    if (autocomplete) {
+
+      const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
+
+
+      if (searchBox) {
+
+        const rAutoComplete = mWeakRef(autocomplete);
+        /*
+        let mVisible = null;
+
+        function getVisible (autocomplete, f){
+          
+          if(f||mVisible===null) mVisible = isDOMVisible(autocomplete);
+          return mVisible === true;
+        }
+
+        
+        function setVisible (autocomplete, b){
+          
+          if (!b){
+            autocomplete.style.display = 'none';
+            mVisible = false;
+          }
+          else{
+            autocomplete.style.display = 'block';
+            mVisible = true;
+          }
+
+        }
+        */
+
+
+        function getVisible (autocomplete, f){
+          
+          return isDOMVisible(autocomplete);
+        }
+
+        
+        function setVisible (autocomplete, b){
+          
+          if (!b){
+            autocomplete.style.display = 'none';
+          }
+          else{
+            autocomplete.style.display = 'block';
+          }
+
+        }
+
+
+        function isContentNotEmpty(searchbox, autocomplete){
+          return (searchbox.value || '').length > 0 && (autocomplete.textContent || '').length > 0;
+        }
+
+
+        autocomplete.parentNode.setAttribute('position-fixed-by-tabview-youtube', '');
+        autocomplete.setAttribute('position-fixed-by-tabview-youtube', '');
+        autocomplete.setAttribute('userscript-scrollbar-render', '')
+
+        //let cancelClickToggle = false;
+
+        if (!searchBox.hasAttribute('is-set-click-to-toggle')) {
+          searchBox.setAttribute('is-set-click-to-toggle', '')
+          
+          searchBox.addEventListener('click', function () {
+
+            Promise.resolve(0).then(()=>{
+
+              const autocomplete = kRef(rAutoComplete);
+
+              if (!autocomplete) return;
+  
+              const isNotEmpty = isContentNotEmpty(this, autocomplete);
+  
+              if (isNotEmpty) {
+  
+                let elmVisible = getVisible(autocomplete, true);
+  
+                if (elmVisible) {
+                  setVisible(autocomplete, false)
+                }
+                else {
+                  setVisible(autocomplete, true)
+                }
+  
+              }
+
+            })
+
+
+
+          }, bubblePassive)
+
+          //let timeoutOnce_searchbox_keyup = new Timeout();
+
+           
+          let cacheScrollIntoView = null;
+          let rafID = 0;
+          searchBox.addEventListener('keydown', function (evt) {
+            //cancelClickToggle = true;
+            switch (evt.code) {
+              case 'ArrowUp':
+              case 'ArrowDown':
+
+                let t = Date.now();
+                if (rafID === 0) {
+                  rafID = requestAnimationFrame(() => {
+                    rafID = 0;
+                    let d = Date.now();
+                    if (d - t > 300) return;
+                    
+                    const autocomplete = kRef(rAutoComplete);
+
+                    let selected = querySelectorFromAnchor.call(autocomplete, '.autocomplete-suggestion.selected');
+                    let bool = selected && selected !== cacheScrollIntoView;
+                    cacheScrollIntoView = selected;
+                    if (bool) {
+
+                      try {
+                        selected.scrollIntoView({ block: "nearest", inline: "nearest" });
+                      } catch (e) { }
+
+                    }
+
+                  })
+                }
+
+              case 'ArrowLeft':
+              case 'ArrowRight':
+                /*
+                evt.preventDefault();
+                evt.stopPropagation();
+                evt.stopImmediatePropagation();
+                */
+                return;
+              default:
+              //
+            }
+
+
+          }, bubblePassive)
+//           searchBox.addEventListener('keyup', function (evt) {
+//             //cancelClickToggle =true;
+//             switch (evt.code) {
+//               case 'ArrowUp':
+//               case 'ArrowDown':
+//               case 'ArrowLeft':
+//               case 'ArrowRight':
+// /*
+//                 evt.preventDefault();
+//                 evt.stopPropagation();
+//                 evt.stopImmediatePropagation();
+// */
+//                 return;
+//               default:
+//               //
+//             }
+//             // replaced by suggestion change event
+//             /*
+//             timeoutOnce_searchbox_keyup.set(() => {
+
+//               const autocomplete = kRef(rAutoComplete);
+
+//               if (!autocomplete) return;
+
+
+//               const isNotEmpty = isContentNotEmpty(this, autocomplete);
+
+//               if (isNotEmpty) {
+
+//                 let elmVisible = getVisible(autocomplete);
+
+//                 if (!elmVisible){
+//                   setVisible(autocomplete, true);
+//                 }
+
+//               }
+
+//             }, 20);
+//             */
+
+//           }, bubblePassive)
+
+          searchBox.addEventListener('tyt-autocomplete-suggestions-change',function(evt){
+
+            //cancelClickToggle = true;
+            if(evt.target !== document.activeElement) return;
+            setTimeout(()=>{
+               
+
+              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
+
+               
+            
+              if (!autocomplete) return;
+  
+  
+              const isNotEmpty = isContentNotEmpty(this, autocomplete); 
+  
+              if (isNotEmpty) {
+  
+                //let elmVisible = getVisible(autocomplete);
+   
+                // elmVisible can be wrong value by unknown reason
+                //if (!elmVisible){
+                  setVisible(autocomplete, true);
+                //}
+  
+              }
+
+            },20);
+
+          }, bubblePassive)
+ 
+
+        }
+
+
+
+      }
+
+    }
+
 
   }
 
@@ -2241,77 +2404,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
-
-    if (autocomplete) {
-
-      const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
-
-
-      if (searchBox) {
-
-
-        autocomplete.parentNode.setAttribute('position-fixed-by-tabview-youtube', '');
-        autocomplete.setAttribute('position-fixed-by-tabview-youtube', '');
-        autocomplete.setAttribute('userscript-scrollbar-render', '')
-
-        if (!searchBox.hasAttribute('is-set-click-to-toggle')) {
-          searchBox.setAttribute('is-set-click-to-toggle', '')
-          searchBox.addEventListener('click', function () {
-
-
-            setTimeout(() => {
-              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
-
-              if (!autocomplete) return;
-
-              const isNotEmpty = (autocomplete.textContent || '').length > 0 && (this.value || '').length > 0;
-
-              if (isNotEmpty) {
-
-                let elmVisible = isDOMVisible(autocomplete)
-
-                if (elmVisible) $(autocomplete).hide();
-                else $(autocomplete).show();
-
-              }
-
-            }, 20);
-
-          })
-
-          let timeoutOnce_searchbox_keyup = new Timeout();
-          searchBox.addEventListener('keyup', function () {
-
-            timeoutOnce_searchbox_keyup.set(() => {
-
-              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
-
-              if (!autocomplete) return;
-
-
-              const isNotEmpty = (autocomplete.textContent || '').length > 0 && (this.value || '').length > 0
-
-              if (isNotEmpty) {
-
-                let elmVisible = isDOMVisible(autocomplete)
-
-                if (!elmVisible) $(autocomplete).show();
-
-              }
-
-            }, 20);
-
-          })
-
-        }
-
-
-
-      }
-
-    }
-
+    mtf_autocomplete_search();
 
 
 
@@ -2415,31 +2508,64 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let comments = querySelectorFromAnchor.call(ytdFlexyElm, '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
-      $(comments).appendTo('#tab-comments')
-    }
-  }
-
-  function prependTo(elm, target){
-
-    if(!target || !elm) return null;
-
-    if (HTMLElement.prototype.prepend) {
-      // using prepend
-      HTMLElement.prototype.prepend.call(target, elm);
-      return true;
-    } else {
-      // using insertBefore
-      try {
-        elementInsertBefore.call(target, elm, target.firstChild);
-        return true;
-      } catch (e) {
-        console.log('element insert failed in old browser CE')
+      let tabComments = document.querySelector('#tab-comments');
+      if (tabComments) {
+        tabComments.appendChild(comments);
       }
     }
-
-    return false;
-
   }
+
+  const insertBeforeTo = HTMLElement.prototype.before ? (elm, target) => {
+    if (!target || !elm) return null;
+    // using before
+    HTMLElement.prototype.before.call(target, elm);
+    return true;
+  }: (elm, target) => {
+    if (!target || !elm) return null;
+    // using insertBefore
+    try {
+      HTMLElement.prototype.insertBefore.call(target.parentNode, elm, target);
+      return true;
+    } catch (e) {
+      console.log('element insert failed in old browser CE')
+    }
+    return false;
+  }
+  
+  const insertAfterTo = HTMLElement.prototype.after ? (elm, target) => {
+    if (!target || !elm) return null;
+    // using after
+    HTMLElement.prototype.after.call(target, elm);
+    return true;
+  }: (elm, target) => {
+    if (!target || !elm) return null;
+    // using insertBefore
+    try {
+      HTMLElement.prototype.insertBefore.call(target.parentNode, elm, target.nextSibling);
+      return true;
+    } catch (e) {
+      console.log('element insert failed in old browser CE')
+    }
+    return false;
+  }
+
+  const prependTo = HTMLElement.prototype.prepend ? (elm, target) => {
+    if (!target || !elm) return null;
+    // using prepend
+    HTMLElement.prototype.prepend.call(target, elm);
+    return true;
+  } : (elm, target) => {
+    if (!target || !elm) return null;
+    // using insertBefore
+    try {
+      HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
+      return true;
+    } catch (e) {
+      console.log('element insert failed in old browser CE')
+    }
+    return false;
+  }
+
 
   // css animation check for element relocation
   function mtf_liveChatBtnF(node) {
@@ -2491,13 +2617,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-
+  function getWrapper(wrapperId) {
+    let wrapper = document.getElementById(wrapperId);
+    if(!wrapper){
+      wrapper = document.createElement('div');
+      wrapper.id = wrapperId;
+    }
+    return wrapper;
+  }
 
   // continuous check for element relocation
   // fired at begining & window resize, etc
   // might moved to #primary
   function mtf_append_playlist(/** @type {HTMLElement | null} */ playlist) {
-
 
     if(playlist === null){
       playlist = document.querySelector('ytd-watch-flexy[playlist] *:not(#tabview-playlist-wrapper) > ytd-playlist-panel-renderer.style-scope.ytd-watch-flexy#playlist:not(.ytd-miniplayer)');
@@ -2510,22 +2642,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable || !ytdFlexyElm) return;
 
     let items = querySelectorFromAnchor.call(playlist, "*:not(#tabview-playlist-wrapper) > ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer) #items.ytd-playlist-panel-renderer:not(:empty)");
+ 
+    if (items !== null && playlist.nodeName.toUpperCase() === 'YTD-PLAYLIST-PANEL-RENDERER') {
 
-    if (items) {
+      let tab_list = document.querySelector("#tab-list");
 
-      if ((playlist.nodeName||0).toUpperCase() === 'YTD-PLAYLIST-PANEL-RENDERER') {
-    
-        let tab_list = document.querySelector("#tab-list");
+      if (!tab_list) return;
 
-        if (!tab_list) return;
-
-        let $wrapper = getWrapper('tabview-playlist-wrapper')
-        $wrapper.append(playlist).appendTo(tab_list); 
-
-
-      }
-
-
+      let w = getWrapper("tabview-playlist-wrapper");
+      let docFrag = new DocumentFragment(); 
+      // avoid immediate reflow for append playlist before append to tab_list
+      docFrag.appendChild(w);
+      w.appendChild(playlist);
+      tab_list.appendChild(docFrag);
+      docFrag = null;
+      w = null;
 
     }
   }
@@ -2593,7 +2724,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             setTimeout(() => {
 
 
-              let e = strcturedInfo.closest('ytd-watch-flexy #tab-info ytd-expander');
+              let e = closestDOM.call(strcturedInfo, 'ytd-watch-flexy #tab-info ytd-expander');
 
               if (!e) return;
               let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
@@ -3050,12 +3181,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!scriptEnable) return;
       if (pageType !== 'watch') return;
 
+
       for (const mutation of mutations) {
         for (const addedNode of mutation.addedNodes) {
           if (addedNode.nodeType === 1) {
-            if (addedNode.nodeName == "DIV" && addedNode.matches('.autocomplete-suggestion:not([autocomplete-disable-updatesc])')) {
-              mtf_fixAutoCompletePosition(addedNode)
-            } else if (addedNode.nodeName == "DIV" && (addedNode.id === 'lyricscontainer' || addedNode.id === 'showlyricsbutton')) {
+            if (addedNode.nodeName == "DIV" && (addedNode.id === 'lyricscontainer' || addedNode.id === 'showlyricsbutton')) {
 
               goYoutubeGeniusLyrics();
 
@@ -3421,12 +3551,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let str_fbtns = `
     <div class="font-size-right">
-    <div class="font-size-btn font-size-plus">
+    <div class="font-size-btn font-size-plus" tyt-di="8rdLQ">
     <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet" 
     stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-size">
       <path d="M12 25H38M25 12V38"/>
     </svg>
-    </div><div class="font-size-btn font-size-minus">
+    </div><div class="font-size-btn font-size-minus" tyt-di="8rdLQ">
     <svg width="12" height="12" viewbox="0 0 50 50" preserveAspectRatio="xMidYMid meet"
     stroke="currentColor" stroke-width="6" stroke-linecap="round" vector-effect="non-scaling-size">
       <path d="M12 25h26"/>
@@ -3436,10 +3566,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     `.replace(/[\r\n]+/g, '');
 
     const str_tabs = [
-      `<a id="tab-btn1" data-name="info" tyt-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn3" tyt-tab-content="#tab-comments" data-name="comments" class="tab-btn">${svgElm(16, 16, 120, 120, svgComments)}<span id="tyt-cm-count"></span>${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn4" tyt-tab-content="#tab-videos" data-name="videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn5" tyt-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
+      `<a id="tab-btn1" tyt-di="q9Kjc" tyt-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn3" tyt-di="q9Kjc" tyt-tab-content="#tab-comments" class="tab-btn">${svgElm(16, 16, 120, 120, svgComments)}<span id="tyt-cm-count"></span>${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn4" tyt-di="q9Kjc" tyt-tab-content="#tab-videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn5" tyt-di="q9Kjc" tyt-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
     ].join('');
 
     let addHTML = `
@@ -3874,10 +4004,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       
 
   }
-  function checkDuplicatedInfo(){
+  function checkDuplicatedInfo(req){
 
 
-    async function checkEqual_bb(desc1, desc2){
+    async function checkDuplicatedInfoContentEqual(desc1, desc2){
       // basically desc1 and desc2 are content identical
       // however, class name order could be different
       
@@ -3890,23 +4020,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       return {res: res1===res2}
     }
-    
-    async function checkEqual_B(){
+
+    async function checkDuplicatedInfoInner() {
 
       const ytdFlexyElm = es.ytdFlexy;
       if (!ytdFlexyElm) return; //unlikely
 
       let t = Date.now();
-      g_check_detail_A=t;
+      g_check_detail_A = t;
 
       ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
 
-      await new Promise(resolve=>setTimeout(resolve,1)); // mcrcr might be not yet initalized
+      await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
 
 
-      if(g_check_detail_A!==t) return;
-      
-      
+      if (g_check_detail_A !== t) return;
+
+
       // the class added before can be removed from the external coding
 
       function mrcrf(mrcr) {
@@ -3921,23 +4051,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       mrcrf(mrcr1);
       await Promise.resolve(0);
       let mrcr2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer ytd-metadata-row-container-renderer.style-scope.ytd-video-secondary-info-renderer')
-      mrcrf(mrcr2); 
+      mrcrf(mrcr2);
       await Promise.resolve(0);
-      
+
       let desc1 = null;
       let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
       await Promise.resolve(0);
 
       let plainText = false;
-      if(desc2 && desc2.firstElementChild === null){
+      if (desc2 && desc2.firstElementChild === null) {
         plainText = true;
         desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
-      } 
-      if(!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
+      }
+      if (!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
       await Promise.resolve(0);
 
-      if(desc1){ 
-        let parentContainer = desc1.closest('ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata');
+      if (desc1) {
+        let parentContainer = req.descMetaLines;
         //console.log(3434,querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander'))
         // hidden
 
@@ -3947,24 +4077,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (parentContainer) {
 
           let m = querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
-          
-          if(m){
+
+          if (m) {
 
             if (m.hasAttribute('hidden')) {
 
               let expandBtn = querySelectorFromAnchor.call(parentContainer, 'tp-yt-paper-button#expand.ytd-text-inline-expander:not([hidden])');
-  
+
               if (expandBtn) {
-  
+
                 expandBtn.click();
                 await new Promise(r => setTimeout(r, 30));
                 if (!m.hasAttribute('hidden')) desc1 = m;
               }
-  
+
             } else {
-  
+
               desc1 = m;
-  
+
             }
 
           }
@@ -3976,71 +4106,63 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let infoDuplicated = true;
 
 
-      let mb1=null, mb2=null;
+      let mb1 = null, mb2 = null;
 
-      if((desc1 === null) ^ (desc2===null) ){
+      if ((desc1 === null) ^ (desc2 === null)) {
         infoDuplicated = false;
-      }else if((mrcr1 === null) ^ (mrcr2===null) ){
+      } else if ((mrcr1 === null) ^ (mrcr2 === null)) {
         infoDuplicated = false;
-      }else{
+      } else {
 
 
         await Promise.all([
 
-          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ? 
-          checkEqual_bb(mrcr1,mrcr2).then((o) => {
-            //console.log('mrcr', o.res)
-            let { res, pNodeA, pNodeB } = o;
-            mb1 = res;
+          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ?
+            checkDuplicatedInfoContentEqual(mrcr1, mrcr2).then((o) => {
+              //console.log('mrcr', o.res)
+              let { res, pNodeA, pNodeB } = o;
+              mb1 = res;
 
-            if (res !== true) infoDuplicated = false;
-          }) : null,
+              if (res !== true) infoDuplicated = false;
+            }) : null,
 
-          (desc1 !== desc2 && desc1 !== null && desc2 !== null) ? 
-          checkEqual_bb(desc1,desc2).then((o) => {
-            //console.log('desc', o.res)
-            let { res, pNodeA, pNodeB } = o;
-            mb2=res;
+          (desc1 !== desc2 && desc1 !== null && desc2 !== null) ?
+            checkDuplicatedInfoContentEqual(desc1, desc2).then((o) => {
+              //console.log('desc', o.res)
+              let { res, pNodeA, pNodeB } = o;
+              mb2 = res;
 
-            if(!mb2){
-             // console.log('mb2', desc1, desc2, desc1.textContent, desc2.textContent)
-            }
+              if (!mb2) {
+                // console.log('mb2', desc1, desc2, desc1.textContent, desc2.textContent)
+              }
 
-            if (res !== true) infoDuplicated = false;
+              if (res !== true) infoDuplicated = false;
 
-          }) : null
+            }) : null
 
         ]);
 
       }
+      req = null;
 
-      console.log('check-info-duplicate', infoDuplicated, mb1,mb2 )
-      
-      //console.log(desc1, desc2, infoDuplicated)
-      if(desc1){
-        Promise.resolve(desc1).then(desc1=>{
-          let snippet = closestDOM.call(desc1, '#snippet.style-scope.ytd-text-inline-expander');
-          let dom = snippet || desc1; //desc1 might be hidden and thus cannot trigger interception change
-          if(dom) mtoObservationDetails.bindElement(dom);
-        })
-      }
-      
+      console.log('check-info-duplicate', infoDuplicated, mb1, mb2)
 
-      if(g_check_detail_A!==t) return;
+
+      if (g_check_detail_A !== t) return;
 
       //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
-      checkDuplicateRes= infoDuplicated;
+      checkDuplicateRes = infoDuplicated;
 
 
       return 5; // other than 5, duplicated check = false
 
-      
+
 
     };
 
 
-    return checkEqual_B();
-    
+    return checkDuplicatedInfoInner();
+
 
   }
 
@@ -4229,25 +4351,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let node = evt.target;
       if (!node) return;
 
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
 
-      Promise.resolve(0).then(() => { // avoid immediately dom change
-
+        // P.S. avoid immediately dom change
         // time delay to avoid attribute set after dom appended.
 
-        let tabsDeferredSess = pageSession.session();
-        if (!scriptEnable && tabsDeferred.resolved) { }
-        else tabsDeferred.debounce(() => {
+        if (!tabsDeferredSess.isValid) return;
+        tabsDeferredSess = null;
 
-          if (!tabsDeferredSess.isValid) return;
-          tabsDeferredSess = null;
-
-          setupChatFrameDOM(node, true); // front page
-          node = null;
-
-        })
+        setupChatFrameDOM(node, true); // front page
+        node = null;
 
       })
-
+ 
     });
 
     globalHook('yt-page-data-updated', (evt) => {
@@ -4306,14 +4424,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
  
 
-        let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])')
+        let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])');
         if (expander) {
 
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
 
-          expander.setAttribute('tabview-info-expander', '')
-          $(expander).appendTo("#tab-info")
+          expander.setAttribute('tabview-info-expander', '');
+          let tabInfo = document.querySelector("#tab-info");
+          if(tabInfo){
+            tabInfo.appendChild(expander);
+          }
 
         }
 
@@ -4327,6 +4448,37 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             let alCheckInterval = 270;
 
             checkDuplicateRes = null;
+            let descExpandState = null;
+            let descMetaExpander = document.querySelector('ytd-watch-metadata[modern-metapanel][clickable-description]');
+            let descToggleBtn = null;
+            let descMetaLines = null;
+            if(descMetaExpander){
+
+              // ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata
+              descMetaLines = querySelectorFromAnchor.call(descMetaExpander, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata')
+              if(descMetaLines){
+
+                descToggleBtn = querySelectorFromAnchor.call(descMetaLines,'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+                if(descToggleBtn){
+                  if(descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id==='expand'){
+                    descExpandState = false;
+                  }else if(!descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id==='collapse'){
+                    descExpandState = true;
+                  }
+                }
+              }
+
+            }
+            if(descMetaExpander){
+              descMetaExpander.classList.add('tyt-tmp-hide-metainfo');
+            }
+            let req = {
+              descExpandState,
+              descMetaExpander,
+              descToggleBtn,
+              descMetaLines
+            }
+                
             do {
 
               if (renderIdentifier !== ks) break;
@@ -4334,9 +4486,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               if (checkDuplicateRes === true) break;
               checkDuplicateRes = null;
         
-              let res = await checkDuplicatedInfo(); //async
+              let res = await checkDuplicatedInfo(req); //async
               if (res === 5) {
-                
 
                 const ytdFlexyElm = es.ytdFlexy;
                 if(ytdFlexyElm){
@@ -4351,10 +4502,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
               }
               --alCheckCount;
+              
+              if (checkDuplicateRes === true) break;
 
               await new Promise(r => setTimeout(r, alCheckInterval));
 
             } while (true)
+
+            await Promise.resolve(0)
+ 
+            descToggleBtn = querySelectorFromAnchor.call(descMetaLines,'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+            if(descToggleBtn){
+
+              let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
+              let id = descToggleBtn.id
+              let b1 = descExpandState === true && isCollapsed && id === 'expand';
+              let b2 = descExpandState === false && !isCollapsed && id === 'collapse';
+
+              if (b1 || b2) {
+                descToggleBtn.click();
+              }
+
+            }
+
+            
+            if(descMetaExpander){
+              descMetaExpander.classList.remove('tyt-tmp-hide-metainfo');
+
+              await Promise.resolve(0)
+ 
+              let detailsIntersectioner = descMetaExpander.querySelector('#info-container.style-scope.ytd-watch-metadata');
+              if (detailsIntersectioner) {
+                Promise.resolve(detailsIntersectioner).then(detailsIntersectioner => {
+                  let dom = detailsIntersectioner;
+                  if (dom) mtoObservationDetails.bindElement(dom);
+                })
+              }
+              
+            }
+
+            req = null;
+
 
           }
           let ks = renderIdentifier;
@@ -4951,10 +5139,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
     if (items && items.childElementCount !== 0) return;
 
-    let ytd_player = document.querySelector('ytd-player#ytd-player');
-    if (!ytd_player) return;
-    let videoElm = querySelectorFromAnchor.call(ytd_player, 'video');
-    if (!videoElm) return;
+    let videoElm = document.querySelector('ytd-player#ytd-player video');
 
     let ct = videoElm.currentTime;
     if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
@@ -5000,7 +5185,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       if (!iframe) return; //prevent iframe is detached from the page
 
       if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
-        $(document.querySelector('ytd-live-chat-frame#chat')).attr('tyt-iframe-loaded', '')
+        let chatFrame = document.querySelector('ytd-live-chat-frame#chat');
+        if (chatFrame) {
+          chatFrame.setAttribute('tyt-iframe-loaded', '')
+        }
       }
 
       forceDisplayChatReplay();
@@ -5131,7 +5319,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         timeoutR_findRelated.set(function () {
           const ytdFlexyElm = es.ytdFlexy;
           if (!ytdFlexyElm) return true;
-          let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related");
+          let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
           if (!related) return true;
           frResolve(related);
         }, 100, 10)
@@ -5140,11 +5328,16 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
         if (!document.querySelector("#right-tabs")) {
           getLang();
-          $(getTabsHTML()).insertBefore(related).attr('data-dom-created-by-tabview-youtube', scriptVersionForExternal);
-          console.log('#right-tabs inserted')
+          let docTmp = document.createElement('template');
+          docTmp.innerHTML = getTabsHTML();
+          let newElm = docTmp.content.firstElementChild;
+          if (newElm !== null) {
+            insertBeforeTo(newElm, related);
+            console.log('#right-tabs inserted')
+          }
+          docTmp.textContent = '';
+          docTmp = null;
         }
-            
-        
 
         const ytdFlexyElm = es.ytdFlexy;
         if (!ytdFlexyElm) return;
@@ -5188,11 +5381,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
 
-  function getWrapper(wrapperId) {
-    let $wrapper = $(`#${wrapperId}`);
-    if (!$wrapper[0]) $wrapper = $(`<div id="${wrapperId}"></div>`)
-    return $wrapper.first();
-  }
 
   function fetchCommentsFinished() {
     const ytdFlexyElm = es.ytdFlexy;
@@ -5409,11 +5597,11 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     scriptletDeferred.d().then(() => {
 
-      let elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tabview-info-toggler])')
+      let elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tyt-info-toggler])')
       if (elem) {
 
-        elem.setAttribute('tabview-info-toggler', '')
-        elem.dispatchEvent(new CustomEvent('tabview-info-toggler'))
+        elem.setAttribute('tyt-info-toggler', '')
+        elem.dispatchEvent(new CustomEvent('tyt-info-toggler'))
 
       }
 
@@ -5514,7 +5702,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       let dom = entry.target;
       if(!dom) return; //unlikely
 
-      let descClickable = dom.closest('#description.item.style-scope.ytd-watch-metadata')
+      let descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
       if(descClickable){
         detailsTriggerReset = false;
         descClickable.click();
@@ -5673,7 +5861,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           attr_chatblock = 'chat$live';
         } else if (s == 2) attr_chatblock = 'chat$playback';
 
-        if (s == 1) $("span#tyt-cm-count").text('');
+        if (s == 1) {
+          let cmCountElm = document.querySelector("span#tyt-cm-count")
+          if (cmCountElm) cmCountElm.textContent = '';
+        }
 
       } else if (!ytdFlexyElm.hasAttribute('tyt-chat')) {
         // live chat frame but type not known
@@ -6033,7 +6224,26 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       
       //let _last_click =null;
 
-      $(materialTab).on("click", "a", handlerMaterialTabClick);
+      let fontSizeBtnClick = null;
+
+
+      materialTab.addEventListener('click',function(evt){
+
+        if(!evt.isTrusted) return; // prevent call from background
+        let dom = evt.target;
+        if((dom||0).nodeType!==1) return;
+
+        const domInteraction = dom.getAttribute('tyt-di');
+        if(domInteraction === 'q9Kjc'){
+          handlerMaterialTabClick.call(dom, evt)
+        }else if(domInteraction === '8rdLQ'){
+          fontSizeBtnClick.call(dom, evt)
+        }
+
+
+      }, true)
+
+      //$(materialTab).on("click", "a", handlerMaterialTabClick);
 
       /*
       $(materialTab).on("dblclick", "a", function(evt){
@@ -6057,7 +6267,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       }
 
-      $(materialTab).on("click", ".font-size-btn", function (evt) {
+      fontSizeBtnClick = function (evt) {
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -6088,7 +6298,8 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         //console.log(this.textContent)
 
 
-      });
+      }
+      //$(materialTab).on("click", ".font-size-btn", );
 
       updateCSS_fontsize();
 
@@ -6653,6 +6864,24 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     _console.log(601, evt.detail);
 
+    /*
+    try{
+
+      let pd = evt.detail.pageData;
+      let y = pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.buttonText.runs[0].text
+      let w = pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.notificationPreferenceButton.subscriptionNotificationToggleButtonRenderer
+
+
+      pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.buttonText.runs[0].text='sdsd'
+
+      pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.subscribedButtonText.runs[0].text = 'sdsd'
+
+      console.log(w,y)
+
+    }catch(e){}
+    console.log(3344)
+    */
+
     let pageFetchedDataLocal = null;
 
     if (pageType === 'watch') {
@@ -6788,13 +7017,17 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     _console.log(2233, isTrusted)
 
-    if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0) {
+    if((wls.layoutStatus & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN ){
+
+    }else if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0) {
+      // single col
 
       setTimeout3(() => {
         singleColumnScrolling(true)
       })
 
     } else if (isTrusted) {
+      // two cols
 
       updateFloatingSlider();
 
