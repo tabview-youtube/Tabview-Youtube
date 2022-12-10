@@ -3815,8 +3815,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     // call regardless pageType
+    // yt-navigate without fetch page is possible (click video time in comments)
     if (tabsDeferred.resolved) {
-
+ 
       mtoVisibility_EngagementPanel.clear(true)
       check_epPanel_change = false;
       renderIdentifier++;
@@ -4068,7 +4069,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (desc1) {
         let parentContainer = req.descMetaLines;
-        //console.log(3434,querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander'))
         // hidden
 
         // example video
@@ -5689,24 +5689,91 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     }
   }
 
-  function iof_details(entries, observer){
-    if(!detailsTriggerReset) return;
-    if(!entries || entries.length!==1) return; // unlikely
+  function iof_details(entries, observer) {
+    if (!detailsTriggerReset) return;
+    if (!entries || entries.length !== 1) return; // unlikely
     let entry = entries[0];
     //console.log(entries)
-    if(entry.isIntersecting === true){
+    if (entry.isIntersecting === true) {
 
-      if ((wls.layoutStatus & (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN) ) !== (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN)) 
-      return;
+      if ((wls.layoutStatus & (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN)) !== (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN))
+        return;
 
       let dom = entry.target;
-      if(!dom) return; //unlikely
+      if (!dom) return; //unlikely
 
-      let descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
-      if(descClickable){
-        detailsTriggerReset = false;
-        descClickable.click();
+
+
+      let bool = false;
+
+      let descClickable = null;
+      
+      if( (wls.layoutStatus & (LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED | LAYOUT_TAB_EXPANDED)) === 0 ){
+        bool = false;
+      }else{
+
+        descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
+        if (descClickable) {
+          detailsTriggerReset = false;
+          bool = true;
+        }
       }
+
+
+      async function runAsync(dom) {
+
+
+        if (bool) {
+
+
+          let descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
+          if (descClickable) {
+            descClickable.click();
+
+            //              let columns=document.querySelector('#columns.ytd-watch-flexy #primary');
+            /*
+                          columns.style.maxHeight='200vh';
+                          await new Promise(r=>setTimeout(r,20));
+                          columns.style.maxHeight='';
+            
+                          let p = columns.parentNode
+                          let n = columns.nextSibling
+                          columns.remove();
+                          p.insertBefore(columns,n);*/
+          }
+
+
+        }
+
+        await new Promise(r => setTimeout(r, 20));
+
+
+        let pInner, h1, h2;
+        try {
+          let x = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata');
+          h2 = x.offsetHeight;
+          pInner = closestDOM.call(x, '#primary-inner')
+          h1 = pInner.offsetHeight;
+          x.setAttribute('userscript-scrollbar-render', '')
+        } catch (e) {
+
+        }
+
+        //console.log(56565, h1, h2)
+
+        if (h1 > h2 && h2 > 0 && h1 > 0) {
+
+          pInner.style.setProperty('--tyt-desc-top-h', `${h1 - h2}px`)
+
+        } else {
+          pInner.style.setProperty('--tyt-desc-top-h', 0)
+
+        }
+
+      }
+
+      runAsync(dom);
+
 
 
     }
@@ -6790,6 +6857,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
   let pageStartLoad = (evt) => {
+    console.log('ss', evt)
     pageBeingInit();
   }
 
@@ -6823,7 +6891,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
 
-  globalHook('yt-navigate', pageStartLoad);
+  // globalHook('yt-navigate', pageStartLoad); //tmp fix to avoid yt-navigate without yt-navigate-start for clicking video time
   globalHook('yt-navigate-start', pageStartLoad);
   globalHook('yt-navigate-cache', pageStartLoad);
   globalHook('yt-navigate-redirect', pageStartLoad);
@@ -6847,6 +6915,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     if (!ytdFlexyElm) return;
 
     _console.log(nodeName, 904, evt.type);
+ 
 
     //in case yt-navigate-xxx not called.
     pageBeingInit();
@@ -6907,8 +6976,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
           if (ytdFlexyElm) {
 
-            handleDOMAppear('pageLoaderAnimation', (evt) => {
-              //console.log(3434)
+            handleDOMAppear('pageLoaderAnimation', (evt) => { 
               pageRendered = 2;
               renderDeferred.resolve();
               console.log('pageRendered')
