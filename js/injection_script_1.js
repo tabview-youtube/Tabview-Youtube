@@ -22,7 +22,6 @@ function injection_script_1() {
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
 
-
   const DEBUG_e32 = false;
 
   let calledOnce = false;
@@ -133,7 +132,6 @@ function injection_script_1() {
 
   }, false)
   */
-
 
 
   const TRANSLATE_DEBUG = false;
@@ -283,11 +281,7 @@ function injection_script_1() {
       }
 
 
-
-
-
       //return translateV2(initialSegments);
-
 
 
       /*
@@ -317,7 +311,6 @@ function injection_script_1() {
       let mh1 = new Map(); // avoid duplicate with javascript object properties
       // 1: ok
       // 2: abandoned effect text
-
 
 
       const fRes = [];
@@ -358,7 +351,6 @@ function injection_script_1() {
           initialSegment,
           text
         }
-
 
 
         if (!mh1e) {
@@ -422,11 +414,8 @@ function injection_script_1() {
               }
 
 
-
-
             }
           }
-
 
 
         }
@@ -443,9 +432,6 @@ function injection_script_1() {
 
 
       }
-
-
-
 
 
       let sj_start = 0;
@@ -465,10 +451,6 @@ function injection_script_1() {
         // ignore spacing fix
         return fRes;
       }
-
-
-
-
 
 
       // collect the abandon text to become second subtitle
@@ -586,16 +568,9 @@ function injection_script_1() {
         //     }
 
 
-
-
         //   }
 
         // }
-
-
-
-
-
 
 
         if (tMap.size <= 1) continue; // no second line
@@ -640,9 +615,6 @@ function injection_script_1() {
       }
 
 
-
-
-
       TRANSLATE_DEBUG && Promise.resolve(fRes).then((r) => {
 
         let obj = r;
@@ -663,7 +635,6 @@ function injection_script_1() {
         */
 
 
-
       return fRes;
 
     }
@@ -672,7 +643,6 @@ function injection_script_1() {
     return translate
 
   }
-
 
 
   //const round = x => x + 0.5 << 0
@@ -776,7 +746,6 @@ function injection_script_1() {
   }
 
 
-
   function getInsObserverChipCloud() {
 
 
@@ -784,7 +753,6 @@ function injection_script_1() {
     if (window.IntersectionObserver) {
 
       let wm = new WeakMap();
-
 
 
       async function callReset(target, value) {
@@ -831,8 +799,6 @@ function injection_script_1() {
         threshold: [0],
         rootMargin: "0px 0px 0px 0px" // before fully leave the visible region
       })
-
-
 
 
     }
@@ -906,8 +872,6 @@ function injection_script_1() {
       })
 
 
-
-
     }
 
 
@@ -923,16 +887,35 @@ function injection_script_1() {
 
   let pageType = null;
 
+  function setVideoCustomTitle(pData){
+
+    if(!pData) return;
+/*
+    
+    Object.defineProperty(pData, 'customVideoTitle', {
+      get(){
+        return "hello world"
+      },
+      configurable: true,
+      enumerable: true
+    })
+*/
+
+  }
 
 
   function onPageFetched(evt) {
-
 
 
     //console.log(evt.type, pageID)
 
     pageType = ((evt.detail || 0).pageData || 0).page;
 
+    let p = document.querySelector('ytd-page-manager').data
+    if(p){
+      setVideoCustomTitle(p)
+    }
+ 
 
   }
 
@@ -950,8 +933,6 @@ function injection_script_1() {
       })
 
     }
-
-
 
 
   }
@@ -991,6 +972,14 @@ function injection_script_1() {
 
   document.addEventListener('yt-page-data-fetched', onPageFetched)
   document.addEventListener('yt-navigate-finish', onPageFinished)
+
+  try{
+    
+    let p = document.querySelector('ytd-page-manager').data
+    if(p) {
+      setVideoCustomTitle(p);
+    }
+  }catch(e){}
 
 
   function getFunc_postToContentWindow() {
@@ -1048,8 +1037,6 @@ function injection_script_1() {
         //console.log(12399,6)
 
       }, 46); // delay in case empty body cannot be detected
-
-
 
 
     }, true);
@@ -1116,7 +1103,6 @@ function injection_script_1() {
               // this.attached();
 
 
-
               this.currentPageUrl = "";//  necessary
               this.isListeningForPlayerProgress = false;
               this.setPlayer(null);
@@ -1139,7 +1125,6 @@ function injection_script_1() {
           return; // skip update and wait for page refresh
         }
         ptcBusy = true;
-
 
 
         let exec = true;
@@ -1276,7 +1261,6 @@ function injection_script_1() {
     }, 150)
 
 
-
     let s32 = Symbol();
     let insObserverChipCloud = getInsObserverChipCloud();
     let mutObserverChipCloud = getMutObserverChipCloud();
@@ -1379,7 +1363,6 @@ function injection_script_1() {
 
     //   }
     // })(customElements.get('tp-yt-iron-dropdown').prototype);
-
 
 
     //     customElements.get('tp-yt-iron-dropdown').prototype.refit=function(){
@@ -1543,7 +1526,6 @@ function injection_script_1() {
     //     }
 
 
-
   }
 
   function textsMatch(runs1, runs2) {
@@ -1569,7 +1551,6 @@ function injection_script_1() {
     if (!watch_metadata.__data || !watch_metadata.__data.descriptionText || !watch_metadata.__data.videoSecondaryInfoRenderer) return null;
 
 
-
     let full = watch_metadata.__data.descriptionText.runs
     let detail = watch_metadata.__data.videoSecondaryInfoRenderer.description.runs
     let content = lineExpander.text.runs
@@ -1585,6 +1566,241 @@ function injection_script_1() {
   }
 
 
+  let lastCall_genius_lyrics_set_title = 0 ;
+  function getSimpleText(defaultMetadata) {
+
+    if (typeof defaultMetadata.simpleText === 'string') return defaultMetadata.simpleText;
+    if (defaultMetadata.runs) {
+      let texts = defaultMetadata.runs.map(entry => entry.text);
+      if (texts.length === 1 && typeof texts[0] === 'string') return texts[0];
+    }
+
+  }
+
+
+  function get_carouselLockups(ep){
+
+    if(!ep) return null;
+  
+    let m = null;
+    try{
+      m=ep.engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2].videoDescriptionMusicSectionRenderer.carouselLockups;
+    }catch(e){
+      m= null;
+    }
+    return m;
+
+  }
+  
+  function getTitle(pData, onerror){
+
+
+    try{
+
+      let response = pData.response;
+        
+      let ep = response.engagementPanels;
+      let mi = 0;
+
+      let carouselLockups = null;
+
+      while (mi < ep.length) {
+
+        let m = get_carouselLockups(ep[mi]);
+        if (m !== null) {
+          carouselLockups = m;
+          break;
+        }
+
+        mi++;
+
+      }
+
+
+      if(carouselLockups && carouselLockups.length ===1){
+
+        let a1 = getSimpleText(carouselLockups[0].carouselLockupRenderer.infoRows[0].infoRowRenderer.defaultMetadata);
+        let a2 = getSimpleText(carouselLockups[0].carouselLockupRenderer.infoRows[1].infoRowRenderer.defaultMetadata);
+
+        //console.log(a1,a2)
+        if(a1 && a2 && typeof a1 =='string' && typeof a2=='string'){
+
+          let title = pData.playerResponse.videoDetails.title; 
+          if(title && typeof title =='string'){
+
+            a1=a1.replace(/だ/g,'だ').toLowerCase();
+            a2=a2.replace(/だ/g,'だ').toLowerCase();
+            title=title.replace(/だ/g,'だ').toLowerCase();
+            //console.log(title, a1, a2)
+
+            let newValue = `${a2} ${a1}`;
+            return {
+              title: title,
+              singer: a2,
+              song: a1,
+              text: newValue
+            }
+
+          }
+
+        }
+
+      }
+
+    }catch(e){
+
+      if(onerror) onerror(e)
+
+    }
+
+    return null;
+
+  }
+
+  document.documentElement.addEventListener('genius-lyrics-set-title',function(){
+
+    let tdt = Date.now();
+    let _tdt = lastCall_genius_lyrics_set_title;
+    lastCall_genius_lyrics_set_title = tdt;
+    if(tdt-_tdt < 270) return;
+    let searchbox = document.querySelector('#lyricscontainer input.SearchInputBox__input[placeholder]');
+    
+    if(searchbox){
+
+      let success = false;
+      let ret;
+
+      try{
+
+        let pageManager = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+        let pData = pageManager.data;
+        ret = getTitle(pData, (e)=>{
+          console.warn(e)
+        });
+        
+        if(ret!==null){
+        
+          let title = ret.title
+          
+          console.log(5656, ret)
+          if(title.indexOf(ret.singer)>=0 && title.indexOf(ret.song)>=0){
+
+            success = true;
+          
+          }
+
+        }
+      }catch(e){
+        console.warn(e)
+      }
+ 
+
+
+      if (success) {
+
+        function getEnterEvent() {
+          //new KeyboardEvent('keyup', {'key': 'a'}))
+          return new KeyboardEvent('keyup', {
+            keyCode: 13,
+            which: 13,
+            charCode: 13,
+            key: 'Enter',
+            code: 'Enter'
+          })
+        }
+        searchbox.value = ret.text;
+
+        searchbox.dispatchEvent(getEnterEvent());
+
+      }
+
+    } 
+
+  
+
+
+  })
+
+  if( false && !document.querySelector.p){
+
+
+
+
+
+
+    let pageRef = null;
+
+    let mw = new WeakMap();
+
+
+    let stt = null;
+
+    let sttP = false;
+
+    function lyricTitleGet(p) {
+      return new Proxy(p, {
+        get(target, key) {
+          if (key === 'textContent') {
+
+            if (sttP === false) {
+
+              sttP = true;
+
+              String.prototype.__native_replace = String.prototype.replace;
+              String.prototype.replace = function () {
+                if (this === stt) return this.__native_replace('...', '...');
+                return this.__native_replace(...arguments)
+              }
+
+
+            }
+
+
+            let elm = kRef(pageRef);
+            if (!elm) {
+
+              let t = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
+              if (t !== null) {
+                pageRef = mWeakRef(t);
+                elm = t;
+
+              }
+            }
+            let pData = elm.data;
+
+            if (!mw.has(pData)) {
+              let ret = getTitle(pData)
+              mw.set(pData, ret.text)
+            }
+
+            let res = mw.get(pData);
+
+            if (typeof res == 'string') {
+              stt = res;
+              return res;
+            }
+
+
+          }
+          return target[key];
+        },
+      });
+    }
+    
+    let _querySelector = document.querySelector;
+    document.querySelector = function () {
+      let ret = _querySelector.call(this, ...arguments);
+      if (arguments[0] === '#content ytd-watch-flexy:not([hidden]) #container .title') {
+        lyricTitleGet(ret);
+      }
+      return ret;
+    }
+    document.querySelector.p = true;
+
+  }
+
+
+  let lyrics_checker_cid = 0;
   document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
 
     function getEPC(ep) {
@@ -1600,15 +1816,24 @@ function injection_script_1() {
 
     }
 
-    if (calledOnce) return;
+    if (calledOnce) {
+
+      if (!document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')) {
+        calledOnce = false;
+      } else {
+        return;
+      }
+    }
     calledOnce = true
+
+    //console.log(340,1)
 
 
     // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
 
     function createPanel() {
 
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
       if (!ytdFlexyElm) return null;
 
 
@@ -1675,14 +1900,16 @@ function injection_script_1() {
 
     }
 
+    //console.log(340,2)
     let count = 0;
     function $f() {
 
+      //console.log(321,1, count)
       if (++count > 30) return;
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tabview-selection]');
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
       if (!ytdFlexyElm) return setTimeout($f, 100);
 
-
+      //console.log(321,5)
 
       function closeBtn() {
         return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
@@ -1705,6 +1932,8 @@ function injection_script_1() {
 
       })
 
+      //console.log(321,9)
+      let isCSSAdded = false;
       const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
       let isLoading = false
@@ -1716,8 +1945,12 @@ function injection_script_1() {
           panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
         }
       }
-      setInterval(tf = () => {
 
+      async function getLyricsReady(){
+
+        
+
+        
         if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
           let newPanel = createPanel();
           visObserver.takeRecords();
@@ -1729,21 +1962,7 @@ function injection_script_1() {
           })
         }
 
-
-        let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
-
-        if (isLoading !== isLoading_current) {
-          isLoading = isLoading_current;
-
-          let panel = document.querySelector(panel_cssSelector)
-          if (panel) {
-            panel.classList.toggle('epanel-lyrics-loading', isLoading);
-          }
-
-        }
-
-
-
+        
         let elm = null;
         if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
 
@@ -1754,14 +1973,13 @@ function injection_script_1() {
             if (epc) {
 
               epc.innerHTML = '';
+              elm.classList.add('tyt-tmp-hide-lyricsiframe');
               epc.appendChild(elm)
               panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
             }
 
           }
         }
-
-
 
         for (const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')) {
           let lctc = clickable.textContent.toLocaleLowerCase()
@@ -1772,20 +1990,342 @@ function injection_script_1() {
           }
         }
 
+        await new Promise(r=>setTimeout(r,20));
 
-      }, 250)
-      tf();
+        
+
+        let lyricsIframe = document.querySelector('#lyricsiframe');
+        let ytdApp = document.querySelector('ytd-app');
+        if(!lyricsIframe || !ytdApp) return;
+
+        let isFound =false;
+
+        let d = null;
+        if (d = lyricsIframe.contentDocument.querySelector('body div[data-lyrics-container]:not(:empty)')) {
+
+          let p = d.parentNode
+          while (p) {
+            if (!p || p.nodeType !== 1) break;
+            if (p.id === 'application') break;
+            p.classList.add('tyt-lyrics-contains')
+            p = p.parentNode;
+          }
+          isFound = true;
+        }
+
+        if (!isFound) return;
+
+
+        if(!isCSSAdded){
+
+
+          let cStyle= getComputedStyle(ytdApp);
+          let background = cStyle.getPropertyValue('--yt-spec-base-background');
+          let color = cStyle.getPropertyValue('--yt-spec-text-primary');
+          let bbp = cStyle.getPropertyValue('--yt-spec-brand-background-primary');
+          let cfs = cStyle.getPropertyValue('--yt-caption-font-size');
+          let slbc = cStyle.getPropertyValue('--ytd-searchbox-legacy-button-color');
+          let fontSize = null;
+
+          let expander = document.querySelector('ytd-expander.style-scope.ytd-video-secondary-info-renderer');
+          if(expander){
+            
+            fontSize = getComputedStyle(expander).fontSize;
+
+          }else{
+            fontSize = cStyle.fontSize;
+          }
+          if(typeof background =='string' && typeof color =='string' && background.length>3 && color.length>3){
+
+          }else{
+            background = null;
+            color = null;
+          }
+
+          if(typeof fontSize =='string' && fontSize.length>2){}
+          else{
+            fontSize = null;
+          }
+
+          if(typeof bbp=='string'){
+
+          }else{
+            bbp = null;
+          }
+          if(typeof cfs ==='string'){
+            
+          }else{
+            cfs=null;
+          }
+          if(typeof slbc ==='string'){
+
+          }else{
+            slbc = null;
+          }
+
+
+          function addStyle(/** @type {string} */ styleText, /** @type {HTMLElement | Document} */ container) {
+            const styleNode = document.createElement('style');
+            //styleNode.type = 'text/css';
+            styleNode.textContent = styleText;
+            (container || document.documentElement).appendChild(styleNode);
+            return styleNode;
+          }
+        
+
+            
+            
+          let css = `
+          
+          html{
+            --tyt-background: ${background===null?'':`${background}`};
+            --tyt-color: ${color===null?'':`${color}`};
+            --tyt-font-size: ${fontSize===null?'':`${fontSize}`};
+            --yt-spec-brand-background-primary: ${bbp===null?'':`${bbp}`};
+            --yt-caption-font-size: ${cfs===null?'':`${cfs}`};
+            --ytd-searchbox-legacy-button-color: ${slbc===null?'':`${slbc}`};
+          }
+
+          body{
+            background: var(--tyt-background);
+            color: var(--tyt-color);
+            font-size: var(--tyt-font-size);
+          }
+
+          div[data-lyrics-container]{
+            font-size: var(--tyt-font-size);
+          }
+
+          div[class*="SongPageGrid"], div[class*="SongHeader"]{
+            background:none;
+            padding:0;
+            color: var(--tyt-color);
+          }
+
+          div[data-exclude-from-selection]{
+            display:none;
+          }
+
+                
+          main[class*="Container"] a[href]{
+              color: var(--tyt-color) !important;
+          }
+
+          main[class*="Container"] h1[font-size][class]{
+              color: var(--tyt-color);
+          }
+
+          *[class]{
+              color: var(--tyt-color) !important;
+          }
+
+
+          main, #application{
+            --tyt-container-display: none;
+
+          }
+          div[class*="SongHeaderWithPrimis__Information"] div[class*="Section"]:not(.tyt-lyrics-contains){
+            --tyt-container-display: '-NULL-';
+          }
+
+          div[class*="Section"]:not(.tyt-lyrics-contains){
+            display:var(--tyt-container-display);
+          }
+
+          div[class*="Footer"]:not(.tyt-lyrics-contains){
+            display:none;
+          }
+
+          div[class*="SongHeaderWithPrimis__Left"]{
+            display:none;
+          }
+
+          div[class*="SongHeaderWithPrimis__Information"] div[class*="SongHeaderWithPrimis__PrimisContainer"]{
+            --tyt-container-display: '-NULL-';
+          }
+          div[class*="SongHeaderWithPrimis__PrimisContainer"]{
+            display:var(--tyt-container-display);
+          }
+          div[class*="SongPageGriddesktop"]{
+            display:block;
+          }
+          
+          span[class*="LabelWithIcon"] > svg{
+            fill: var(--tyt-color);
+          }
+          button[class*="LabelWithIcon"] > svg{
+            fill: var(--tyt-color);
+          }
+          
+          div[class*="Tooltip__Container"] svg{
+            fill: var(--tyt-color);
+          }
+
+          #application {
+            padding:28px;
+          }
+
+          div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__Container"]{
+
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-items: center;
+          }
+
+          div[class*="SongHeaderWithPrimis__Information"] {
+
+            margin: 12px auto;
+            max-width: 100%;
+            white-space: normal;
+
+
+          }
+
+          div[class*="SongHeaderWithPrimis__Bottom"] a[href]{
+
+            padding:0;
+            margin:0;
+          }
+          
+          div[class*="SongHeaderWithPrimis__Right"]{
+            background: var(--ytd-searchbox-legacy-button-color);
+            padding: 10px 18px;
+          }
+
+          div[data-lyrics-container][class*="Lyrics__Container"]{
+            padding:0;
+          }
+
+          div[class*="SongPage__Section"].tyt-lyrics-contains{
+            padding-top:12px;
+          }
+
+          body .annotated span,
+          body .annotated span:hover,
+          body a[href],
+          body a[href]:hover,
+          body .annotated a[href],
+          body .annotated a[href]:hover,
+          body a[href]:focus-visible,
+          body .annotated a[href]:focus-visible,
+          body .annotated:hover span,
+          body .annotated.highlighted span{
+            background: none;
+            outline: none;
+
+          }
+
+          a[href][class],
+          span[class*="PortalTooltip"],
+          div[class*="HeaderCreditsPrimis"],
+          div[class*="HeaderArtistAndTracklistPrimis"]{
+            font-size: inherit;
+          }
+
+          
+          div[class*="SongHeaderWithPrimis__Information"] h1 + div[class*="HeaderArtistAndTracklistPrimis"] {
+            font-size: 80%;
+            margin-top: 10px;
+            margin-bottom: 6px;
+          }
+
+          body{
+            white-space: nowrap;
+          }
+
+          div[class*="MetadataStats__Stats"]{   
+            display: flex;
+            flex-wrap: wrap;
+            white-space: nowrap;    
+            row-gap: 4px;
+            column-gap: 16px;
+            white-space: nowrap;
+            margin-top: 6px;
+          }
+
+          h1,
+          div[class*="SongPage__LyricsWrapper"]{
+
+            white-space: normal;
+          }
+
+          
+          div[class*="MetadataStats__Stats"] > [class]{  
+            margin-right: 0;
+          }
+
+          div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__List"]{
+            font-size:85%;
+          }
+
+
+
+
+          `;
+          addStyle(css, lyricsIframe.contentDocument.head);
+
+          try {
+
+            lyricsIframe.contentDocument.querySelector('div[class*="SongPage__Section"].tyt-lyrics-contains').scrollIntoView();
+
+          } catch (e) { }
+          lyricsIframe.classList.remove('tyt-tmp-hide-lyricsiframe');
+
+          isCSSAdded = true;
+
+        }
+
+        return true;
+
+
+      }
+
+      let r = getLyricsReady();
+      if (r !== true) {
+
+        if (lyrics_checker_cid > 0) clearInterval(lyrics_checker_cid);
+        lyrics_checker_cid = setInterval(tf = () => {
+
+          let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
+
+          if (isLoading !== isLoading_current) {
+            isLoading = isLoading_current;
+            isCSSAdded = false;
+
+            let panel = document.querySelector(panel_cssSelector)
+            if (panel) {
+              panel.classList.toggle('epanel-lyrics-loading', isLoading);
+              let r = getLyricsReady();
+              if (r === true) {
+
+                clearInterval(lyrics_checker_cid)
+                lyrics_checker_cid = 0;
+              }
+            }
+
+          }
+
+        }, 110)
+        tf();
+
+      }
 
 
     }
+    
+    //console.log(340,3)
     $f();
+    
+    //console.log(340,5)
 
   })
 
 
   if (document.documentElement.hasAttribute('tabview-loaded')) ceHack(); else
     document.addEventListener('tabview-ce-hack', ceHack, true);
-
 
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
@@ -1942,7 +2482,6 @@ function injection_script_1() {
       */
 
       s.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
-
 
 
     }
@@ -2123,6 +2662,12 @@ function injection_script_1() {
 
 
         if (endpoint) {
+          // user would like to switch page immediately without playing the video;
+          // attribute appear after playing video for more than 2s
+          if (!document.head.dataset.viTime) endpoint = null;
+        }
+
+        if (endpoint) {
 
           if (pageType === null) {
             pageType = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
@@ -2234,8 +2779,6 @@ rcb(b) => a = playlistId = undefinded
           isLoadStartListened = true;
 
 
-
-
           document.addEventListener('loadstart', loadStartFx, true)
 
         }
@@ -2254,7 +2797,6 @@ rcb(b) => a = playlistId = undefinded
   if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {
     document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
   }
-
 
 
   //effected subtitle - https://www.youtube.com/watch?v=Ud73fm4Uoq0

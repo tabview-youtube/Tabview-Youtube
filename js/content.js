@@ -219,7 +219,6 @@
   let comments_loader = 0; // for comment count (might omit)
 
   let cmTime = 0;
-  //let t_heated_BodyScroll = 0;
   const mTime = Date.now() - 152000000;
 
   //let lastScrollFetch = 0;
@@ -234,9 +233,6 @@
   let switchTabActivity_lastTab = null
 
   let lstTab = null;
-
-  let _cachedLastVideo = null; // WeakRef
-  let videoListBeforeSearch = null;
 
   let storeLastPanel = null; // WeakRef
 
@@ -333,6 +329,11 @@
 
   
   let isMakeHeaderFloatCalled = false;
+  
+  let _viTimeNum = 200;
+  let _updateTimeAccum = 0;
+
+  let lyricsPlugin = false;
 
   /** @type {WeakMap<HTMLElement>} */
   let loadedCommentsDT = new WeakMap();
@@ -346,18 +347,12 @@
       let res = kRef(ytdFlexy);
       return res;
     },
-    get _cachedLastVideo(){
-      /** @type { HTMLElement | null } */
-      let res = kRef(_cachedLastVideo);
-      return res;
-    },
     get storeLastPanel(){
       /** @type { HTMLElement | null } */
       let res = kRef(storeLastPanel);
       return res;
     }
   }
-
 
 
   const _console = new Proxy(console, {
@@ -368,6 +363,10 @@
       return Reflect.get(...arguments)
     }
   });
+  
+  let generalLog901 = !DEBUG_LOG ? 0 : (evt) => {
+    _console.log(901, evt.type)
+  }
 
   const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
@@ -384,19 +383,7 @@
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
   //const elementRemove = HTMLElement.prototype.remove;
-  const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
-
-
-  const querySelectorFromAnchorFizzy = (root, id, selector) => {
-    if (!root) return null;
-    if (root.id === id && root.matches(selector)) return root;
-    return querySelectorFromAnchor.call(root, selector) || null;
-  }
-
-  // function maxUInt(s, d) {
-  //   let t = (d > s ? d : s);
-  //   return t > 0 ? t : 0;
-  // }
+  //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
 
   /* globals WeakRef:false */
@@ -406,7 +393,6 @@
 
   /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
-
 
 
   function setTimeout3(f) {
@@ -496,7 +482,6 @@
   }
 
 
-
   /** @type {Map<string, Function>} */
   let handleDOMAppearFN = new Map();
   function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
@@ -540,7 +525,6 @@ yt-swatch-changed yt-theater-mode-allowed yt-unregister-action yt-update-title
 yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 */
-
 
 
   _console.log(38489)
@@ -592,38 +576,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-
-  class Timeout {
-
-    set(f, d, repeatCount) {
-      if (this.cid > 0) return;
-      let sess = pageSession.session();
-      let immediate = repeatCount > 0;
-      let rc = immediate ? repeatCount : 1;
-      const g = () => {
-        this.cid = 0;
-        if (sess.isValid) {
-          if (f(rc--) === true && rc > 0) this.cid = setTimeout(g, d);
-        }
-      };
-      immediate ? g() : (this.cid = setTimeout(g, d));
-    }
-
-    clear() {
-      if (this.cid > 0) {
-        clearTimeout(this.cid);
-        this.cid = 0;
-      }
-    }
-
-    get isEmpty() {
-      return !this.cid
-    }
-
-
-  }
-
-
   class Mutex {
 
     constructor() {
@@ -641,6 +593,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   
 
+  /* FireMonkey unable to extend MutationObserver correctly */
   class AttributeMutationObserver extends MutationObserver {
     constructor(flist) {
       super((mutations, observer) => {
@@ -702,7 +655,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let pageSession = new Session(0);
   const tabsDeferred = new Deferred();
   tabsDeferred.resolve();
-  let timeout_resize_for_layout_change = new Timeout();
 
   let layoutStatusMutex = new Mutex();
   
@@ -743,14 +695,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return res;
 
 
-
   }
 
   const script_inject_js1 = scriptInjector(
     'userscript-tabview-injection-1',
     'js/injection_script_1.js',
     "injectionJS1");
-
 
 
   function nonCryptoRandStr(/** @type {number} */ n) {
@@ -852,15 +802,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   
   const mtoObservationDetails = new ObserverRegister(() => {
-    return new IntersectionObserver(iof_details, {
+    return new IntersectionObserver(ito_details, {
       root: null,
       rootMargin: "0px"
     })
   });
 
-  const mtoMutation_body = new ObserverRegister(() => {
-    return new MutationObserver(FP.mtoBodyF)
-  });
 
   const mtoFlexyAttr = new ObserverRegister(() => {
     return new MutationObserver(mtf_attrFlexy)
@@ -1047,8 +994,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
 
           }
-
-
 
 
         } else {
@@ -1324,7 +1269,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }, 350)
 
 
-
   }
 
 
@@ -1390,8 +1334,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
     let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
     let new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
-
-
 
 
     function showTabOrChat() {
@@ -1461,10 +1403,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let isChatOrTabCollaspeTriggering = !!((~new_layoutStatus) & BF_LayoutCh_Panel);
 
 
-
     let moreThanOneShown = (new_isTabExpanded + new_isExpandedChat + new_isExpandEPanel) > 1
-
-    let requestVideoResize = false;
 
     // two column; not theater; tab collapse; chat expand; ep expand
     const IF_01a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED | LAYOUT_ENGAGEMENT_PANEL_EXPAND;
@@ -1494,7 +1433,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_05b = 0 | LAYOUT_TWO_COLUMNS | 0 | 0 | 0 | 0;
 
 
-
     if (new_isFullScreen) {
 
 
@@ -1503,8 +1441,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // two column; tab expand; chat expand; 
 
         switchTabActivity(null);
-
-
 
       }
 
@@ -1524,10 +1460,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }, 60)
 
       }
-
-
-
-
 
       if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel) {
 
@@ -1550,37 +1482,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-
     } else if (fullscreen_mode_changed) {
-
-
-
 
       if (!new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()) {
         showTabOrChat();
-        requestVideoResize = true;
       } else if (!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()) {
         ytBtnCancelTheater();
-        requestVideoResize = true;
       }
 
-    }/*else if ( !fullscreen_mode_changed && !epanel_expanded_changed && !column_mode_changed && !theater_mode_changed && (chat_collapsed_changed||tab_expanded_changed) && !new_isExpandedChat && !new_isTabExpanded && new_isCollapsedChat ){
-
-    // switch between live play video and replay video
-    // force chat room display
-
-    //if(lstTab){
-      //if(lstTab.lastPanel!='#chatroom')
-      //lstTab.lastPanel = '#chatroom';
-      showTabOrChat();
-
-    //}
-
-    }*/ else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND)) {
+    } else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND)) {
 
       // two column; not theater; tab collapse; chat expand; ep expand
-
-
 
       if (epanel_expanded_changed) {
         layoutStatusMutex.lockWith(unlock => {
@@ -1601,24 +1513,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // moreThanOneShown
 
       showTabOrChat();
-      requestVideoResize = true;
 
     } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollapsedFalse && !column_mode_changed) {
 
       // two column; not theater; tab expand; chat expand; 
 
       switchTabActivity(null);
-      requestVideoResize = true;
 
     } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse && (changes & BF_TWOCOL_N_THEATER) === 0) {
 
       ytBtnCancelTheater();
-      requestVideoResize = true;
 
     } else if ((new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse) {
 
       hideTabAndChat();
-      requestVideoResize = true;
 
     } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue && !column_mode_changed) {
 
@@ -1653,12 +1561,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
-      requestVideoResize = true;
-
     } else if (!tab_change && !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue) {
 
       showTabOrChat();
-      requestVideoResize = true;
 
     } else if ((new_layoutStatus & IF_05a) === IF_05b) {
       // bug fix for restoring from mini player
@@ -1666,35 +1571,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       layoutStatusMutex.lockWith(unlock => {
         setToActiveTab();
         timeline.setTimeout(unlock, 40);
-      })
-
-      requestVideoResize = true;
+      });
 
     } else if (tab_expanded_changed) {
 
-      requestVideoResize = true;
+      // 
 
     }
 
-    if (requestVideoResize) {
-      timeout_resize_for_layout_change.clear();
-      timeout_resize_for_layout_change.set(() => {
-        //dispatchWindowResize(); //try to omit
-      }, 92)
-      
-    }
-
-    if(theater_mode_changed){
-      let tdt =Date.now();
+    if (theater_mode_changed) {
+      let tdt = Date.now();
       theater_mode_changed_dt = tdt
-      setTimeout(()=>{
-        if(theater_mode_changed_dt!==tdt)return; 
+      setTimeout(() => {
+        if (theater_mode_changed_dt !== tdt) return;
         updateFloatingSlider();
-      },130)
+      }, 130)
     }
 
     let secondary = null;
-    if(secondary=document.querySelector('.tabview-hover-slider-enable')){
+    if (secondary = document.querySelector('.tabview-hover-slider-enable')) {
       secondary.dispatchEvent(new CustomEvent('tabview-hover-slider-restore'))
       //console.log(1996)
     }
@@ -1725,14 +1620,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         });
       })
     }
-/*
-    if(fullscreen_mode_changed && new_isFullScreen){
-      requestAnimationFrame(()=>{
-        try{
-          document.querySelector('#player-theater-container').focus();
-        }catch(e){}
-      })
-    }*/
 
   }
 
@@ -1958,11 +1845,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-
-
-
-
-
   
   async function makeVideosAutoLoad2() {
     let sVideosList = document.querySelector('ytd-watch-flexy #tab-videos [placeholder-videos]');
@@ -1994,8 +1876,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (entries[0].isIntersecting !== true) return;
         let elm = ((entries[0] || 0).target || 0);
         if (!elm) return;
+        elm = null;
+        entries = null;
 
-        setTimeout(() => {
+        new Promise(resolve=>{
+
+          // compatibile with Search While Watching Video
+          let isSearchGeneratedWithHiddenContinuation = !!document.querySelector('#related.style-scope.ytd-watch-flexy ytd-watch-next-secondary-results-renderer.style-scope.ytd-watch-flexy ytd-compact-video-renderer.yt-search-generated.style-scope.ytd-item-section-renderer ~ ytd-continuation-item-renderer.style-scope.ytd-item-section-renderer[hidden]');
+          if(isSearchGeneratedWithHiddenContinuation) return;
+          
+          // native YouTube coding use different way to handle custom videos, unknown condition for the continutation loading.
+          let isOtherChipSelected = !!document.querySelector('ytd-watch-next-secondary-results-renderer.style-scope.ytd-watch-flexy yt-chip-cloud-renderer.style-scope.yt-related-chip-cloud-renderer yt-chip-cloud-chip-renderer.style-scope.yt-chip-cloud-renderer[aria-selected="false"] ~ [aria-selected="true"]')
+          if(isOtherChipSelected) return;
+
+          setTimeout(resolve, 30); // delay required to allow YouTube generate the continuation elements
+
+
+        }).then(()=>{
 
           let res = setVideosTwoColumns(2 | 4, true)
 
@@ -2025,14 +1922,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 m4.dispatchEvent(new Event('yt-service-request-sent-button-renderer')); // only for correct YouTube coding
               }
             }
+            m4 = null;
+            m5 = null;
+            m6 = null;
           }
+          res = null;
 
-        }, 30); // delay required to allow YouTube generate the continuation elements
+        });
 
-        /*
-        if (elm && entries[0].isIntersecting === true) {
-          elm.dispatchEvent(new Event('yt-service-request-sent-button-renderer'))
-        }*/
       }, {
         rootMargin: `0px`, // refer to css margin-top:-30vh
         threshold: [0]
@@ -2114,8 +2011,48 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function handlerAutoCompleteExist() {
+  
+  async function isDocumentInFullScreenMode() {
+    return document.fullscreenElement !== null;
+  }
+  async function energizedByVideoTimeUpdate() {
 
+    const isFullscreen = await isDocumentInFullScreenMode();
+    if (isFullscreen) return;
+
+    // force browser to load the videostream during playing (primarily for music videos)
+    // both background and foreground
+
+    _updateTimeAccum++;
+
+    if ((_updateTimeAccum + _viTimeNum) % 11 === 0) {
+      // about 2.66s
+
+      if (_viTimeNum > 211) {
+        // around 30.9s ~ 31.9s
+        _viTimeNum = 200;
+        _updateTimeAccum = (_updateTimeAccum % 8) + 1; // reset to 1 ~ 8
+        postMessage({ tabviewEnergized: true }, 'https://www.youtube.com'); // post message to make alive
+      }
+
+      document.head.dataset.viTime = `${_viTimeNum + 1}`;
+      await Promise.resolve(0)
+      _viTimeNum = +document.head.dataset.viTime || 0;
+    }
+
+
+  }
+
+  function autoCompletePosCreate(){
+    
+    let positioner = document.createElement("tabview-view-autocomplete-pos");
+    let oldPositioner = document.querySelector("tabview-view-autocomplete-pos");
+    if(oldPositioner) oldPositioner.remove();
+    return positioner
+  }
+
+  function handlerAutoCompleteExist() {
+    // Youtube - Search While Watching Video
 
     /** @type {HTMLElement} */
     let searchBox, autoComplete;
@@ -2129,18 +2066,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let positioner = searchBox.nextSibling;
     if (positioner) {
-      if (positioner.nodeName.toLowerCase() !== "autocomplete-positioner") {
-        positioner = document.createElement("autocomplete-positioner");
+      if (positioner.nodeName.toLowerCase() !== "tabview-view-autocomplete-pos") {
+        positioner = autoCompletePosCreate();
         insertAfterTo(positioner, searchBox);
       }
     } else {
-      positioner = document.createElement("autocomplete-positioner");
+      positioner = autoCompletePosCreate();
       prependTo(positioner, searchBox.parentNode);
     }
     prependTo(autoComplete, positioner);
 
-    positioner.style.setProperty('--tyt-autosearch-mb', getComputedStyle(searchBox).marginBottom)
-    positioner.style.setProperty('--tyt-autosearch-h', searchBox.offsetHeight + 'px')
+    positioner.style.setProperty('--tyt-swwv-searchbox-mb', getComputedStyle(searchBox).marginBottom)
+    positioner.style.setProperty('--tyt-swwv-searchbox-h', searchBox.offsetHeight + 'px')
 
     mtf_autocomplete_search();
 
@@ -2148,6 +2085,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // mtf_fixAutoCompletePosition
   handleDOMAppear('SearchWhileWatchAutocomplete', (evt)=>{
+    // Youtube - Search While Watching Video
 
     let elm = evt.target;
     
@@ -2160,13 +2098,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   })
 
-  function mtf_autocomplete_search(){
+  function mtf_autocomplete_search() {
+    // Youtube - Search While Watching Video
 
     /** @type {HTMLElement | null} */
     const ytdFlexyElm = es.ytdFlexy;
     if (!scriptEnable || !ytdFlexyElm) return;
 
-    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + autocomplete-positioner > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
+    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + tabview-view-autocomplete-pos > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
 
     if (autocomplete) {
 
@@ -2176,53 +2115,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (searchBox) {
 
         const rAutoComplete = mWeakRef(autocomplete);
-        /*
-        let mVisible = null;
 
-        function getVisible (autocomplete, f){
-          
-          if(f||mVisible===null) mVisible = isDOMVisible(autocomplete);
-          return mVisible === true;
+        function setVisible(autocomplete, b) {
+          autocomplete.style.display = (b ? 'block' : 'none');
         }
 
-        
-        function setVisible (autocomplete, b){
-          
-          if (!b){
-            autocomplete.style.display = 'none';
-            mVisible = false;
-          }
-          else{
-            autocomplete.style.display = 'block';
-            mVisible = true;
-          }
-
-        }
-        */
-
-
-        function getVisible (autocomplete, f){
-          
-          return isDOMVisible(autocomplete);
-        }
-
-        
-        function setVisible (autocomplete, b){
-          
-          if (!b){
-            autocomplete.style.display = 'none';
-          }
-          else{
-            autocomplete.style.display = 'block';
-          }
-
-        }
-
-
-        function isContentNotEmpty(searchbox, autocomplete){
+        function isContentNotEmpty(searchbox, autocomplete) {
           return (searchbox.value || '').length > 0 && (autocomplete.textContent || '').length > 0;
         }
-
 
         autocomplete.parentNode.setAttribute('position-fixed-by-tabview-youtube', '');
         autocomplete.setAttribute('position-fixed-by-tabview-youtube', '');
@@ -2232,39 +2132,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (!searchBox.hasAttribute('is-set-click-to-toggle')) {
           searchBox.setAttribute('is-set-click-to-toggle', '')
-          
+
           searchBox.addEventListener('click', function () {
 
-            Promise.resolve(0).then(()=>{
+            Promise.resolve(0).then(() => {
 
               const autocomplete = kRef(rAutoComplete);
 
               if (!autocomplete) return;
-  
+
               const isNotEmpty = isContentNotEmpty(this, autocomplete);
-  
+
               if (isNotEmpty) {
-  
-                let elmVisible = getVisible(autocomplete, true);
-  
+
+                let elmVisible = isDOMVisible(autocomplete);
+
                 if (elmVisible) {
                   setVisible(autocomplete, false)
                 }
                 else {
                   setVisible(autocomplete, true)
                 }
-  
+
               }
 
             })
 
-
-
           }, bubblePassive)
 
-          //let timeoutOnce_searchbox_keyup = new Timeout();
-
-           
           let cacheScrollIntoView = null;
           let rafID = 0;
           searchBox.addEventListener('keydown', function (evt) {
@@ -2279,7 +2174,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                     rafID = 0;
                     let d = Date.now();
                     if (d - t > 300) return;
-                    
+
                     const autocomplete = kRef(rAutoComplete);
 
                     let selected = querySelectorFromAnchor.call(autocomplete, '.autocomplete-suggestion.selected');
@@ -2295,103 +2190,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
                   })
                 }
-
-              case 'ArrowLeft':
-              case 'ArrowRight':
-                /*
-                evt.preventDefault();
-                evt.stopPropagation();
-                evt.stopImmediatePropagation();
-                */
-                return;
               default:
               //
             }
 
 
           }, bubblePassive)
-//           searchBox.addEventListener('keyup', function (evt) {
-//             //cancelClickToggle =true;
-//             switch (evt.code) {
-//               case 'ArrowUp':
-//               case 'ArrowDown':
-//               case 'ArrowLeft':
-//               case 'ArrowRight':
-// /*
-//                 evt.preventDefault();
-//                 evt.stopPropagation();
-//                 evt.stopImmediatePropagation();
-// */
-//                 return;
-//               default:
-//               //
-//             }
-//             // replaced by suggestion change event
-//             /*
-//             timeoutOnce_searchbox_keyup.set(() => {
 
-//               const autocomplete = kRef(rAutoComplete);
-
-//               if (!autocomplete) return;
-
-
-//               const isNotEmpty = isContentNotEmpty(this, autocomplete);
-
-//               if (isNotEmpty) {
-
-//                 let elmVisible = getVisible(autocomplete);
-
-//                 if (!elmVisible){
-//                   setVisible(autocomplete, true);
-//                 }
-
-//               }
-
-//             }, 20);
-//             */
-
-//           }, bubblePassive)
-
-          searchBox.addEventListener('tyt-autocomplete-suggestions-change',function(evt){
+          searchBox.addEventListener('tyt-autocomplete-suggestions-change', function (evt) {
 
             //cancelClickToggle = true;
-            if(evt.target !== document.activeElement) return;
-            setTimeout(()=>{
-               
-
-              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`)
-
-               
-            
+            if (evt.target !== document.activeElement) return;
+            setTimeout(() => {
+              const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`);
               if (!autocomplete) return;
-  
-  
-              const isNotEmpty = isContentNotEmpty(this, autocomplete); 
-  
+              const isNotEmpty = isContentNotEmpty(this, autocomplete);
               if (isNotEmpty) {
-  
-                //let elmVisible = getVisible(autocomplete);
-   
-                // elmVisible can be wrong value by unknown reason
-                //if (!elmVisible){
-                  setVisible(autocomplete, true);
-                //}
-  
+                // dont detect visibility; just set to visible
+                setVisible(autocomplete, true);
               }
-
-            },20);
+            }, 20);
 
           }, bubblePassive)
- 
 
         }
-
-
 
       }
 
     }
-
 
   }
 
@@ -2403,97 +2229,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable || !ytdFlexyElm) return;
 
 
-
     mtf_autocomplete_search();
-
-
-
-    let currentLastVideo = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-videos] #items ytd-compact-video-renderer:last-of-type')
-    let prevLastVideo = es._cachedLastVideo;
-
-    if (prevLastVideo !== currentLastVideo && currentLastVideo) {
-      _cachedLastVideo = mWeakRef(currentLastVideo);
-    
-      if (prevLastVideo) {
-
-        let isPrevRemoved = !prevLastVideo.parentNode
-
-
-        function getVideoListHash() {
-
-          let res = [...document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')].map(renderer => {
-            let a = querySelectorFromAnchor.call(renderer, 'a[href*="watch"][href*="v="]')
-            if (!a) return ''; //???
-            return a.getAttribute('href') || ''
-
-          }).join('|')
-          // /watch?v=XXXXX|/watch?v=XXXXXX|/watch?v=XXXXXX
-
-          // alternative - DOM.data.videoId
-          // let elms = document.querySelectorAll('[placeholder-videos] #items ytd-compact-video-renderer')
-          // let res = [...elms].map(elm=>elm.data.videoId||'').join('|') ;
-
-          if (res.indexOf('||') >= 0) {
-            res = '';
-          }
-
-          return res ? res : null;
-        }
-
-        if (isPrevRemoved) {
-
-          // this is the replacement of videos instead of addition
-
-          const searchBox = document.querySelector('[placeholder-for-youtube-play-next-queue] input#suggestions-search')
-
-          let currentPlayListHash = getVideoListHash() || null;
-
-          if (!currentPlayListHash) {
-
-          } else if (!videoListBeforeSearch && searchBox) {
-
-            videoListBeforeSearch = currentPlayListHash;
-            if (videoListBeforeSearch) {
-              //console.log('fromSearch', videoListBeforeSearch)
-
-              requestAnimationFrame(function () { // the action shall be done by user input at foreground 
-
-                let renderer = document.querySelector('[placeholder-videos] ytd-watch-next-secondary-results-renderer');
-                if (searchBox && searchBox.parentNode) searchBox.blur();
-
-                if (renderer) {
-                  let scrollParent = renderer.parentNode;
-                  if (scrollParent.scrollHeight > scrollParent.offsetHeight) {
-                    let targetTop = renderer.offsetTop;
-                    if (searchBox && searchBox.parentNode == scrollParent) targetTop -= searchBox.offsetHeight
-                    scrollParent.scrollTop = targetTop - scrollParent.firstChild.offsetTop;
-                  }
-                }
-
-              });
-
-            }
-
-          } else if (videoListBeforeSearch) {
-
-            if (currentPlayListHash != videoListBeforeSearch) {
-
-              videoListBeforeSearch = null;
-              //console.log('fromSearch', videoListBeforeSearch)
-
-
-            }
-
-          }
-
-
-        }
-
-
-      }
-
-    }
-
 
 
   }
@@ -2566,6 +2302,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return false;
   }
 
+  const appends = HTMLElement.prototype.append ? (target, ...args) =>{
+    HTMLElement.prototype.append.call(target, ...args);
+    return true;
+  } : (target, ...args) =>{
+    for(const s of args){
+      target.appendChild(s)
+    }
+    return true;
+  }
+
 
   // css animation check for element relocation
   function mtf_liveChatBtnF(node) {
@@ -2614,7 +2360,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     
   });
-
 
 
   function getWrapper(wrapperId) {
@@ -2676,7 +2421,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       new Promise(resolve => {
 
 
-
         let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])');
 
         if (contentToggleBtn) {
@@ -2705,7 +2449,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         resolve();
-
 
 
       }),
@@ -2840,9 +2583,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     ]);
 
 
-
   }
-
 
 
   document.addEventListener('mouseover', stopIframePropagation, true)
@@ -2853,7 +2594,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   document.addEventListener('keyup', stopIframePropagation, true)
   document.addEventListener('mouseenter', stopIframePropagation, true)
   document.addEventListener('mouseleave', stopIframePropagation, true)
-
 
 
   const innerCommentsFuncs = [
@@ -2928,7 +2668,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let res = new Array(qmElms.length);
     res.newFound = false;
-
 
 
     let ci = 0;
@@ -3073,7 +2812,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _console.log(2905)
 
 
-
   }
 
   const resultCommentsCountCaching = (res) => {
@@ -3164,37 +2902,145 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  
 
-  function goYoutubeGeniusLyrics() {
-    scriptletDeferred.debounce(()=>{
-      document.documentElement.dispatchEvent(new CustomEvent('engagement-panel-genius-lyrics'));
-    })
-
+  function lyricsIframeRemoval(iframe){
+    if(!iframe) return;
+    try{
+      iframe.remove();
+      iframe.style.display = 'none';
+      iframe.src = null;
+      iframe.onload = null;
+      iframe.onerror = null;
+      iframe.src = '';
+      iframe.style = '';
+    }catch(e){}
+  }
+  function lyrcisPanelHidden(){
+    let ep = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
+    if(ep) ep.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN');
   }
 
-  const FP = {
+  function removeChildren(cssSelector, parentNode) {
+    var elements = parentNode.querySelectorAll(cssSelector);
+    removeElements(elements);
+  }
+  
+  function removeElements(elements) {
+    let fragment = document.createDocumentFragment();
+    fragment.textContent = ' ';
+    fragment.firstChild.replaceWith(...elements);
+  }
 
-    mtoBodyF: ( /** @type {MutationRecord[]} */ mutations, /** @type {MutationObserver} */ observer) => {
-      //subtree DOM mutation checker - {body} \single \subtree
+  let lastAction_lyricsTracklistDOMAppended = 0;
+  handleDOMAppear('lyricsTracklistDOMAppended', (evt) => {
+    let tdt = Date.now();
+    let _tdt = lastAction_lyricsTracklistDOMAppended;
+    lastAction_lyricsTracklistDOMAppended = tdt;
+    if (tdt - _tdt < 270) return;
+    lyricsPlugin = true;
+    let iframe = document.querySelector('iframe#lyricsiframe');
+    if(iframe){
+      lyricsIframeRemoval(iframe);
+      lyrcisPanelHidden();
+    }
+    setTimeout(() => {
+      lastAction_lyricsTracklistDOMAppended = Date.now();
 
-      if (!scriptEnable) return;
-      if (pageType !== 'watch') return;
-
-
-      for (const mutation of mutations) {
-        for (const addedNode of mutation.addedNodes) {
-          if (addedNode.nodeType === 1) {
-            if (addedNode.nodeName == "DIV" && (addedNode.id === 'lyricscontainer' || addedNode.id === 'showlyricsbutton')) {
-
-              goYoutubeGeniusLyrics();
-
-            }
+      let liArr = document.querySelectorAll('body #lyricscontainer ol.tracklist li');
+      let removalArr = [];
+      if (liArr.length > 1) {
+        for (const li of liArr) {
+          let txt = li.textContent.replace(/_/g, '-');
+          if (/\bInstrumental\b/i.test(txt) && !/\b(non|not)\b/i.test(txt)) {
+            removalArr.push(li);
           }
         }
       }
 
-    },
+      let removeInstrumental = removalArr.length
+      if (removeInstrumental > 0) {
+        removeElements(removalArr);
+      }
+
+      
+      if(liArr.length - removeInstrumental ===1){
+        setTimeout(()=>{
+          
+          lastAction_lyricsTracklistDOMAppended = Date.now();
+
+          let p = document.querySelectorAll('body #lyricscontainer ol.tracklist li');
+          if(p.length===1){
+            p = p[0];
+            lastAction_lyricsDOMAppended = Date.now();
+            Promise.resolve(0).then(()=>{
+
+              p.dispatchEvent(new Event('mouseover'));
+            }).then(()=>{
+              lastAction_lyricsDOMAppended = 0;
+              p.dispatchEvent(new Event('click'));
+            }).then(()=>{
+
+              p.dispatchEvent(new Event('mouseout'));
+            });
+          }
+        },20)
+
+      }else{
+        lastAction_lyricsDOMAppended = 0;
+      }
+
+
+    }, 20)
+  })
+  
+  let lastAction_lyricsDOMAppended = 0;
+  handleDOMAppear('lyricsDOMAppended',(evt)=>{
+
+    let tdt = Date.now();
+    let _tdt = lastAction_lyricsDOMAppended;
+    lastAction_lyricsDOMAppended = tdt;
+    if (tdt - _tdt < 270) return;
+    lyricsPlugin = true
+
+    let iframe = document.querySelector('iframe#lyricsiframe');
+    let isIframeNew = false;
+    if (iframe && iframe.matches('[visibility="ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"] iframe#lyricsiframe')) {
+
+      iframe.remove();
+      iframe.src = '';
+      iframe.style = '';
+      iframe = null;
+
+    }else if(iframe){
+
+      isIframeNew = iframe.matches('#lyricscontainer > iframe#lyricsiframe');
+    }
+    iframe = null;
+ 
+    //goYoutubeGeniusLyrics
+    scriptletDeferred.debounce(() => {
+
+
+
+      if (isIframeNew) {
+
+        document.documentElement.dispatchEvent(new CustomEvent('engagement-panel-genius-lyrics'));
+      }
+
+
+      let searchbox = document.querySelector('#lyricscontainer input.SearchInputBox__input[placeholder]');
+      if (searchbox) {
+        document.documentElement.dispatchEvent(new CustomEvent('genius-lyrics-set-title'));
+      }
+
+
+    });
+
+
+
+  })
+
+  const FP = {
 
     mtf_attrPlaylist: (attrName, newValue) => {
       //attr mutation checker - {ytd-playlist-panel-renderer#playlist} \single
@@ -3273,20 +3119,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     },
 
-
     mtf_attrChatroom: (attrName, newValue) => {
       //attr mutation checker - {ytd-live-chat-frame#chat} \single
       //::attr ~ collapsed
-
-
 
       const ytdFlexyElm = es.ytdFlexy;
       if (!scriptEnable || !ytdFlexyElm) return;
       if (pageType !== 'watch') return;
 
-
       setToggleBtnTxt();
-
 
       layoutStatusMutex.lockWith(unlock => {
 
@@ -3322,7 +3163,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         wAttr(cssElm, 'tyt-chat', newAttrV);
 
 
-
         if (typeof newAttrV === 'string' && !isCollapsed) lstTab.lastPanel = '#chatroom';
 
         if (!isCollapsed && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()) {
@@ -3337,8 +3177,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
       })
-
-
 
 
     },
@@ -3417,8 +3255,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
 
 
-
-
     },
 
     mtf_initalAttr_chatroom: (chatroom) => {
@@ -3435,70 +3271,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       chatroom = null;
 
-
     },
 
 
-
-
-
-
   }
 
 
+  function variableResets() { 
 
-  async function isChildElementNodesEqual(pNodeA, pNodeB){
-
-    let cNodeA = pNodeA.firstElementChild;
-    let cNodeB = pNodeB.firstElementChild;
-
-    do {
-      if (cNodeA !== null && cNodeB !== null) {
-        await Promise.resolve(0);
-        let isEqual = cNodeA.isEqualNode(cNodeB)
-        if (!isEqual) return ({ res: false, pNodeA, pNodeB });
-        cNodeA = cNodeA.nextElementSibling;
-        cNodeB = cNodeB.nextElementSibling;
-      } else {
-        let res = (cNodeA === null && cNodeB === null);
-        return ({ res, pNodeA, pNodeB });
-      }
-    } while (true);
-
-
-  }
-
-  async function isChildTextNodesEqual(pNodeA, pNodeB){
-
-    let cNodeA = pNodeA.firstChild;
-    let cNodeB = pNodeB.firstChild;
-
-    do {
-      if (cNodeA !== null && cNodeB !== null) {
-        let isEqual;
-        if(cNodeA.nodeType===1 && cNodeB.nodeType===1){
-          let m = await isChildElementNodesEqual(cNodeA, cNodeB);
-          isEqual = m.res;
-        }else{
-          await Promise.resolve(0);
-          isEqual = cNodeA.isEqualNode(cNodeB)
-        }
-        if (!isEqual) return ({ res: false, pNodeA, pNodeB });
-        cNodeA = cNodeA.nextSibling;
-        cNodeB = cNodeB.nextSibling;
-      } else {
-        let res = (cNodeA === null && cNodeB === null);
-        return ({ res, pNodeA, pNodeB });
-      }
-    } while (true);
-
-
-  }
-
-  function variableResets() {
-
-    videoListBeforeSearch = null;
-    _cachedLastVideo = null;
+    // reset variables when it is confirmed a new page is loaded
 
     lstTab =
     {
@@ -3522,13 +3303,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       elem.removeAttribute('tabview-info-expander');
     }
 
-    mtoMutation_body.clear(true)
     mtf_chatBlockQ = null;
 
   }
-
-
-
 
 
   function getWord(tag) {
@@ -3785,21 +3562,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-
-
-
-
-
-  let generalLog901 = !DEBUG_LOG ? 0 : (evt) => {
-    _console.log(901, evt.type)
-  }
-
-
-
   const _pageBeingInit = function () {
 
     pageSession.inc();
     if(pageSession.sid>9e9) pageSession.sid=9; 
+    
+    if(_updateTimeAccum>0){
+      _viTimeNum = 200;
+      _updateTimeAccum = 0;
+      delete document.head.dataset.viTime;
+    }
     fetchCounts = {
       base: null,
       new: null,
@@ -3813,49 +3585,70 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const pageBeingInit = function () {
 
-
     // call regardless pageType
     // yt-navigate without fetch page is possible (click video time in comments)
+
+    let action = 0;
     if (tabsDeferred.resolved) {
- 
-      mtoVisibility_EngagementPanel.clear(true)
-      check_epPanel_change = false;
-      renderIdentifier++;
-      if (renderIdentifier > 88) renderIdentifier = 9;
-      renderDeferred.reset();
-
-      comments_loader = 1;
-      tabsDeferred.reset();
-      if(!(firstLoadStatus&8)){
-        //console.log(3446)
-        innerDOMCommentsCountLoader(); //ensure the previous record is saved
-        // no need to cache to the rendering state
-        //console.log(3447)
-        _pageBeingInit();
-      }else if(firstLoadStatus&2){
-        firstLoadStatus-=2;
-        script_inject_js1.inject();
-      }
-      _console.log('pageBeingInit', firstLoadStatus)
-    }else if(renderDeferred.resolved){
+      action = 1;
+    } else if (renderDeferred.resolved) {
       // in case , rarely, tabsDeferred not yet resolved but animateLoadDeferred resolved
-
-      mtoVisibility_EngagementPanel.clear(true)
-      check_epPanel_change = false;
-      renderIdentifier++;
-      if (renderIdentifier > 88) renderIdentifier = 9;
-      renderDeferred.reset();
-      
+      action = 2;
     }
 
+    if (action > 0) {
 
-    if(pageRendered===2){
+
+      let tmpElm = null;
+      
+      if (lyricsPlugin) {
+        if (tmpElm = document.querySelector('#lyricscontainer [lctc="hide"]')) {
+          tmpElm.click();
+        }
+        if (tmpElm = document.querySelector('iframe#lyricsiframe')) {
+          lyricsIframeRemoval(tmpElm);
+          lyrcisPanelHidden();
+        }
+        lastAction_lyricsDOMAppended = 0;
+      }
+
+      // instead of resetting in 'variableResets()`
+      // order of navigate-finish and page-data-update is not guaranteed.
+      if (mtoVisibility_EngagementPanel.bindCount > 0 || check_epPanel_change === true) {
+        mtoVisibility_EngagementPanel.clear(true)
+        check_epPanel_change = false;
+      }
+
+      renderIdentifier++;
+      if (renderIdentifier > 88) renderIdentifier = 9;
+      renderDeferred.reset();
+
+      if (action === 1) {
+        comments_loader = 1;
+        tabsDeferred.reset();
+        if (!(firstLoadStatus & 8)) {
+          //console.log(3446)
+          innerDOMCommentsCountLoader(); //ensure the previous record is saved
+          // no need to cache to the rendering state
+          //console.log(3447)
+          _pageBeingInit();
+        } else if (firstLoadStatus & 2) {
+          firstLoadStatus -= 2;
+          script_inject_js1.inject();
+        }
+        _console.log('pageBeingInit', firstLoadStatus)
+      }
+
+    }
+
+    if (pageRendered === 2) {
+      pageRendered = 0;
       let elmPL = document.querySelector('tabview-view-ploader');
       elmPL.remove();
-      pageRendered=0;
-    } 
+      pageRendered = 0;
+    }
 
-    if(!scriptletDeferred.resolved){
+    if (!scriptletDeferred.resolved) {
       // just in case, should not happen this.
       // this is to clear the pending queue if scriptlet is not ready.
       scriptletDeferred.reset();
@@ -3879,10 +3672,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let ei = 0;
 
-    function execute(){
+    function execute() {
       //sync -> animateLoadDeferred.resolved always true
 
-      if(!renderDeferred.resolved) return;
+      if (!renderDeferred.resolved) return;
 
       _console.log(2323)
 
@@ -3892,11 +3685,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let ret = innerDOMCommentsCountLoader();
       resultCommentsCountCaching(ret);
-  
+
       if (fetchCounts.new && !fetchCounts.fetched) {
-        
+
         _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
-        if(fetchCounts.new.f()){
+        if (fetchCounts.new.f()) {
           fetchCounts.fetched = true;
           _console.log(9972, 'fetched = true')
           fetchCommentsFinished();
@@ -3904,8 +3697,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         return;
       }
-        
-
 
 
       ei++;
@@ -3947,22 +3738,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         return true;
       }
 
-   
-
-
     }
 
- 
-    async function alCheckFn (ks){
-      
+
+    async function alCheckFn(ks) {
+
       let alCheckCount = 9;
       let alCheckInterval = 420;
- 
+
       do {
 
         if (renderIdentifier !== ks) break;
         if (alCheckCount === 0) break;
-        if(execute()!==true) break;
+        if (execute() !== true) break;
         --alCheckCount;
 
         await new Promise(r => setTimeout(r, alCheckInterval));
@@ -3971,41 +3759,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
     let ks = renderIdentifier;
-    renderDeferred.debounce(()=>{
+    renderDeferred.debounce(() => {
 
       alCheckFn(ks);
 
     });
 
 
- 
-
   }
 
 
-
-
-  
-  let g_check_detail_A=0;
+  let g_check_detail_A = 0;
   let checkDuplicateRes = null;
-  function checkDuplicatedInfo_then(isCheck){
+  function checkDuplicatedInfo_then(isCheck) {
 
-      const ytdFlexyElm = es.ytdFlexy;
-      if (!ytdFlexyElm) return; //unlikely
+    const ytdFlexyElm = es.ytdFlexy;
+    if (!ytdFlexyElm) return; //unlikely
 
-      let cssbool_c1 = false, cssbool_c2= false, cssbool_c3= false;
-      if(isCheck === 5 && ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')){
-        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
-      }
+    let cssbool_c1 = false, cssbool_c2 = false, cssbool_c3 = false;
+    if (isCheck === 5 && ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
+      cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+      cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+      cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
+    }
 
-      ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1?'A':'a'}${cssbool_c2?'B':'b'}${cssbool_c3?'C':'c'}`);
-
-      
+    ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
 
   }
-  function checkDuplicatedInfo(req){
+  function checkDuplicatedInfo(req) {
 
 
     async function checkDuplicatedInfoContentEqual(desc1, desc2){
@@ -4099,12 +3880,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           }
 
-
         }
       }
 
-      let infoDuplicated = true;
+      //console.log(desc1, desc2)
 
+      let infoDuplicated = true;
 
       let mb1 = null, mb2 = null;
 
@@ -4113,7 +3894,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else if ((mrcr1 === null) ^ (mrcr2 === null)) {
         infoDuplicated = false;
       } else {
-
 
         await Promise.all([
 
@@ -4145,18 +3925,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       req = null;
 
-      console.log('check-info-duplicate', infoDuplicated, mb1, mb2)
-
+      console.log('check-info-duplicate', `r|${infoDuplicated?1:0}, b1|${mb1?1:0}, b2|${mb2?1:0}`)
 
       if (g_check_detail_A !== t) return;
 
       //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
       checkDuplicateRes = infoDuplicated;
 
-
       return 5; // other than 5, duplicated check = false
-
-
 
     };
 
@@ -4165,7 +3941,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-
 
 
   function setupChatFrameDOM(node, bool) {
@@ -4253,6 +4028,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
   }
+  
+  handleDOMAppear('epDOMAppended', (evt)=>{
+    
+    let node = evt.target;
+    if (check_epPanel_change) {
+      if (newEngagementPanel(node)) {
+        console.log('new engagement panel is added.')
+        FP.mtf_attrEngagementPanel();
+      }
+    }
+
+  })
 
   function ytMicroEventsInit() {
 
@@ -4266,20 +4053,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
 
-
-
       const nodeName = evt.target.nodeName.toUpperCase();
 
       //  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER','YTD-MENU-RENDERER']
       if (S_GENERAL_RENDERERS.includes(nodeName)) {
- 
         return;
       }
 
       _console.log(evt.target.nodeName, 904, evt.type, evt.detail);
 
     });
-
 
 
     const renderStamperFunc = {
@@ -4300,13 +4083,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       },
       'YTD-ENGAGEMENT-PANEL-SECTION-LIST-RENDERER': (node) => {
 
-
-        if (check_epPanel_change) {
-          if (newEngagementPanel(node)) {
-            console.log('new engagement panel is added.')
-            FP.mtf_attrEngagementPanel();
-          }
-        }
 
 
       }
@@ -4343,7 +4119,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     });
-
 
 
     handleDOMAppear('liveChatFrameDOMAppended', (evt)=>{
@@ -4415,15 +4190,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         })
 
 
-         
-
-
         _console.log(2178,3)
         pageCheck(); 
         setupChatFrameDOM(null, false);
-
  
-
         let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])');
         if (expander) {
 
@@ -4572,7 +4342,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             setTimeout(() => {
               //dispatchWindowResize(); //try to omit
               dispatchWindowResize(); //add once for safe
-              manualResize(true);
+              manualResizeT();
             }, 420)
           })
 
@@ -4593,15 +4363,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         });
 
 
-
       });
 
     });
 
 
-
     globalHook('yt-player-updated', (evt) => {
-
 
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -4650,31 +4417,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (video && !video.hasAttribute('tabview-video-events')) {
             video.setAttribute('tabview-video-events', '')
 
-            let _viTimeNum = 0;
-            async function isDocumentInFullScreenMode() {
-              return document.fullscreenElement !== null;
-            }
-            async function videoAsyncTimeUpdate(){
-              
-              const isFullscreen = await isDocumentInFullScreenMode();
-              // force browser to load the videostream during playing (primarily for music videos)
-              // both background and foreground
-              if (isFullscreen) return;
-              const x = Math.round((Date.now() - mTime) / 3400);
-              if (x !== _viTimeNum) {
-                const t = await Promise.resolve(x);
-
-                if (_viTimeNum !== t) {
-                  document.head.dataset.viTime = `${t}`;
-                  await Promise.resolve(0)
-                  _viTimeNum = +document.head.dataset.viTime || 0;
-                }
-
-              }
-
-            }
             video.addEventListener('timeupdate', (evt) => {
-              videoAsyncTimeUpdate();
+              energizedByVideoTimeUpdate();
             }, bubblePassive);
 
             video.addEventListener('ended',(evt)=>{
@@ -4697,8 +4441,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
       });
-
-
 
 
     });
@@ -4736,15 +4478,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           domInit_comments();
 
 
-
           if (mtf_forceCheckLiveVideo_disable === 2) {
 
           } else {
 
 
-
             _console.log(3713, Q.comments_section_loaded, fetchCounts.fetched, 'fetch comments')
-
 
 
             if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
@@ -4754,7 +4493,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               _disableComments();
 
               _console.log(3713, 3, 'comments hidden')
-
 
 
             } else if (Q.comments_section_loaded === 0) {
@@ -4772,8 +4510,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       });
 
     })
-
-
 
 
     window.addEventListener("message", (evt) => {
@@ -4844,7 +4580,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     //     max-height: initial !important;
 
 
-
     // } 
 
     // ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"][style*="fixed"]:not([aria-disabled=""]){
@@ -4858,9 +4593,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     //     left:0 !important;
 
 
-
     // } 
-
 
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -4938,7 +4671,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     })
 
 
-
     DEBUG_LOG && globalHook('yt-request-panel-mode-change', (evt) => {
 
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
@@ -4946,8 +4678,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
     })
-
-
 
 
     DEBUG_LOG && globalHook('yt-visibility-refresh', (evt) => {
@@ -5095,7 +4825,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
 
 
-
   
 
   function addIframeStyle(cDoc) {
@@ -5200,9 +4929,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     fullReady();
 
 
-
-
-
   }
   
   const iframeLoadHookA = function (evt) {
@@ -5240,7 +4966,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           resolve(cDoc);
 
 
-
         }, 17)
 
 
@@ -5253,11 +4978,16 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       })
 
 
-
     }
   }
 
+  let videosDeferred = new Deferred();
 
+  handleDOMAppear('videosDOMAppended',function(evt){
+    videosDeferred.resolve();
+  })
+
+  let _navigateLoadDT = 0;
   function onNavigationEnd(evt) {
     console.log('yt-navigate-finish')
 
@@ -5268,7 +4998,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
  
 
     //})
-
 
 
     // forceConfig();
@@ -5303,8 +5032,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       }
       
 
- 
-
       const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
       if (!ytdFlexyElm) return;
@@ -5313,18 +5040,15 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       ytdFlexy = mWeakRef(ytdFlexyElm)
 
-      new Promise(frResolve=>{
-
-        let timeoutR_findRelated = new Timeout();
-        timeoutR_findRelated.set(function () {
-          const ytdFlexyElm = es.ytdFlexy;
-          if (!ytdFlexyElm) return true;
-          let related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
-          if (!related) return true;
-          frResolve(related);
-        }, 100, 10)
-
-      }).then(related=>{
+      let tdt = Date.now();
+      _navigateLoadDT = tdt;
+      videosDeferred.debounce(()=>{
+        if(_navigateLoadDT!==tdt) return;
+        
+        const ytdFlexyElm = es.ytdFlexy;
+        if (!ytdFlexyElm) return;
+        const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
+        if (!related) return;
 
         if (!document.querySelector("#right-tabs")) {
           getLang();
@@ -5339,8 +5063,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           docTmp = null;
         }
 
-        const ytdFlexyElm = es.ytdFlexy;
-        if (!ytdFlexyElm) return;
         if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
 
         // append the next videos 
@@ -5353,17 +5075,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         mtoFlexyAttr.clear(true)
         mtf_checkFlexy()
 
-        // for automcomplete plugin or other userscript plugins
-        // document.body for Firefox >= 60
-        mtoMutation_body.bindElement(document.querySelector('body'), {
-          childList: true,
-          subtree: false,
-          attributes: false
-        })
 
         tabsDeferred.resolve();
 
-      })
+      });
  
     } else {
 
@@ -5378,8 +5093,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
   }
-
-
 
 
   function fetchCommentsFinished() {
@@ -5412,7 +5125,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     setCommentSection(0);
     _console.log(7233, 'comments_section_loaded = 0')
   }
-
 
 
   function _disableComments() {
@@ -5459,7 +5171,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
   }
-
 
 
   function setKeywords(){
@@ -5609,13 +5320,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
 
 
-
-
-
-
-
-
-
   function flexyAttr_toggleFlag(mFlag, b, flag) {
     return b ? (mFlag | flag) : (mFlag & ~flag);
   }
@@ -5689,7 +5393,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     }
   }
 
-  function iof_details(entries, observer) {
+  function ito_details(entries, observer) {
     if (!detailsTriggerReset) return;
     if (!entries || entries.length !== 1) return; // unlikely
     let entry = entries[0];
@@ -5701,8 +5405,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       let dom = entry.target;
       if (!dom) return; //unlikely
-
-
 
       let bool = false;
 
@@ -5722,31 +5424,16 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       async function runAsync(dom) {
 
-
         if (bool) {
-
 
           let descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
           if (descClickable) {
             descClickable.click();
-
-            //              let columns=document.querySelector('#columns.ytd-watch-flexy #primary');
-            /*
-                          columns.style.maxHeight='200vh';
-                          await new Promise(r=>setTimeout(r,20));
-                          columns.style.maxHeight='';
-            
-                          let p = columns.parentNode
-                          let n = columns.nextSibling
-                          columns.remove();
-                          p.insertBefore(columns,n);*/
           }
-
 
         }
 
         await new Promise(r => setTimeout(r, 20));
-
 
         let pInner, h1, h2;
         try {
@@ -5773,7 +5460,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       }
 
       runAsync(dom);
-
 
 
     }
@@ -6047,10 +5733,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
 
 
-
-
-
-
   function switchTabActivity(activeLink) {
 
     //console.log(4545, activeLink)
@@ -6066,11 +5748,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
     function runAtEnd() {
-
-
-      //console.log(12312)
-
-
+      
       if (activeLink) {
         lstTab.lastTab = activeLink.getAttribute('tyt-tab-content')
         lstTab.lastPanel = null;
@@ -6087,14 +5765,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         }
       }
 
-
       ytdFlexyElm.setAttribute('tyt-tab', activeLink ? lstTab.lastTab : '')
-
-
-
-      
-
-
 
     }
 
@@ -6120,7 +5791,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
   }
-
 
 
   function getStore() {
@@ -6241,11 +5911,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       timeline.setTimeout(unlock, 80)
       switchTabActivity(tabBtn)
 
-
-
     }
-
-
 
 
   }
@@ -6272,8 +5938,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     handlerMaterialTabClickInner(tabBtn);
 
 
-
-
   }
 
   function prepareTabBtn() {
@@ -6288,11 +5952,8 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     if (!tabsUiScript_setclick) {
       tabsUiScript_setclick = true;
-      
-      //let _last_click =null;
 
       let fontSizeBtnClick = null;
-
 
       materialTab.addEventListener('click',function(evt){
 
@@ -6309,16 +5970,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
       }, true)
-
-      //$(materialTab).on("click", "a", handlerMaterialTabClick);
-
-      /*
-      $(materialTab).on("dblclick", "a", function(evt){
-
-        evt.preventDefault();
-
-      });
-      */
 
       function updateCSS_fontsize() {
 
@@ -6361,15 +6012,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
         updateCSS_fontsize();
 
-
-        //console.log(this.textContent)
-
-
       }
       //$(materialTab).on("click", ".font-size-btn", );
 
       updateCSS_fontsize();
-
 
 
     }
@@ -6427,7 +6073,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     let tdt = Date.now();
     singleColumnScrolling_dt = tdt;
  
-
 
     _console.log(7891, 'scrolling')
 
@@ -6524,7 +6169,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   };
 
 
-
   const singleColumnScrolling2 = async function (xyStatus, width, xRect) {
     //makeHeaderFloat
 
@@ -6567,9 +6211,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   };
 
 
-
   function resetBuggyLayoutForNewVideoPage() {
-
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
@@ -6579,7 +6221,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     scriptEnable = true;
 
     _console.log(27056)
-
 
     let new_layoutStatus = wls.layoutStatus
 
@@ -6600,9 +6241,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     } else if (new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]').length === 0) {
       wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPAND)
     }
-
-
-
 
   }
 
@@ -6637,7 +6275,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         }
 
 
-
         if (typeof txt_expand == 'string' && typeof txt_collapse == 'string' && txt_expand.length > 0 && txt_collapse.length > 0) {
 
         } else {
@@ -6659,19 +6296,29 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     console.log('newVideoPage')
 
+    if(lyricsPlugin){
+      let iframe = document.querySelector('#lyricsiframe');
+      if(iframe) iframe.src='';
 
+      let elm1=document.querySelector('body > #lyricscontainer')
+      let elm2 = document.querySelector('body > #showlyricsbutton')
+      if(elm1 || elm2){
+        let s = (elm1 && elm2) ? [elm1, elm2] : [elm1 || elm2];
+        removeElements(s);
+        appends(document.body, elm1, elm2);
+      }
+
+    }
 
     //console.log('newVideoPage-', 150, location.href)
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
 
-
     timeline.reset();
     layoutStatusMutex = new Mutex();
 
     //console.log('newVideoPage-', 350, location.href)
-
     
     let liveChatRenderer = null;
     let isReplay = null;
@@ -6707,14 +6354,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       _console.log(932, 1, 3)
 
-      
-
+    
       let displayState = setupChatFrameDisplayState1(chatBlockR, initialDisplayState);
 
       let {attr_chatblock, attr_chatcollapsed, chatTypeChanged}  = displayState;
-
-
-
 
 
       if (pageType === 'watch') { // reset info when hidden
@@ -6735,8 +6378,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
         } else {
-
-
 
           const tabBtn = document.querySelector('[tyt-tab-content="#tab-comments"].tab-btn-hidden')
           if (tabBtn) {
@@ -6760,7 +6401,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
         // restore Fetching only
 
-
         if (mtf_forceCheckLiveVideo_disable !== 2 && (attr_chatblock === false || attr_chatblock === 'chat$playback')) {
 
           emptyCommentSection();
@@ -6770,8 +6410,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           restoreFetching();
 
         }
-
-
 
       }
 
@@ -6788,12 +6426,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     f();
 
-
-
-
-
   }
-
 
   function setVideosTwoColumns(/** @type {number} */ flag, /** @type {boolean} */ bool) {
 
@@ -6841,10 +6474,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       if (res.m3) wAttr(res.m3, 'hidden', bool ? '' : false);
     }
 
-
     return res
-
-
 
 
   }
@@ -6855,12 +6485,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   // ---- EVENTS ----
 
 
-
   let pageStartLoad = (evt) => {
     //console.log('ss', evt)
     pageBeingInit();
   }
-
 
   globalHook('yt-page-data-fetched', generalLog901)
 
@@ -6890,13 +6518,10 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   globalHook('yt-navigate-cache', generalLog901)
 
 
-
   // globalHook('yt-navigate', pageStartLoad); //tmp fix to avoid yt-navigate without yt-navigate-start for clicking video time
   globalHook('yt-navigate-start', pageStartLoad);
   globalHook('yt-navigate-cache', pageStartLoad);
   globalHook('yt-navigate-redirect', pageStartLoad);
-
-
 
 
   globalHook('yt-page-data-fetched', (evt) => {
@@ -7052,20 +6677,16 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     })
 
 
-
-
-
-
   })
 
   document.addEventListener("yt-navigate-finish", onNavigationEnd, bubblePassive)
   //yt-navigate-redirect
-  //"yt-page-data-fetched"
+  //yt-page-data-fetched
   //yt-navigate-error
   //yt-navigate-start
   //yt-page-manager-navigate-start
-  //"yt-navigate"
-  //"yt-navigate-cache
+  //yt-navigate
+  //yt-navigate-cache
 
   document.addEventListener("yt-page-manager-navigate-start", () => {
     console.log('yt-page-manager-navigate-start')
@@ -7073,17 +6694,14 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }, bubblePassive)
 
 
-
   // ---------------------------------------------------------------------------------------------
 
 
-  function manualResize(isTrusted){
+  function manualResizeT(){
 
     if (!scriptEnable) return;
     if (pageType !== 'watch') return;
     //lastResizeAt = Date.now();
-
-    _console.log(2233, isTrusted)
 
     if((wls.layoutStatus & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN ){
 
@@ -7094,7 +6712,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         singleColumnScrolling(true)
       })
 
-    } else if (isTrusted) {
+    } else {
       // two cols
 
       updateFloatingSlider();
@@ -7117,14 +6735,13 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
           if (tcw !== resizeCount) return;
           
           resizeCount = 0;
-          manualResize(true);
+          manualResizeT();
           dispatchCommentRowResize();
         }, 160);
       });
     }
 
   }, bubblePassive)
-
 
 
   document.addEventListener("tabview-plugin-loaded",()=>{
@@ -7136,7 +6753,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     }
 
   })
-
 
 
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
@@ -7251,8 +6867,6 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
    * 
    * 
    */
-
-
 
 
 })();
