@@ -132,75 +132,82 @@
   
   
   @supports (contain: layout paint style) {
-  
-      body yt-live-chat-app {
-          contain: size layout paint style;
-          content-visibility: auto;
-          transform: translate3d(0, 0, 0);
-          overflow: hidden;
-      }
-  
-  
-      #items.style-scope.yt-live-chat-item-list-renderer,
-      #item-offset.style-scope.yt-live-chat-item-list-renderer {
-          contain: layout paint style;
-      }
-  
-      #item-scroller.style-scope.yt-live-chat-item-list-renderer {
-          contain: size style;
-      }
-  
-      #contents.style-scope.yt-live-chat-item-list-renderer,
-      #chat.style-scope.yt-live-chat-renderer,
-      img.style-scope.yt-img-shadow[width][height] {
-          contain: size layout paint style;
-      }
-  
-      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label],
-      .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label]>#container {
-          contain: layout paint style;
-      }
-  
-  
-      yt-img-shadow#author-photo.style-scope {
-          contain: layout paint style;
-          content-visibility: auto;
-          contain-intrinsic-size: 24px 24px;
-      }
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
-          pointer-events: var(--tabview-msg-pointer-events);
-      }
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
-          cursor: var(--tabview-msg-cursor);
-      }
-  
-  
-      yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
-      yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer,
-      yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer,
-      yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer,
-      yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
-      yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
-      yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
-      yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
-          cursor: var(--tabview-msg-cursor);
-          pointer-events: var(--tabview-msg-pointer-events);
-      }
-  
-      yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
-      yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
-          contain: layout style;
-      }
-  
-      tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
-          contain: layout paint style;
-      }
+
+    /*
+    contain: layout paint style;
+    // #item-offset uses transform, it is buggy in Opera 93.0 with contain: layout & paint
+    */
+
+    body yt-live-chat-app {
+        contain: size layout paint style;
+        content-visibility: auto;
+        transform: translate3d(0, 0, 0);
+        overflow: hidden;
+    }
+
+    #items.style-scope.yt-live-chat-item-list-renderer{
+        contain: layout paint style;
+    }
+
+    #item-offset.style-scope.yt-live-chat-item-list-renderer {
+        contain: style;
+    }
+
+    #item-scroller.style-scope.yt-live-chat-item-list-renderer {
+        contain: size style;
+    }
+
+    #contents.style-scope.yt-live-chat-item-list-renderer,
+    #chat.style-scope.yt-live-chat-renderer,
+    img.style-scope.yt-img-shadow[width][height] {
+        contain: size layout paint style;
+    }
+
+    .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label],
+    .style-scope.yt-live-chat-ticker-renderer[role="button"][aria-label]>#container {
+        contain: layout paint style;
+    }
+
+
+    yt-img-shadow#author-photo.style-scope {
+        contain: layout paint style;
+        content-visibility: auto;
+        contain-intrinsic-size: 24px 24px;
+    }
+
+    yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
+    yt-live-chat-text-message-renderer:not([author-is-owner]) yt-live-chat-author-chip.style-scope.yt-live-chat-text-message-renderer {
+        pointer-events: var(--tabview-msg-pointer-events);
+    }
+
+    yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
+        cursor: var(--tabview-msg-cursor);
+    }
+
+
+    yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
+    yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
+    yt-live-chat-text-message-renderer:not([author-is-owner]) #timestamp.style-scope.yt-live-chat-text-message-renderer,
+    yt-live-chat-membership-item-renderer #header-content.style-scope.yt-live-chat-membership-item-renderer,
+    yt-live-chat-membership-item-renderer #timestamp.style-scope.yt-live-chat-membership-item-renderer,
+    yt-live-chat-paid-message-renderer #header-content.yt-live-chat-paid-message-renderer,
+    yt-live-chat-paid-message-renderer #timestamp.style-scope.yt-live-chat-paid-message-renderer,
+    yt-live-chat-paid-sticker-renderer #content.style-scope.yt-live-chat-paid-sticker-renderer,
+    yt-live-chat-paid-sticker-renderer #timestamp.style-scope.yt-live-chat-paid-sticker-renderer {
+        cursor: var(--tabview-msg-cursor);
+        pointer-events: var(--tabview-msg-pointer-events);
+    }
+
+    yt-live-chat-text-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+    yt-live-chat-membership-item-renderer.style-scope.yt-live-chat-item-list-renderer,
+    yt-live-chat-paid-message-renderer.style-scope.yt-live-chat-item-list-renderer,
+    yt-live-chat-banner-manager.style-scope.yt-live-chat-item-list-renderer {
+        contain: layout style;
+    }
+
+    tp-yt-paper-tooltip[style*="inset"][role="tooltip"] {
+        contain: layout paint style;
+    }
   
   }
   
@@ -2919,16 +2926,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let ep = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
     if(ep) ep.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN');
   }
-
-  function removeChildren(cssSelector, parentNode) {
-    var elements = parentNode.querySelectorAll(cssSelector);
-    removeElements(elements);
-  }
   
-  function removeElements(elements) {
-    let fragment = document.createDocumentFragment();
-    fragment.textContent = ' ';
-    fragment.firstChild.replaceWith(...elements);
+  const removeElements = typeof DocumentFragment.prototype.append === 'function' ? (elements) => {
+    document.createDocumentFragment().append(...elements);
+  } : (elements) => {
+    for (const element of elements) {
+      element.remove();
+    }
   }
 
   let lastAction_lyricsTracklistDOMAppended = 0;
