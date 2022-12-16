@@ -1649,6 +1649,11 @@ body .ytp-autohide .ytp-unmute,
             --tabview-text-loading: "加载中";
             --tabview-text-fetching: "抓取中";
         }
+        
+        html:lang(ru) {
+            --tabview-text-loading: "Загрузка";
+            --tabview-text-fetching: "Получение";
+        }
     
     
     
