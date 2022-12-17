@@ -1,5 +1,3 @@
-
-
 @supports (color: var(--reference-dimension)){
     /* reference dimension */
 
@@ -68,11 +66,7 @@ html:not(.style-scope) {
 
     */
 
-
 }
-
-
-
 
 ytd-watch-flexy {
 
@@ -112,7 +106,6 @@ ytd-watch-flexy {
     --tyt-tabs-upspace: '[[only avaible inside #right-tabs]]'; /* 42px if there is button-like */
     --tyt-tabs-available-height: '[[only avaible inside #right-tabs]]'; /* much reduced if all tabs are collapsed */
 
-
 }
 
 /**
@@ -134,13 +127,9 @@ JS issue
 document.querySelectorAll('#primary')
 NodeList [ div#primary.style-scope.ytd-two-column-browse-results-renderer, div#primary.style-scope.ytd-watch-flexy ]
 
-
 Same for #secondary
 
  */
-
-
-
 
 @supports (color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
 
@@ -185,7 +174,6 @@ Same for #secondary
         color: var(--yt-spec-text-primary-inverse);
     }
 
-
     html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録を解除"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
         display: inline-flex;
         width: 5em;
@@ -198,10 +186,6 @@ Same for #secondary
         color: var(--yt-spec-text-primary);
     }
 
-    
-
-
-    
     html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata tp-yt-paper-button[aria-label$="チャンネル登録を解除"][hidden] ~ #notification-preference-button.style-scope.ytd-subscribe-button-renderer 
     button.yt-spec-button-shape-next--tonal.yt-spec-button-shape-next--mono:only-child[aria-label] span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
         display: inline-flex;
@@ -216,16 +200,11 @@ Same for #secondary
         color: var(--yt-spec-text-primary);
     }
 
-
-
 /* <<< pre-fix for japanese layout native bug >>> */
 
 }
 
-
 @supports (color: var(--tabview-tab-panel-scrollbar-spacing)){
-
-
 
     @supports (color: var(--scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
 
@@ -269,7 +248,6 @@ Same for #secondary
     /*
     @supports (color: var(--fix-firefox-scrollbar-style)) and (-moz-appearance: none) {
 
-
         #tab-info,
         #tab-comments,
         #tab-videos,
@@ -289,10 +267,7 @@ Same for #secondary
     }
     */
 
-
 }
-
-
 
 @supports (display:var(--hide-duplicate-info)) {
 
@@ -365,18 +340,16 @@ Same for #secondary
 
     }
 
-
     @media all and (display-mode: fullscreen) {
-
 
         /* repeated info hidden */
 
-        ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#info-container.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
             max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
             overflow: auto;
         }
 
-        ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
             overflow-x: hidden;
         }
 
@@ -384,11 +357,7 @@ Same for #secondary
 
     }
 
-
-
 }
-
-
 
 @supports (not (color:var(--backup-code-for-autohide))){
 /*
@@ -454,7 +423,6 @@ body .ytp-autohide:not(.ytp-autohide-active) .ytp-overflow-button {
     display: flex;
 }
 
-
 .ytp-gradient-top[aria-hidden=true],
 .ytp-gradient-bottom[aria-hidden=true],
 body .ytp-autohide .ytp-gradient-top,
@@ -477,7 +445,6 @@ body .ytp-autohide:not(.ytp-autohide-active) .ytp-gradient-bottom {
 .ad-showing.ytp-hide-controls .video-ad-status-bar {
     bottom: 0
 }
-
 
 body .ytp-autohide.ytp-ad-overlay-closed .ad-overlay {
     opacity: 0;
@@ -544,11 +511,9 @@ body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide .iv-dra
     display:flex;
 }
 
-
 body .ytp-autohide .iv-drawer-content::-webkit-scrollbar-thumb {
     background-color: transparent
 }
-
 
 body .ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-teaser,
 .ytp-iv-drawer-open .ytp-cards-teaser {
@@ -574,7 +539,6 @@ body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide.ytp-con
     display:flex;
 }
 
-
 body .ytp-autohide:not(.ytp-mweb-player) .ytp-watermark {
     opacity: 0;
     -webkit-transition: bottom .1s cubic-bezier(0.4, 0, 1, 1), opacity .1s cubic-bezier(0.4, 0, 1, 1);
@@ -583,7 +547,6 @@ body .ytp-autohide:not(.ytp-mweb-player) .ytp-watermark {
     -webkit-transition: none;
     transition: none;
 }
-
 
 .ytp-big-mode.ytp-autohide .ytp-info-panel-preview,
 .ytp-big-mode.ytp-hide-info-bar .ytp-info-panel-preview,
@@ -597,16 +560,13 @@ body .ytp-autohide:not(.ytp-mweb-player) .ytp-watermark {
     display:flex;
 }
 
-
 .ytp-inline-preview-mode.ytp-autohide .ytp-inline-preview-scrim {
     opacity: 0
 }
 
-
 #inline-preview-player.ytp-autohide .caption-window.ytp-caption-window-bottom {
     margin-bottom: 12px
 }
-
 
 body .ytp-autohide .ytp-offline-slate-bar,
 .ytp-hide-controls .ytp-offline-slate-bar {
@@ -623,7 +583,6 @@ body .ytp-autohide .ytp-big-mode .ytp-offline-slate-bar,
     bottom: 18px
 }
 
-
 body .ytp-autohide.ytp-embed-overlays-autohide .ytp-overflow-panel {
     opacity: 0;
     -webkit-transition: opacity .1s cubic-bezier(0.4, 0, 1, 1);
@@ -637,7 +596,6 @@ body .ytp-autohide:not(.ytp-autohide-active).ytp-embed-overlays-autohide .ytp-ov
     display: none
     display:flex;
 }
-
 
 .ytp-exp-ppp-update.ytp-big-mode.ytp-autohide .ytp-paid-content-overlay,
 .ytp-exp-ppp-update.ytp-big-mode.ytp-hide-info-bar .ytp-paid-content-overlay,
@@ -681,7 +639,6 @@ body .ytp-autohide .caption-window.ytp-caption-window-top,
     transition: none;
 }
 
-
 body .ytp-autohide .caption-window.ytp-caption-window-bottom,
 .ytp-hide-controls .caption-window.ytp-caption-window-bottom {
     margin-bottom: 0;
@@ -692,7 +649,6 @@ body .ytp-autohide .caption-window.ytp-caption-window-bottom,
     transition: none;
 }
 
-
 body .ytp-autohide .ytp-unmute,
 .ytp-hide-info-bar .ytp-unmute {
     top: 0
@@ -700,11 +656,7 @@ body .ytp-autohide .ytp-unmute,
 */
 }
 
-
 @media all {
-
-
-
 
     /* Global */
 
@@ -715,7 +667,6 @@ body .ytp-autohide .ytp-unmute,
         content-visibility: hidden;
     }*/
 
-
     #columns.ytd-watch-flexy > yt-img-shadow,
     #columns.ytd-watch-flexy > img {
         position: absolute;
@@ -724,8 +675,25 @@ body .ytp-autohide .ytp-unmute,
         contain: strict;
     }
 
-    @supports (color: var(--videos-appear)){
+    @supports (color: var(--fix-scripting-iframe)){
+        body > iframe[style*="display: none"], body > iframe[style*="display:none"] {
+            position: fixed;
+            left: 20vw;
+            top: 20vh;
+            right: 20vw;
+            bottom: 20vh;
+            display: none !important;
+            padding: 0;
+            margin: 0;
+            pointer-events: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            z-index: 0 !important;
+            visibility: none;
+        }
+    }
 
+    @supports (color: var(--videos-appear)){
 
         @keyframes videosDOMAppended {
 
@@ -743,12 +711,9 @@ body .ytp-autohide .ytp-unmute,
             animation: videosDOMAppended 1ms linear 0s 1 normal forwards;
         }
 
-
-
     }
 
     @supports (color: var(--ep-appear)){
-
 
         @keyframes epDOMAppended {
 
@@ -767,7 +732,6 @@ body .ytp-autohide .ytp-unmute,
 
         }
     }
-
 
     .tyt-tmp-hide-metainfo #description.item.style-scope.ytd-watch-metadata #info-container.style-scope.ytd-watch-metadata{
         visibility: collapse;
@@ -796,7 +760,6 @@ body .ytp-autohide .ytp-unmute,
         }
 
         ytd-watch-flexy[flexy][is-two-columns_] #columns.ytd-watch-flexy.tyt-column-overflow{
-
 
             justify-content: left;
         }
@@ -866,7 +829,6 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-
     @supports (color: var(--tabview-fix-cinematic)){
         body ytd-watch-flexy[cinematics-enabled] #below.ytd-watch-flexy{
             position: static; /* fix tooltips overlap issue */
@@ -879,7 +841,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tabview-view-ploader)) {
 
-
         @keyframes pageLoaderAnimation {
 
             0% {
@@ -891,7 +852,6 @@ body .ytp-autohide .ytp-unmute,
 
             }
         }
-
 
         tabview-view-ploader {
             position: fixed;
@@ -913,9 +873,6 @@ body .ytp-autohide .ytp-unmute,
     }
 
     @supports (color: var(--dom-appearance-triggering)) {
-
-
-
 
         /*
 
@@ -961,10 +918,7 @@ body .ytp-autohide .ytp-unmute,
         animation: wsn2 1ms;
     }
 
-
-
     */
-
 
         @keyframes liveChatFrameDOMAppended {
 
@@ -982,7 +936,6 @@ body .ytp-autohide .ytp-unmute,
             animation: liveChatFrameDOMAppended 1ms linear 0s 1 normal forwards;
         }
 
-
         @keyframes chatFrameToggleBtnAppended1 {
 
             0% {
@@ -994,7 +947,6 @@ body .ytp-autohide .ytp-unmute,
 
             }
         }
-
 
         @keyframes chatFrameToggleBtnAppended2 {
 
@@ -1017,8 +969,6 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-
-
         @keyframes commentsSectionAppended {
 
             0% {
@@ -1035,8 +985,6 @@ body .ytp-autohide .ytp-unmute,
             animation: commentsSectionAppended 1ms linear 0s 1 normal forwards;
         }
 
-
-
         @keyframes commentsHeaderAppended1 {
 
             0% {
@@ -1048,7 +996,6 @@ body .ytp-autohide .ytp-unmute,
 
             }
         }
-
 
         @keyframes commentsHeaderAppended2 {
 
@@ -1062,11 +1009,9 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-
         ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer:not(.tyt-ani) {
             animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
         }
-
 
         ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer.tyt-ani {
             animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
@@ -1075,7 +1020,6 @@ body .ytp-autohide .ytp-unmute,
     }
 
     @supports (color: var(--page-columns-resizing-trigger)){
-
 
         tabview-view-columns-endpos {
 
@@ -1134,8 +1078,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tabview-view-tab-expander-btn-define)){
 
-
-
         @media all and (display-mode: fullscreen) {
             tabview-view-tab-expander{
                 display: none;
@@ -1145,7 +1087,6 @@ body .ytp-autohide .ytp-unmute,
     }
 
     @supports (color: var(--tabview-font-size-btn-define)) {
-
 
         .font-size-right {
             display: inline-flex;
@@ -1163,7 +1104,6 @@ body .ytp-autohide .ytp-unmute,
         html body ytd-watch-flexy.style-scope .font-size-btn {
             user-select: none !important;
         }
-
 
         .font-size-btn {
             --tyt-font-size-btn-display: none;
@@ -1189,7 +1129,6 @@ body .ytp-autohide .ytp-unmute,
             background-color: var(--yt-spec-text-primary);
             color: var(--yt-spec-general-background-a);
         }
-
 
         @supports (zoom: 0.5) {
             /* hide zoom btn for FireFox */
@@ -1225,9 +1164,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--stylish-scrollbar)) {
 
-
-
-
         /* align scrollbar style */
         [userscript-scrollbar-render]::-webkit-scrollbar {
             width: 16px;
@@ -1253,9 +1189,6 @@ body .ytp-autohide .ytp-unmute,
         [userscript-scrollbar-render]::-webkit-scrollbar-corner {
             background-color: transparent;
         }
-
-
-
 
         /* align scrollbar style */
         [userscript-scrollbar-render]>*:only-child::-webkit-scrollbar {
@@ -1283,11 +1216,9 @@ body .ytp-autohide .ytp-unmute,
             background-color: transparent;
         }
 
-
     }
 
     @supports (color: var(--page-info-ytd-watch-metadata-stylish)){
-
 
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy {
             /* original for teaser ui */
@@ -1376,7 +1307,6 @@ body .ytp-autohide .ytp-unmute,
             overflow: hidden;
         }
 
-
         ytd-watch-flexy[is-two-columns_] #right-tabs .tab-content {
             height: var(--tyt-tabs-content-height);
             contain: size layout paint;
@@ -1444,7 +1374,6 @@ body .ytp-autohide .ytp-unmute,
 
         /* 2022/11/12 fix for single column mode --> */
 
-
         ytd-watch-flexy[is-two-columns_][tyt-tab=""] #right-tabs .tab-content {
             display: none;
             contain: strict;
@@ -1494,7 +1423,6 @@ body .ytp-autohide .ytp-unmute,
             pointer-events: none;
         }
 
-
         ytd-watch-flexy #right-tabs .tab-content-cld#tab-list {
             --tab-content-padding: 0px;
             overflow: hidden;
@@ -1504,7 +1432,6 @@ body .ytp-autohide .ytp-unmute,
         ytd-watch-flexy #right-tabs .tab-content-cld#tab-videos [placeholder-videos] {
             --tab-content-padding: var(--ytd-margin-2x);
         }
-
 
     }
 
@@ -1540,9 +1467,7 @@ body .ytp-autohide .ytp-unmute,
             /*text-overflow: ellipsis;*/
             text-overflow: clip;
 
-
         }
-
 
         /* .tab-btn[tyt-tab-content] */
 
@@ -1560,9 +1485,6 @@ body .ytp-autohide .ytp-unmute,
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content] svg {
             pointer-events: none;
         }
-
-
-
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content].active {
             font-weight: 500;
@@ -1599,11 +1521,6 @@ body .ytp-autohide .ytp-unmute,
             color: var(--yt-spec-icon-disabled);
         }
 
-
-
-
-
-
         ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
             display: inline-block;
             width: 4em;
@@ -1617,11 +1534,9 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tyt-cm-count-define)){
 
-
         ytd-watch-flexy {
             --tyt-x-loading-content-letter-spacing: 2px;
         }
-    
     
         html {
             --tabview-text-loading: "Loading";
@@ -1649,21 +1564,16 @@ body .ytp-autohide .ytp-unmute,
             --tabview-text-loading: "加载中";
             --tabview-text-fetching: "抓取中";
         }
-        
+    
         html:lang(ru) {
             --tabview-text-loading: "Загрузка";
             --tabview-text-fetching: "Получение";
         }
-    
-    
-    
-    
+
         ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
             content: var(--tabview-text-loading);
             letter-spacing: var(--tyt-x-loading-content-letter-spacing);
         }
-
-
 
     }
 
@@ -1680,9 +1590,6 @@ body .ytp-autohide .ytp-unmute,
     }
      
 
-
-
-
     /* too many space at the right */
     ytd-watch-flexy #tab-comments,
     ytd-watch-flexy #tab-videos [placeholder-videos] {
@@ -1693,10 +1600,6 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy #tab-videos ytd-compact-video-renderer yt-interaction.extended {
         max-width: 100%;
     }
-
-
-
-
 
     ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
         border-bottom: 1px solid var(--yt-spec-10-percent-layer);
@@ -1714,7 +1617,6 @@ body .ytp-autohide .ytp-unmute,
         height: var(--tyt-x-chat-max-height);
         min-height: 10px;
     }
-
 
     /* double .ytd-watch-flexy is Youtube Coding Bug */
     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
@@ -1766,7 +1668,6 @@ body .ytp-autohide .ytp-unmute,
         /* avoid page scroll when display of tab-content changed */
     }
 
-
     ytd-watch-flexy:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
         min-height: 0px;
     }
@@ -1774,7 +1675,6 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy:not([is-two-columns_]) {
         --tyt-x-chatroom-height: var(--ytd-watch-flexy-chat-max-height);
     }
-
 
     ytd-watch-flexy ytd-live-chat-frame#chat {
         margin-top: 0;
@@ -1789,14 +1689,11 @@ body .ytp-autohide .ytp-unmute,
         max-height: var(--tyt-tabs-available-height);
     }
 
-
-
     .tab-content-cld ytd-playlist-panel-renderer {
         max-height: none !important;
         padding: 0 !important;
         margin: 0 !important;
     }
-
 
     ytd-watch-flexy[is-two-columns_] .tab-content-cld #tabview-playlist-wrapper {
         height: 100%;
@@ -1810,17 +1707,11 @@ body .ytp-autohide .ytp-unmute,
         max-height: none;
     }
 
-
-
-
-
-
     ytd-watch-flexy:not([theater]):not([is-two-columns_]) #secondary.ytd-watch-flexy,
     ytd-watch-flexy[theater]:not([is-two-columns_]) #secondary.ytd-watch-flexy {
         margin-top: 0;
         padding-bottom: 0;
     }
-
 
     ytd-watch-flexy[tyt-tab^="#tab-"]:not([theater]):not([is-two-columns_]) #primary-inner.ytd-watch-flexy,
     ytd-watch-flexy[tyt-tab^="#tab-"][theater]:not([is-two-columns_]) #primary-inner.ytd-watch-flexy {
@@ -1830,8 +1721,6 @@ body .ytp-autohide .ytp-unmute,
     body ytd-video-primary-info-renderer {
         padding: 12px 0 2px 0;
     }
-
-
 
     @supports (not (color: var(--removed-page-old-info-1))){
 
@@ -1863,7 +1752,6 @@ body .ytp-autohide .ytp-unmute,
 
         /* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
-
 
         /* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info */
 
@@ -1926,17 +1814,12 @@ body .ytp-autohide .ytp-unmute,
             flex-grow: 1;
         }
 
-
-
     }
 
     @supports (not (color: var(--removed-page-old-info-3-two-columns))) {
 
-
         /* ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
-
-
 
         /* ytd-watch-flexy[is-two-columns_] #player ~ #info */
 
@@ -1999,8 +1882,6 @@ body .ytp-autohide .ytp-unmute,
             flex-grow: 1;
         }
 
-
-
     }
 
     @supports (not (color: var(--removed-page-old-info-4))){
@@ -2020,13 +1901,7 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--videos-row-menu-renderer-icon-size)) {
 
-
-
-
-
-
         /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer  */
-
 
         ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer,
         ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer ytd-menu-renderer #button.ytd-menu-renderer {
@@ -2041,7 +1916,6 @@ body .ytp-autohide .ytp-unmute,
     @supports (color: var(--videos-row-metadata-UI-adjustment)) {
 
         /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata  */
-
 
         ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata {
             height: 100%;
@@ -2076,7 +1950,6 @@ body .ytp-autohide .ytp-unmute,
             white-space: nowrap;
         }
 
-
     }
 
     @supports (color: var(--feature-chrome-only-tab-content-zoom)) and (zoom:1.5) {
@@ -2110,7 +1983,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tab-info-layout-adjustment)) {
 
-
         /* #tab-info ytd-expander */
 
         ytd-watch-flexy[is-two-columns_] #tab-info ytd-expander {
@@ -2131,8 +2003,6 @@ body .ytp-autohide .ytp-unmute,
             zoom: var(--tyt-x-zoom-info);
             /* smaller text in tab Info */
         }
-
-
 
         ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info:not(.tab-content-hidden) {
             display: flex;
@@ -2161,16 +2031,9 @@ body .ytp-autohide .ytp-unmute,
             margin-right: 0;
         }
 
-
     }
 
     @supports (color: var(--tab-playlist-layout-adjustment)) {
-
-
-
-
-
-
 
         #tab-list ytd-playlist-panel-renderer#playlist yt-icon-button#expand-button {
             /* hide expand button */
@@ -2193,16 +2056,12 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-
         #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description,
         #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover #header-description yt-formatted-string[class] {
             height: auto;
             max-height: none;
             white-space: normal;
         }
-
-
-
 
         /* <-- playlist css changed in 2022/11/09 -- */
 
@@ -2217,7 +2076,6 @@ body .ytp-autohide .ytp-unmute,
             --tabview-playlist-header-transform: translate(-100vw, 0);
         }
 
-
         #tab-list ytd-playlist-panel-renderer#playlist .header.ytd-playlist-panel-renderer:hover {
             /*--tabview-playlist-header-display: flex;*/
 
@@ -2228,8 +2086,6 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-
-
         /* changed in 2022/11/09 */
 
         /* #tab-list ytd-playlist-panel-renderer#playlist #container */
@@ -2239,11 +2095,9 @@ body .ytp-autohide .ytp-unmute,
             /* hide playlist default border */
         }
 
-
         #tab-list ytd-playlist-panel-renderer#playlist #container>.header yt-icon-button {
             background-color: transparent;
         }
-
 
         #tab-list ytd-playlist-panel-renderer#playlist #container>.header #header-contents {
 
@@ -2260,17 +2114,12 @@ body .ytp-autohide .ytp-unmute,
             min-height: var(--tabview-playlist-header-height);
         }
 
-
-
-
         #tab-list ytd-playlist-panel-renderer#playlist #container>.header.ytd-playlist-panel-renderer:hover {
             --tabview-playlist-shift: calc(-80px + var(--tabview-playlist-header-height));
             margin-bottom: var(--tabview-playlist-shift);
         }
 
-
         /* -- playlist css changed in 2022/11/09 --> */
-
 
         /* 2022/11/14 fix playlist display issue */
 
@@ -2287,9 +2136,6 @@ body .ytp-autohide .ytp-unmute,
     @supports (color: var(--rendering-hide-elements)) {
 
         /* hide playlist border & toggle button */
-
-
-
 
         /* hide original right tabs {#related.ytd-watch-flexy} */
         #primary-inner.ytd-watch-flexy>#related.ytd-watch-flexy,
@@ -2339,7 +2185,6 @@ body .ytp-autohide .ytp-unmute,
             /* from (display: inline-block;) | overiding {ytd-watch-flexy:not([is-two-columns_]) #secondary.ytd-watch-flexy} */
         }
 
-
         /* css fix for responsive two columns flex , width */
 
         ytd-watch-flexy[flexy][is-two-columns_] #secondary.ytd-watch-flexy {
@@ -2354,11 +2199,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-
-
-
     @supports (color: var(--tab-header-sticky)){
-
 
         #right-tabs>tabview-view-pos-thead {
             display: none;
@@ -2396,7 +2237,6 @@ body .ytp-autohide .ytp-unmute,
             box-sizing: border-box;
         }
 
-
         /* <<< sticky right-tabs header --- */
 
         /* keep the single column view css as simple as possible */
@@ -2433,8 +2273,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--page-scroll)){
 
-
-
         /* << whole page scroll bar (original-type) */
 
         /* the scrollbar of the entire page is wrong due to youtube coding, just hide it */
@@ -2462,7 +2300,6 @@ body .ytp-autohide .ytp-unmute,
             overflow: hidden;
         }
 
-
         /* <<< page height setting - two-column-normal ---  */
 
     }
@@ -2489,7 +2326,6 @@ body .ytp-autohide .ytp-unmute,
             font-weight: var(--ytd-subheadline-font-weight);
         }
 
-
         ytd-live-chat-frame#chat:not([collapsed]) {
             position: relative;
         }
@@ -2506,7 +2342,6 @@ body .ytp-autohide .ytp-unmute,
     }
 
     
-
 
     /*     
 
@@ -2533,7 +2368,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--tab-info-extra-videos-arrows-stylish)) and (selector(:has(:hover))) {
 
-
         #tab-info #video-lockups>#left-arrow-container.style-scope.arrow-container {
 
             --tabview-left-arrow-opacity: '-NULL-';
@@ -2541,7 +2375,6 @@ body .ytp-autohide .ytp-unmute,
             transition: opacity 130ms;
 
         }
-
 
         #tab-info #video-lockups:has(#right-arrow-container:hover)>#left-arrow-container.style-scope.arrow-container {
 
@@ -2557,13 +2390,11 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-
         #tab-info #video-lockups:has(#left-arrow-container:hover)>#right-arrow-container.style-scope.arrow-container {
 
             --tabview-right-arrow-opacity: 0.23;
 
         }
-
 
     }
 
@@ -2607,7 +2438,6 @@ body .ytp-autohide .ytp-unmute,
                     justify-content: end;
                     */
                 }
-
 
                 /*
 
@@ -2683,11 +2513,9 @@ body .ytp-autohide .ytp-unmute,
 
             }
 
-
     }
 
     @supports(color: var(--uploader-info-auto-expand-transition-triggering)){
-
 
         /* tabview-uploader-hover */
 
@@ -2808,9 +2636,8 @@ body .ytp-autohide .ytp-unmute,
             --tabview-view-tab-expander-opacity1: 1.0;
         }
 
-
         /* .tabview-hover-slider:not(.tabview-hover-slider-enable) tabview-view-tab-expander,*/
-        ytd-watch-flexy[fullscreen] tabview-view-tab-expander,
+        :fullscreen ytd-watch-flexy[fullscreen] tabview-view-tab-expander,
         ytd-watch-flexy:not([is-two-columns_]) tabview-view-tab-expander {
             --tabview-view-tab-expander-opacity2: 0.0;
             --tabview-view-tab-expander-opacity1: 0.0;
@@ -2881,7 +2708,6 @@ body .ytp-autohide .ytp-unmute,
         /* reproduction: single column mode -> load more -> click video to change url -> new videos list become buggy */
         /* youtube native bug */
 
-
         #tab-videos #button.ytd-continuation-item-renderer yt-button-renderer.ytd-continuation-item-renderer {
             width: var(--ytd-continuation-item-renderer-width, 100%);
         }
@@ -2893,22 +2719,15 @@ body .ytp-autohide .ytp-unmute,
     }
  
 
-
-
-
     /* flexbox */
-
-
 
     ytd-watch-flexy[tyt-tab="#tab-list"]:not([is-two-columns_]) #tab-list:not(.tab-content-hidden) ytd-playlist-panel-renderer>#container {
         max-height: none;
     }
 
-
     ytd-watch-flexy[is-two-columns_]:not([theater]) #tab-videos {
         padding: 0;
     }
-
 
     ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search {
         position: sticky;
@@ -2930,20 +2749,15 @@ body .ytp-autohide .ytp-unmute,
         padding-right: 4px;
     }
 
-
-
     ytd-watch-flexy[is-two-columns_] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer.ytd-watch-flexy {
         margin-bottom: var(--ytd-margin-2x);
     }
 
-
     /* ytd-watch-flexy:not([is-two-columns_]) #columns */
-
 
     ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy {
         overflow: auto;
     }
-
 
     ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy {
         -ms-overflow-style: none;
@@ -2955,7 +2769,6 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy:not([is-two-columns_]) #columns.ytd-watch-flexy::-webkit-scrollbar {
         display: none;
     }
-
 
     ytd-watch-flexy[flexy][is-two-columns_][theater] #primary.ytd-watch-flexy {
         --ytd-watch-flexy-min-player-width: 0;
@@ -2991,12 +2804,6 @@ body .ytp-autohide .ytp-unmute,
             z-index: 99;
         }
 
-
-
-
-
-
-
         /* autocomplete | position-fixed-by-tabview-youtube */
 
         tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube] {
@@ -3008,7 +2815,6 @@ body .ytp-autohide .ytp-unmute,
         tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube] {
             z-index: 2;
         }
-
 
         @keyframes SearchWhileWatchAutocomplete {
             0%{
@@ -3023,12 +2829,9 @@ body .ytp-autohide .ytp-unmute,
             animation: SearchWhileWatchAutocomplete 1ms linear 0s 1 normal forwards;
         }
 
-
     }
 
     @supports (color: var(--compatibile-with-youtube-play-next-queue-renderer)){
-
-
 
         /* plugin - #youtube-play-next-queue-renderer */
 
@@ -3046,9 +2849,6 @@ body .ytp-autohide .ytp-unmute,
         #youtube-play-next-queue-renderer ytd-badge-supported-renderer {
             align-self: flex-end;
         }
-
-
-
 
         /* align scrollbar style */
         #youtube-play-next-queue-renderer::-webkit-scrollbar {
@@ -3082,9 +2882,6 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--compatibile-with-youtube-live-filled-up-view)){
 
-
-
-
         /* live fill up view */
         .YouTubeLiveFilledUpView #primary-inner.ytd-watch-flexy > #right-tabs:not(#player) {
             padding: 0;
@@ -3108,10 +2905,7 @@ body .ytp-autohide .ytp-unmute,
             height: calc(100vh - var(--YouTubeLiveFilledUpView-header-height)) !important;
         }
 
-
     }
-
-
 
     /* Better CSS Layout for Info Meta since 2022.04.20 */
     .watch-active-metadata.style-scope.ytd-watch-flexy {
@@ -3124,9 +2918,6 @@ body .ytp-autohide .ytp-unmute,
         flex-grow: 1;
     }
 
-
-
-
     /* experimental to fix Chinese display bug like 
      
 
@@ -3135,22 +2926,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
      */
 
-
-
-
-
-
-
-
-
     ytd-watch-flexy ytd-video-primary-info-renderer[has-date-text] #info-text.ytd-video-primary-info-renderer {
         height: auto;
         overflow: visible;
         -webkit-line-clamp: initial;
     }
-
-
-
 
     /* css for menu bar and hide image button text (Teaser UI ) */
 
@@ -3234,12 +3014,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /*  Userscript - Youtube Genius Lyrics */
 
-
         body>.loadingspinnerholder[title][style] {
             --tabview-youtube-tabbtn-height: 46px;
             margin-top: var(--tabview-youtube-tabbtn-height, 0px);
         }
-
 
         ytd-watch-flexy #content.ytd-engagement-panel-section-list-renderer iframe#lyricsiframe {
             width: 100% !important;
@@ -3260,7 +3038,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             opacity: 0;
             visibility: collapse;
         }
-
 
         ytd-engagement-panel-section-list-renderer #lyricsiframe {
             transition: none;
@@ -3301,8 +3078,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         }
 
-
-        body > #lyricscontainer > iframe#lyricsiframe{
+        body > #lyricscontainer > iframe#lyricsiframe,
+        body > iframe#lyricsiframe{
             opacity: 0 !important;
             pointer-events: none;
             visibility: collapse;
@@ -3316,7 +3093,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             visibility: collapse;
             user-select: none !important;
         }
-
 
         
         body #lyricscontainer{
@@ -3395,7 +3171,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             display: none;
         } 
 
-
         @keyframes lyricsDOMAppended {
 
             0% {
@@ -3414,7 +3189,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             
         }
 
-
         body #lyricscontainer a[href]{
             color:inherit;
         }
@@ -3432,7 +3206,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             --tyt-tracklist-li-background: var(--yt-spec-commerce-tonal-hover);
             border:1px solid var(--ytd-searchbox-legacy-button-hover-border-color);
         }
-
 
         @keyframes lyricsTracklistDOMAppended {
 
@@ -3460,7 +3233,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
         
 
-
         body #lyricscontainer ol.tracklist li .onhover,
         body #lyricscontainer ol.tracklist li .onout{
             display: none;
@@ -3486,9 +3258,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             padding: 0px 12px;
         }
 
-
-
-
     }
 
     @supports (color: var(--tabview-cmt-height-for-contain-intrinsic)) and (contain-intrinsic-size: 1px 1px) {
@@ -3501,9 +3270,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
     }
-
-
-
 
     /* 2022/07/30 #primary-inner > #player + #below */
 
@@ -3530,8 +3296,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 9382 */
 
-
-
     /* 2022/11/06 - margin bug for new layout */
 
     ytd-watch-flexy[is-two-columns_][theater] > #columns.ytd-watch-flexy {
@@ -3543,12 +3307,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         border-radius: 0;
     }
 
-
-
-
     @supports (color: var(--compatibile-with-youtube-downloader-buttons)){
-
-
 
         /* 2022.08.09 for https://greasyfork.org/scripts/373005-super-fast-youtube-to-mp3-converter-online-video-downloader */
 
@@ -3584,7 +3343,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             opacity: 0.8;
         }
 
-
         #subscribe-button.ytd-video-secondary-info-renderer>span#punisher {
             padding: 2px !important;
             margin-top: 0 !important;
@@ -3594,7 +3352,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
     @supports (color: var(--chat-frame-stylish)){
-
 
         /* 2022/11/06 - fix round border */
 
@@ -3618,9 +3375,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             border-radius: 0;
         }
 
-
-
-
         /* 2022/11/06 - show hide button background fix */
 
         ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame {
@@ -3634,7 +3388,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /* 2022/11/07 - chat room border 1px */
-
 
         body ytd-live-chat-frame#chat[class] {
             outline: 1px solid var(--yt-spec-10-percent-layer);
@@ -3675,16 +3428,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transform: initial;
         }
 
-
         html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy]{
             --tyt-native-ui-autohide-visibility: '--NULL-';
         }
 
-
     }
 
     @supports (color: var(--comment-input-panel-emoji)) {
-
 
         /* 2022/11/07 - fix comment emoji box size */
 
@@ -3696,20 +3446,16 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             min-height: calc(60vh - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x) * 2 - var(--tyt-x-top-bar-height));
         }
 
-
     }
 
     @supports (color: var(--page-cinematics)) {
-
 
         /* 2022/11/07 - integrate with cinematics background */
         ytd-watch-flexy[flexy][is-two-columns_] #right-tabs > header {
             background: transparent;
         }
 
-
         /* 2022/11/09 - cinematic background integration */
-
 
         body .playlist-items.ytd-playlist-panel-renderer {
             background-color: initial;
@@ -3720,11 +3466,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             --tabview-tab-container-background: rgba(255, 255, 255, 0.04);
         }
 
-
         .tab-content-cld {
             background-color: var(--tabview-tab-container-background);
         }
-
 
         html[dark] ytd-watch-flexy[cinematics-enabled] .header.ytd-playlist-panel-renderer {
             /*background-color: rgba(66, 66, 66, 0.2);*/
@@ -3741,7 +3485,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         html[dark] ytd-watch-flexy[cinematics-enabled] yt-chip-cloud-renderer.yt-related-chip-cloud-renderer[darker-dark-theme][is-dark-theme] #container.style-scope.yt-chip-cloud-renderer {
 
-
             background: var(--yt-spec-raised-background);
             border-radius: 12px;
             padding: 0px 8px;
@@ -3756,13 +3499,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             opacity: 0.9;
         }
 
-
     }
 
     @supports (color: var(--disable-ytd-will-change-optimization)) {
-
-
-
 
         /* remove YouTube constant will-change */
         body .yt-spec-touch-feedback-shape__fill,
@@ -3791,7 +3530,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     @supports (color: var(--super-title-better-color)) {
 
-
         /* 2022/11/09 added coloring css to make the super title looks better */
 
         html[darker-dark-theme][dark] #title.style-scope.ytd-watch-metadata {
@@ -3814,13 +3552,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-
-
     body ytd-message-renderer {
         padding: 8px 16px;
         /* to inline with button size */
     }
-
 
     /* fix button size due to transform:scale*/
     /* kept as default setting */
@@ -3830,7 +3565,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         align-items: center;
         justify-content: center;
     }
-
 
     /* 2022/11/11 comments colored background padding fix */
 
@@ -3843,7 +3577,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         padding: var(--tab-content-padding-2);
     }
 
-
     /* 2022/11/06 - one-line tips */
 
     ytd-comment-action-buttons-renderer #toolbar #tooltip.style-scope.tp-yt-paper-tooltip,
@@ -3852,8 +3585,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         white-space: nowrap;
         word-break: keep-all;
     }
-
-
 
     /* 2022/11/06 - fix empty clarify box */
 
@@ -3896,7 +3627,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     
 
-
     ytd-watch-flexy[flexy][is-two-columns_] #primary-inner.ytd-watch-flexy #player ~ #below.style-scope.ytd-watch-flexy {
         overflow-y: auto;
         /* note: overlapped the tooltips */
@@ -3923,9 +3653,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 }
 
-
 @media not all and (display-mode: fullscreen) {
-
 
     /*
     @supports (color: var(--fix-decimal-wh-video-white-border)){
@@ -3947,9 +3675,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     */
 
-
     @supports (color: var(--rendering-contain)){
-
 
         /* contain 321 */
 
@@ -3963,13 +3689,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* experimental */
         }
 
-
         ytd-watch-flexy #material-tabs,
         ytd-watch-flexy #material-tabs .tab-btn {
             contain: layout;
             /* experimental */
         }
-
 
         #material-tabs .tab-btn paper-ripple,
         #material-tabs .tab-btn svg {
@@ -3977,16 +3701,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* experimental */
         }
 
-
         /* contain 322 */
 
-
-
-
-
-
         /* contain 341 */
-
 
         iframe[src][id] {
             contain: size layout paint style;
@@ -4013,21 +3730,17 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* experimental */
         }
 
-
         /* contain 342 */
 
         /* contain 351 */
-
 
         ytd-watch-flexy[is-two-columns_] #right-tabs {
             contain: layout;
         }
 
-
         /* contain 352 */
 
         /* contain 791 - be careful */
-
 
         ytd-watch-flexy #player,
         ytd-player#ytd-player {
@@ -4046,8 +3759,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 792 */
 
-
-
         /* contain 361 */
 
         yt-img-shadow[height][width] {
@@ -4064,16 +3775,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 362 */
 
-
-
-
-
-
-
-
-
-
-
         /* contain 851 */
 
         .tab-content-cld svg,
@@ -4086,11 +3787,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* added in 2022/11/06 */
         }
 
-
         /* contain 852 */
-
-
-
 
         /* contain 871 */
 
@@ -4119,8 +3816,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 872 */
 
-
-
         /* contain 521 */
 
         ytd-watch-flexy .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items {
@@ -4137,12 +3832,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* 2022/11/11 colored comments background padding */
         }
 
-
         ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents,
         ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-videos>[placeholder-videos]>ytd-watch-next-secondary-results-renderer>#items {
             content-visibility: auto;
         }
-
 
         ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden ytd-comments#comments,
         ytd-watch-flexy #right-tabs .tab-content-cld.tab-content-hidden #related.ytd-watch-flexy,
@@ -4150,14 +3843,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             visibility: collapse;
         }
 
-
         /* contain 522 */
 
-
         /* contain 631 */
-
-
-
 
         /* experimental for drag & drop re-order */
         .style-scope.playlist-drag-handle,
@@ -4173,9 +3861,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             contain: initial !important;
         }
 
-
-
-
         /* for https://greasyfork.org/scripts/4870-maximize-video */
         #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #masthead-container,
         #htmlToothbrush #bodyToothbrush ytd-app.parentToothbrush #right-tabs,
@@ -4187,7 +3872,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /* ytd-thumbnail hover fix */
-
 
         .tab-content-cld ytd-thumbnail #overlays yt-icon,
         .tab-content-cld ytd-thumbnail #mouseover-overlay yt-icon,
@@ -4217,8 +3901,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             contain: initial !important;
         }
 
-
-
         /* contain 632 */
 
     }
@@ -4227,7 +3909,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         min-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - var(--tabview-youtube-tabbtn-height) - var(--ytd-margin-3x));
     }
 
-
     /* css fix for responsive two columns flex , width */
 
     
@@ -4235,7 +3916,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         min-width: var(--ytd-watch-flexy-min-player-width);
         width: auto;
     }
-
 
     /* css fix for responsive two columns flex , align {#secondary} style like {#primary} */
 
@@ -4275,13 +3955,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* Blink and Webkit */
         }
 
-
         /* --- page height setting - two-column-normal >>>  */
 
-
-
         /* <<< page height setting - two-column-theater ---  */
-
 
         /* theater mode: the player is extracted from two column view */
         /* only set padding & margin */
@@ -4314,9 +3990,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             /* REMOVED since #below being scrollable instead */
         }
 
-
         /* --- page height setting - two-column-theater >>>  */
-
 
     }
 
@@ -4365,7 +4039,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         }
 
-
         .tabview-hover-slider>#secondary-inner {
 
             --tabview-slider-offset-pos: max(var(--tabview-slider-offset), 0);
@@ -4378,7 +4051,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             --tabview-slider-offset-k2: calc(73px / var(--ytd-watch-flexy-sidebar-width));*/
 
             --tabview-slider-offset-k2: 1.0;
-
 
             /*
             k = 0 -> --tabview-slider-ow
@@ -4394,7 +4066,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
             --tabview-slider-offset-actual: calc( var(--tabview-slider-offset));
 */
-
 
             --tabview-hover-slider-x1: 0px;
             --tabview-hover-slider-x2: calc(-0.5*var(--tabview-slider-offset-actual));
@@ -4417,7 +4088,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             --tabview-hover-slider-r1: var(--tabview-hover-slider-r2);
 
             --tabview-hover-slider-mw1: var(--tabview-hover-slider-mw2);
-
 
         }
 
@@ -4459,8 +4129,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             }
 
         }
-
-
 
         ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner,
         ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner {
@@ -4504,9 +4172,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-
-
-
     /* flexbox | ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) | #primary-inner | #info */
 
     ytd-watch-flexy[is-two-columns_]:not([theater]):not([fullscreen]) #primary-inner.ytd-watch-flexy {
@@ -4527,10 +4192,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         flex-grow: 1;
         justify-content: end;
     }
-
-
-
-
 
     /* flexbox | ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) | #columns | #primary-inner | #info */
 
@@ -4568,15 +4229,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
      */
 
-
     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns.ytd-watch-flexy > #secondary.ytd-watch-flexy #right-tabs #material-tabs {
         outline: 0;
         border: 1px solid var(--ytd-searchbox-legacy-border-color);
         /*border: 1px solid var(--tyt-x-border-color);*/
         /* use border instead due to overflow:hidden */
     }
-
-
 
     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns.ytd-watch-flexy > #primary.ytd-watch-flexy {
         -ms-overflow-style: none;
@@ -4589,12 +4247,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         display: none;
     }
 
-
-
     
-
-
-
 
     @supports (not (color: var(--removed-teaser-ui-layout-adjustment))){
 
@@ -4628,15 +4281,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             }
         }
 
-
         /* tabview-no-duplicate-info */
-
 
         #description-and-actions.style-scope.ytd-watch-metadata>#description ytd-text-inline-expander:not([tabview-removed-duplicate]) {
             visibility: collapse;
         }
-
-
 
         /*
         .tabview-no-duplicate-info ytd-text-inline-expander #extra-content.style-scope.ytd-watch-metadata,
@@ -4649,7 +4298,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-
     /**  fix dimensions */
 
     body ytd-watch-flexy[flexy][is-two-columns_][is-four-three-to-sixteen-nine-video_] #primary.ytd-watch-flexy {
@@ -4660,8 +4308,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #tab-info #description.ytd-video-secondary-info-renderer {
         max-width: none;
     }
-
-
 
     ytd-watch-flexy[flexy][is-two-columns_] #tab-info ytd-rich-metadata-renderer:not([fixie]) {
         max-width: none;
@@ -4713,7 +4359,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-
     .ytp-progress-bar[tabindex][role="slider"]>.ytp-scrubber-container[style] {
         transition-delay: 10ms;
     }
@@ -4730,12 +4375,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         transition-delay: 16ms;
     }
 
-
-
-
-
     @supports (color:var(--super-title-better-spacing)){
-
 
         ytd-watch-flexy[is-two-columns_] #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
             --tyt-primary-main-title-mt: 2px;
@@ -4775,28 +4415,25 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 }
 
+/* display-mode: fullscreen not working in Opera */
+@supports (color: var(--fullscreen-layout-adjustment)) {
 
-@media all and (display-mode: fullscreen) {
-  
     /* 2022/11/07 */
-    body ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
+    :fullscreen ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
         --tyt-x-chat-max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x));
     }
 
     /* 2022/11/07 */
-    ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs{
+    :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs {
         --tyt-tabs-content-height: calc(var(--tyt-x-base-height) - var(--tyt-tabs-upspace, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x) - var(--ytd-margin-6x));
     }
 
-    
     /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */
-    ytd-watch-flexy[is-two-columns_]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed]:not([hidden]):not(:empty) ~ #right-tabs{
+    :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed]:not([hidden]):not(:empty)~#right-tabs {
         --tyt-tabs-upspace: 42px;
     }
 
-
-
-    ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs::after {
+    :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs::after {
         /* as a page margin */
         content: '';
         display: flex;
@@ -4810,54 +4447,45 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         width: 0px;
     }
 
+    :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary-inner {
+        padding-top: var(--ytd-margin-6x);
+    }
 
-    @supports (color: var(--compatibile-with-iridium-for-youtube)){
+    @supports (color: var(--compatibile-with-iridium-for-youtube)) {
 
         /*  fix Iridium CSS  */
         /* https://greasyfork.org/en/scripts/37902-iridium */
         /* https://chrome.google.com/webstore/detail/iridium-for-youtube/gbjmgndncjkjfcnpfhgidhbgokofegbl */
 
-
-        ytd-watch-flexy[flexy][is-two-columns_][fullscreen] #info .iri-quick-controls-tooltip {
+        :fullscreen ytd-watch-flexy[flexy][is-two-columns_][fullscreen] #info .iri-quick-controls-tooltip {
             margin-top: -7rem;
         }
 
-        
     }
 
-    
+    @supports (color: var(--fullscreen-render-boost)) {
 
-    @supports (color: var(--fullscreen-render-boost)){
-
-        ytd-watch-flexy[flexy][fullscreen][is-two-columns_] ytd-live-chat-frame,
-        ytd-watch-flexy[flexy][fullscreen][is-two-columns_] #right-tabs .tab-content,
-        ytd-watch-flexy[flexy][fullscreen][is-two-columns_] iframe#chatframe.ytd-live-chat-frame {
+        :fullscreen ytd-watch-flexy[flexy][fullscreen][is-two-columns_] ytd-live-chat-frame,
+        :fullscreen ytd-watch-flexy[flexy][fullscreen][is-two-columns_] #right-tabs .tab-content,
+        :fullscreen ytd-watch-flexy[flexy][fullscreen][is-two-columns_] iframe#chatframe.ytd-live-chat-frame {
             content-visibility: auto;
         }
 
-        ytd-watch-flexy[fullscreen] #cinematics.ytd-watch-flexy {
+        :fullscreen ytd-watch-flexy[fullscreen] #cinematics.ytd-watch-flexy {
             visibility: collapse;
         }
 
     }
 
-    
-
-    ytd-watch-flexy[fullscreen][is-two-columns_] #primary-inner {
-        padding-top: var(--ytd-margin-6x);
-    }
-
-
     @supports (color:var(--fullscreen-scrollable-info)) {
 
-        ytd-watch-flexy[fullscreen][is-two-columns_] #columns.ytd-watch-flexy,
-        ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy,
-        ytd-watch-flexy[fullscreen][is-two-columns_] #secondary.ytd-watch-flexy
-        {
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #columns.ytd-watch-flexy,
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy,
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #secondary.ytd-watch-flexy {
             max-height: 200vh;
         }
 
-        ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy #primary-inner:not([style*="--tyt-desc-top-h"]) ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy #primary-inner:not([style*="--tyt-desc-top-h"]) ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
 
             /* might be not required */
             max-height: 50vh;
@@ -4866,15 +4494,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         }
 
-        ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy [style*="--tyt-desc-top-h"] ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy [style*="--tyt-desc-top-h"] ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
 
             max-height: calc(100vh - var(--ytd-toolbar-height) - var(--tyt-desc-top-h));
             overflow: auto;
 
         }
- 
+
     }
-
-
 
 }

@@ -2915,23 +2915,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-
-  function lyricsIframeRemoval(iframe){
-    if(!iframe) return;
-    try{
-      iframe.remove();
-      iframe.style.display = 'none';
-      iframe.src = null;
-      iframe.onload = null;
-      iframe.onerror = null;
-      iframe.src = '';
-      iframe.style = '';
-    }catch(e){}
-  }
-  function lyrcisPanelHidden(){
-    let ep = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
-    if(ep) ep.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN');
-  }
+ 
   
   const removeElements = typeof DocumentFragment.prototype.append === 'function' ? (elements) => {
     document.createDocumentFragment().append(...elements);
@@ -2941,114 +2925,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  let lastAction_lyricsTracklistDOMAppended = 0;
-  handleDOMAppear('lyricsTracklistDOMAppended', (evt) => {
-    let tdt = Date.now();
-    let _tdt = lastAction_lyricsTracklistDOMAppended;
-    lastAction_lyricsTracklistDOMAppended = tdt;
-    if (tdt - _tdt < 270) return;
-    lyricsPlugin = true;
-    let iframe = document.querySelector('iframe#lyricsiframe');
-    if(iframe){
-      lyricsIframeRemoval(iframe);
-      lyrcisPanelHidden();
-    }
-    setTimeout(() => {
-      lastAction_lyricsTracklistDOMAppended = Date.now();
-
-      let liArr = document.querySelectorAll('body #lyricscontainer ol.tracklist li');
-      let removalArr = [];
-      if (liArr.length > 1) {
-        for (const li of liArr) {
-          let txt = li.textContent.replace(/_/g, '-');
-          if (/\bInstrumental\b/i.test(txt) && !/\b(non|not)\b/i.test(txt)) {
-            removalArr.push(li);
-          }
-        }
-      }
-
-      let removeInstrumental = removalArr.length
-      if (removeInstrumental > 0) {
-        removeElements(removalArr);
-      }
-
-      
-      if(liArr.length - removeInstrumental ===1){
-        setTimeout(()=>{
-          
-          lastAction_lyricsTracklistDOMAppended = Date.now();
-
-          let p = document.querySelectorAll('body #lyricscontainer ol.tracklist li');
-          if(p.length===1){
-            p = p[0];
-            lastAction_lyricsDOMAppended = Date.now();
-            Promise.resolve(0).then(()=>{
-
-              p.dispatchEvent(new Event('mouseover'));
-            }).then(()=>{
-              lastAction_lyricsDOMAppended = 0;
-              p.dispatchEvent(new Event('click'));
-            }).then(()=>{
-
-              p.dispatchEvent(new Event('mouseout'));
-            });
-          }
-        },20)
-
-      }else{
-        lastAction_lyricsDOMAppended = 0;
-      }
-
-
-    }, 20)
-  })
-  
-  let lastAction_lyricsDOMAppended = 0;
-  handleDOMAppear('lyricsDOMAppended',(evt)=>{
-
-    let tdt = Date.now();
-    let _tdt = lastAction_lyricsDOMAppended;
-    lastAction_lyricsDOMAppended = tdt;
-    if (tdt - _tdt < 270) return;
-    lyricsPlugin = true
-
-    let iframe = document.querySelector('iframe#lyricsiframe');
-    let isIframeNew = false;
-    if (iframe && iframe.matches('[visibility="ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"] iframe#lyricsiframe')) {
-
-      iframe.remove();
-      iframe.src = '';
-      iframe.style = '';
-      iframe = null;
-
-    }else if(iframe){
-
-      isIframeNew = iframe.matches('#lyricscontainer > iframe#lyricsiframe');
-    }
-    iframe = null;
- 
-    //goYoutubeGeniusLyrics
-    scriptletDeferred.debounce(() => {
-
-
-
-      if (isIframeNew) {
-
-        document.documentElement.dispatchEvent(new CustomEvent('engagement-panel-genius-lyrics'));
-      }
-
-
-      let searchbox = document.querySelector('#lyricscontainer input.SearchInputBox__input[placeholder]');
-      if (searchbox) {
-        document.documentElement.dispatchEvent(new CustomEvent('genius-lyrics-set-title'));
-      }
-
-
-    });
-
-
-
-  })
 
   const FP = {
 
@@ -3613,17 +3489,35 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (action > 0) {
 
 
-      let tmpElm = null;
+      // let tmpElm = null;
       
       if (lyricsPlugin) {
-        if (tmpElm = document.querySelector('#lyricscontainer [lctc="hide"]')) {
-          tmpElm.click();
+
+        /** @type {HTMLIFrameElement | null} */ 
+        let x = document.querySelector('iframe#lyricsiframe')
+        if(x){
+          document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
+          /*
+          setTimeout(()=>{
+            document.body.append(x)
+            x.src='about:blank'
+          },30)
+          */
+
+
         }
-        if (tmpElm = document.querySelector('iframe#lyricsiframe')) {
-          lyricsIframeRemoval(tmpElm);
-          lyrcisPanelHidden();
-        }
-        lastAction_lyricsDOMAppended = 0;
+        /*
+        
+        Promise.resolve(0).then(()=>{
+          let ep = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+          if(ep) ep.remove()
+          if (tmpElm = document.querySelector('iframe#lyricsiframe')) {
+            lyricsIframeRemoval(tmpElm);
+            lyrcisPanelHidden();
+          }
+          lastAction_lyricsDOMAppended = 0;
+        })
+        */
       }
 
       // instead of resetting in 'variableResets()`
@@ -3801,6 +3695,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
   function checkDuplicatedInfo(req) {
+    console.log('checkDuplicatedInfo')
 
 
     async function checkDuplicatedInfoContentEqual(desc1, desc2){
@@ -4055,6 +3950,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   })
 
+  function epPanelsSet() {
+    // call in yt-navigate-finish or yt-page-data-changed
+    // once called, new ep handled by epDOMAppended
+
+    if (!check_epPanel_change) {
+
+
+      // note that the old ep might exist as [hidden] and to be removed later
+      // :not([hidden]) is a must
+      const remainingEPs = document.querySelectorAll(`ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}]):not([hidden])`);
+
+      for (const s of remainingEPs) {
+        newEngagementPanel(s, true);
+      }
+
+      if (mtoVisibility_EngagementPanel.bindCount > 0) {
+        FP.mtf_attrEngagementPanel();
+      }
+
+      Promise.resolve(0).then(() => {
+        check_epPanel_change = true;
+      })
+
+
+    }
+  }
+
   function ytMicroEventsInit() {
 
     _console.log(902)
@@ -4186,22 +4108,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
 
-        
-        // note that the old ep might exist as [hidden] and to be removed later
-        // :not([hidden]) is a must
-        const remainingEPs = document.querySelectorAll(`ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}]):not([hidden])`);
-         
-        for (const s of remainingEPs) {
-          newEngagementPanel(s, true);
-        }
-
-        if (mtoVisibility_EngagementPanel.bindCount > 0) {
-          FP.mtf_attrEngagementPanel();
-        }
-
-        Promise.resolve(0).then(()=>{
-          check_epPanel_change = true;
-        })
+        epPanelsSet();
 
 
         _console.log(2178,3)
@@ -4224,6 +4131,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         if (REMOVE_DUPLICATE_INFO) {
+          
 
           checkDuplicateRes = null;
           async function alCheckFn (ks){
@@ -5002,14 +4910,64 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   })
 
   let _navigateLoadDT = 0;
-  function onNavigationEnd(evt) {
+  function onNavigationEndDelayed() {
+
+    let tdt = Date.now();
+    _navigateLoadDT = tdt;
+    videosDeferred.debounce(() => {
+      if (_navigateLoadDT !== tdt) return;
+
+      const ytdFlexyElm = es.ytdFlexy;
+      if (!ytdFlexyElm) return;
+      const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
+      if (!related) return;
+
+      if (!document.querySelector("#right-tabs")) {
+        getLang();
+        let docTmp = document.createElement('template');
+        docTmp.innerHTML = getTabsHTML();
+        let newElm = docTmp.content.firstElementChild;
+        if (newElm !== null) {
+          insertBeforeTo(newElm, related);
+          console.log('#right-tabs inserted')
+        }
+        docTmp.textContent = '';
+        docTmp = null;
+      }
+
+      if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
+
+      // append the next videos 
+      // it exists as "related" is already here
+      fixTabs();
+      epPanelsSet();
+
+      if (document.querySelector('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+        switchTabActivity(null);
+      } else {
+        setToActiveTab(); // just switch to the default tab
+      }
+      prepareTabBtn();
+
+      mtoFlexyAttr.clear(true)
+      mtf_checkFlexy()
+
+
+      tabsDeferred.resolve();
+
+    });
+
+  }
+
+  function onNavigationEndImmediate() {
+
     console.log('yt-navigate-finish')
 
     //globalHook('yt-navigate-finish',(evt)=>{
 
     // if(!evt || !evt.target || evt.target.nodeType !== 1) return;
     // _console.log(evt.target.nodeName, evt.type)
- 
+
 
     //})
 
@@ -5026,25 +4984,27 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     if (pageType === 'watch') {
 
-      let isFirstLoad = firstLoadStatus&8;
+      let isFirstLoad = firstLoadStatus & 8;
 
       if (isFirstLoad) {
         firstLoadStatus -= 8;
         document.addEventListener('load', iframeLoadHookA, capturePassive)
         ytMicroEventsInit();
-          
       }
       variableResets();
 
-      if(isFirstLoad){
-        let docElement = document.documentElement
-        if(docElement.hasAttribute('tabview-loaded')){
-          throw 'Tabview Youtube Duplicated';
-        }
-        docElement.setAttribute('tabview-loaded', '')
-        docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+      if (isFirstLoad) {
+        Promise.resolve(0).then(() => {
+          let docElement = document.documentElement
+          if (docElement.hasAttribute('tabview-loaded')) {
+            throw 'Tabview Youtube Duplicated';
+          }
+          docElement.setAttribute('tabview-loaded', '')
+          docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+          docElement = null
+        })
       }
-      
+
 
       const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
@@ -5054,57 +5014,31 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       ytdFlexy = mWeakRef(ytdFlexyElm)
 
-      let tdt = Date.now();
-      _navigateLoadDT = tdt;
-      videosDeferred.debounce(()=>{
-        if(_navigateLoadDT!==tdt) return;
-        
-        const ytdFlexyElm = es.ytdFlexy;
-        if (!ytdFlexyElm) return;
-        const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
-        if (!related) return;
+      return true
 
-        if (!document.querySelector("#right-tabs")) {
-          getLang();
-          let docTmp = document.createElement('template');
-          docTmp.innerHTML = getTabsHTML();
-          let newElm = docTmp.content.firstElementChild;
-          if (newElm !== null) {
-            insertBeforeTo(newElm, related);
-            console.log('#right-tabs inserted')
-          }
-          docTmp.textContent = '';
-          docTmp = null;
-        }
-
-        if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
-
-        // append the next videos 
-        // it exists as "related" is already here
-        fixTabs();
-
-        setToActiveTab(); // just switch to the default tab
-        prepareTabBtn();
-
-        mtoFlexyAttr.clear(true)
-        mtf_checkFlexy()
-
-
-        tabsDeferred.resolve();
-
-      });
- 
     } else {
 
-      variableResets();
-      emptyCommentSection();
-      _console.log(9360, 75);
-      tabsDeferred.reset();
-      _pageBeingInit();
-      tabsDeferred.resolve(); // for page initialization
+      Promise.resolve(0).then(() => {
+        variableResets();
+        emptyCommentSection();
+        _console.log(9360, 75);
+        tabsDeferred.reset();
+        _pageBeingInit();
+        tabsDeferred.resolve(); // for page initialization
+      })
 
     }
 
+  }
+
+  function onNavigationEnd(evt) {
+
+    let ret = onNavigationEndImmediate()
+    
+    if( ret === true){
+      // avoid blocking the page when youtube is initializing the page
+      setTimeout(onNavigationEndDelayed, 130)
+    }
 
   }
 
@@ -6311,8 +6245,9 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     console.log('newVideoPage')
 
     if(lyricsPlugin){
+      /*
       let iframe = document.querySelector('#lyricsiframe');
-      if(iframe) iframe.src='';
+      if(iframe) iframe.src='about:blank';
 
       let elm1=document.querySelector('body > #lyricscontainer')
       let elm2 = document.querySelector('body > #showlyricsbutton')
@@ -6321,6 +6256,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
         removeElements(s);
         appends(document.body, elm1, elm2);
       }
+      */
 
     }
 

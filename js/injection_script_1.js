@@ -280,19 +280,6 @@ function injection_script_1() {
         console.log(12)
       }
 
-
-      //return translateV2(initialSegments);
-
-
-      /*
-      temp1.map(x=>({
-        t:x.transcriptSegmentRenderer.snippet.runs.map(x=>x.text).join('//'),
-        a:x.transcriptSegmentRenderer.startMs,
-        b:x.transcriptSegmentRenderer.endMs
-      }))
-      
-        */
-
       TRANSLATE_DEBUG && Promise.resolve(JSON.stringify(initialSegments)).then((r) => {
 
         let obj = JSON.parse(r);
@@ -494,21 +481,6 @@ function injection_script_1() {
 
             //console.log(8833, 102)
             let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
-            /*
-            if(tMap.size===0 && initialSegment!==segment){
-              //switch to the earilest effect text
-
-              TRANSLATE_DEBUG && console.log(24848,
-                 'main',[segment.transcriptSegmentRenderer.startMs, segment.transcriptSegmentRenderer.endMs ],
-                 'initial',[initialSegment.transcriptSegmentRenderer.startMs, initialSegment.transcriptSegmentRenderer.endMs ] );
-
-              initialSegment.transcriptSegmentRenderer.startMs = segment.transcriptSegmentRenderer.startMs;
-              initialSegment.transcriptSegmentRenderer.endMs = segment.transcriptSegmentRenderer.endMs;
-              initialSegment.transcriptSegmentRenderer.snippet=segment.transcriptSegmentRenderer.snippet;
-
-              segment.transcriptSegmentRenderer = initialSegment.transcriptSegmentRenderer;
-              
-            }*/
             let xv = tMap.get(mt) || 0;
             if (endMs >= startMs) {
               xv += 1 + (endMs - startMs);
@@ -518,59 +490,6 @@ function injection_script_1() {
 
 
         }
-
-        // let lastSegment = fRes[si-1];
-        // if(si-1>=0){
-        //   const transcript1 = lastSegment.transcriptSegmentRenderer
-        //   const transcript2 = segment.transcriptSegmentRenderer
-        //   let segmentGap = (+transcript2.startMs) - (+transcript1.endMs);
-
-        //   if(segmentGap<800){
-        //     let d1 = (+transcript1.endMs)-(+transcript1.startMs);
-        //     let d2 = (+transcript2.endMs)-(+transcript2.startMs);
-
-        //     //let e1 =  (+lastSegment.endMs+k1)-(+lastSegment.startMs);
-        //     //let e2 = (+segment.endMs)-(+segment.startMs-k2);
-
-        //     /--*
-        //     e1/e2 = d1/d2 && k1+k2 = segmentGap;
-        //     (end1+k1 - start1 ) / (end2-start2+k2) = (end1 - start1 ) / (end2-start2) && k1+k2== segmentgap
-
-        //     (end1+k1 - start1 ) * (end2-start2) = (end1 - start1 ) * (end2-start2+k2)
-
-        //     (end1 - start1 ) * (end2-start2) + k1 * (end2-start2) = (end1 - start1 ) * (end2-start2)+(end1 - start1 ) * k2
-        //      k1 * (end2-start2) =(end1 - start1 ) * k2
-        //      k1/k2 =(end1 - start1 ) / (end2-start2) 
-        //      *--/
-
-
-        //     //  k1/k2 =(end1 - start1 ) / (end2-start2)  = A
-
-        //     // k1+k2 = segmentGap = B
-
-        //     // k1 = A k2
-        //     // A k2 + k2 = B
-        //     // k2 = B/(1+A)
-
-        //     let kA = d1 / d2;
-
-        //     let kB = segmentGap;
-
-        //     let k2 = kB / (1+kA);
-        //     let k1 = kA*k2;
-
-        //     if(typeof transcript1.endsMs == 'string'){
-        //       transcript1.endMs = `${+transcript1.endMs + k1}`;
-        //       transcript2.startMs = `${+transcript2.startMs - k2}`;
-        //     }else if(typeof transcript1.endsMs == 'number'){
-        //       transcript1.endMs = +transcript1.endMs + k1;
-        //       transcript2.startMs = +transcript2.startMs - k2;
-        //     }
-
-
-        //   }
-
-        // }
 
 
         if (tMap.size <= 1) continue; // no second line
@@ -625,15 +544,6 @@ function injection_script_1() {
         console.log(7559, 2, obj)
 
       })
-      /*
-        return new Proxy(fRes, {
-          get(target, prop, receiver) {
-            console.log(2266,prop);
-            return Reflect.get(...arguments)
-          }
-        })
-        */
-
 
       return fRes;
 
@@ -853,31 +763,19 @@ function injection_script_1() {
 
       }
 
-
       mutObserver = new MutationObserver(function (mutationList, observer) {
-
         for (const mutation of mutationList) {
-
           let target = mutation.target;
           target = closestFromAnchor.call(target, 'yt-chip-cloud-renderer')
-
           if (target && target.reset) {
-
             mSet(target)
-
-
           }
-
         }
       })
 
-
     }
 
-
     return mutObserver;
-
-
   }
 
   let resetChatroomFlags = null;
@@ -887,22 +785,6 @@ function injection_script_1() {
 
   let pageType = null;
 
-  function setVideoCustomTitle(pData){
-
-    if(!pData) return;
-/*
-    
-    Object.defineProperty(pData, 'customVideoTitle', {
-      get(){
-        return "hello world"
-      },
-      configurable: true,
-      enumerable: true
-    })
-*/
-
-  }
-
 
   function onPageFetched(evt) {
 
@@ -911,10 +793,6 @@ function injection_script_1() {
 
     pageType = ((evt.detail || 0).pageData || 0).page;
 
-    let p = document.querySelector('ytd-page-manager').data
-    if(p){
-      setVideoCustomTitle(p)
-    }
  
 
   }
@@ -948,6 +826,7 @@ function injection_script_1() {
       pageID++;
       if (resetChatroomFlags) resetChatroomFlags();
 
+
     }
 
   }
@@ -972,14 +851,6 @@ function injection_script_1() {
 
   document.addEventListener('yt-page-data-fetched', onPageFetched)
   document.addEventListener('yt-navigate-finish', onPageFinished)
-
-  try{
-    
-    let p = document.querySelector('ytd-page-manager').data
-    if(p) {
-      setVideoCustomTitle(p);
-    }
-  }catch(e){}
 
 
   function getFunc_postToContentWindow() {
@@ -1565,7 +1436,7 @@ function injection_script_1() {
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
   }
 
-
+/*
   let lastCall_genius_lyrics_set_title = 0 ;
   function getSimpleText(defaultMetadata) {
 
@@ -1591,7 +1462,8 @@ function injection_script_1() {
     return m;
 
   }
-  
+  */
+  /*
   function getTitle(pData, onerror){
 
 
@@ -1656,673 +1528,521 @@ function injection_script_1() {
     return null;
 
   }
+  */
 
-  document.documentElement.addEventListener('genius-lyrics-set-title',function(){
+  function addStyleToLyricsIframe(){
 
-    let tdt = Date.now();
-    let _tdt = lastCall_genius_lyrics_set_title;
-    lastCall_genius_lyrics_set_title = tdt;
-    if(tdt-_tdt < 270) return;
-    let searchbox = document.querySelector('#lyricscontainer input.SearchInputBox__input[placeholder]');
+
+
     
-    if(searchbox){
-
-      let success = false;
-      let ret;
-
-      try{
-
-        let pageManager = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-        let pData = pageManager.data;
-        ret = getTitle(pData, (e)=>{
-          console.warn(e)
-        });
-        
-        if(ret!==null){
-        
-          let title = ret.title
-          
-          console.log(5656, ret)
-          if(title.indexOf(ret.singer)>=0 && title.indexOf(ret.song)>=0){
-
-            success = true;
-          
-          }
-
-        }
-      }catch(e){
-        console.warn(e)
-      }
- 
+    let lyricsIframe = document.querySelector('#lyricsiframe');
+    let ytdApp = document.querySelector('ytd-app');
+    if(!lyricsIframe || !ytdApp) return;
 
 
-      if (success) {
+    if(lyricsIframe.contentDocument === null) return;
 
-        function getEnterEvent() {
-          //new KeyboardEvent('keyup', {'key': 'a'}))
-          return new KeyboardEvent('keyup', {
-            keyCode: 13,
-            which: 13,
-            charCode: 13,
-            key: 'Enter',
-            code: 'Enter'
-          })
-        }
-        searchbox.value = ret.text;
 
-        searchbox.dispatchEvent(getEnterEvent());
+    
+    let cStyle= getComputedStyle(ytdApp);
+    let background = cStyle.getPropertyValue('--yt-spec-base-background');
+    let color = cStyle.getPropertyValue('--yt-spec-text-primary');
+    let bbp = cStyle.getPropertyValue('--yt-spec-brand-background-primary');
+    let cfs = cStyle.getPropertyValue('--yt-caption-font-size');
+    let slbc = cStyle.getPropertyValue('--ytd-searchbox-legacy-button-color');
+    let fontSize = null;
 
-      }
+    let expander = document.querySelector('ytd-expander.style-scope.ytd-video-secondary-info-renderer');
+    if(expander){
+      
+      fontSize = getComputedStyle(expander).fontSize;
 
-    } 
+    }else{
+      fontSize = cStyle.fontSize;
+    }
+    if(typeof background =='string' && typeof color =='string' && background.length>3 && color.length>3){
 
+    }else{
+      background = null;
+      color = null;
+    }
+
+    if(typeof fontSize =='string' && fontSize.length>2){}
+    else{
+      fontSize = null;
+    }
+
+    if(typeof bbp=='string'){
+
+    }else{
+      bbp = null;
+    }
+    if(typeof cfs ==='string'){
+      
+    }else{
+      cfs=null;
+    }
+    if(typeof slbc ==='string'){
+
+    }else{
+      slbc = null;
+    }
+
+
+    function addStyle(/** @type {string} */ styleText, /** @type {HTMLElement | Document} */ container) {
+      const styleNode = document.createElement('style');
+      //styleNode.type = 'text/css';
+      styleNode.textContent = styleText;
+      (container || document.documentElement).appendChild(styleNode);
+      return styleNode;
+    }
   
 
+      
+      
+    let css = [`
+    
+    html{
+      --tyt-background: ${background===null?'':`${background}`};
+      --tyt-color: ${color===null?'':`${color}`};
+      --tyt-font-size: ${fontSize===null?'':`${fontSize}`};
+      --yt-spec-brand-background-primary: ${bbp===null?'':`${bbp}`};
+      --yt-caption-font-size: ${cfs===null?'':`${cfs}`};
+      --ytd-searchbox-legacy-button-color: ${slbc===null?'':`${slbc}`};
+    }
 
-  })
+    body{
+      background: var(--tyt-background);
+      color: var(--tyt-color);
+      font-size: var(--tyt-font-size);
+    }
 
-  if( false && !document.querySelector.p){
+    div[data-lyrics-container]{
+      font-size: var(--tyt-font-size);
+    }
 
+    div[class*="SongPageGrid"], div[class*="SongHeader"]{
+      background:none;
+      padding:0;
+      color: var(--tyt-color);
+    }
 
+    div[data-exclude-from-selection]{
+      display:none;
+    }
 
+          
+    main[class*="Container"] a[href]{
+        color: var(--tyt-color) !important;
+    }
 
+    main[class*="Container"] h1[font-size][class]{
+        color: var(--tyt-color);
+    }
 
-
-    let pageRef = null;
-
-    let mw = new WeakMap();
-
-
-    let stt = null;
-
-    let sttP = false;
-
-    function lyricTitleGet(p) {
-      return new Proxy(p, {
-        get(target, key) {
-          if (key === 'textContent') {
-
-            if (sttP === false) {
-
-              sttP = true;
-
-              String.prototype.__native_replace = String.prototype.replace;
-              String.prototype.replace = function () {
-                if (this === stt) return this.__native_replace('...', '...');
-                return this.__native_replace(...arguments)
-              }
-
-
-            }
-
-
-            let elm = kRef(pageRef);
-            if (!elm) {
-
-              let t = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-              if (t !== null) {
-                pageRef = mWeakRef(t);
-                elm = t;
-
-              }
-            }
-            let pData = elm.data;
-
-            if (!mw.has(pData)) {
-              let ret = getTitle(pData)
-              mw.set(pData, ret.text)
-            }
-
-            let res = mw.get(pData);
-
-            if (typeof res == 'string') {
-              stt = res;
-              return res;
-            }
+    *[class]{
+        color: var(--tyt-color) !important;
+    }
 
 
-          }
-          return target[key];
-        },
-      });
+
+    div[class*="SongHeaderWithPrimis__Left"]{
+      display:none;
+    }
+
+    div[class*="SongPageGriddesktop"]{
+      display:block;
     }
     
-    let _querySelector = document.querySelector;
-    document.querySelector = function () {
-      let ret = _querySelector.call(this, ...arguments);
-      if (arguments[0] === '#content ytd-watch-flexy:not([hidden]) #container .title') {
-        lyricTitleGet(ret);
-      }
-      return ret;
+    span[class*="LabelWithIcon"] > svg{
+      fill: var(--tyt-color);
     }
-    document.querySelector.p = true;
+    button[class*="LabelWithIcon"] > svg{
+      fill: var(--tyt-color);
+    }
+    
+    div[class*="Tooltip__Container"] svg{
+      fill: var(--tyt-color);
+    }
+
+    #application {
+      padding:28px;
+    }
+
+    div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__Container"]{
+
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-items: center;
+    }
+
+    div[class*="SongHeaderWithPrimis__Information"] {
+
+      margin: 12px auto;
+      max-width: 100%;
+      white-space: normal;
+
+
+    }
+
+    div[class*="SongHeaderWithPrimis__Bottom"] a[href]{
+
+      padding:0;
+      margin:0;
+    }
+    
+    div[class*="SongHeaderWithPrimis__Right"]{
+      background: var(--ytd-searchbox-legacy-button-color);
+      padding: 10px 18px;
+    }
+
+    div[data-lyrics-container][class*="Lyrics__Container"]{
+      padding:0;
+    }
+
+    body .annotated span,
+    body .annotated span:hover,
+    body a[href],
+    body a[href]:hover,
+    body .annotated a[href],
+    body .annotated a[href]:hover,
+    body a[href]:focus-visible,
+    body .annotated a[href]:focus-visible,
+    body .annotated:hover span,
+    body .annotated.highlighted span{
+      background: none;
+      outline: none;
+
+    }
+
+    a[href][class],
+    span[class*="PortalTooltip"],
+    div[class*="HeaderCreditsPrimis"],
+    div[class*="HeaderArtistAndTracklistPrimis"]{
+      font-size: inherit;
+    }
+
+    
+    div[class*="SongHeaderWithPrimis__Information"] h1 + div[class*="HeaderArtistAndTracklistPrimis"] {
+      font-size: 80%;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+
+    body{
+      white-space: nowrap;
+    }
+
+    div[class*="MetadataStats__Stats"]{   
+      display: flex;
+      flex-wrap: wrap;
+      white-space: nowrap;    
+      row-gap: 4px;
+      column-gap: 16px;
+      white-space: nowrap;
+      margin-top: 6px;
+    }
+
+    h1,
+    div[class*="SongPage__LyricsWrapper"]{
+
+      white-space: normal;
+    }
+
+    
+    div[class*="MetadataStats__Stats"] > [class]{  
+      margin-right: 0;
+    }
+
+    div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__List"]{
+      font-size:85%;
+    }
+
+
+    div[class*="SongHeaderWithPrimis__Information"] ~ div[class*="SongHeaderWithPrimis__PrimisContainer"]{
+      display:none;
+    }
+
+    main, #application{
+      --tyt-container-display: none;
+    }
+
+    div[class*="SongHeaderWithPrimis__Information"]{
+      --tyt-container-display: '-NULL-';
+    }
+
+    div[class*="Footer"],
+    div[class*="Leaderboard"] {
+      display:none;
+    }
+
+    div[class*="SongPage__Section"] #about,
+    div[class*="SongPage__Section"] #about ~ *,
+    div[class*="SongPage__Section"] #comments,
+    div[class*="SongPage__Section"] #comments ~ * {
+      display:none;
+    }
+    
+    div[class*="SongPage__Section"] #lyrics-root-pin-spacer {
+      padding-top:12px;
+    }
+
+    `
+  ].join('\n');
+  
+    //addStyle(css, lyricsIframe.contentDocument.head);
+    
+    Promise.resolve(0).then(()=>{
+      lyricsIframe.classList.remove('tyt-tmp-hide-lyricsiframe');
+
+    })
+  }
+ 
+
+  function onLyricsIframeShown () {
+
+    let tmp = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+    if (tmp) {
+      tmp.remove()
+      return
+    }
+
+  }
+  function getEPC(ep) {
+
+    if (!ep) return null;
+    let epc = querySelectorFromAnchor.call(ep, '#content');
+    if (!epc) return null;
+
+    return querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer #content')
+      || querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer')
+      || epc;
+
+  }
+ 
+  function createPanel() {
+
+    const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
+    if (!ytdFlexyElm) return null;
+
+
+    /** @type {HTMLElement} */
+    let newPanel = ytdFlexyElm.createComponent_({
+      "component": "ytd-engagement-panel-section-list-renderer",
+      "params": {
+        "isWatch": true
+      }
+    }, "ytd-engagement-panel-section-list-renderer", true);
+
+    newPanel.data = {
+      "panelIdentifier": "engagement-panel-genius-transcript",
+      "header": {
+        "engagementPanelTitleHeaderRenderer": {
+          "title": {
+            "runs": [
+              {
+                "text": "Genius Lyrics"
+              }
+            ]
+          },
+          "visibilityButton": {
+            "buttonRenderer": {
+              "style": "STYLE_DEFAULT",
+              "size": "SIZE_DEFAULT",
+              "type": "text", // default is tonal
+              "isDisabled": false,
+              "icon": {
+                "iconType": "CLOSE"
+              },
+              "accessibility": {
+                "label": "Close Genius Lyrics"
+              },
+              "accessibilityData": {
+                "accessibilityData": {
+                  "label": "Close Genius Lyrics"
+                }
+              },
+              "command": {
+                "changeEngagementPanelVisibilityAction": {
+                  "targetId": "engagement-panel-genius-transcript",
+                  "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+                }
+              }
+            }
+          }
+        }
+      },
+      "content": {
+        "adsEngagementPanelContentRenderer": {
+          //"engagementPanelGeniusTranscriptRenderer":{
+
+        }
+      },
+      "targetId": "engagement-panel-genius-transcript",
+      "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
+      "loggingDirectives": {
+      }
+    }
+
+    newPanel.classList.add('style-scope', 'ytd-watch-flexy')
+
+    querySelectorFromAnchor.call(ytdFlexyElm, '#panels').appendChild(newPanel)
+
+    return newPanel;
+
 
   }
 
+  let geniusLyricsVisObserver = null
 
-  let lyrics_checker_cid = 0;
-  document.documentElement.addEventListener('engagement-panel-genius-lyrics', function () {
+  function geniusLyricsVisObserveCb (mutations, observer) {
 
-    function getEPC(ep) {
+    if (!mutations || !mutations[0]) return;
+    /** @type {HTMLElement} */
+    let panel = mutations[0].target;
+    if (!panel) return;
+    if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
+      
+      let iframe = panel.querySelector('#lyricsiframe');
 
-      if (!ep) return null;
-      let epc = querySelectorFromAnchor.call(ep, '#content');
-      if (!epc) return null;
+      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
+      if(iframe){
+        document.body.appendChild(iframe)
+      }
+    }else{
+      
+      let iframe = document.querySelector('body #lyricsiframe');
 
-      let epc1 = querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer #content')
-      let epc2 = querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer')
+      if(iframe && !iframe.matches('ytd-engagement-panel-section-list-renderer iframe')){
+        let epc = getEPC(panel);
+        if(epc){
+          iframe.classList.add('tyt-tmp-hide-lyricsiframe');
+          isLyricsLoading = false
+          //iframe.src='about:blank'
+          epc.appendChild(iframe)
+          document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'reloadCurrentLyrics'}}))
 
-      return epc1 || epc2 || epc;
-
+        }
+        
+      }
     }
 
-    if (calledOnce) {
+  }
 
-      if (!document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')) {
-        calledOnce = false;
+  document.addEventListener('getLyricsReady', function getLyricsReady(){
+
+        
+      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
+ 
+
+        
+    if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
+      let newPanel = createPanel();
+
+      if(newPanel === null){
+        return
+      }
+
+      if (geniusLyricsVisObserver) {
+        geniusLyricsVisObserver.takeRecords();
+        geniusLyricsVisObserver.disconnect();
       } else {
-        return;
-      }
-    }
-    calledOnce = true
-
-    //console.log(340,1)
-
-
-    // ENGAGEMENT_PANEL_VISIBILITY_EXPANDED
-
-    function createPanel() {
-
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
-      if (!ytdFlexyElm) return null;
-
-
-      /** @type {HTMLElement} */
-      let newPanel = ytdFlexyElm.createComponent_({
-        "component": "ytd-engagement-panel-section-list-renderer",
-        "params": {
-          "isWatch": true
-        }
-      }, "ytd-engagement-panel-section-list-renderer", true);
-
-      newPanel.data = {
-        "panelIdentifier": "engagement-panel-genius-transcript",
-        "header": {
-          "engagementPanelTitleHeaderRenderer": {
-            "title": {
-              "runs": [
-                {
-                  "text": "Genius Lyrics"
-                }
-              ]
-            },
-            "visibilityButton": {
-              "buttonRenderer": {
-                "icon": {
-                  "iconType": "CLOSE"
-                },
-                "accessibility": {
-                  "label": "Close Genius Lyrics"
-                },
-                "accessibilityData": {
-                  "accessibilityData": {
-                    "label": "Close Genius Lyrics"
-                  }
-                },
-                "command": {
-                  "changeEngagementPanelVisibilityAction": {
-                    "targetId": "engagement-panel-genius-transcript",
-                    "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "content": {
-          "adsEngagementPanelContentRenderer": {
-            //"engagementPanelGeniusTranscriptRenderer":{
-
-          }
-        },
-        "targetId": "engagement-panel-genius-transcript",
-        "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
-        "loggingDirectives": {
-        }
+        geniusLyricsVisObserver = new MutationObserver(geniusLyricsVisObserveCb)
       }
 
-      newPanel.classList.add('style-scope', 'ytd-watch-flexy')
-
-      querySelectorFromAnchor.call(ytdFlexyElm, '#panels').appendChild(newPanel)
-
-      return newPanel;
-
-
-    }
-
-    //console.log(340,2)
-    let count = 0;
-    function $f() {
-
-      //console.log(321,1, count)
-      if (++count > 30) return;
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
-      if (!ytdFlexyElm) return setTimeout($f, 100);
-
-      //console.log(321,5)
-
-      function closeBtn() {
-        return document.querySelector('#lyricscontainer > .lyricsnavbar > a.lctc-hide') || null;
-      }
-
-      const visObserver = new MutationObserver(function (mutations, observer) {
-
-        if (!mutations || !mutations[0]) return;
-        /** @type {HTMLElement} */
-        let panel = mutations[0].target;
-        if (!panel) return;
-        if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
-          setTimeout(function () {
-
-            let hideBtn = closeBtn();
-            if (hideBtn) hideBtn.dispatchEvent(new Event("click"));
-          }, 30);
-          //panel.querySelector('#lyricsiframe').remove();
-        }
-
+      geniusLyricsVisObserver.observe(newPanel, {
+        attributes: true,
+        attributeFilter: ['visibility']
       })
 
-      //console.log(321,9)
-      let isCSSAdded = false;
-      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
-      let isLoading = false
+    }
 
-      let tf = null;
-      const closeClick = function () {
+    
+    let elm = null;
+    if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
+
+      let panel = document.querySelector(panel_cssSelector)
+      if (panel) {
+
+        let epc = getEPC(panel);
+        if (epc) {
+
+          epc.innerHTML = '';
+          elm.classList.add('tyt-tmp-hide-lyricsiframe');
+          epc.appendChild(elm)
+          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
+        }
+
+      }
+    }
+
+    
+    let panel = document.querySelector(panel_cssSelector)
+    if (panel) {
+      panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
+    }
+
+
+  }, false)
+
+
+
+  let isLyricsLoading = false
+  let iframeCache = null
+  window.addEventListener('message', (evt)=>{
+    let data=((evt||0).data||0)
+    
+    const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
+
+    if(data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'pageready'){
+      addStyleToLyricsIframe();
+    }else if(data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'lyricsDisplayState'){
+      
+
+      let isLoading_current = data.visibility==='loading';
+      let changed = false
+
+      if (isLyricsLoading !== isLoading_current) {
+        isLyricsLoading = isLoading_current;
+        changed =true
+      }
+ 
+      
+
+      if(data.visibility==='hidden'){
+
         let panel = document.querySelector(panel_cssSelector)
         if (panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
           panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
         }
+      }else if (data.visibility ==='loading'){
+        
+        if(changed){
+
+          let p = kRef(iframeCache)
+          if(p && !p.matches('body iframe')){
+            document.body.appendChild(p)
+          }
+
+          onLyricsIframeShown();
+          document.dispatchEvent(new CustomEvent('getLyricsReady'));
+        }
+      }else if(data.visibility ==='loaded'){
+        let p =document.querySelector('iframe#lyricsiframe')
+        if(p){
+          iframeCache = mWeakRef(p)
+        }
+        let panel = document.querySelector(panel_cssSelector)
+        if (panel) {
+          panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
+        }
       }
-
-      async function getLyricsReady(){
-
-        
-
-        
-        if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
-          let newPanel = createPanel();
-          visObserver.takeRecords();
-          visObserver.disconnect();
-
-          visObserver.observe(newPanel, {
-            attributes: true,
-            attributeFilter: ['visibility']
-          })
-        }
-
-        
-        let elm = null;
-        if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
-
-          let panel = document.querySelector(panel_cssSelector)
-          if (panel) {
-
-            let epc = getEPC(panel);
-            if (epc) {
-
-              epc.innerHTML = '';
-              elm.classList.add('tyt-tmp-hide-lyricsiframe');
-              epc.appendChild(elm)
-              panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
-            }
-
-          }
-        }
-
-        for (const clickable of document.querySelectorAll('#lyricscontainer > .lyricsnavbar > a:not([lctc])')) {
-          let lctc = clickable.textContent.toLocaleLowerCase()
-          clickable.setAttribute('lctc', lctc)
-          if (/\bhide\b/.test(lctc)) {
-            clickable.classList.add('lctc-hide')
-            clickable.addEventListener('click', closeClick, false)
-          }
-        }
-
-        await new Promise(r=>setTimeout(r,20));
-
-        
-
-        let lyricsIframe = document.querySelector('#lyricsiframe');
-        let ytdApp = document.querySelector('ytd-app');
-        if(!lyricsIframe || !ytdApp) return;
-
-        let isFound =false;
-
-        let d = null;
-        if (d = lyricsIframe.contentDocument.querySelector('body div[data-lyrics-container]:not(:empty)')) {
-
-          let p = d.parentNode
-          while (p) {
-            if (!p || p.nodeType !== 1) break;
-            if (p.id === 'application') break;
-            p.classList.add('tyt-lyrics-contains')
-            p = p.parentNode;
-          }
-          isFound = true;
-        }
-
-        if (!isFound) return;
-
-
-        if(!isCSSAdded){
-
-
-          let cStyle= getComputedStyle(ytdApp);
-          let background = cStyle.getPropertyValue('--yt-spec-base-background');
-          let color = cStyle.getPropertyValue('--yt-spec-text-primary');
-          let bbp = cStyle.getPropertyValue('--yt-spec-brand-background-primary');
-          let cfs = cStyle.getPropertyValue('--yt-caption-font-size');
-          let slbc = cStyle.getPropertyValue('--ytd-searchbox-legacy-button-color');
-          let fontSize = null;
-
-          let expander = document.querySelector('ytd-expander.style-scope.ytd-video-secondary-info-renderer');
-          if(expander){
-            
-            fontSize = getComputedStyle(expander).fontSize;
-
-          }else{
-            fontSize = cStyle.fontSize;
-          }
-          if(typeof background =='string' && typeof color =='string' && background.length>3 && color.length>3){
-
-          }else{
-            background = null;
-            color = null;
-          }
-
-          if(typeof fontSize =='string' && fontSize.length>2){}
-          else{
-            fontSize = null;
-          }
-
-          if(typeof bbp=='string'){
-
-          }else{
-            bbp = null;
-          }
-          if(typeof cfs ==='string'){
-            
-          }else{
-            cfs=null;
-          }
-          if(typeof slbc ==='string'){
-
-          }else{
-            slbc = null;
-          }
-
-
-          function addStyle(/** @type {string} */ styleText, /** @type {HTMLElement | Document} */ container) {
-            const styleNode = document.createElement('style');
-            //styleNode.type = 'text/css';
-            styleNode.textContent = styleText;
-            (container || document.documentElement).appendChild(styleNode);
-            return styleNode;
-          }
-        
-
-            
-            
-          let css = `
-          
-          html{
-            --tyt-background: ${background===null?'':`${background}`};
-            --tyt-color: ${color===null?'':`${color}`};
-            --tyt-font-size: ${fontSize===null?'':`${fontSize}`};
-            --yt-spec-brand-background-primary: ${bbp===null?'':`${bbp}`};
-            --yt-caption-font-size: ${cfs===null?'':`${cfs}`};
-            --ytd-searchbox-legacy-button-color: ${slbc===null?'':`${slbc}`};
-          }
-
-          body{
-            background: var(--tyt-background);
-            color: var(--tyt-color);
-            font-size: var(--tyt-font-size);
-          }
-
-          div[data-lyrics-container]{
-            font-size: var(--tyt-font-size);
-          }
-
-          div[class*="SongPageGrid"], div[class*="SongHeader"]{
-            background:none;
-            padding:0;
-            color: var(--tyt-color);
-          }
-
-          div[data-exclude-from-selection]{
-            display:none;
-          }
-
-                
-          main[class*="Container"] a[href]{
-              color: var(--tyt-color) !important;
-          }
-
-          main[class*="Container"] h1[font-size][class]{
-              color: var(--tyt-color);
-          }
-
-          *[class]{
-              color: var(--tyt-color) !important;
-          }
-
-
-          main, #application{
-            --tyt-container-display: none;
-
-          }
-          div[class*="SongHeaderWithPrimis__Information"] div[class*="Section"]:not(.tyt-lyrics-contains){
-            --tyt-container-display: '-NULL-';
-          }
-
-          div[class*="Section"]:not(.tyt-lyrics-contains){
-            display:var(--tyt-container-display);
-          }
-
-          div[class*="Footer"]:not(.tyt-lyrics-contains){
-            display:none;
-          }
-
-          div[class*="SongHeaderWithPrimis__Left"]{
-            display:none;
-          }
-
-          div[class*="SongHeaderWithPrimis__Information"] div[class*="SongHeaderWithPrimis__PrimisContainer"]{
-            --tyt-container-display: '-NULL-';
-          }
-          div[class*="SongHeaderWithPrimis__PrimisContainer"]{
-            display:var(--tyt-container-display);
-          }
-          div[class*="SongPageGriddesktop"]{
-            display:block;
-          }
-          
-          span[class*="LabelWithIcon"] > svg{
-            fill: var(--tyt-color);
-          }
-          button[class*="LabelWithIcon"] > svg{
-            fill: var(--tyt-color);
-          }
-          
-          div[class*="Tooltip__Container"] svg{
-            fill: var(--tyt-color);
-          }
-
-          #application {
-            padding:28px;
-          }
-
-          div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__Container"]{
-
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            justify-items: center;
-          }
-
-          div[class*="SongHeaderWithPrimis__Information"] {
-
-            margin: 12px auto;
-            max-width: 100%;
-            white-space: normal;
-
-
-          }
-
-          div[class*="SongHeaderWithPrimis__Bottom"] a[href]{
-
-            padding:0;
-            margin:0;
-          }
-          
-          div[class*="SongHeaderWithPrimis__Right"]{
-            background: var(--ytd-searchbox-legacy-button-color);
-            padding: 10px 18px;
-          }
-
-          div[data-lyrics-container][class*="Lyrics__Container"]{
-            padding:0;
-          }
-
-          div[class*="SongPage__Section"].tyt-lyrics-contains{
-            padding-top:12px;
-          }
-
-          body .annotated span,
-          body .annotated span:hover,
-          body a[href],
-          body a[href]:hover,
-          body .annotated a[href],
-          body .annotated a[href]:hover,
-          body a[href]:focus-visible,
-          body .annotated a[href]:focus-visible,
-          body .annotated:hover span,
-          body .annotated.highlighted span{
-            background: none;
-            outline: none;
-
-          }
-
-          a[href][class],
-          span[class*="PortalTooltip"],
-          div[class*="HeaderCreditsPrimis"],
-          div[class*="HeaderArtistAndTracklistPrimis"]{
-            font-size: inherit;
-          }
-
-          
-          div[class*="SongHeaderWithPrimis__Information"] h1 + div[class*="HeaderArtistAndTracklistPrimis"] {
-            font-size: 80%;
-            margin-top: 10px;
-            margin-bottom: 6px;
-          }
-
-          body{
-            white-space: nowrap;
-          }
-
-          div[class*="MetadataStats__Stats"]{   
-            display: flex;
-            flex-wrap: wrap;
-            white-space: nowrap;    
-            row-gap: 4px;
-            column-gap: 16px;
-            white-space: nowrap;
-            margin-top: 6px;
-          }
-
-          h1,
-          div[class*="SongPage__LyricsWrapper"]{
-
-            white-space: normal;
-          }
-
-          
-          div[class*="MetadataStats__Stats"] > [class]{  
-            margin-right: 0;
-          }
-
-          div[class*="SongHeaderWithPrimis__Information"] div[class*="HeaderCreditsPrimis__List"]{
-            font-size:85%;
-          }
-
-
-
-
-          `;
-          addStyle(css, lyricsIframe.contentDocument.head);
-
-          try {
-
-            lyricsIframe.contentDocument.querySelector('div[class*="SongPage__Section"].tyt-lyrics-contains').scrollIntoView();
-
-          } catch (e) { }
-          lyricsIframe.classList.remove('tyt-tmp-hide-lyricsiframe');
-
-          isCSSAdded = true;
-
-        }
-
-        return true;
-
-
-      }
-
-      let r = getLyricsReady();
-      if (r !== true) {
-
-        if (lyrics_checker_cid > 0) clearInterval(lyrics_checker_cid);
-        lyrics_checker_cid = setInterval(tf = () => {
-
-          let isLoading_current = !!document.querySelector('.loadingspinner, .loadingspinnerholder');
-
-          if (isLoading !== isLoading_current) {
-            isLoading = isLoading_current;
-            isCSSAdded = false;
-
-            let panel = document.querySelector(panel_cssSelector)
-            if (panel) {
-              panel.classList.toggle('epanel-lyrics-loading', isLoading);
-              let r = getLyricsReady();
-              if (r === true) {
-
-                clearInterval(lyrics_checker_cid)
-                lyrics_checker_cid = 0;
-              }
-            }
-
-          }
-
-        }, 110)
-        tf();
-
-      }
-
-
     }
-    
-    //console.log(340,3)
-    $f();
-    
-    //console.log(340,5)
-
   })
-
 
   if (document.documentElement.hasAttribute('tabview-loaded')) ceHack(); else
     document.addEventListener('tabview-ce-hack', ceHack, true);
