@@ -319,6 +319,12 @@
       'info': '정보',
       'videos': '동영상',
       'playlist': '재생목록'
+    },
+    'ru': {
+      //'share':'Поделиться',
+      'info': 'Описание',
+      'videos': 'Видео',
+      'playlist': 'Плейлист'
     }
   };
   const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER', 'YTD-MENU-RENDERER']
@@ -3408,6 +3414,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       case 'ko':
       case 'ko-KR':
         lang = 'kr';
+        break;
+      case 'ru':
+      case 'ru-RU':
+        lang = 'ru';
         break;
       default:
         lang = 'en';
