@@ -1898,37 +1898,53 @@ function injection_script_1() {
 
   let geniusLyricsVisObserver = null
 
+  async function geniusLyricsVisObserveCbAsync(panel){
+
+    await Promise.resolve(0)
+
+    let lyricsiframe = null
+
+
+    if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
+      isLyricsLoading = false
+      lyricsiframe = panel.querySelector('#lyricsiframe');
+      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
+      await Promise.resolve(0)
+      if(lyricsiframe){
+         document.body.appendChild(lyricsiframe)
+      }
+    }else{
+      lyricsiframe = document.querySelector('body #lyricsiframe');
+      if(lyricsiframe && !lyricsiframe.matches('ytd-engagement-panel-section-list-renderer iframe')){
+        let epc = getEPC(panel);
+        if(epc){
+          isLyricsLoading = false
+          lyricsiframe.classList.add('tyt-tmp-hide-lyricsiframe');
+          let panel = epc.closest('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+          if (panel) {
+            panel.classList.toggle('epanel-lyrics-loading', true);
+          }
+          epc.appendChild(lyricsiframe)
+          await Promise.resolve(0)
+          setTimeout(()=>{
+            document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'reloadCurrentLyrics'}}))
+          },40)
+        }
+        
+      }
+      
+    }
+
+  }
+
   function geniusLyricsVisObserveCb (mutations, observer) {
 
     if (!mutations || !mutations[0]) return;
     /** @type {HTMLElement} */
     let panel = mutations[0].target;
     if (!panel) return;
-    if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
-      
-      let iframe = panel.querySelector('#lyricsiframe');
 
-      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
-      if(iframe){
-        document.body.appendChild(iframe)
-      }
-    }else{
-      
-      let iframe = document.querySelector('body #lyricsiframe');
-
-      if(iframe && !iframe.matches('ytd-engagement-panel-section-list-renderer iframe')){
-        let epc = getEPC(panel);
-        if(epc){
-          iframe.classList.add('tyt-tmp-hide-lyricsiframe');
-          isLyricsLoading = false
-          //iframe.src='about:blank'
-          epc.appendChild(iframe)
-          document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'reloadCurrentLyrics'}}))
-
-        }
-        
-      }
-    }
+    geniusLyricsVisObserveCbAsync(panel);
 
   }
 
@@ -2022,6 +2038,11 @@ function injection_script_1() {
       }else if (data.visibility ==='loading'){
         
         if(changed){
+
+          let panel = document.querySelector(panel_cssSelector)
+          if (panel) {
+            panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
+          }
 
           let p = kRef(iframeCache)
           if(p && !p.matches('body iframe')){
