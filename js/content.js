@@ -3497,27 +3497,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let x = document.querySelector('iframe#lyricsiframe')
         if(x){
           document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
-          /*
-          setTimeout(()=>{
-            document.body.append(x)
-            x.src='about:blank'
-          },30)
-          */
-
-
         }
-        /*
-        
-        Promise.resolve(0).then(()=>{
-          let ep = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
-          if(ep) ep.remove()
-          if (tmpElm = document.querySelector('iframe#lyricsiframe')) {
-            lyricsIframeRemoval(tmpElm);
-            lyrcisPanelHidden();
-          }
-          lastAction_lyricsDOMAppended = 0;
-        })
-        */
       }
 
       // instead of resetting in 'variableResets()`
