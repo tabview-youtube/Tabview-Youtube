@@ -6,7 +6,7 @@
       "run_at": "document_start",
       "all_frames": false
    } ],
-   "description": "Float the comments on the right hand side",
+   "description": "Make comments and lists into tabs",
    "icons": {
       "128": "images/icon128p.png"
    },
@@ -14,10 +14,9 @@
    "name": "TabView YouTube",
    "permissions": [ ],
     "host_permissions": [
-      "https://www.youtube.com/*",
-       "*://*/*"
+      "https://www.youtube.com/*"
     ],
-   "version": "3.13.1",
+   "version": "3.15.0",
    "web_accessible_resources": [{
       "resources": ["images/*.png", "js/injection*.js", "js/content.js"],
       "matches": ["<all_urls>"]

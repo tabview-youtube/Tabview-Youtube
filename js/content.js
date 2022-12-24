@@ -826,11 +826,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return new MutationObserver(mtf_attrFlexy)
   });
 
-  let check_epPanel_change = false;
   const mtoVisibility_EngagementPanel = new ObserverRegister(() => {
     return new MutationObserver(FP.mtf_attrEngagementPanel)
   });
-  const sa_epanel = mtoVisibility_EngagementPanel.uid;
 
   const mtoVisibility_Playlist = new ObserverRegister(() => {
     return new AttributeMutationObserver({
@@ -1480,7 +1478,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
-          let epPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
+          let epPanel = document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])');
           if (epPanel) {
             _console.log(7290, 2)
 
@@ -1755,7 +1753,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       count = 0;
 
     for (const ePanel of document.querySelectorAll(
-      `ytd-watch-flexy ytd-engagement-panel-section-list-renderer[o3r-${sa_epanel}]:not([hidden])`
+      `ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
     )) {
 
       let visibility = ePanel.getAttribute('visibility') //ENGAGEMENT_PANEL_VISIBILITY_EXPANDED //ENGAGEMENT_PANEL_VISIBILITY_HIDDEN
@@ -1791,33 +1789,56 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let panels = engagement_panels_();
 
+    let actions = []
     for (const { ePanel, k, visible } of panels.list) {
       if ((panel_id & k) === k) {
-        if (!visible) ePanel.setAttribute('visibility', "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED");
+        if (!visible) {
+          actions.push({
+            panelId:ePanel.getAttribute('target-id'),
+            toShow:true
+          })
+        }
       } else {
-        if (visible) ytBtnCloseEngagementPanel(ePanel);
+        if (visible) {
+          actions.push({
+            panelId:ePanel.getAttribute('target-id'),
+            toHide:true
+          })
+        }
       }
+    }
+
+    if (actions.length > 0) {
+      // console.log(4545,actions)
+      scriptletDeferred.debounce(() => {
+        document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
+          detail: actions
+        }))
+        actions = null
+      })
     }
 
   }
 
   function ytBtnCloseEngagementPanel(/** @type {HTMLElement} */ s) {
     //ePanel.setAttribute('visibility',"ENGAGEMENT_PANEL_VISIBILITY_HIDDEN");
-    let button = querySelectorFromAnchor.call(s, 'ytd-watch-flexy ytd-engagement-panel-title-header-renderer #header > #visibility-button');
 
-    if (button) {
-      button =
-        querySelectorFromAnchor.call(button, 'div.yt-spec-touch-feedback-shape') ||
-        querySelectorFromAnchor.call(button, 'ytd-button-renderer');
-      if (button) button.click();
-    }
+    let panelId = s.getAttribute('target-id')
+    scriptletDeferred.debounce(() => {
+      document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
+        detail: {
+          panelId,
+          toHide: true
+        }
+      }))
+    })
 
   }
 
   function ytBtnCloseEngagementPanels() {
     if (isEngagementPanelExpanded()) {
       for (const s of document.querySelectorAll(
-        `ytd-watch-flexy ytd-engagement-panel-section-list-renderer[o3r-${sa_epanel}]:not([hidden])`
+        `ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
       )) {
         if (s.getAttribute('visibility') == "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED") ytBtnCloseEngagementPanel(s);
       }
@@ -2232,36 +2253,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-  }
-
-  function mtf_AfterFixTabs() {
-
-
-    /** @type {HTMLElement | null} */
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!scriptEnable || !ytdFlexyElm) return;
-
-
-    mtf_autocomplete_search();
-
-
-  }
-
-
-  // continuous check for element relocation
-  function mtf_append_comments() {
-
-    /** @type {HTMLElement | null} */
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!scriptEnable || !ytdFlexyElm) return;
-
-    let comments = querySelectorFromAnchor.call(ytdFlexyElm, '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
-    if (comments) {
-      let tabComments = document.querySelector('#tab-comments');
-      if (tabComments) {
-        tabComments.appendChild(comments);
-      }
-    }
   }
 
   const insertBeforeTo = HTMLElement.prototype.before ? (elm, target) => {
@@ -2901,30 +2892,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function setOnlyOneEPanel(ePanel) {
-
-    layoutStatusMutex.lockWith(unlock => {
-
-      let cPanels = engagement_panels_();
-      for (const entry of cPanels.list) {
-        if (entry.ePanel != ePanel && entry.visible) ytBtnCloseEngagementPanel(entry.ePanel);
-      }
-      setTimeout(unlock, 30)
-
-    })
-
-  }
-
- 
-  
-  const removeElements = typeof DocumentFragment.prototype.append === 'function' ? (elements) => {
-    document.createDocumentFragment().append(...elements);
-  } : (elements) => {
-    for (const element of elements) {
-      element.remove();
-    }
-  }
-
 
   const FP = {
 
@@ -3070,77 +3037,42 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     mtf_attrEngagementPanel: ( /** @type {MutationRecord[]} */ mutations, /** @type {MutationObserver} */ observer) => {
       //attr mutation checker - {ytd-engagement-panel-section-list-renderer} \mutiple
       //::attr ~ visibility
-
-
-      const ytdFlexyElm = es.ytdFlexy;
-      if (!scriptEnable || !ytdFlexyElm) return;
-
-      //multiple instance
       
-      if (pageType !== 'watch') return;
-
-      if (mutations && check_epPanel_change) {
-        for (const mutation of mutations) {
-          let ePanel = mutation.target;
-          if (ePanel.getAttribute('visibility') == 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
-            setOnlyOneEPanel(ePanel);
-            break;
-          }
-        }
-      }
-
-      layoutStatusMutex.lockWith(unlock => {
-
-        const cssElm = es.ytdFlexy;
-
-        if (!cssElm) {
-          unlock();
-          return;
-        }
-        let attrValue = cssElm.getAttribute('tyt-ep-visible')
-        let previousValue = +attrValue || 0;
-
-        let { shownRes, value, count } = engagement_panels_();
-        let nextValue = value;
-        let nextCount = count;
-
-        if (nextCount == 0 && attrValue !== null) {
+      const cssElm = es.ytdFlexy;
+      if (!scriptEnable || !cssElm) return;
+      let found = null
+      if (mutations === 9) {
+        found = observer
+      } else {
+        if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+          // do nothing
+        } else {
+          mtoVisibility_EngagementPanel.clear(true)
           storeLastPanel = null;
           wAttr(cssElm, 'tyt-ep-visible', false);
-          unlock();
-        } else {
-
-          if ((nextCount > 1) || (attrValue !== null && previousValue === nextValue)) {
-            unlock();
-            return;
-          }
-
-          cssElm.setAttribute('tyt-ep-visible', nextValue);
-
-          if(check_epPanel_change){
- 
-            let b = false;
-            if (previousValue != nextValue && nextValue > 0) {
-              lstTab.lastPanel = `#engagement-panel-${nextValue}`;
-              b = true;
-              storeLastPanel = mWeakRef(shownRes[0])
-            }
-
-            if (b && whenEngagemenetPanelVisible()) {
-              timeline.setTimeout(unlock, 40);
-            } else {
-              unlock();
-            }
-
+        }
+        return
+      }
+      let nextValue = engagement_panels_().value;
+      let previousValue = +cssElm.getAttribute('tyt-ep-visible') || 0;
+      if (nextValue === 0 || previousValue === nextValue ) return
+      cssElm.setAttribute('tyt-ep-visible', nextValue);
+      lstTab.lastPanel = `#engagement-panel-${nextValue}`;
+      storeLastPanel = mWeakRef(found)
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+        if (!tabsDeferredSess.isValid) return;
+        tabsDeferredSess = null;
+        if (es.storeLastPanel !== found) return
+        layoutStatusMutex.lockWith(unlock => {
+          if (es.storeLastPanel === found && whenEngagemenetPanelVisible()) {
+            timeline.setTimeout(unlock, 40);
           } else {
             unlock();
           }
-
-        }
-
+        })
       })
-
-
     },
 
     mtf_initalAttr_chatroom: (chatroom) => {
@@ -3313,13 +3245,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // yt-watch-comments-ready - omitted
     // [is-two-columns_] attr changed => layout changed
 
+    /** @type {HTMLElement | null} */
+    const ytdFlexyElm = es.ytdFlexy;
+    if (!scriptEnable || !ytdFlexyElm) return;
 
-    mtf_append_comments();
+    let comments = querySelectorFromAnchor.call(ytdFlexyElm, '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
+    if (comments) {
+      let tabComments = document.querySelector('#tab-comments');
+      if (tabComments) {
+        tabComments.appendChild(comments);
+      }
+    }
 
     mtf_append_playlist(null); // playlist relocated after layout changed
     
     fixTabs();
-    mtf_AfterFixTabs();
+
+    mtf_autocomplete_search();
 
   }
 
@@ -3500,13 +3442,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-      // instead of resetting in 'variableResets()`
-      // order of navigate-finish and page-data-update is not guaranteed.
-      if (mtoVisibility_EngagementPanel.bindCount > 0 || check_epPanel_change === true) {
-        mtoVisibility_EngagementPanel.clear(true)
-        check_epPanel_change = false;
-      }
-
       renderIdentifier++;
       if (renderIdentifier > 88) renderIdentifier = 9;
       renderDeferred.reset();
@@ -3675,7 +3610,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
   function checkDuplicatedInfo(req) {
-    console.log('checkDuplicatedInfo')
+    // console.log('checkDuplicatedInfo')
 
 
     async function checkDuplicatedInfoContentEqual(desc1, desc2){
@@ -3778,6 +3713,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let mb1 = null, mb2 = null;
 
+      if(desc2 === null && desc1 !== null && desc1.textContent === '' ){
+        // example: https://www.youtube.com/watch?v=l9m3OpH9pbI
+        desc1 = null
+      }
+      
       if ((desc1 === null) ^ (desc2 === null)) {
         infoDuplicated = false;
       } else if ((mrcr1 === null) ^ (mrcr2 === null)) {
@@ -3881,81 +3821,67 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return false;
 
   }
+  
 
-  function newEngagementPanel(node, force){
+  function removeFocusOnLeave(evt) {
+    let node = (evt || 0).target || 0
+    let activeElement = document.activeElement || 0
+    if (node.nodeType === 1 && activeElement.nodeType === 1) {
+      new Promise(() => {
+        if (node.contains(activeElement)) {
+          activeElement.blur();
+        }
+      })
+    }
+  }
 
-    const ytdFlexyElm = es.ytdFlexy;
-    if (scriptEnable && ytdFlexyElm) {
+  handleDOMAppear('epDOMAppended', async (evt) => {
+    try {
+      let node = evt.target;
 
-      let match = force || node.matches(`ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}]):not([hidden])`);
-      if (match) {
+      let eps = document.querySelectorAll('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')
 
-        mtoVisibility_EngagementPanel.bindElement(node, {
-          attributes: true,
-          attributeFilter: ['visibility'],
-          attributeOldValue: true
-        })
+      if (eps && eps.length > 0) {
 
-        if (node.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
-
-          layoutStatusMutex.lockWith(unlock => {
-
-            if (whenEngagemenetPanelVisible()) {
-              timeline.setTimeout(unlock, 40);
-            } else {
-              unlock();
+        if (eps.length > 1) {
+          let p = 0;
+          for (const ep of eps) {
+            if (ep !== node) {
+              ytBtnCloseEngagementPanel(ep)
+              p++
             }
-
-          })
-
+          }
+          if (p > 0) {
+            await Promise.resolve(0)
+          }
         }
 
-        return true;
+        FP.mtf_attrEngagementPanel(9, node);
 
-      }
+        new Promise(()=>{
+            
+          mtoVisibility_EngagementPanel.bindElement(node, {
+            attributes: true,
+            attributeFilter: ['visibility'],
+            attributeOldValue: true
+          })
 
-    }
-
-  }
+          node.removeEventListener('mouseleave',removeFocusOnLeave,false)
+          node.addEventListener('mouseleave',removeFocusOnLeave,false)
   
-  handleDOMAppear('epDOMAppended', (evt)=>{
-    
-    let node = evt.target;
-    if (check_epPanel_change) {
-      if (newEngagementPanel(node)) {
-        console.log('new engagement panel is added.')
-        FP.mtf_attrEngagementPanel();
+        })
+
       }
-    }
+
+
+    } catch (e) { }
 
   })
+/*
+  handleDOMAppear('ddtInfoDOMAppended', ()=>{
 
-  function epPanelsSet() {
-    // call in yt-navigate-finish or yt-page-data-changed
-    // once called, new ep handled by epDOMAppended
-
-    if (!check_epPanel_change) {
-
-
-      // note that the old ep might exist as [hidden] and to be removed later
-      // :not([hidden]) is a must
-      const remainingEPs = document.querySelectorAll(`ytd-watch-flexy ytd-engagement-panel-section-list-renderer:not([o3r-${sa_epanel}]):not([hidden])`);
-
-      for (const s of remainingEPs) {
-        newEngagementPanel(s, true);
-      }
-
-      if (mtoVisibility_EngagementPanel.bindCount > 0) {
-        FP.mtf_attrEngagementPanel();
-      }
-
-      Promise.resolve(0).then(() => {
-        check_epPanel_change = true;
-      })
-
-
-    }
-  }
+    console.log(4545)
+  })*/
 
   function ytMicroEventsInit() {
 
@@ -4088,7 +4014,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
 
-        epPanelsSet();
 
 
         _console.log(2178,3)
@@ -4920,9 +4845,8 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
       // append the next videos 
       // it exists as "related" is already here
       fixTabs();
-      epPanelsSet();
 
-      if (document.querySelector('ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+      if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
         switchTabActivity(null);
       } else {
         setToActiveTab(); // just switch to the default tab
@@ -4934,6 +4858,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
       tabsDeferred.resolve();
+      FP.mtf_attrEngagementPanel(); // check whether no visible panels
 
     });
 
@@ -5645,22 +5570,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   }
 
 
-  function checkVisibleEngagementPanel() {
-
-    if (storeLastPanel) {
-
-      let elm_storeLastPanel = es.storeLastPanel;
-
-      if (elm_storeLastPanel && !isDOMVisible(elm_storeLastPanel)) {
-        storeLastPanel = null;
-        ytBtnCloseEngagementPanels();
-      }
-
-    }
-
-  }
-
-
   function switchTabActivity(activeLink) {
 
     //console.log(4545, activeLink)
@@ -6166,7 +6075,7 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat) {
       // e.g. engage panel removed after miniview and change video
       setToActiveTab();
-    } else if (new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-engagement-panel-section-list-renderer[visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]').length === 0) {
+    } else if (new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])').length === 0) {
       wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPAND)
     }
 
@@ -6291,7 +6200,15 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
       if (pageType === 'watch') { // reset info when hidden
-        checkVisibleEngagementPanel();
+  
+        let elm_storeLastPanel = es.storeLastPanel;
+
+        if (!elm_storeLastPanel) storeLastPanel = null;
+        else if (!isDOMVisible(elm_storeLastPanel)) {
+          storeLastPanel = null;
+          ytBtnCloseEngagementPanels();
+        }
+    
       }
 
       if (chatTypeChanged) {
@@ -6618,10 +6535,12 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   //yt-navigate
   //yt-navigate-cache
 
+  /*
   document.addEventListener("yt-page-manager-navigate-start", () => {
     console.log('yt-page-manager-navigate-start')
     // forceConfig();
   }, bubblePassive)
+  */
 
 
   // ---------------------------------------------------------------------------------------------

@@ -24,7 +24,6 @@ function injection_script_1() {
 
   const DEBUG_e32 = false;
 
-  let calledOnce = false;
   let ptcBusy = false;
   let _ceHack_calledOnce = false;
   let cid_teaserInfo = 0;
@@ -133,6 +132,60 @@ function injection_script_1() {
   }, false)
   */
 
+  document.addEventListener('tyt-engagement-panel-visibility-change', (evt) => {
+
+    let arr = ((evt || 0).detail || 0)
+    if (!arr) return
+    if (!('length' in arr)) arr = [arr]
+
+    let actions = []
+
+    for (const entry of arr) {
+
+      if (!entry) continue;
+
+      let panelId = entry.panelId
+
+      let toHide = entry.toHide
+      let toShow = entry.toShow
+
+      if (toHide === true && !toShow) {
+
+        actions.push({
+          "changeEngagementPanelVisibilityAction": {
+            "targetId": panelId,
+            "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+          }
+        })
+
+      } else if (toShow === true && !toHide) {
+
+        actions.push({
+          "showEngagementPanelEndpoint": {
+            "panelIdentifier": panelId
+          }
+        })
+
+      }
+
+      if (actions.length > 0) {
+
+        document.querySelector('ytd-watch-flexy').resolveCommand(
+          {
+            "signalServiceEndpoint": {
+              "signal": "CLIENT_SIGNAL",
+              "actions": actions
+            }
+          },
+
+          {},
+          false);
+      }
+
+    }
+
+  }, false)
+
 
   const TRANSLATE_DEBUG = false;
 
@@ -172,7 +225,7 @@ function injection_script_1() {
     }
 
 
-    function szz(t) {
+    function _DEBUG_szz(t) {
 
       return t.map(x => ({
         t: x.transcriptSegmentRenderer.snippet.runs.map(x => x.text).join('//'),
@@ -286,7 +339,7 @@ function injection_script_1() {
         console.log(7558, 1, obj)
         return obj;
       }).then(p => {
-        let obj = szz(p)
+        let obj = _DEBUG_szz(p)
         console.log(7558, 2, obj)
 
       })
@@ -417,14 +470,7 @@ function injection_script_1() {
 
         fRes.push(initialSegment);
 
-
       }
-
-
-      let sj_start = 0;
-      const si_length = fRes.length;
-      const sj_length = initialSegments.length;
-
 
       Promise.resolve(0).then(() => {
         cacheTexts.clear();
@@ -433,12 +479,15 @@ function injection_script_1() {
         mh1 = null;
       });
 
+      let sj_start = 0;
+      const si_length = fRes.length;
+      const sj_length = initialSegments.length;
+
       if (si_length === sj_length) {
         //no fix is required
         // ignore spacing fix
         return fRes;
       }
-
 
       // collect the abandon text to become second subtitle
 
@@ -446,41 +495,38 @@ function injection_script_1() {
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
         let transcript = segment.transcriptSegmentRenderer;
-
+        const runs = transcript.snippet.runs;
+        if (runs.length > 1 || runs[0].text.includes('\n')) continue; // skip multi lines
         let main_startMs = (+transcript.startMs || 0);
         let main_endMs = (+transcript.endMs || 0);
         transcript = null;
+        
         /** @type {Map<string, number>} */
         const tMap = new Map(); // avoid duplicate with javascript object properties
-
-        const runs = segment.transcriptSegmentRenderer.snippet.runs;
-        if (runs.length > 1 || runs[0].text.includes('\n')) continue; // skip multi lines
 
         // assume that it is asc-ordered array of key startMs;
         for (let sj = sj_start; sj < sj_length; sj++) {
           const initialSegment = initialSegments[sj]
 
           if (!initialSegment || initialSegment[s8]) continue;
-          //console.log(8833, 100, si, sj)
+          
+          const transcriptSegementJ = initialSegment.transcriptSegmentRenderer
 
-          let startMs = (+initialSegment.transcriptSegmentRenderer.startMs || 0)
+          let startMs = (+transcriptSegementJ.startMs || 0)
           let isStartValid = startMs >= main_startMs;
           if (!isStartValid) {
             invalid_sj = sj;
             continue;
           }
+          // isStartValid must be true
           if (startMs > main_endMs) {
             sj_start = invalid_sj + 1;
             break;
           }
 
-          //console.log(8833,si,sj)
-          let endMs = (+initialSegment.transcriptSegmentRenderer.endMs || 0)
-
-          if (isStartValid && endMs <= main_endMs) {
-
-            //console.log(8833, 102)
-            let mt = snippetText(initialSegment.transcriptSegmentRenderer.snippet);
+          let endMs = (+transcriptSegementJ.endMs || 0)
+          if (endMs <= main_endMs) {
+            let mt = snippetText(transcriptSegementJ.snippet);
             let xv = tMap.get(mt) || 0;
             if (endMs >= startMs) {
               xv += 1 + (endMs - startMs);
@@ -488,9 +534,7 @@ function injection_script_1() {
             tMap.set(mt, xv);
           }
 
-
         }
-
 
         if (tMap.size <= 1) continue; // no second line
 
@@ -502,10 +546,9 @@ function injection_script_1() {
 
         let targetZ = rg[1][1];
         if (targetZ > 4) {
-
           let az = 0;
           let fail = false;
-          for (let idx = 2; idx < rg.length; idx++) {
+          for (let idx = 2, rgl = rg.length; idx < rgl; idx++) {
             az += rg[idx][1];
             if (az >= targetZ) {
               fail = true;
@@ -515,22 +558,14 @@ function injection_script_1() {
           if (!fail) {
             let nonSame = rg[1][0].replace(/\s/g, '') !== rg[0][0].replace(/\s/g, '');
             if (nonSame) {
-
-
               let a = rg[0][0];
               let b = _snippetText(runs[0].text);
-
-              //console.log(452, a,b,a===b)
               if (a === b) {
                 runs.push({ text: (rg[1][0]) })
               }
-
             }
           }
-
-
         }
-
       }
 
 
@@ -540,7 +575,7 @@ function injection_script_1() {
         console.log(7559, 1, obj)
         return obj;
       }).then(p => {
-        let obj = szz(p)
+        let obj = _DEBUG_szz(p)
         console.log(7559, 2, obj)
 
       })
@@ -1084,6 +1119,10 @@ function injection_script_1() {
 
     // assume initialTranscriptsRenderer is not called before ceHack()
 
+    requestAnimationFrame(() => {
+      if (translateHanlder === null)
+        translateHanlder = getTranslate();
+    })
 
     Object.defineProperty(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', {
       get() {
@@ -1094,6 +1133,7 @@ function injection_script_1() {
 
           if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
             nv[s6] = true;
+            
             //console.log(955, 'translate')
             //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
             if (translateHanlder !== null) {
@@ -1801,16 +1841,6 @@ function injection_script_1() {
     })
   }
  
-
-  function onLyricsIframeShown () {
-
-    let tmp = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
-    if (tmp) {
-      tmp.remove()
-      return
-    }
-
-  }
   function getEPC(ep) {
 
     if (!ep) return null;
@@ -1827,7 +1857,6 @@ function injection_script_1() {
 
     const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
     if (!ytdFlexyElm) return null;
-
 
     /** @type {HTMLElement} */
     let newPanel = ytdFlexyElm.createComponent_({
@@ -1893,7 +1922,6 @@ function injection_script_1() {
 
     return newPanel;
 
-
   }
 
   let geniusLyricsVisObserver = null
@@ -1903,7 +1931,6 @@ function injection_script_1() {
     await Promise.resolve(0)
 
     let lyricsiframe = null
-
 
     if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
       isLyricsLoading = false
@@ -1948,17 +1975,14 @@ function injection_script_1() {
 
   }
 
-  document.addEventListener('getLyricsReady', function getLyricsReady(){
+  document.addEventListener('getLyricsReady', function getLyricsReady() {
 
-        
-      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
- 
+    const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
-        
     if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
       let newPanel = createPanel();
 
-      if(newPanel === null){
+      if (newPanel === null) {
         return
       }
 
@@ -1974,10 +1998,9 @@ function injection_script_1() {
         attributeFilter: ['visibility']
       })
 
-
     }
 
-    
+
     let elm = null;
     if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
 
@@ -1986,25 +2009,30 @@ function injection_script_1() {
 
         let epc = getEPC(panel);
         if (epc) {
-
           epc.innerHTML = '';
           elm.classList.add('tyt-tmp-hide-lyricsiframe');
           epc.appendChild(elm)
-          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
+
+          document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
+            detail:{
+              panelId: "engagement-panel-genius-transcript",
+              toShow: true
+            }
+          }))
+
+
+          // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
         }
 
       }
     }
 
-    
     let panel = document.querySelector(panel_cssSelector)
     if (panel) {
       panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
     }
 
-
   }, false)
-
 
 
   let isLyricsLoading = false
@@ -2018,7 +2046,6 @@ function injection_script_1() {
       addStyleToLyricsIframe();
     }else if(data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'lyricsDisplayState'){
       
-
       let isLoading_current = data.visibility==='loading';
       let changed = false
 
@@ -2026,14 +2053,22 @@ function injection_script_1() {
         isLyricsLoading = isLoading_current;
         changed =true
       }
- 
-      
 
       if(data.visibility==='hidden'){
 
         let panel = document.querySelector(panel_cssSelector)
-        if (panel && panel.getAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')) {
-          panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
+        if (panel && panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
+          
+          
+          document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
+            detail:{
+              panelId: "engagement-panel-genius-transcript",
+              toHide: true
+            }
+          }))
+
+          
+          // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
         }
       }else if (data.visibility ==='loading'){
         
@@ -2049,7 +2084,10 @@ function injection_script_1() {
             document.body.appendChild(p)
           }
 
-          onLyricsIframeShown();
+          let tmp = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+          if (tmp) {
+            tmp.remove()
+          }
           document.dispatchEvent(new CustomEvent('getLyricsReady'));
         }
       }else if(data.visibility ==='loaded'){
@@ -2141,22 +2179,20 @@ function injection_script_1() {
   }, true);
 
   function scGet(){
-
     let t = this;
     let sc = t._sc.deref();
     if (!t.hasAttribute('autocomplete')) {
-      sc.textContent = '';
+      if(sc) sc.textContent = '';
       // to make something for "document.body.removeChild(t.sc),"
       let x = new Comment();
       document.body.appendChild(x);
       setTimeout(() => {
-        if (x.parentNode) document.body.removeChild(x);
+        if (x.parentNode) x.remove();
         x = null;
       });
       return x;
     }
     return sc || null;
-
   }
 
   document.addEventListener('tabview-fix-autocomplete', function (evt) {
@@ -2197,33 +2233,11 @@ function injection_script_1() {
         window.removeEventListener('resize', s.updateSC);
         s.updateSC = function () {
           this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
-
          };
 
       }
-      /*
-
-      sc._suggestionHeight = sc.suggestionHeight;
-      sc.suggestionHeight = null;
-      delete sc.suggestionHeight;
-
-      
-      Object.defineProperty(sc, 'suggestionHeight', {
-        get: ()=>{
-          return this._suggestionHeight;
-        },
-        set: (nv)=>{
-          this._suggestionHeight = nv;
-          console.log(2233)
-          this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
-        },
-        enumerable: true,
-        configurable: true
-      })
-      */
 
       s.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
-
 
     }
     
@@ -2255,7 +2269,7 @@ function injection_script_1() {
     if (!button) return;
     setTimeout(() => { //setTimeout / raf required - js event issue
       button.click();
-      if(isTrusted) description.scrollIntoView(true);
+      if(isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
       description = null;
       dom = null;
       button = null;
@@ -2339,7 +2353,7 @@ function injection_script_1() {
 
     if (!isPassiveArgSupport) return;
 
-    console.log("tabview-miniview-browser-enable");
+    // console.log("tabview-miniview-browser-enable");
 
     miniview_enabled = true;
 
@@ -2431,7 +2445,7 @@ function injection_script_1() {
 
         if (!endpoint) return handleNavigate.apply($this, $arguments);
 
-        console.log('tabview-script-handleNavigate')
+        // console.log('tabview-script-handleNavigate')
 
         let ytdApp = document.querySelector('ytd-app');
 
