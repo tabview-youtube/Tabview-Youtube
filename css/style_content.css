@@ -683,6 +683,7 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
+    /*
     @supports (color:var(--try-fix-transcript-clickable)) {
         ytd-engagement-panel-section-list-renderer ytd-transcript-renderer ytd-transcript-search-panel-renderer ytd-transcript-segment-list-renderer ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer {
             pointer-events: none;
@@ -697,6 +698,7 @@ body .ytp-autohide .ytp-unmute,
             touch-action: none;
         }
     }
+    */
 
     @supports (color: var(--fix-scripting-iframe)){
         body > iframe[style*="display: none"], body > iframe[style*="display:none"] {
