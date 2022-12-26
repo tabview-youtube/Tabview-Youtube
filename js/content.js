@@ -1,3 +1,5 @@
+"use strict";
+console.time("Tabview Youtube Init Script")
 -(function mainBody() {
   'use strict';
 
@@ -49,6 +51,107 @@
   const REMOVE_DUPLICATE_INFO = true;
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
+
+  /*
+
+  youtube page
+
+    = Init::browse
+      yt-page-data-fetched
+      data-changed...
+      yt-page-data-updated
+      yt-navigate-finish
+      data-changed...
+      yt-watch-comments-ready
+    
+    = browse -> watch
+      yt-player-updated
+      yt-navigate
+      yt-navigate-start
+      yt-page-type-changed
+      yt-player-updated
+      yt-page-data-fetched
+      yt-navigate-finish
+      data-changed...
+      yt-page-data-updated
+      data-changed...
+      yt-watch-comments-ready
+      data-changed...
+
+    = watch -> watch
+    = click video on meta panel // https://www.youtube.com/watch?v=UY5bp5CNhak; https://www.youtube.com/watch?v=m0WtnU8NVTo
+      yt-navigate
+      yt-navigate-start
+      data-changed
+      yt-player-updated
+      yt-page-data-fetched
+      yt-navigate-finish
+      data-changed...
+      yt-page-data-updated
+      data-changed...
+      yt-watch-comments-ready
+      data-changed...
+
+    = watch -> browse (miniview)
+      yt-navigate-cache
+      yt-page-data-fetched
+      yt-page-type-changed
+      yt-page-data-updated
+      yt-navigate-finish
+
+    = browse (miniview)  -> watch (Restore)
+      yt-navigate-cache
+      yt-page-data-fetched
+      yt-navigate-finish
+      yt-page-type-changed
+      yt-page-data-updated
+      data-changed...
+      yt-watch-comments-ready
+
+    = watch -> search (miniview)
+      yt-navigate
+      yt-navigate-start
+      data-changed
+      yt-page-data-fetched
+      yt-page-type-changed
+      data-changed
+      yt-page-data-updated
+      yt-navigate-finish
+      data-changed...
+
+    = Init::search
+      yt-page-data-fetched
+      data-changed
+      yt-page-data-updated
+      yt-navigate-finish
+      data-changed...
+      yt-watch-comments-ready
+
+    = Init::watch
+      yt-page-data-fetched
+      yt-navigate-finish
+      data-changed...
+      yt-page-data-updated
+      data-changed...
+      yt-watch-comments-ready
+      yt-player-updated
+      data-changed...
+
+    = watch -> watch (history back)
+      yt-player-updated
+      yt-page-data-fetched
+      yt-navigate-finish
+      data-changed...
+      yt-page-data-updated
+      data-changed...
+      yt-watch-comments-ready
+
+    = watch -> click video time // https://www.youtube.com/watch?v=UY5bp5CNhak; https://www.youtube.com/watch?v=m0WtnU8NVTo
+      yt-navigate
+
+  */
+
+
 
   const LAYOUT_VAILD = 1;
 
@@ -346,8 +449,6 @@
   let _viTimeNum = 200;
   let _updateTimeAccum = 0;
 
-  let lyricsPlugin = false;
-
   /** @type {WeakMap<HTMLElement>} */
   let loadedCommentsDT = new WeakMap();
 
@@ -485,34 +586,6 @@
   }
 
 
-  // obsolete? keep it right now. to be removed.
-  const stopIframePropagation = function (/** @type {Event} */ evt) {
-    //if (iframePointEventsAllow) return;
-    if (scriptEnable && ((evt || 0).target || 0).nodeName === 'IFRAME') {
-      evt.stopImmediatePropagation();
-      evt.stopPropagation();
-    }
-  }
-
-
-  /** @type {Map<string, Function>} */
-  let handleDOMAppearFN = new Map();
-  function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
-
-    if (handleDOMAppearFN.size === 0) {
-      document.addEventListener('animationstart', (evt) => {
-
-        let func = handleDOMAppearFN.get(evt.animationName);
-        if (func) func(evt);
-      }, capturePassive)
-    } else {
-
-      if (handleDOMAppearFN.has(fn)) return;
-    }
-
-    handleDOMAppearFN.set(fn, func);
-
-  }
 
   /*
 
@@ -1082,19 +1155,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     let _tabviewSiderAnimated = false;
-    handleDOMAppear('tabviewSiderAnimation', (evt) => {
-      if (!_tabviewSiderAnimated) {
-        _tabviewSiderAnimated = true;
-        dispatchCommentRowResize();
-      }
-    })
-
-    handleDOMAppear('tabviewSiderAnimationNone', (evt) => {
-      if (_tabviewSiderAnimated) {
-        _tabviewSiderAnimated = false;
-        dispatchCommentRowResize();
-      }
-    })
 
 
     secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
@@ -2117,21 +2177,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  // mtf_fixAutoCompletePosition
-  handleDOMAppear('SearchWhileWatchAutocomplete', (evt)=>{
-    // Youtube - Search While Watching Video
-
-    let elm = evt.target;
-    
-    elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
-    
-    scriptletDeferred.debounce(()=>{
-      elm.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'));
-      elm = null;
-    })
-
-  })
-
   function mtf_autocomplete_search() {
     // Youtube - Search While Watching Video
 
@@ -2334,36 +2379,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-
-
-  handleDOMAppear('chatFrameToggleBtnAppended1', (evt)=>{
-
-    _console.log(5099, 'chatFrameToggleBtnAppended', evt)
-
-    Promise.resolve(0).then(() => { // avoid immediately dom change
-
-      let tabsDeferredSess = pageSession.session();
-      if (!scriptEnable && tabsDeferred.resolved) { }
-      else tabsDeferred.debounce(() => {
-
-        if (!tabsDeferredSess.isValid) return;
-        tabsDeferredSess = null;
-
-        mtf_liveChatBtnF(evt.target);
-
-      })
-
-    })
-
-  });
-
-  
-  DEBUG_LOG && handleDOMAppear('chatFrameToggleBtnAppended2', (evt)=>{
-
-    _console.log(5099, 'chatFrameToggleBtnAppended', evt)
-
-    
-  });
 
 
   function getWrapper(wrapperId) {
@@ -2588,16 +2603,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-
-
-  document.addEventListener('mouseover', stopIframePropagation, true)
-  document.addEventListener('mouseout', stopIframePropagation, true)
-  document.addEventListener('mousedown', stopIframePropagation, true)
-  document.addEventListener('mouseup', stopIframePropagation, true)
-  document.addEventListener('keydown', stopIframePropagation, true)
-  document.addEventListener('keyup', stopIframePropagation, true)
-  document.addEventListener('mouseenter', stopIframePropagation, true)
-  document.addEventListener('mouseleave', stopIframePropagation, true)
 
 
   const innerCommentsFuncs = [
@@ -3073,24 +3078,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         })
       })
-    },
-
-    mtf_initalAttr_chatroom: (chatroom) => {
-      // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
-
-      const ytdFlexyElm = es.ytdFlexy;
-      if (!scriptEnable || !ytdFlexyElm) return;
-
-      chatroom = chatroom || querySelectorFromAnchor.call(ytdFlexyElm, `ytd-live-chat-frame#chat:not([${sa_chatroom}]`)
-
-      if (mtoVisibility_Chatroom.bindElement(chatroom)) {
-        mtoVisibility_Chatroom.observer.check(9)
-        return true;
-      }
-      chatroom = null;
-
-    },
-
+    }
 
   }
 
@@ -3430,18 +3418,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (action > 0) {
 
-
-      // let tmpElm = null;
-      
-      if (lyricsPlugin) {
-
-        /** @type {HTMLIFrameElement | null} */ 
-        let x = document.querySelector('iframe#lyricsiframe')
-        if(x){
-          document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
-        }
-      }
-
       renderIdentifier++;
       if (renderIdentifier > 88) renderIdentifier = 9;
       renderDeferred.reset();
@@ -3449,13 +3425,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (action === 1) {
         comments_loader = 1;
         tabsDeferred.reset();
-        if (!(firstLoadStatus & 8)) {
-          //console.log(3446)
+        if ((firstLoadStatus & 8) === 0) {
           innerDOMCommentsCountLoader(); //ensure the previous record is saved
           // no need to cache to the rendering state
-          //console.log(3447)
           _pageBeingInit();
-        } else if (firstLoadStatus & 2) {
+        } else if ((firstLoadStatus & 2) === 2) {
           firstLoadStatus -= 2;
           script_inject_js1.inject();
         }
@@ -3467,7 +3441,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (pageRendered === 2) {
       pageRendered = 0;
       let elmPL = document.querySelector('tabview-view-ploader');
-      elmPL.remove();
+      if(elmPL) elmPL.remove();
       pageRendered = 0;
     }
 
@@ -3772,7 +3746,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function setupChatFrameDOM(node, bool) {
+  function setupChatFrameDOM(node) {
     // this function calls 3 times per each new video page
 
     // 'tyt-chat' is initialized in setupChatFrameDisplayState1()
@@ -3781,15 +3755,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let liveChatFrame = node || document.querySelector('ytd-live-chat-frame#chat')
     if (liveChatFrame) {
 
-      if(FP.mtf_initalAttr_chatroom(liveChatFrame)){
-        // new 
+      // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
+
+      let ytdFlexyElm = es.ytdFlexy;
+      if (scriptEnable && ytdFlexyElm) {
+        if (mtoVisibility_Chatroom.bindElement(liveChatFrame)) {
+          mtoVisibility_Chatroom.observer.check(9)
+        }
       }
+      
+      liveChatFrame = null;
+      ytdFlexyElm = null;
 
       setToggleBtnTxt(); // immediate update when page changed
-      if(bool){
-         // button might not yet be rendered
+
+      if (node !== null) {
+        // button might not yet be rendered
         requestAnimationFrame(setToggleBtnTxt); // bool = true must be front page
-      }else{
+      } else {
 
         // this is due to page change
         let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
@@ -3834,101 +3817,235 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
     }
   }
-
-  handleDOMAppear('epDOMAppended', async (evt) => {
-    try {
-      let node = evt.target;
-
-      let eps = document.querySelectorAll('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')
-
-      if (eps && eps.length > 0) {
-
-        if (eps.length > 1) {
-          let p = 0;
-          for (const ep of eps) {
-            if (ep !== node) {
-              ytBtnCloseEngagementPanel(ep)
-              p++
-            }
-          }
-          if (p > 0) {
-            await Promise.resolve(0)
-          }
-        }
-
-        FP.mtf_attrEngagementPanel(9, node);
-
-        new Promise(()=>{
-            
-          mtoVisibility_EngagementPanel.bindElement(node, {
-            attributes: true,
-            attributeFilter: ['visibility'],
-            attributeOldValue: true
-          })
-
-          node.removeEventListener('mouseleave',removeFocusOnLeave,false)
-          node.addEventListener('mouseleave',removeFocusOnLeave,false)
   
+  globalHook('yt-player-updated', (evt) => {
+
+    const node = ((evt || 0).target) || 0
+
+    if (node.nodeType !== 1) return;
+
+    const nodeName = node.nodeName.toUpperCase();
+
+    _console.log(evt.target.nodeName, 904, evt.type);
+
+    if (nodeName !== 'YTD-PLAYER') return
+
+
+    let tabsDeferredSess = pageSession.session();
+    if (!scriptEnable && tabsDeferred.resolved) { }
+    else tabsDeferred.debounce(() => {
+
+      if (!tabsDeferredSess.isValid) return;
+      tabsDeferredSess = null;
+
+
+      if(!scriptEnable) return
+
+      if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+        fetchCounts.new.f();
+        fetchCounts.fetched = true;
+
+        fetchCommentsFinished();
+        _console.log(9972, 'fetched = true')
+      }
+
+      _console.log(2178,4)
+      pageCheck();
+
+      domInit_comments();
+      setupChatFrameDOM(null);
+
+      let video = document.querySelector('#ytd-player video[src]');
+      if (video && !video.hasAttribute('tabview-video-events')) {
+        video.setAttribute('tabview-video-events', '')
+
+        video.addEventListener('timeupdate', (evt) => {
+          energizedByVideoTimeUpdate();
+        }, bubblePassive);
+
+        video.addEventListener('ended', (evt) => {
+          // scrollIntoView => auto start next video
+          // otherwise it cannot auto paly next
+
+          let elm = evt.target;
+          Promise.resolve(elm).then((elm) => {
+            let scrollElm = closestDOM.call(elm, '#player') || closestDOM.call(elm, '#ytd-player') || elm;
+            // background applicable
+            scrollElm.scrollIntoView(false);
+          });
+
+
         })
 
       }
 
 
-    } catch (e) { }
+    });
 
-  })
-/*
-  handleDOMAppear('ddtInfoDOMAppended', ()=>{
 
-    console.log(4545)
-  })*/
+  });
 
   function ytMicroEventsInit() {
 
     _console.log(902)
 
-
-    DEBUG_LOG && globalHook('yt-rendererstamper-finished', (evt) => {
-
-      if (!scriptEnable && tabsDeferred.resolved) { return }
-      // might occur before initialization
-
-      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
-
-      const nodeName = evt.target.nodeName.toUpperCase();
-
-      //  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER','YTD-MENU-RENDERER']
-      if (S_GENERAL_RENDERERS.includes(nodeName)) {
-        return;
+    /** @type {Map<string, Function>} */
+    let handleDOMAppearFN = new Map();
+    function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
+      if (handleDOMAppearFN.size === 0) {
+        document.addEventListener('animationstart', (evt) => {
+          let func = handleDOMAppearFN.get(evt.animationName);
+          if (func) func(evt);
+        }, capturePassive)
+      } else {
+        if (handleDOMAppearFN.has(fn)) return;
       }
+      handleDOMAppearFN.set(fn, func);
+    }
 
-      _console.log(evt.target.nodeName, 904, evt.type, evt.detail);
+    handleDOMAppear('videosDOMAppended',function(evt){
+      videosDeferred.resolve();
+    })
+
+    handleDOMAppear('liveChatFrameDOMAppended', (evt)=>{
+
+      let node = evt.target;
+      if (!node) return;
+
+      let tabsDeferredSess = pageSession.session();
+      if (!scriptEnable && tabsDeferred.resolved) { }
+      else tabsDeferred.debounce(() => {
+
+        // P.S. avoid immediately dom change
+        // time delay to avoid attribute set after dom appended.
+
+        if (!tabsDeferredSess.isValid) return;
+        tabsDeferredSess = null;
+
+        setupChatFrameDOM(node); // front page
+        node = null;
+
+      })
+ 
+    });
+
+    handleDOMAppear('pageLoaderAnimation', (evt) => {
+      pageRendered = 2;
+      renderDeferred.resolve();
+      console.log('pageRendered')
+
+      scriptletDeferred.debounce(() => {
+        document.dispatchEvent(new CustomEvent('tabview-page-rendered'))
+      })
 
     });
 
+      
+    handleDOMAppear('chatFrameToggleBtnAppended1', (evt)=>{
+
+      _console.log(5099, 'chatFrameToggleBtnAppended', evt)
+
+      Promise.resolve(0).then(() => { // avoid immediately dom change
+
+        let tabsDeferredSess = pageSession.session();
+        if (!scriptEnable && tabsDeferred.resolved) { }
+        else tabsDeferred.debounce(() => {
+
+          if (!tabsDeferredSess.isValid) return;
+          tabsDeferredSess = null;
+
+          mtf_liveChatBtnF(evt.target);
+
+        })
+
+      })
+
+    });
+
+    
+    DEBUG_LOG && handleDOMAppear('chatFrameToggleBtnAppended2', (evt)=>{
+
+      _console.log(5099, 'chatFrameToggleBtnAppended', evt)
+
+      
+    });
+
+
+    handleDOMAppear('epDOMAppended', async (evt) => {
+      try {
+        let node = evt.target;
+
+        let eps = document.querySelectorAll('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')
+
+        if (eps && eps.length > 0) {
+
+          if (eps.length > 1) {
+            let p = 0;
+            for (const ep of eps) {
+              if (ep !== node) {
+                ytBtnCloseEngagementPanel(ep)
+                p++
+              }
+            }
+            if (p > 0) {
+              await Promise.resolve(0)
+            }
+          }
+
+          FP.mtf_attrEngagementPanel(9, node);
+
+          new Promise(() => {
+
+            mtoVisibility_EngagementPanel.bindElement(node, {
+              attributes: true,
+              attributeFilter: ['visibility'],
+              attributeOldValue: true
+            })
+
+            node.removeEventListener('mouseleave', removeFocusOnLeave, false)
+            node.addEventListener('mouseleave', removeFocusOnLeave, false)
+
+          })
+
+        }
+
+
+      } catch (e) { }
+
+    })
+
+    handleDOMAppear('tabviewSiderAnimation', (evt) => {
+      if (!_tabviewSiderAnimated) {
+        _tabviewSiderAnimated = true;
+        dispatchCommentRowResize();
+      }
+    })
+
+    handleDOMAppear('tabviewSiderAnimationNone', (evt) => {
+      if (_tabviewSiderAnimated) {
+        _tabviewSiderAnimated = false;
+        dispatchCommentRowResize();
+      }
+    })
+
+    handleDOMAppear('SearchWhileWatchAutocomplete', (evt)=>{ // Youtube - Search While Watching Video
+      let elm = evt.target;
+      elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+      scriptletDeferred.debounce(()=>{
+        elm.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'));
+        elm = null;
+      })
+    })
 
     const renderStamperFunc = {
       'YTD-PLAYLIST-PANEL-RENDERER': (node) => {
-
-        mtf_append_playlist(node);
-        // the true playlist is appended to the #tab-list
-
+        mtf_append_playlist(node); // the true playlist is appended to the #tab-list
         checkPlaylistForInitialization();
-
       },
       'YTD-COMMENTS-HEADER-RENDERER': (node) => {
-
         comments_loader = comments_loader | 4;
-
         getFinalComments();
-
-      },
-      'YTD-ENGAGEMENT-PANEL-SECTION-LIST-RENDERER': (node) => {
-
-
-
       }
-
     }
 
     globalHook('yt-rendererstamper-finished', (evt) => {
@@ -3963,28 +4080,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
 
 
-    handleDOMAppear('liveChatFrameDOMAppended', (evt)=>{
-
-      let node = evt.target;
-      if (!node) return;
-
-      let tabsDeferredSess = pageSession.session();
-      if (!scriptEnable && tabsDeferred.resolved) { }
-      else tabsDeferred.debounce(() => {
-
-        // P.S. avoid immediately dom change
-        // time delay to avoid attribute set after dom appended.
-
-        if (!tabsDeferredSess.isValid) return;
-        tabsDeferredSess = null;
-
-        setupChatFrameDOM(node, true); // front page
-        node = null;
-
-      })
- 
-    });
-
     globalHook('yt-page-data-updated', (evt) => {
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -4017,8 +4112,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
         _console.log(2178,3)
-        pageCheck(); 
-        setupChatFrameDOM(null, false);
+        pageCheck();
+        setupChatFrameDOM(null);
  
         let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])');
         if (expander) {
@@ -4195,93 +4290,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
 
 
-    globalHook('yt-player-updated', (evt) => {
-
-
-      if (!scriptEnable && tabsDeferred.resolved) { return }
-      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
-
-
-      _console.log(evt.target.nodeName, 904, evt.type);
-
-
-      advanceFetch();
-
-      let tabsDeferredSess = pageSession.session();
-      if (!scriptEnable && tabsDeferred.resolved) { }
-      else tabsDeferred.debounce(() => {
-
-        if (!tabsDeferredSess.isValid) return;
-        tabsDeferredSess = null;
-
-
-        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-          fetchCounts.new.f();
-          fetchCounts.fetched = true;
-
-          fetchCommentsFinished();
-          _console.log(9972, 'fetched = true')
-        }
-
-        //restoreFetching(); //yt-player-updated might happen after comments ready
-
-        
-        _console.log(2178,4)
-        pageCheck();
-        //fixChatFrameToggleButton();
-
-
-        let nodeName = evt.target.nodeName.toUpperCase();
- 
-        if (nodeName === 'YTD-PLAYER') {
-
-          _console.log(2554, nodeName, evt.type, evt.detail);
-
-          domInit_comments();
-          setupChatFrameDOM(null, false);
-
-          let video = document.querySelector('#ytd-player video[src]');
-          if (video && !video.hasAttribute('tabview-video-events')) {
-            video.setAttribute('tabview-video-events', '')
-
-            video.addEventListener('timeupdate', (evt) => {
-              energizedByVideoTimeUpdate();
-            }, bubblePassive);
-
-            video.addEventListener('ended',(evt)=>{
-              // scrollIntoView => auto start next video
-              // otherwise it cannot auto paly next
-
-              let elm =evt.target;
-              Promise.resolve(elm).then((elm)=>{
-                let scrollElm = closestDOM.call(elm,'#player') || closestDOM.call(elm,'#ytd-player') || elm;
-                // background applicable
-                scrollElm.scrollIntoView(false);
-              });
-
-
-            })
-
-          }
-
-
-        }
-
-      });
-
-
-    });
-
     globalHook('yt-watch-comments-ready', (evt) => {
 
-
       if (!scriptEnable && tabsDeferred.resolved) { return }
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
-
 
       let nodeName = evt.target.nodeName.toUpperCase() 
       advanceFetch();
-
 
       comments_loader = comments_loader | 2;
 
@@ -4301,127 +4316,46 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
  
         if (nodeName === 'YTD-WATCH-FLEXY') {
-
           domInit_comments();
-
-
-          if (mtf_forceCheckLiveVideo_disable === 2) {
-
-          } else {
-
-
+          if (mtf_forceCheckLiveVideo_disable !== 2) {
             _console.log(3713, Q.comments_section_loaded, fetchCounts.fetched, 'fetch comments')
-
-
             if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
-
-              //unavailable apart from live chat
-
+              // unavailable apart from live chat
               _disableComments();
-
               _console.log(3713, 3, 'comments hidden')
-
-
             } else if (Q.comments_section_loaded === 0) {
-
-
               getFinalComments();
-
-
             }
-
           }
-
         }
-
       });
 
     })
 
 
     window.addEventListener("message", (evt) => {
-
       if (!scriptEnable && tabsDeferred.resolved) { return }
       if (evt.origin === location.origin && evt.data.tabview) {
-
         let data = evt.data.tabview;
-
         if (data.eventType === "yt-page-type-changed") {
           let detail = data.eventDetail
           let { newPageType, oldPageType } = detail;
           if (newPageType && oldPageType) {
-
             let bool = false;
             if (newPageType == 'ytd-watch-flexy') {
               bool = true;
-
               pageType = 'watch';
-              //dispatchWindowResize(); // player control positioning //try to omit
-              
             } else if (newPageType == 'ytd-browse') {
-
               pageType = 'browse';
             }
-
-            /*
-
-video page
-page: "watch"
-
-
-miniview -> main page OR playlist -> click channel name
-page: "browse"
-
-
-playlist -> click playlist title
-page: "playlist"
-url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
-
-            */
-
             document.documentElement.classList.toggle('tabview-normal-player', bool)
-
-            
-
           }
         }
-
-        _console.log(37192, evt)
-
       }
     }, bubblePassive);
 
 
     globalHook('data-changed',(evt)=>{
-
-      
-
-      
-    // ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"]:not([aria-disabled=""]) > #contentWrapper > ytd-modal-with-title-and-button-renderer[style*="0px"]{
-
-    //     /* fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 */
-    //     /* reproduction: click watch later without login */
-    //     /* without this, the layout coordinates and size (height) of container will become incorrect. */
-
-
-    //     max-height: initial !important;
-
-
-    // } 
-
-    // ytd-app>ytd-popup-container>tp-yt-iron-dropdown.style-scope.ytd-popup-container[horizontal-align="auto"][style*="fixed"]:not([aria-disabled=""]){
-
-    //     /* fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 */
-    //     /* reproduction: click watch later without login */
-    //     /* without this, the layout coordinates and size (height) of container will become incorrect. */
-
-
-    //     top:0 !important;
-    //     left:0 !important;
-
-
-    // } 
-
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
 
@@ -4431,9 +4365,26 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
       document.dispatchEvent(new CustomEvent("tabview-fix-popup-refit"));
 
-
     })
 
+
+    DEBUG_LOG && globalHook('yt-rendererstamper-finished', (evt) => {
+
+      if (!scriptEnable && tabsDeferred.resolved) { return }
+      // might occur before initialization
+
+      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
+
+      const nodeName = evt.target.nodeName.toUpperCase();
+
+      //  const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER','YTD-MENU-RENDERER']
+      if (S_GENERAL_RENDERERS.includes(nodeName)) {
+        return;
+      }
+
+      _console.log(evt.target.nodeName, 904, evt.type, evt.detail);
+
+    });
 
     DEBUG_LOG && globalHook('data-changed', (evt) => {
 
@@ -4480,14 +4431,6 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
 
     })
-
-    DEBUG_LOG && globalHook('yt-navigate', (evt) => {
-
-      if (!evt || !evt.target || evt.target.nodeType !== 1) return;
-      _console.log(evt.target.nodeName, evt.type)
-
-    })
-
 
     DEBUG_LOG && globalHook('yt-execute-service-endpoint', (evt) => {
 
@@ -4810,140 +4753,72 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
   let videosDeferred = new Deferred();
 
-  handleDOMAppear('videosDOMAppended',function(evt){
-    videosDeferred.resolve();
-  })
-
   let _navigateLoadDT = 0;
-  function onNavigationEndDelayed() {
+
+  async function onNavigationEndAsync(isPageFirstLoaded) {
+
+    if (pageType !== 'watch') return
 
     let tdt = Date.now();
     _navigateLoadDT = tdt;
-    videosDeferred.debounce(() => {
-      if (_navigateLoadDT !== tdt) return;
 
-      const ytdFlexyElm = es.ytdFlexy;
-      if (!ytdFlexyElm) return;
-      const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
-      if (!related) return;
+    // avoid blocking the page when youtube is initializing the page
+    const promiseDelay = new Promise(requestAnimationFrame)
+    const promiseVideoRendered = videosDeferred.d()
+    await Promise.all([promiseVideoRendered, promiseDelay])
 
-      if (!document.querySelector("#right-tabs")) {
-        getLang();
-        let docTmp = document.createElement('template');
-        docTmp.innerHTML = getTabsHTML();
-        let newElm = docTmp.content.firstElementChild;
-        if (newElm !== null) {
-          insertBeforeTo(newElm, related);
-          console.log('#right-tabs inserted')
-        }
-        docTmp.textContent = '';
-        docTmp = null;
+    if (_navigateLoadDT !== tdt) return;
+    if (ytEventSequence !== 3) return;
+
+    const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+
+    if (!ytdFlexyElm) {
+      ytdFlexy = null
+      return;
+    }
+
+    scriptEnable = true;
+
+    ytdFlexy = mWeakRef(ytdFlexyElm)
+
+    const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
+    if (!related) return;
+
+    isPageFirstLoaded && console.time("Tabview Youtube Render")
+
+    if (!document.querySelector("#right-tabs")) {
+      getLang();
+      let docTmp = document.createElement('template');
+      docTmp.innerHTML = getTabsHTML();
+      let newElm = docTmp.content.firstElementChild;
+      if (newElm !== null) {
+        insertBeforeTo(newElm, related);
+        console.log('#right-tabs inserted')
       }
+      docTmp.textContent = '';
+      docTmp = null;
+    }
 
-      if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
+    if (!ytdFlexyElm.hasAttribute('tyt-tab')) ytdFlexyElm.setAttribute('tyt-tab', '')
 
-      // append the next videos 
-      // it exists as "related" is already here
-      fixTabs();
+    // append the next videos 
+    // it exists as "related" is already here
+    fixTabs();
 
-      if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
-        switchTabActivity(null);
-      } else {
-        setToActiveTab(); // just switch to the default tab
-      }
-      prepareTabBtn();
-
-      mtoFlexyAttr.clear(true)
-      mtf_checkFlexy()
-
-
-      tabsDeferred.resolve();
-      FP.mtf_attrEngagementPanel(); // check whether no visible panels
-
-    });
-
-  }
-
-  function onNavigationEndImmediate() {
-
-    console.log('yt-navigate-finish')
-
-    //globalHook('yt-navigate-finish',(evt)=>{
-
-    // if(!evt || !evt.target || evt.target.nodeType !== 1) return;
-    // _console.log(evt.target.nodeName, evt.type)
-
-
-    //})
-
-
-    // forceConfig();
-    /*
-    console.log(window.ytcfg)
-    try{
-    window.ytcfg.set({
-      "EXPERIMENT_FLAGS": {"kevlar_watch_metadata_refresh":false}})
-    }catch(e){}
-    // ytcfg.set({EXPERIMENT_FLAGS:{"kevlar_watch_metadata_refresh":true}})
-    */
-
-    if (pageType === 'watch') {
-
-      let isFirstLoad = firstLoadStatus & 8;
-
-      if (isFirstLoad) {
-        firstLoadStatus -= 8;
-        document.addEventListener('load', iframeLoadHookA, capturePassive)
-        ytMicroEventsInit();
-      }
-      variableResets();
-
-      if (isFirstLoad) {
-        Promise.resolve(0).then(() => {
-          let docElement = document.documentElement
-          if (docElement.hasAttribute('tabview-loaded')) {
-            throw 'Tabview Youtube Duplicated';
-          }
-          docElement.setAttribute('tabview-loaded', '')
-          docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
-          docElement = null
-        })
-      }
-
-
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
-
-      if (!ytdFlexyElm) return;
-
-      scriptEnable = true;
-
-      ytdFlexy = mWeakRef(ytdFlexyElm)
-
-      return true
-
+    if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+      switchTabActivity(null);
     } else {
-
-      Promise.resolve(0).then(() => {
-        variableResets();
-        emptyCommentSection();
-        _console.log(9360, 75);
-        tabsDeferred.reset();
-        _pageBeingInit();
-        tabsDeferred.resolve(); // for page initialization
-      })
-
+      setToActiveTab(); // just switch to the default tab
     }
+    prepareTabBtn();
 
-  }
+    mtoFlexyAttr.clear(true)
+    mtf_checkFlexy()
 
-  function onNavigationEnd(evt) {
+    tabsDeferred.resolve();
+    FP.mtf_attrEngagementPanel(); // check whether no visible panels
 
-    let ret = onNavigationEndImmediate()
-    
-    if( ret === true){
-      // avoid blocking the page when youtube is initializing the page
-      setTimeout(onNavigationEndDelayed, 130)
-    }
+    isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
 
   }
 
@@ -6133,38 +6008,17 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
     console.log('newVideoPage')
 
-    if(lyricsPlugin){
-      /*
-      let iframe = document.querySelector('#lyricsiframe');
-      if(iframe) iframe.src='about:blank';
-
-      let elm1=document.querySelector('body > #lyricscontainer')
-      let elm2 = document.querySelector('body > #showlyricsbutton')
-      if(elm1 || elm2){
-        let s = (elm1 && elm2) ? [elm1, elm2] : [elm1 || elm2];
-        removeElements(s);
-        appends(document.body, elm1, elm2);
-      }
-      */
-
-    }
-
-    //console.log('newVideoPage-', 150, location.href)
-
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
 
     timeline.reset();
     layoutStatusMutex = new Mutex();
-
-    //console.log('newVideoPage-', 350, location.href)
     
     let liveChatRenderer = null;
     let isReplay = null;
 
     if (pageType !== 'watch') return; // scriptEnable -> pageType shall be always 'watch'
     resetBuggyLayoutForNewVideoPage();
-    //advanceFetch();
 
     try {
       liveChatRenderer = evt_detail.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
@@ -6331,47 +6185,9 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
 
   // ---- EVENTS ----
 
+  let ytEventSequence = 0
 
-  let pageStartLoad = (evt) => {
-    //console.log('ss', evt)
-    pageBeingInit();
-  }
-
-  globalHook('yt-page-data-fetched', generalLog901)
-
-  //globalHook('yt-rendererstamper-finished',generalLog901)
-
-  globalHook('yt-page-data-updated', generalLog901)
-
-  globalHook('yt-player-updated', generalLog901)
-
-  globalHook('yt-watch-comments-ready', generalLog901)
-
-  globalHook('yt-page-type-changed', generalLog901)
-
-  globalHook('data-changed', generalLog901)
-
-  globalHook('yt-navigate-finish', generalLog901)
-
-  globalHook('yt-navigate-redirect', generalLog901)
-
-  globalHook('yt-navigate-error', generalLog901)
-
-  globalHook('yt-navigate-start', generalLog901)
-
-  globalHook('yt-page-manager-navigate-start', generalLog901)
-
-  globalHook('yt-navigate', generalLog901)
-  globalHook('yt-navigate-cache', generalLog901)
-
-
-  // globalHook('yt-navigate', pageStartLoad); //tmp fix to avoid yt-navigate without yt-navigate-start for clicking video time
-  globalHook('yt-navigate-start', pageStartLoad);
-  globalHook('yt-navigate-cache', pageStartLoad);
-  globalHook('yt-navigate-redirect', pageStartLoad);
-
-
-  globalHook('yt-page-data-fetched', (evt) => {
+  function pageBeingFetched(evt, isPageFirstLoaded) {
 
     if (!evt || !evt.target || evt.target.nodeType !== 1) return;
     let nodeName = evt.target.nodeName.toUpperCase()
@@ -6380,153 +6196,187 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
     let d_page = ((evt.detail || 0).pageData || 0).page;
     if (!d_page) return;
 
+    pageType = d_page;
 
-    
+    if (pageType !== 'watch') return
+
+    let pageFetchedDataLocal = null;
+
+    let promiseChatDetails = null
+
+    let isFirstLoad = firstLoadStatus & 8;
+
+    if (isFirstLoad) {
+      firstLoadStatus -= 8;
+      document.addEventListener('load', iframeLoadHookA, capturePassive)
+      ytMicroEventsInit();
+    }
+    // ytMicroEventsInit set
+    variableResets();
+
+    if (isFirstLoad) {
+      Promise.resolve(0).then(() => {
+        if (ytEventSequence >= 2) {
+          let docElement = document.documentElement
+          if (docElement.hasAttribute('tabview-loaded')) {
+            throw 'Tabview Youtube Duplicated';
+          }
+          docElement.setAttribute('tabview-loaded', '')
+          docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+          docElement = null
+        }
+      })
+    }
+    // tabview-loaded delay set
+
+    pageFetchedDataLocal = evt.detail;
+
+
+    promiseChatDetails = new Promise(resolve => {
+      if (ytEventSequence >= 2) {
+        let liveChatRenderer = null;
+        try {
+          liveChatRenderer = pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
+        } catch (e) { }
+        chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
+        liveChatRenderer = null; // release memory for GC, just in case
+      }
+      resolve(0)
+    })
+
     let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
     if (!ytdFlexyElm) return;
 
-    _console.log(nodeName, 904, evt.type);
- 
 
-    //in case yt-navigate-xxx not called.
-    pageBeingInit();
-
-    pageType = d_page;
-    
-    ytdFlexy = mWeakRef(ytdFlexyElm); // yt-page-data-fetched is earlier than navigationend
+    ytdFlexy = mWeakRef(ytdFlexyElm);
 
     ytdFlexyElm = null;
 
+    Promise.resolve(0).then(() => {
 
-    new Promise(()=>{
-      document.documentElement.classList.toggle('tabview-normal-player', pageType === 'watch');
-    })
+      if (ytEventSequence >= 2 && pageRendered === 0) {
 
-    _console.log(601, evt.detail);
-
-    /*
-    try{
-
-      let pd = evt.detail.pageData;
-      let y = pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.buttonText.runs[0].text
-      let w = pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.notificationPreferenceButton.subscriptionNotificationToggleButtonRenderer
-
-
-      pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.buttonText.runs[0].text='sdsd'
-
-      pd.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.subscribeButton.subscribeButtonRenderer.subscribedButtonText.runs[0].text = 'sdsd'
-
-      console.log(w,y)
-
-    }catch(e){}
-    console.log(3344)
-    */
-
-    let pageFetchedDataLocal = null;
-
-    if (pageType === 'watch') {
-      //dispatchWindowResize(); // player control positioning //try to omit
-      pageFetchedDataLocal = evt.detail;
-
-      /*
-      console.log(pageFetchedDataLocal)
-      try{
-        let desc1=pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.results.results.contents[1].videoSecondaryInfoRenderer.description;
-        let desc2=pageFetchedDataLocal.pageData.response.engagementPanels[2].engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[1].expandableVideoDescriptionBodyRenderer.descriptionBodyText;
-        console.log(desc1===desc2, JSON.stringify(desc1),JSON.stringify(desc2), desc1, desc2)
-        console.log(pageFetchedDataLocal.pageData)
-      }catch(e){}
-      */
-      
-
-
-      Promise.resolve(0).then(() => {
-
-        if (pageRendered === 0) {
-
-          const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
-          if (ytdFlexyElm) {
-
-            handleDOMAppear('pageLoaderAnimation', (evt) => { 
-              pageRendered = 2;
-              renderDeferred.resolve();
-              console.log('pageRendered')
-
-              scriptletDeferred.debounce(() => {
-                document.dispatchEvent(new CustomEvent('tabview-page-rendered'))
-              })
-
-            });
-
-            let elmPL = document.createElement('tabview-view-ploader');
-            pageRendered = 1;
-            ytdFlexyElm.appendChild(elmPL);
-            // pageRendered keeps at 1 if the video is continuously playing at the background
-            // pageRendered would not be resolve but will reset for each change of video
-
-          }
-        }
-
-      })
-
-      renderDeferred.debounce(()=>{
-        advanceFetch(); // at least one triggering at yt-page-data-fetched
-      });
-
-    }
-      
-
-
-    new Promise(resolve=>{
-
-      let liveChatRenderer = null;
-      try {
-        liveChatRenderer = pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
-      } catch (e) { }
-  
-      chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
-
-      liveChatRenderer = null; // release memory for GC, just in case
-  
-      Promise.resolve(0).then(()=>{
-
-        const ytdFlexyElm = es.ytdFlexy;
+        const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
         if (ytdFlexyElm) {
-          ytdFlexyElm.classList.toggle('tyt-chat-toggleable', !!chatroomDetails);
+
+          let elmPL = document.createElement('tabview-view-ploader');
+          pageRendered = 1;
+          ytdFlexyElm.appendChild(elmPL);
+          // pageRendered keeps at 1 if the video is continuously playing at the background
+          // pageRendered would not be resolve but will reset for each change of video
+
         }
 
-      })
+      }
 
-      resolve(0)
+    })
 
-    }).then(()=>{
+    renderDeferred.debounce(() => {
+      if (ytEventSequence >= 2) {
+        advanceFetch(); // at least one triggering at yt-page-data-fetched
+      }
+    });
 
+    Promise.race([promiseChatDetails]).then(() => {
 
-      let tabsDeferredSess = pageSession.session();
-      if (!scriptEnable && tabsDeferred.resolved) { }
-      else tabsDeferred.debounce(() => {
-  
-        if (!tabsDeferredSess.isValid) return;
-        tabsDeferredSess = null;
-  
-        domInit_comments();
-  
-        if (pageFetchedDataLocal !== null) {
-          newVideoPage(pageFetchedDataLocal);
-          pageFetchedDataLocal = null;
-          
-        }
-  
-      });
-  
+      const ytdFlexyElm = es.ytdFlexy;
+      if (ytEventSequence >= 2 && ytdFlexyElm) {
+        ytdFlexyElm.classList.toggle('tyt-chat-toggleable', !!chatroomDetails);
+      }
+
+    }).then(() => {
+
+      if (ytEventSequence >= 2) {
+
+        let tabsDeferredSess = pageSession.session();
+        if (!scriptEnable && tabsDeferred.resolved) { }
+        else tabsDeferred.debounce(() => {
+
+          if (!tabsDeferredSess.isValid) return;
+          tabsDeferredSess = null;
+
+          if (ytEventSequence >= 2 && pageFetchedDataLocal !== null) {
+            domInit_comments();
+            newVideoPage(pageFetchedDataLocal);
+            pageFetchedDataLocal = null;
+          }
+
+        });
+
+      }
 
     })
 
 
-  })
+  }
 
-  document.addEventListener("yt-navigate-finish", onNavigationEnd, bubblePassive)
+
+  let isPageFirstLoaded = true
+
+  function pageSeq1 (evt) {
+    _navigateLoadDT = 0
+    if (ytEventSequence !== 1) {
+      ytEventSequence = 1
+      pageBeingInit();
+    }
+  }
+
+  function pageSeq2(evt) {
+    _navigateLoadDT = 0
+
+    if (ytEventSequence !== 1) {
+      ytEventSequence = 1
+      pageBeingInit();
+    }
+    if (ytEventSequence === 1) {
+      ytEventSequence = 2
+      pageType = null
+      isPageFirstLoaded && console.time("Tabview Youtube Load")
+      pageBeingFetched(evt, isPageFirstLoaded)
+      isPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
+      // ytMicroEventsInit set + tabview-loaded delay set
+      new Promise(() => {
+        if(ytEventSequence === 2){
+          document.documentElement.classList.toggle('tabview-normal-player', pageType === 'watch');
+        }
+      })
+      if (pageType !== 'watch') {
+        ytdFlexy = null
+        chatroomDetails = null
+        Promise.resolve(0).then(() => {
+          if(ytEventSequence === 2){
+            variableResets();
+            emptyCommentSection();
+            _console.log(9360, 75);
+            tabsDeferred.reset();
+            _pageBeingInit();
+            tabsDeferred.resolve(); // for page initialization
+          }
+        })
+      }
+    }
+
+  }
+
+  function pageSeq3(evt) {
+    _navigateLoadDT = 0
+    if (ytEventSequence === 2) {
+      ytEventSequence = 3
+      if (pageType === 'watch') {
+        // ytMicroEventsInit set + tabview-loaded delay set
+        onNavigationEndAsync(isPageFirstLoaded)
+        isPageFirstLoaded = false
+      }
+    }
+  }
+
+
+  document.addEventListener('yt-navigate-start', pageSeq1, bubblePassive)
+  document.addEventListener('yt-navigate-cache', pageSeq1, bubblePassive)
+  document.addEventListener('yt-navigate-redirect', pageSeq1, bubblePassive)
+  document.addEventListener('yt-page-data-fetched', pageSeq2, bubblePassive)
+  document.addEventListener("yt-navigate-finish", pageSeq3, bubblePassive)
   //yt-navigate-redirect
   //yt-page-data-fetched
   //yt-navigate-error
@@ -6535,12 +6385,20 @@ url: "/playlist?list=PLNIQBQMm0EYJLrslpEifZXU6opjbfiIyv"
   //yt-navigate
   //yt-navigate-cache
 
-  /*
-  document.addEventListener("yt-page-manager-navigate-start", () => {
-    console.log('yt-page-manager-navigate-start')
-    // forceConfig();
-  }, bubblePassive)
-  */
+  globalHook('yt-page-data-fetched', generalLog901)
+  //globalHook('yt-rendererstamper-finished',generalLog901)
+  globalHook('yt-page-data-updated', generalLog901)
+  globalHook('yt-player-updated', generalLog901)
+  globalHook('yt-watch-comments-ready', generalLog901)
+  globalHook('yt-page-type-changed', generalLog901)
+  globalHook('data-changed', generalLog901)
+  globalHook('yt-navigate-finish', generalLog901)
+  globalHook('yt-navigate-redirect', generalLog901)
+  globalHook('yt-navigate-error', generalLog901)
+  globalHook('yt-navigate-start', generalLog901)
+  globalHook('yt-page-manager-navigate-start', generalLog901)
+  globalHook('yt-navigate', generalLog901)
+  globalHook('yt-navigate-cache', generalLog901)
 
 
   // ---------------------------------------------------------------------------------------------
@@ -6719,3 +6577,4 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
 
 
 })();
+console.timeEnd("Tabview Youtube Init Script")

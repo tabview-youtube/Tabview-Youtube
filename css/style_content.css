@@ -729,7 +729,7 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        ytd-watch-flexy #related.ytd-watch-flexy {
+        html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy {
             animation: videosDOMAppended 1ms linear 0s 1 normal forwards;
         }
 
@@ -746,7 +746,7 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]){
+        html[tabview-loaded] ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]){
             animation: epDOMAppended 1ms linear 0s 1 normal forwards;
         }
     }
@@ -868,7 +868,7 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        tabview-view-ploader {
+        html[tabview-loaded] tabview-view-ploader {
             position: fixed;
             left: 1px;
             top: 50vh;
@@ -898,7 +898,7 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        ytd-live-chat-frame#chat {
+        html[tabview-loaded] ytd-live-chat-frame#chat {
             animation: liveChatFrameDOMAppended 1ms linear 0s 1 normal forwards;
         }
 
@@ -920,11 +920,11 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
+        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
             animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
         }
 
-        ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
+        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
             animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
 
         }
@@ -2790,7 +2790,7 @@ body .ytp-autohide .ytp-unmute,
             }
         }
 
-        #suggestions-search[autocomplete="off"]{
+        html[tabview-loaded] #suggestions-search[autocomplete="off"]{
             animation: SearchWhileWatchAutocomplete 1ms linear 0s 1 normal forwards;
         }
 
