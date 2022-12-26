@@ -1154,9 +1154,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     global_columns_end_ito = itoA;
 
 
-    let _tabviewSiderAnimated = false;
-
-
     secondary.addEventListener('tabview-hover-slider-restore', function (evt) {
 
       let secondary = evt.target;
@@ -4014,6 +4011,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })
 
+    let _tabviewSiderAnimated = false;
+    
     handleDOMAppear('tabviewSiderAnimation', (evt) => {
       if (!_tabviewSiderAnimated) {
         _tabviewSiderAnimated = true;
