@@ -3811,6 +3811,38 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
+  async function setupVideo(node){
+    // this can be fired even in background without tabs rendered
+    const attrKey = 'gM7Cp'
+    let video = querySelectorFromAnchor.call(node, `#movie_player video[src]:not([${attrKey}])`);
+    if (video) {
+      video.setAttribute(attrKey, '')
+
+      video.addEventListener('timeupdate', (evt) => {
+        energizedByVideoTimeUpdate();
+      }, bubblePassive);
+
+      video.addEventListener('ended', (evt) => {
+        // scrollIntoView => auto start next video
+        // otherwise it cannot auto paly next
+        if (pageType === 'watch') {
+          let elm = evt.target;
+          Promise.resolve(elm).then((elm) => {
+            if (pageType === 'watch') {
+              let scrollElm = closestDOM.call(elm, '#player') || closestDOM.call(elm, '#ytd-player') || elm;
+              // background applicable
+              scrollElm.scrollIntoView(false);
+              scrollElm = null
+            }
+            elm = null
+          });
+        }
+
+      }, bubblePassive)
+
+    }
+  }
+
   globalHook('yt-player-updated', (evt) => {
 
     const node = ((evt || 0).target) || 0
@@ -3822,6 +3854,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _console.log(evt.target.nodeName, 904, evt.type);
 
     if (nodeName !== 'YTD-PLAYER') return
+
+    setupVideo(node)
 
 
     let tabsDeferredSess = pageSession.session();
@@ -3847,30 +3881,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       domInit_comments();
       setupChatFrameDOM(null);
-
-      let video = document.querySelector('#ytd-player video[src]');
-      if (video && !video.hasAttribute('tabview-video-events')) {
-        video.setAttribute('tabview-video-events', '')
-
-        video.addEventListener('timeupdate', (evt) => {
-          energizedByVideoTimeUpdate();
-        }, bubblePassive);
-
-        video.addEventListener('ended', (evt) => {
-          // scrollIntoView => auto start next video
-          // otherwise it cannot auto paly next
-
-          let elm = evt.target;
-          Promise.resolve(elm).then((elm) => {
-            let scrollElm = closestDOM.call(elm, '#player') || closestDOM.call(elm, '#ytd-player') || elm;
-            // background applicable
-            scrollElm.scrollIntoView(false);
-          });
-
-
-        })
-
-      }
 
 
     });
