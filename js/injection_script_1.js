@@ -1089,10 +1089,11 @@ function injection_script_1() {
     // new browser - 84>80 would not lead to line clamp [as using -webkit-line-clamp]
     // this.$.content.offsetHeight<this.$.content.scrollHeight is not working for collapsed content
 
+    // f.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
+    // e.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     let f1 = function () { this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed) ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight };
 
     let insObserver = getInsObserver();
-
 
     Object.defineProperty(customElements.get('ytd-expander').prototype, 'recomputeOnResize', {
       get() {
@@ -2420,6 +2421,13 @@ function injection_script_1() {
           // user would like to switch page immediately without playing the video;
           // attribute appear after playing video for more than 2s
           if (!document.head.dataset.viTime) endpoint = null;
+          else{
+            let currentVideo = document.querySelector('#movie_player video[src]')
+            if (currentVideo && currentVideo.readyState > currentVideo.HAVE_CURRENT_DATA && currentVideo.currentTime > 2.2 && currentVideo.duration - 2.2 < currentVideo.currentTime) {
+              // disable miniview browsing if the media is near to the end
+              endpoint = null
+            }
+          }
         }
 
         if (endpoint) {
