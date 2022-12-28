@@ -1665,6 +1665,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (((old_layoutStatus ^ new_layoutStatus) & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN) {
       detailsTriggerReset = true;
+      setTimeout(()=>{
+        setHiddenStateForDesc();
+      },80);
     }
 
     // resize => is-two-columns_
@@ -3399,7 +3402,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const pageBeingInit = function () {
 
     // call regardless pageType
-    // yt-navigate without fetch page is possible (click video time in comments)
+    // run once on / before pageSeq2
 
     let action = 0;
     if (tabsDeferred.resolved) {
@@ -3408,27 +3411,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // in case , rarely, tabsDeferred not yet resolved but animateLoadDeferred resolved
       action = 2;
     }
+    
+    renderIdentifier++;
+    if (renderIdentifier > 1e9) renderIdentifier = 9;
+    renderDeferred.reset();
 
-    if (action > 0) {
-
-      renderIdentifier++;
-      if (renderIdentifier > 88) renderIdentifier = 9;
-      renderDeferred.reset();
-
-      if (action === 1) {
-        comments_loader = 1;
-        tabsDeferred.reset();
-        if ((firstLoadStatus & 8) === 0) {
-          innerDOMCommentsCountLoader(); //ensure the previous record is saved
-          // no need to cache to the rendering state
-          _pageBeingInit();
-        } else if ((firstLoadStatus & 2) === 2) {
-          firstLoadStatus -= 2;
-          script_inject_js1.inject();
-        }
-        _console.log('pageBeingInit', firstLoadStatus)
+    if (action === 1) {
+      comments_loader = 1;
+      tabsDeferred.reset();
+      if ((firstLoadStatus & 8) === 0) {
+        innerDOMCommentsCountLoader(); //ensure the previous record is saved
+        // no need to cache to the rendering state
+        _pageBeingInit();
+      } else if ((firstLoadStatus & 2) === 2) {
+        firstLoadStatus -= 2;
+        script_inject_js1.inject();
       }
-
+      _console.log('pageBeingInit', firstLoadStatus)
     }
 
     if (pageRendered === 2) {
@@ -3550,7 +3549,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
     let ks = renderIdentifier;
     renderDeferred.debounce(() => {
-
+      if (ks !== renderIdentifier) return
       alCheckFn(ks);
 
     });
@@ -3561,16 +3560,37 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let g_check_detail_A = 0;
   let checkDuplicateRes = null;
-  function checkDuplicatedInfo_then(isCheck) {
+  function setHiddenStateForDesc(){
+    let ytdFlexyElm = es.ytdFlexy
+    if (!ytdFlexyElm) return
+    let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
+    let elm
+    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #plain-snippet-text')
+    if (elm) {
+      wAttr(elm, 'hidden', hiddenBool)
+    }
+    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #formatted-snippet-text')
+    if (elm) {
+      wAttr(elm, 'hidden', hiddenBool)
+    }
+  }
+  function checkDuplicatedInfo_then(isCheck, checkDuplicateRes) {
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return; //unlikely
 
     let cssbool_c1 = false, cssbool_c2 = false, cssbool_c3 = false;
-    if (isCheck === 5 && ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
-      cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
-      cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
-      cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
+    if (isCheck === 5) {
+
+      if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
+        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
+      }
+
+      if (typeof checkDuplicateRes === 'boolean') {
+        setHiddenStateForDesc();
+      }
     }
 
     ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
@@ -3609,6 +3629,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (g_check_detail_A !== t) return;
 
+      let elm
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #plain-snippet-text')
+      if (elm) {
+        wAttr(elm, 'hidden', false)
+      }
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #formatted-snippet-text')
+      if (elm) {
+        wAttr(elm, 'hidden', false)
+      }
+      await Promise.resolve(0);
 
       // the class added before can be removed from the external coding
 
@@ -3631,7 +3661,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
       await Promise.resolve(0);
 
-      let plainText = false;
       if (desc2 && desc2.firstElementChild === null) {
         plainText = true;
         desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
@@ -4188,12 +4217,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
                 const ytdFlexyElm = es.ytdFlexy;
                 if (ytdFlexyElm) {
-                  if (checkDuplicateRes === true) {
+                  if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
                     ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
-                    checkDuplicatedInfo_then(res);
-                  } else if (checkDuplicateRes === false && alCheckCount === 1) {
-                    ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
-                    checkDuplicatedInfo_then(res);
+                    ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
+                    checkDuplicatedInfo_then(res, checkDuplicateRes);
                   }
                 }
 
@@ -4244,18 +4271,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
           let ks = renderIdentifier;
           renderDeferred.debounce(() => {
-
+            if (ks !== renderIdentifier) return
             alCheckFn(ks);
 
           });
 
         } else {
 
-          checkDuplicatedInfo_then(0);
+          checkDuplicatedInfo_then(0, null);
 
         }
 
+        let renderId = renderIdentifier
         renderDeferred.debounce(() => {
+          if (renderId !== renderIdentifier) return
           domInit_teaserInfo() // YouTube obsoleted feature? 
         })
 
@@ -4265,7 +4294,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         mtf_fix_details().then(() => {
           // setKeywords();
           setToggleInfo();
-          renderDeferred.debounce(() => {
+          renderDeferred.debounce(() => {  
+            if (renderId !== renderIdentifier) return
             setTimeout(() => {
               //dispatchWindowResize(); //try to omit
               dispatchWindowResize(); //add once for safe
@@ -6277,7 +6307,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })
 
+    let renderId = renderIdentifier
     renderDeferred.debounce(() => {
+      if (renderId !== renderIdentifier) return
       if (ytEventSequence >= 2) {
         advanceFetch(); // at least one triggering at yt-page-data-fetched
       }
