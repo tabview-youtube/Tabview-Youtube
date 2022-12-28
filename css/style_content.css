@@ -667,6 +667,18 @@ body .ytp-autohide .ytp-unmute,
         content-visibility: hidden;
     }*/
 
+    @supports (outline: -webkit-focus-ring-color auto 1px) {
+        :focus-visible, 
+        body #more.ytd-expander:focus, body #less.ytd-expander:focus,
+        body #more.ytd-shared-post-renderer:focus,
+        body ytd-comment-replies-renderer #more-replies.ytd-comment-replies-renderer:focus,
+        body ytd-comment-replies-renderer #less-replies.ytd-comment-replies-renderer:focus,
+        body yt-activity-item-renderer:focus>.activity-item-contents.yt-activity-item-renderer,
+        body .show-more-less-variants-button.ytd-product-details-variant-renderer:focus {
+            outline: 0; /* override -webkit-focus-ring-color auto 1px; */
+        }
+    }
+
     #columns.ytd-watch-flexy > yt-img-shadow,
     #columns.ytd-watch-flexy > img {
         position: absolute;
