@@ -685,6 +685,12 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
+    @supports (color: var(--fix-app-drawer-scrollbar-lock)){
+        html.tabview-normal-player body.lock-scrollbar[style*="overflow"][style*="hidden"]{
+            overflow-y: unset !important;
+        }
+    }
+
     #columns.ytd-watch-flexy > yt-img-shadow,
     #columns.ytd-watch-flexy > img {
         position: absolute;
