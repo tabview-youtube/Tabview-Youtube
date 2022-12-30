@@ -679,6 +679,12 @@ body .ytp-autohide .ytp-unmute,
         }
     }
 
+    @supports (color: var(--fix-ugly-channel-name-padding)){
+        body div#upload-info.style-scope.ytd-video-owner-renderer{
+            margin-top:0;
+        }
+    }
+
     #columns.ytd-watch-flexy > yt-img-shadow,
     #columns.ytd-watch-flexy > img {
         position: absolute;
