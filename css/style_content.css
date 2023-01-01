@@ -656,6 +656,63 @@ body .ytp-autohide .ytp-unmute,
 */
 }
 
+@media screen and (max-width: 1294px) {
+
+
+    #actions.ytd-watch-metadata #top-level-buttons-computed.top-level-buttons.style-scope.ytd-menu-renderer 
+    ytd-segmented-like-dislike-button-renderer ~ ytd-button-renderer.ytd-menu-renderer 
+    .yt-spec-button-shape-next__icon {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    
+    #actions.ytd-watch-metadata #top-level-buttons-computed.top-level-buttons.style-scope.ytd-menu-renderer 
+    ytd-segmented-like-dislike-button-renderer ~ ytd-button-renderer.ytd-menu-renderer 
+    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
+        display: none;
+    }
+
+    @supports (color: var(--compatibile-with-translation-button)) {
+
+        div[name="top_level_translate_btn"] img {
+            margin: 0 !important;
+        }
+
+        div[name="top_level_translate_btn"] span {
+            display: none;
+        }
+    }
+
+ 
+    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
+    ytd-button-renderer.ytd-download-button-renderer 
+    .yt-spec-button-shape-next__icon {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    
+    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
+    ytd-button-renderer.ytd-download-button-renderer 
+    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
+        display: none;
+    }
+
+    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
+    ytd-button-renderer.ytd-menu-renderer 
+    .yt-spec-button-shape-next__icon {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    
+    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
+    ytd-button-renderer.ytd-menu-renderer 
+    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
+        display: none;
+    }
+
+    
+}
+
 @media all {
 
     /* Global */
@@ -666,6 +723,9 @@ body .ytp-autohide .ytp-unmute,
     .tyt-no-display [role="main"].style-scope.ytd-page-manager{
         content-visibility: hidden;
     }*/
+
+
+    
 
     @supports (outline: -webkit-focus-ring-color auto 1px) {
         :focus-visible, 
@@ -680,13 +740,13 @@ body .ytp-autohide .ytp-unmute,
     }
 
     @supports (color: var(--fix-ugly-channel-name-padding)){
-        body div#upload-info.style-scope.ytd-video-owner-renderer{
+        body[style*="overflow"][style*="hidden"] div#upload-info.style-scope.ytd-video-owner-renderer{
             margin-top:0;
         }
     }
 
     @supports (color: var(--fix-app-drawer-scrollbar-lock)){
-        html.tabview-normal-player body.lock-scrollbar[style*="overflow"][style*="hidden"]{
+        html.tabview-normal-player body.lock-scrollbar{
             overflow-y: unset !important;
         }
     }
@@ -3497,6 +3557,15 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 }
 
 @media not all and (display-mode: fullscreen) {
+
+    @supports (color: var(--compatibile-with-enhancer-youtube-single-col)){
+
+        ytd-watch-flexy:not([is-two-columns_]) #player:has(ytd-player#ytd-player + .efyt-control-bar) {
+
+            margin-bottom: 36px;
+
+        }
+    }
 
     /*
     @supports (color: var(--fix-decimal-wh-video-white-border)){
