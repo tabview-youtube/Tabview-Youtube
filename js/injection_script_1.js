@@ -947,7 +947,21 @@ function injection_script_1() {
 
     }, true);
 
-    let isFirstBatchMsgDispatched = false;
+
+    async function refreshIframe(chat){
+
+      let p = chat.data
+      if(p && typeof p ==='object'){
+        chat.data = null
+        await Promise.resolve(0)
+        chat.data = Object.assign({}, p)
+        await Promise.resolve(0)
+      }
+
+      activeFlag = 0;
+      ptcBusy = false;
+
+    }
 
     const g_postToContentWindow = function () {
       //console.log(1723,8,arguments)
@@ -975,59 +989,12 @@ function injection_script_1() {
 
         if (isRefreshRequired) {
 
-          if (!isFirstBatchMsgDispatched) return;
-          // isFirstBatchMsgDispatched can be true when the page is not loaded
-          isFirstBatchMsgDispatched = false;
-
-          Promise.resolve(0).then(() => {
-            //avoid long scripting within a single call of g_postToContentWindow()
-
-
-            let pageLoaded = false;
-
-            try {
-              if (this.querySelector('iframe').contentDocument.querySelector('yt-live-chat-renderer #continuations')) {
-                // isFirstBatchMsgDispatched was wrongly set as true
-                pageLoaded = true;
-              }
-            } catch (e) { }
-
-
-            if (!pageLoaded) return;
-
-            //console.log(9371,2)
-            let taf = Date.now();
-            activeFlag = taf;
+          let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
+          if(chat) {
             ptcBusy = true;
-
-
-            setTimeout(() => {
-              if (taf !== activeFlag) return;
-
-              // this.urlChanged()
-              // this.detached();
-              // this.attached();
-
-
-              this.currentPageUrl = "";//  necessary
-              this.isListeningForPlayerProgress = false;
-              this.setPlayer(null);
-              this.isFrameReady = false;
-              this.currentPageUrl = window.location.href;
-              this.setupPlayerProgressRelay();
-
-              setTimeout(() => {
-                activeFlag = 0;
-                ptcBusy = false;
-
-              }, 230) // time delay for iframe reloading
-
-
-            }, 460); //just some delay - allow user operation
-
-
-          })
-
+            refreshIframe(chat);
+          }
+     
           return; // skip update and wait for page refresh
         }
         ptcBusy = true;
@@ -1048,7 +1015,6 @@ function injection_script_1() {
         }
 
         if (exec) {
-          isFirstBatchMsgDispatched = true; // first batch of messages are dispatched
           let ret = this.__$$postToContentWindow$$__(...arguments)
           DEBUG_e32 && console.log(573, 6, ret)
         }
