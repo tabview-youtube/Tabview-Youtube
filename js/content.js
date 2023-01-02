@@ -4298,6 +4298,137 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         renderDeferred.debounce(() => {
           if (renderId !== renderIdentifier) return
           domInit_teaserInfo() // YouTube obsoleted feature? 
+
+
+          let h1 = document.querySelector('#below h1.ytd-watch-metadata')
+          if (h1) {
+
+
+            let s = '';
+            if (formatDates && Object.keys(formatDates).length > 0) {
+
+
+              function getGMT() {
+                let m = new Date()
+                let gmt = m.getHours() - m.getUTCHours()
+                return gmt;
+              }
+              function getLocaleDateString(d) {
+                let y = d.getFullYear()
+                let m = d.getMonth() + 1
+                let date = d.getDate()
+
+                let sy = y < 1000 ? (`0000${y}`).slice(-4) : '' + y
+
+                let sm = m < 10 ? '0' + m : '' + m
+                let sd = date < 10 ? '0' + date : '' + date
+
+                return `${sy}.${sm}.${sd}`
+
+              }
+              function getLocaleTimeString(d, k) {
+
+                let h = d.getHours()
+                let m = d.getMinutes()
+
+                if (k) h += 24
+
+                let sh = h < 10 ? '0' + h : '' + h
+                let sm = m < 10 ? '0' + m : '' + m
+
+
+                return `${sh}:${sm}`
+
+              }
+              function getDurationText(bd1,bd2){
+
+                let bdd = bd2 - bd1
+                let hrs = Math.floor(bdd / 3600000)
+                bdd = bdd - hrs * 3600000
+                let mins = Math.round(bdd / 60000)
+                let seconds = null
+                if (mins < 10 && hrs === 0) {
+                  mins = Math.floor(bdd / 60000)
+                  bdd = bdd - mins * 60000
+                  seconds = Math.round(bdd / 1000)
+                }
+
+                return  `Duration: ${hrs > 0 ? `${hrs} hours ` : ''}${seconds === null ? `${mins} minutes` : `${mins} minutes ${seconds} seconds`}`
+                
+              }
+              if (formatDates.broadcastBeginAt && formatDates.isLiveNow === false) {
+
+                let bd1 = new Date(formatDates.broadcastBeginAt)
+                let bd2 = formatDates.broadcastEndAt ? new Date(formatDates.broadcastEndAt) : null
+
+                let isSameDay = 0
+                if (bd2 && bd1.toLocaleDateString() === bd2.toLocaleDateString()) {
+                  isSameDay = 1
+
+                } else if (bd2 && +bd2 > +bd1 && bd2 - bd1 < 86400000) {
+
+                  if (bd1.getHours() >= 6 && bd2.getHours() < 6) {
+                    isSameDay = 2
+                  }
+
+                }
+
+                if (isSameDay > 0) {
+
+                  s = [
+                    `The livestream was in ${getLocaleDateString(bd1)} from ${getLocaleTimeString(bd1)} to ${getLocaleTimeString(bd2, isSameDay === 2)}. [GMT+${getGMT()}]`,
+                    getDurationText(bd1,bd2)
+                  ].join('\n')
+
+                }
+
+
+                if (bd2 && isSameDay === 0) {
+
+                  s = [
+                    `The livestream was from ${getLocaleDateString(bd1)} ${getLocaleTimeString(bd1)} to ${getLocaleDateString(bd2)} ${getLocaleTimeString(bd2)}. [GMT+${getGMT()}]`,
+                    getDurationText(bd1,bd2)
+                  ].join('\n')
+
+                }
+
+
+              } else if (formatDates.broadcastBeginAt && formatDates.isLiveNow === true) {
+
+                let bd1 = new Date(formatDates.broadcastBeginAt)
+
+                s = `The livestream started at ${getLocaleTimeString(bd1)} [GMT+${getGMT()}] in ${getLocaleDateString(bd1)}.`
+
+
+              } else {
+                if (formatDates.uploadDate) {
+
+                  if (formatDates.publishDate && formatDates.publishDate !== formatDates.uploadDate) {
+
+                    s = `The video was uploaded in ${formatDates.uploadDate} and published in ${formatDates.publishDate}.`
+                  } else {
+                    s = `The video was uploaded in ${formatDates.uploadDate}.`
+
+                  }
+                }else if(!formatDates.uploadDate && formatDates.publishDate){
+
+                  s = `The video was published in ${formatDates.publishDate}.`
+
+
+                }
+              }
+
+
+            }
+
+            if (s) {
+              h1.setAttribute('data-title-details', s)
+            } else {
+              h1.removeAttribute('data-title-details')
+            }
+
+          }
+
         })
 
 
@@ -6233,6 +6364,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // ---- EVENTS ----
 
   let ytEventSequence = 0
+  let formatDates = null
 
   function pageBeingFetched(evt, isPageFirstLoaded) {
 
@@ -6278,6 +6410,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     pageFetchedDataLocal = evt.detail;
 
+    formatDates={}
+    try{
+      formatDates.publishDate = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.publishDate
+    }catch(e){}
+    // 2022-12-30
+
+    try{
+      formatDates.uploadDate = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.uploadDate
+    }catch(e){}
+    // 2022-12-30
+
+    try{
+      formatDates.publishDate2 = pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText.simpleText
+    }catch(e){}
+    // 2022/12/31
+
+    if(typeof formatDates.publishDate2==='string' && formatDates.publishDate2 !== formatDates.publishDate){
+      formatDates.publishDate = formatDates.publishDate2
+      formatDates.uploadDate = null
+    }
+
+    try{
+      formatDates.broadcastBeginAt = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.startTimestamp
+    }catch(e){}
+    try{
+      formatDates.broadcastEndAt = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.endTimestamp
+    }catch(e){}
+    try{
+      formatDates.isLiveNow = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.isLiveNow
+    }catch(e){}
 
     promiseChatDetails = new Promise(resolve => {
       if (ytEventSequence >= 2) {

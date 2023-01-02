@@ -683,6 +683,57 @@ body .ytp-autohide .ytp-unmute,
 
 }
 
+#below h1.ytd-watch-metadata::after{
+    opacity: 0;
+    content:attr(data-title-details);
+    position: absolute;
+    min-width: 200px;
+    max-width: 60vw;
+    border: 1px #aaaaaa solid;
+    border-radius: 10px;
+    background-color: #ffffcc;
+    padding: 8px;
+    color: #000000;
+    font-size: 10px;
+    line-height: 16px;
+    z-index: 9999;
+    transform: translateY(calc(50% + 5.6rem / 2));
+    white-space: pre-wrap;
+    font-family: monospace;
+    pointer-events: none;
+    touch-action: none;
+    user-select: none;
+    display: block;
+    visibility: collapse;
+    transition: opacity 180ms ease 99s;
+    transition-delay:10ms;
+    margin-left:42px;
+
+}
+#below h1.ytd-watch-metadata:hover::after{
+    transition-delay:350ms;
+    opacity: 1;
+    visibility: visible;
+}
+
+
+@media screen {
+    #below h1.ytd-watch-metadata::after {
+
+        margin-left:28px;
+
+    }
+}
+    
+@media screen and (min-width: 1000px) {
+    #below h1.ytd-watch-metadata::after {
+
+
+        margin-left:48px;
+
+    }
+
+}
 
 
 @media screen and (max-width: 1294px) {
