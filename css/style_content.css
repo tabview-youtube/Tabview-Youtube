@@ -656,6 +656,35 @@ body .ytp-autohide .ytp-unmute,
 */
 }
 
+@supports(color: var(--compatibile-with-detailedtime)){
+
+    /*
+    @media screen {
+        h1.style-scope.ytd-watch-metadata > yt-formatted-string + span {
+
+            margin-left:24px;
+
+        }
+    }
+        
+    @media screen and (min-width: 1000px) {
+        h1.style-scope.ytd-watch-metadata > yt-formatted-string + span {
+
+
+            margin-left:12px;
+
+        }
+
+    }
+
+    h1.style-scope.ytd-watch-metadata 
+
+    */
+
+}
+
+
+
 @media screen and (max-width: 1294px) {
 
 

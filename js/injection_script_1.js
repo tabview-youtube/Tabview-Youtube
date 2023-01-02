@@ -947,24 +947,59 @@ function injection_script_1() {
 
     }, true);
 
+    
+    let ytLiveChatRenderer = null
+
+
+    let messageExist = false
+    let chatDataFN = null
+
+    function isRefreshIframeRequired (chat){
+      
+      let p = chat.data
+      if(p && typeof p ==='object'){
+
+        if(p.liveChatRenderer && p.liveChatRenderer.continuations && p.liveChatRenderer.isReplay === true ){
+
+          return true;
+
+        }
+      }
+      return false;
+    }
 
     async function refreshIframe(chat){
 
       let p = chat.data
-      if(p && typeof p ==='object'){
-        chat.data = null
-        await Promise.resolve(0)
-        chat.data = Object.assign({}, p)
-        await Promise.resolve(0)
+      chat.data = null
+      await Promise.resolve(0)
+      chat.data = p
+      await Promise.resolve(0)
+      chat = null
+      p = null
+      chatDataFN = () => {
+        chatDataFN = null
+        activeFlag = 0;
+        ptcBusy = false;
       }
+      setTimeout(() => {
+        if (chatDataFN && !chatDataFN.trigger) {
+          try {
+            chatDataFN()
+            document.querySelector('#chat').postToContentWindow({ 'yt-player-video-progress': _lastPT })
+          } catch (e) {
+            console.warn(e)
+          }
+        }
+      }, 800)
 
-      activeFlag = 0;
-      ptcBusy = false;
 
     }
+    
 
     const g_postToContentWindow = function () {
       //console.log(1723,8,arguments)
+
 
       if (activeFlag > 0) return; // no action when reloading
       let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
@@ -975,29 +1010,101 @@ function injection_script_1() {
         if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
         // reduce memory usage; avoid tab killing
 
-        if (ptcBusy === true) return;
+        let lastPT = _lastPT
+        _lastPT = pt;
+
+        if(chatDataFN){
+          pt>lastPT && chatDataFN()
+        }
+
+        if (ptcBusy === true){
+          return;
+        }
+
+        
 
         //console.log(1723,9,ptcBusy)
         let isRefreshRequired = false;
 
-        let lastPT = _lastPT
-        _lastPT = pt;
         isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        
+        if(!isRefreshRequired){
+          // persistent fast forward
+          if(pt > lastPT && pt-lastPT > 4.5 && typeof this.urlChanged == 'function'){
 
+            if(ytLiveChatRenderer && ytLiveChatRenderer.hasAttribute('loading')){
+
+              isRefreshRequired = true
+              ytLiveChatRenderer = null
+
+            }else{
+
+
+              ytLiveChatRenderer = null
+              try{
+  
+                let iframe = document.querySelector('#chatframe')
+                ytLiveChatRenderer = mWeakRef(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'))
+  
+              }catch(e){}
+            }
+
+          }
+        }
+        if(ytLiveChatRenderer){
+          let elm = kRef(ytLiveChatRenderer)
+          if(elm && elm.hasAttribute('loading')) return
+        }
+        ytLiveChatRenderer = null
         DEBUG_e32 && console.log(573, 2, pt, lastPT)
 
 
         if (isRefreshRequired) {
 
-          let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-          if(chat) {
-            ptcBusy = true;
-            refreshIframe(chat);
+          let isSkip = false
+
+          let tmp_messageExist = null
+
+          try{
+
+            let iframe = document.querySelector('#chatframe')
+            let idoc= iframe.contentWindow.document
+            let items = idoc.querySelector('#items')
+            if(items.firstChild){
+              tmp_messageExist = true
+            }else {
+              tmp_messageExist = false
+            }
+
+          }catch(e){
+
+
           }
-     
-          return; // skip update and wait for page refresh
+          
+
+          if(tmp_messageExist===null) {isSkip = true}
+          if(tmp_messageExist === false && messageExist === true){isSkip = true}
+
+          if(!isSkip){
+            messageExist = tmp_messageExist
+
+            let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
+            if(chat && isRefreshIframeRequired(chat)) {
+              ptcBusy = true;
+              refreshIframe(chat);
+            }
+       
+            return; // skip update and wait for page refresh
+
+          }
+
+
         }
         ptcBusy = true;
+        
+        if(chatDataFN){
+          chatDataFN.trigger= true
+        }
 
 
         let exec = true;
@@ -1015,8 +1122,10 @@ function injection_script_1() {
         }
 
         if (exec) {
-          let ret = this.__$$postToContentWindow$$__(...arguments)
-          DEBUG_e32 && console.log(573, 6, ret)
+          
+            let ret = this.__$$postToContentWindow$$__(...arguments)
+            DEBUG_e32 && console.log(573, 6, ret)
+         
         }
 
         ptcBusy = false;
