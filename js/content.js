@@ -4309,9 +4309,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
               function getGMT() {
-                let m = new Date()
-                let gmt = m.getHours() - m.getUTCHours()
-                return gmt;
+                let m = new Date('2023-01-01T00:00:00Z')
+                if(m.getDate()===1){
+                  return `+${m.getHours()}`
+                }else{
+                  return `-${24 - m.getHours()}`
+                }
               }
               function getLocaleDateString(d) {
                 let y = d.getFullYear()
@@ -4376,7 +4379,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 if (isSameDay > 0) {
 
                   s = [
-                    `The livestream was in ${getLocaleDateString(bd1)} from ${getLocaleTimeString(bd1)} to ${getLocaleTimeString(bd2, isSameDay === 2)}. [GMT+${getGMT()}]`,
+                    `The livestream was in ${getLocaleDateString(bd1)} from ${getLocaleTimeString(bd1)} to ${getLocaleTimeString(bd2, isSameDay === 2)}. [GMT${getGMT()}]`,
                     getDurationText(bd1,bd2)
                   ].join('\n')
 
@@ -4386,7 +4389,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 if (bd2 && isSameDay === 0) {
 
                   s = [
-                    `The livestream was from ${getLocaleDateString(bd1)} ${getLocaleTimeString(bd1)} to ${getLocaleDateString(bd2)} ${getLocaleTimeString(bd2)}. [GMT+${getGMT()}]`,
+                    `The livestream was from ${getLocaleDateString(bd1)} ${getLocaleTimeString(bd1)} to ${getLocaleDateString(bd2)} ${getLocaleTimeString(bd2)}. [GMT${getGMT()}]`,
                     getDurationText(bd1,bd2)
                   ].join('\n')
 
@@ -4397,7 +4400,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
                 let bd1 = new Date(formatDates.broadcastBeginAt)
 
-                s = `The livestream started at ${getLocaleTimeString(bd1)} [GMT+${getGMT()}] in ${getLocaleDateString(bd1)}.`
+                s = `The livestream started at ${getLocaleTimeString(bd1)} [GMT${getGMT()}] in ${getLocaleDateString(bd1)}.`
 
 
               } else {
