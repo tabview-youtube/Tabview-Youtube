@@ -3662,7 +3662,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       await Promise.resolve(0);
 
       if (desc2 && desc2.firstElementChild === null) {
-        plainText = true;
+        // plainText = true;
         desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
       }
       if (!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
@@ -4198,57 +4198,70 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (descMetaExpander) {
               descMetaExpander.classList.add('tyt-tmp-hide-metainfo');
             }
-            let req = {
-              descExpandState,
-              descMetaExpander,
-              descToggleBtn,
-              descMetaLines
-            }
 
-            do {
+            try{
 
-              if (renderIdentifier !== ks) break;
-              if (alCheckCount === 0) break;
-              if (checkDuplicateRes === true) break;
-              checkDuplicateRes = null;
+                
+              let req = {
+                descExpandState,
+                descMetaExpander,
+                descToggleBtn,
+                descMetaLines
+              }
 
-              let res = await checkDuplicatedInfo(req); //async
-              if (res === 5) {
+              do {
 
-                const ytdFlexyElm = es.ytdFlexy;
-                if (ytdFlexyElm) {
-                  if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
-                    ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
-                    ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
-                    checkDuplicatedInfo_then(res, checkDuplicateRes);
+                if (renderIdentifier !== ks) break;
+                if (alCheckCount === 0) break;
+                if (checkDuplicateRes === true) break;
+                checkDuplicateRes = null;
+
+                let res = await checkDuplicatedInfo(req); //async
+                if (res === 5) {
+
+                  const ytdFlexyElm = es.ytdFlexy;
+                  if (ytdFlexyElm) {
+                    if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
+                      ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
+                      ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
+                      checkDuplicatedInfo_then(res, checkDuplicateRes);
+                    }
                   }
+
+                }
+                --alCheckCount;
+
+                if (checkDuplicateRes === true) break;
+
+                await new Promise(r => setTimeout(r, alCheckInterval));
+
+              } while (true)
+
+              await Promise.resolve(0)
+
+              descToggleBtn = querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+              if (descToggleBtn) {
+
+                let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
+                let id = descToggleBtn.id
+                let b1 = descExpandState === true && isCollapsed && id === 'expand';
+                let b2 = descExpandState === false && !isCollapsed && id === 'collapse';
+
+                if (b1 || b2) {
+                  descToggleBtn.click();
                 }
 
               }
-              --alCheckCount;
 
-              if (checkDuplicateRes === true) break;
+              
+              req = null;
 
-              await new Promise(r => setTimeout(r, alCheckInterval));
 
-            } while (true)
+            }catch(e){
 
-            await Promise.resolve(0)
-
-            descToggleBtn = querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
-            if (descToggleBtn) {
-
-              let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
-              let id = descToggleBtn.id
-              let b1 = descExpandState === true && isCollapsed && id === 'expand';
-              let b2 = descExpandState === false && !isCollapsed && id === 'collapse';
-
-              if (b1 || b2) {
-                descToggleBtn.click();
-              }
+              console.warn(e)
 
             }
-
 
             if (descMetaExpander) {
               descMetaExpander.classList.remove('tyt-tmp-hide-metainfo');
@@ -4265,7 +4278,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             }
 
-            req = null;
 
 
           }

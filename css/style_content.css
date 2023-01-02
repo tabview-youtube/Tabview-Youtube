@@ -837,7 +837,7 @@ body .ytp-autohide .ytp-unmute,
 
     .tyt-tmp-hide-metainfo #description.item.style-scope.ytd-watch-metadata #info-container.style-scope.ytd-watch-metadata{
         visibility: collapse;
-        /*display: none !important;*/
+        /* display: none !important; */
     }
 
     @supports (color: var(--rendering-fix-cinematic)){
