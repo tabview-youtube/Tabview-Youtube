@@ -46,7 +46,7 @@ function injection_script_1() {
   }, true)
 
   document.addEventListener('userscript-call-dom', function (evt) {
- 
+
     DEBUG_e32 && console.log(9442, evt.type);
 
     if (!evt || !evt.target || !evt.detail) return;
@@ -500,7 +500,7 @@ function injection_script_1() {
         let main_startMs = (+transcript.startMs || 0);
         let main_endMs = (+transcript.endMs || 0);
         transcript = null;
-        
+
         /** @type {Map<string, number>} */
         const tMap = new Map(); // avoid duplicate with javascript object properties
 
@@ -509,7 +509,7 @@ function injection_script_1() {
           const initialSegment = initialSegments[sj]
 
           if (!initialSegment || initialSegment[s8]) continue;
-          
+
           const transcriptSegementJ = initialSegment.transcriptSegmentRenderer
 
           let startMs = (+transcriptSegementJ.startMs || 0)
@@ -828,7 +828,7 @@ function injection_script_1() {
 
     pageType = ((evt.detail || 0).pageData || 0).page;
 
- 
+
 
   }
 
@@ -947,7 +947,7 @@ function injection_script_1() {
 
     }, true);
 
-    
+
     let ytLiveChatRenderer = null
 
 
@@ -955,7 +955,7 @@ function injection_script_1() {
     let chatDataFN = null
 
     // function isRefreshIframeRequired (chat){
-      
+
     //   let p = chat.data
     //   if(p && typeof p ==='object'){
 
@@ -1001,10 +1001,10 @@ function injection_script_1() {
 
 
     // }
-    
 
-    
-    function isRefreshIframeRequired (chat){
+
+
+    function isRefreshIframeRequired(chat) {
       let res = false
 
       let p = chat.data
@@ -1020,7 +1020,7 @@ function injection_script_1() {
             let idoc = iframe.contentWindow.document
 
             let continuation = idoc.querySelector('[aria-selected="true"] yt-reload-continuation').data.continuation
-            
+
             // suck
             // let continuation = idoc.querySelector("yt-player-seek-continuation").data.continuation
 
@@ -1028,8 +1028,8 @@ function injection_script_1() {
             // let continuation = idoc.querySelector("yt-live-chat-replay-continuation").data.continuation
 
             let cr = idoc.querySelector('yt-live-chat-renderer')
-            if( typeof continuation === 'string' && cr){
-              res = {cr, continuation, chat}
+            if (typeof continuation === 'string' && cr) {
+              res = { cr, continuation, chat }
             }
           } catch (e) { }
 
@@ -1042,6 +1042,9 @@ function injection_script_1() {
 
     async function refreshIframe(kr) {
       let { chat, continuation, cr } = kr;
+
+      let dr = cr.$$("yt-player-seek-continuation")
+
 
       /*
 
@@ -1090,6 +1093,11 @@ function injection_script_1() {
       }
 
       let pi = 0;
+      // let p3 = dr.maybeFireSeekContinuation
+      /*
+      let p1 =  dr.fireSeekContinuationAtCurrentProgress
+      let p2 = dr.fireSeekContinuation_
+      let p3 = dr.maybeFireSeekContinuation*/
       Object.defineProperty(a, 'type', {
         get() {
           // "seek" == b.type ? By(a, "yt-live-chat-seek-start", []) : "reload" == b.type && By(a, "yt-live-chat-reload-start", []))
@@ -1098,7 +1106,20 @@ function injection_script_1() {
           // 1. make seek effect
           // 2. avoid t=xxxx
           pi++
+          console.log(pi)
+
+          // dr.previousProgressSec = 0 
           if (pi <= 2) return 'seek'
+          if (pi === 3) {
+            /*
+            setTimeout(()=>{
+              dr.fireSeekContinuationAtCurrentProgress = p1
+              dr.fireSeekContinuation_ = p2
+              dr.maybeFireSeekContinuation= p3
+              dr.previousProgressSec = 0 
+         
+            },400)*/
+          }
           return 'reload'
         },
         set(nv) {
@@ -1114,6 +1135,7 @@ function injection_script_1() {
         // this.detached();
 
 
+        // dr.previousProgressSec = 0 
         // see M0.prototype.onLoadReloadContinuation_
         this.smoothedQueue_.clear();
         this.activeRequest && (this.activeRequest.promise.cancel(),
@@ -1124,7 +1146,6 @@ function injection_script_1() {
         // avoid playback cache
         this.currentPlayerState_ = {}
         this.replayBuffer_.clear()
-
 
 
         // see M0.prototype.onNavigate_
@@ -1192,47 +1213,47 @@ function injection_script_1() {
         let lastPT = _lastPT
         _lastPT = pt;
 
-        if(chatDataFN){
-          pt>lastPT && chatDataFN()
+        if (chatDataFN) {
+          pt > lastPT && chatDataFN()
         }
 
-        if (ptcBusy === true){
+        if (ptcBusy === true) {
           return;
         }
 
-        
+
 
         //console.log(1723,9,ptcBusy)
         let isRefreshRequired = false;
 
         isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
-        
-        if(!isRefreshRequired){
-          // persistent fast forward
-          if(pt > lastPT && pt-lastPT > 4.5 && typeof this.urlChanged == 'function'){
 
-            if(ytLiveChatRenderer && ytLiveChatRenderer.hasAttribute('loading')){
+        if (!isRefreshRequired) {
+          // persistent fast forward
+          if (pt > lastPT && pt - lastPT > 4.5 && typeof this.urlChanged == 'function') {
+
+            if (ytLiveChatRenderer && ytLiveChatRenderer.hasAttribute('loading')) {
 
               isRefreshRequired = true
               ytLiveChatRenderer = null
 
-            }else{
+            } else {
 
 
               ytLiveChatRenderer = null
-              try{
-  
+              try {
+
                 let iframe = document.querySelector('#chatframe')
                 ytLiveChatRenderer = mWeakRef(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'))
-  
-              }catch(e){}
+
+              } catch (e) { }
             }
 
           }
         }
-        if(ytLiveChatRenderer){
+        if (ytLiveChatRenderer) {
           let elm = kRef(ytLiveChatRenderer)
-          if(elm && elm.hasAttribute('loading')) return
+          if (elm && elm.hasAttribute('loading')) return
         }
         ytLiveChatRenderer = null
         DEBUG_e32 && console.log(573, 2, pt, lastPT)
@@ -1244,37 +1265,37 @@ function injection_script_1() {
 
           let tmp_messageExist = null
 
-          try{
+          try {
 
             let iframe = document.querySelector('#chatframe')
-            let idoc= iframe.contentWindow.document
+            let idoc = iframe.contentWindow.document
             let items = idoc.querySelector('#items')
-            if(items.firstChild){
+            if (items.firstChild) {
               tmp_messageExist = true
-            }else {
+            } else {
               tmp_messageExist = false
             }
 
-          }catch(e){
+          } catch (e) {
 
 
           }
-          
 
-          if(tmp_messageExist===null) {isSkip = true}
-          if(tmp_messageExist === false && messageExist === true){isSkip = true}
 
-          if(!isSkip){
+          if (tmp_messageExist === null) { isSkip = true }
+          if (tmp_messageExist === false && messageExist === true) { isSkip = true }
+
+          if (!isSkip) {
             messageExist = tmp_messageExist
 
             let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-            let kr = chat ?  isRefreshIframeRequired(chat) : null
+            let kr = chat ? isRefreshIframeRequired(chat) : null
 
-           if(kr) {
+            if (kr) {
               ptcBusy = true;
               refreshIframe(kr);
             }
-       
+
             return; // skip update and wait for page refresh
 
           }
@@ -1282,9 +1303,9 @@ function injection_script_1() {
 
         }
         ptcBusy = true;
-        
-        if(chatDataFN){
-          chatDataFN.trigger= true
+
+        if (chatDataFN) {
+          chatDataFN.trigger = true
         }
 
 
@@ -1303,10 +1324,10 @@ function injection_script_1() {
         }
 
         if (exec) {
-          
-            let ret = this.__$$postToContentWindow$$__(...arguments)
-            DEBUG_e32 && console.log(573, 6, ret)
-         
+
+          let ret = this.__$$postToContentWindow$$__(...arguments)
+          DEBUG_e32 && console.log(573, 6, ret)
+
         }
 
         ptcBusy = false;
@@ -1390,7 +1411,7 @@ function injection_script_1() {
 
           if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
             nv[s6] = true;
-            
+
             //console.log(955, 'translate')
             //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
             if (translateHanlder !== null) {
@@ -1733,33 +1754,33 @@ function injection_script_1() {
     return !!(elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length);
   }
 
-/*
-  let lastCall_genius_lyrics_set_title = 0 ;
-  function getSimpleText(defaultMetadata) {
-
-    if (typeof defaultMetadata.simpleText === 'string') return defaultMetadata.simpleText;
-    if (defaultMetadata.runs) {
-      let texts = defaultMetadata.runs.map(entry => entry.text);
-      if (texts.length === 1 && typeof texts[0] === 'string') return texts[0];
-    }
-
-  }
-
-
-  function get_carouselLockups(ep){
-
-    if(!ep) return null;
+  /*
+    let lastCall_genius_lyrics_set_title = 0 ;
+    function getSimpleText(defaultMetadata) {
   
-    let m = null;
-    try{
-      m=ep.engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2].videoDescriptionMusicSectionRenderer.carouselLockups;
-    }catch(e){
-      m= null;
+      if (typeof defaultMetadata.simpleText === 'string') return defaultMetadata.simpleText;
+      if (defaultMetadata.runs) {
+        let texts = defaultMetadata.runs.map(entry => entry.text);
+        if (texts.length === 1 && typeof texts[0] === 'string') return texts[0];
+      }
+  
     }
-    return m;
-
-  }
-  */
+  
+  
+    function get_carouselLockups(ep){
+  
+      if(!ep) return null;
+    
+      let m = null;
+      try{
+        m=ep.engagementPanelSectionListRenderer.content.structuredDescriptionContentRenderer.items[2].videoDescriptionMusicSectionRenderer.carouselLockups;
+      }catch(e){
+        m= null;
+      }
+      return m;
+  
+    }
+    */
   /*
   function getTitle(pData, onerror){
 
@@ -1827,21 +1848,21 @@ function injection_script_1() {
   }
   */
 
-  function addStyleToLyricsIframe(){
+  function addStyleToLyricsIframe() {
 
 
 
-    
+
     let lyricsIframe = document.querySelector('#lyricsiframe');
     let ytdApp = document.querySelector('ytd-app');
-    if(!lyricsIframe || !ytdApp) return;
+    if (!lyricsIframe || !ytdApp) return;
 
 
-    if(lyricsIframe.contentDocument === null) return;
+    if (lyricsIframe.contentDocument === null) return;
 
 
-    
-    let cStyle= getComputedStyle(ytdApp);
+
+    let cStyle = getComputedStyle(ytdApp);
     let background = cStyle.getPropertyValue('--yt-spec-base-background');
     let color = cStyle.getPropertyValue('--yt-spec-text-primary');
     let bbp = cStyle.getPropertyValue('--yt-spec-brand-background-primary');
@@ -1850,38 +1871,38 @@ function injection_script_1() {
     let fontSize = null;
 
     let expander = document.querySelector('ytd-expander.style-scope.ytd-video-secondary-info-renderer');
-    if(expander){
-      
+    if (expander) {
+
       fontSize = getComputedStyle(expander).fontSize;
 
-    }else{
+    } else {
       fontSize = cStyle.fontSize;
     }
-    if(typeof background =='string' && typeof color =='string' && background.length>3 && color.length>3){
+    if (typeof background == 'string' && typeof color == 'string' && background.length > 3 && color.length > 3) {
 
-    }else{
+    } else {
       background = null;
       color = null;
     }
 
-    if(typeof fontSize =='string' && fontSize.length>2){}
-    else{
+    if (typeof fontSize == 'string' && fontSize.length > 2) { }
+    else {
       fontSize = null;
     }
 
-    if(typeof bbp=='string'){
+    if (typeof bbp == 'string') {
 
-    }else{
+    } else {
       bbp = null;
     }
-    if(typeof cfs ==='string'){
-      
-    }else{
-      cfs=null;
-    }
-    if(typeof slbc ==='string'){
+    if (typeof cfs === 'string') {
 
-    }else{
+    } else {
+      cfs = null;
+    }
+    if (typeof slbc === 'string') {
+
+    } else {
       slbc = null;
     }
 
@@ -1893,19 +1914,19 @@ function injection_script_1() {
       (container || document.documentElement).appendChild(styleNode);
       return styleNode;
     }
-  
 
-      
-      
+
+
+
     let css = [`
     
     html{
-      --tyt-background: ${background===null?'':`${background}`};
-      --tyt-color: ${color===null?'':`${color}`};
-      --tyt-font-size: ${fontSize===null?'':`${fontSize}`};
-      --yt-spec-brand-background-primary: ${bbp===null?'':`${bbp}`};
-      --yt-caption-font-size: ${cfs===null?'':`${cfs}`};
-      --ytd-searchbox-legacy-button-color: ${slbc===null?'':`${slbc}`};
+      --tyt-background: ${background === null ? '' : `${background}`};
+      --tyt-color: ${color === null ? '' : `${color}`};
+      --tyt-font-size: ${fontSize === null ? '' : `${fontSize}`};
+      --yt-spec-brand-background-primary: ${bbp === null ? '' : `${bbp}`};
+      --yt-caption-font-size: ${cfs === null ? '' : `${cfs}`};
+      --ytd-searchbox-legacy-button-color: ${slbc === null ? '' : `${slbc}`};
     }
 
     body{
@@ -2088,16 +2109,16 @@ function injection_script_1() {
     }
 
     `
-  ].join('\n');
-  
+    ].join('\n');
+
     //addStyle(css, lyricsIframe.contentDocument.head);
-    
-    Promise.resolve(0).then(()=>{
+
+    Promise.resolve(0).then(() => {
       lyricsIframe.classList.remove('tyt-tmp-hide-lyricsiframe');
 
     })
   }
- 
+
   function getEPC(ep) {
 
     if (!ep) return null;
@@ -2109,7 +2130,7 @@ function injection_script_1() {
       || epc;
 
   }
- 
+
   function createPanel() {
 
     const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
@@ -2183,7 +2204,7 @@ function injection_script_1() {
 
   let geniusLyricsVisObserver = null
 
-  async function geniusLyricsVisObserveCbAsync(panel){
+  async function geniusLyricsVisObserveCbAsync(panel) {
 
     await Promise.resolve(0)
 
@@ -2192,16 +2213,16 @@ function injection_script_1() {
     if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
       isLyricsLoading = false
       lyricsiframe = panel.querySelector('#lyricsiframe');
-      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'hideLyrics'}}))
+      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', { detail: { action: 'hideLyrics' } }))
       await Promise.resolve(0)
-      if(lyricsiframe){
-         document.body.appendChild(lyricsiframe)
+      if (lyricsiframe) {
+        document.body.appendChild(lyricsiframe)
       }
-    }else{
+    } else {
       lyricsiframe = document.querySelector('body #lyricsiframe');
-      if(lyricsiframe && !lyricsiframe.matches('ytd-engagement-panel-section-list-renderer iframe')){
+      if (lyricsiframe && !lyricsiframe.matches('ytd-engagement-panel-section-list-renderer iframe')) {
         let epc = getEPC(panel);
-        if(epc){
+        if (epc) {
           isLyricsLoading = false
           lyricsiframe.classList.add('tyt-tmp-hide-lyricsiframe');
           let panel = epc.closest('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
@@ -2210,18 +2231,18 @@ function injection_script_1() {
           }
           epc.appendChild(lyricsiframe)
           await Promise.resolve(0)
-          setTimeout(()=>{
-            document.dispatchEvent(new CustomEvent('genius-lyrics-actor', {detail: {action:'reloadCurrentLyrics'}}))
-          },40)
+          setTimeout(() => {
+            document.dispatchEvent(new CustomEvent('genius-lyrics-actor', { detail: { action: 'reloadCurrentLyrics' } }))
+          }, 40)
         }
-        
+
       }
-      
+
     }
 
   }
 
-  function geniusLyricsVisObserveCb (mutations, observer) {
+  function geniusLyricsVisObserveCb(mutations, observer) {
 
     if (!mutations || !mutations[0]) return;
     /** @type {HTMLElement} */
@@ -2271,7 +2292,7 @@ function injection_script_1() {
           epc.appendChild(elm)
 
           document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
-            detail:{
+            detail: {
               panelId: "engagement-panel-genius-transcript",
               toShow: true
             }
@@ -2294,42 +2315,42 @@ function injection_script_1() {
 
   let isLyricsLoading = false
   let iframeCache = null
-  window.addEventListener('message', (evt)=>{
-    let data=((evt||0).data||0)
-    
+  window.addEventListener('message', (evt) => {
+    let data = ((evt || 0).data || 0)
+
     const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
-    if(data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'pageready'){
+    if (data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'pageready') {
       addStyleToLyricsIframe();
-    }else if(data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'lyricsDisplayState'){
-      
-      let isLoading_current = data.visibility==='loading';
+    } else if (data && data.iAm === 'Youtube Genius Lyrics' && data.type === 'lyricsDisplayState') {
+
+      let isLoading_current = data.visibility === 'loading';
       let changed = false
 
       if (isLyricsLoading !== isLoading_current) {
         isLyricsLoading = isLoading_current;
-        changed =true
+        changed = true
       }
 
-      if(data.visibility==='hidden'){
+      if (data.visibility === 'hidden') {
 
         let panel = document.querySelector(panel_cssSelector)
         if (panel && panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
-          
-          
+
+
           document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
-            detail:{
+            detail: {
               panelId: "engagement-panel-genius-transcript",
               toHide: true
             }
           }))
 
-          
+
           // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
         }
-      }else if (data.visibility ==='loading'){
-        
-        if(changed){
+      } else if (data.visibility === 'loading') {
+
+        if (changed) {
 
           let panel = document.querySelector(panel_cssSelector)
           if (panel) {
@@ -2337,7 +2358,7 @@ function injection_script_1() {
           }
 
           let p = kRef(iframeCache)
-          if(p && !p.matches('body iframe')){
+          if (p && !p.matches('body iframe')) {
             document.body.appendChild(p)
           }
 
@@ -2347,9 +2368,9 @@ function injection_script_1() {
           }
           document.dispatchEvent(new CustomEvent('getLyricsReady'));
         }
-      }else if(data.visibility ==='loaded'){
-        let p =document.querySelector('iframe#lyricsiframe')
-        if(p){
+      } else if (data.visibility === 'loaded') {
+        let p = document.querySelector('iframe#lyricsiframe')
+        if (p) {
           iframeCache = mWeakRef(p)
         }
         let panel = document.querySelector(panel_cssSelector)
@@ -2435,11 +2456,11 @@ function injection_script_1() {
 
   }, true);
 
-  function scGet(){
+  function scGet() {
     let t = this;
     let sc = t._sc.deref();
     if (!t.hasAttribute('autocomplete')) {
-      if(sc) sc.textContent = '';
+      if (sc) sc.textContent = '';
       // to make something for "document.body.removeChild(t.sc),"
       let x = new Comment();
       document.body.appendChild(x);
@@ -2476,11 +2497,11 @@ function injection_script_1() {
           enumerable: true,
           configurable: true
         })
-        s._scGet = ()=>{
+        s._scGet = () => {
           return this._sc.deref();
         }
-      }else{
-        s._scGet = ()=>{
+      } else {
+        s._scGet = () => {
           return this.sc;
         }
       }
@@ -2490,14 +2511,14 @@ function injection_script_1() {
         window.removeEventListener('resize', s.updateSC);
         s.updateSC = function () {
           this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
-         };
+        };
 
       }
 
       s.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
 
     }
-    
+
     sc = null;
 
 
@@ -2526,7 +2547,7 @@ function injection_script_1() {
     if (!button) return;
     setTimeout(() => { //setTimeout / raf required - js event issue
       button.click();
-      if(isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
+      if (isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
       description = null;
       dom = null;
       button = null;
@@ -2558,7 +2579,7 @@ function injection_script_1() {
 
 
   let miniview_enabled = false
-  
+
   function isVideoPlaying(video) {
     return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
   }
@@ -2677,7 +2698,7 @@ function injection_script_1() {
           // user would like to switch page immediately without playing the video;
           // attribute appear after playing video for more than 2s
           if (!document.head.dataset.viTime) endpoint = null;
-          else{
+          else {
             let currentVideo = document.querySelector('#movie_player video[src]')
             if (currentVideo && currentVideo.readyState > currentVideo.HAVE_CURRENT_DATA && currentVideo.currentTime > 2.2 && currentVideo.duration - 2.2 < currentVideo.currentTime) {
               // disable miniview browsing if the media is near to the end

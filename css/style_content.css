@@ -681,16 +681,48 @@ body .ytp-autohide .ytp-unmute,
 
     */
 
+    h1.style-scope.ytd-watch-metadata span.d-time,
+    h1.style-scope.ytd-watch-metadata span.d-button {
+        color: var(--yt-spec-text-secondary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        width: max-content;
+        display: inline-block;
+        /* margin-left: 32px;
+        margin-bottom: 12px; */
+        margin-left: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        /* position: fixed; */
+        /*left: 0;
+        bottom: 0; */
+        background-color: var(--yt-spec-badge-chip-background);
+        padding: 4px 12px;
+        border-radius: 6px;
+        line-height: 16px;
+    }
+    
+    h1.style-scope.ytd-watch-metadata span.d-time:hover,
+    h1.style-scope.ytd-watch-metadata span.d-button:hover{
+        background-color: var(--yt-spec-button-chip-background-hover);
+    }
+
+    
+    h1.style-scope.ytd-watch-metadata:hover span.d-time:not(:hover),
+    h1.style-scope.ytd-watch-metadata:hover span.d-button:not(:hover) {
+        position: static;
+    }
+
 }
 
 
 @supports(color: var(--title-livestream-time)){
 
-    #below h1.ytd-watch-metadata yt-formatted-string{
+    #below h1.ytd-watch-metadata yt-formatted-string {
         cursor: default;
     }
 
-    #below h1.ytd-watch-metadata yt-formatted-string::after{
+    #below h1.ytd-watch-metadata yt-formatted-string::after {
         opacity: 0;
         content:attr(data-title-details);
         position: fixed;
@@ -707,7 +739,13 @@ body .ytp-autohide .ytp-unmute,
         font-weight: 400;
         z-index: 4;
         white-space: pre-wrap;
-        font-family: monaco, Consolas, "Lucida Console", monospace;
+        /* font-family: monaco, Consolas, "Lucida Console", monospace; */
+        
+        margin-left: 10px;
+        font-weight: 600;
+        letter-spacing: 1.2px;
+
+
         pointer-events: none;
         touch-action: none;
         user-select: none;
@@ -718,14 +756,8 @@ body .ytp-autohide .ytp-unmute,
         margin:0;
         margin-top:0.6rem;
 
-        background-color: var(--paper-tooltip-background, #616161);
-        color: var(--paper-tooltip-text-color, white);
         -webkit-font-smoothing: antialiased;
-
-        background-color: var(--yt-spec-button-chip-background-hover);
         color: var(--yt-live-chat-toast-text-color);
-
-        background-color: var(--yt-spec-badge-chip-background);
 
         background-color: var(--yt-live-chat-toast-background-color);
 
@@ -733,7 +765,7 @@ body .ytp-autohide .ytp-unmute,
         bottom:0;
 
     }
-    #below h1.ytd-watch-metadata yt-formatted-string:hover::after{
+    #below h1.ytd-watch-metadata yt-formatted-string:hover::after {
         transition-delay:350ms;
         opacity: 1;
         visibility: visible;
