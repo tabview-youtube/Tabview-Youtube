@@ -1043,9 +1043,6 @@ function injection_script_1() {
     async function refreshIframe(kr) {
       let { chat, continuation, cr } = kr;
 
-      let dr = cr.$$("yt-player-seek-continuation")
-
-
       /*
 
       yt-live-chat-app
@@ -1075,6 +1072,12 @@ function injection_script_1() {
         "hadUnhandledRejection_": false
     }
 
+    
+      let dr = cr.$$("yt-player-seek-continuation")
+      let p1 =  dr.fireSeekContinuationAtCurrentProgress
+      let p2 = dr.fireSeekContinuation_
+      let p3 = dr.maybeFireSeekContinuation
+
       */
 
       let a = {
@@ -1093,11 +1096,6 @@ function injection_script_1() {
       }
 
       let pi = 0;
-      // let p3 = dr.maybeFireSeekContinuation
-      /*
-      let p1 =  dr.fireSeekContinuationAtCurrentProgress
-      let p2 = dr.fireSeekContinuation_
-      let p3 = dr.maybeFireSeekContinuation*/
       Object.defineProperty(a, 'type', {
         get() {
           // "seek" == b.type ? By(a, "yt-live-chat-seek-start", []) : "reload" == b.type && By(a, "yt-live-chat-reload-start", []))
@@ -1106,20 +1104,8 @@ function injection_script_1() {
           // 1. make seek effect
           // 2. avoid t=xxxx
           pi++
-          console.log(pi)
 
-          // dr.previousProgressSec = 0 
           if (pi <= 2) return 'seek'
-          if (pi === 3) {
-            /*
-            setTimeout(()=>{
-              dr.fireSeekContinuationAtCurrentProgress = p1
-              dr.fireSeekContinuation_ = p2
-              dr.maybeFireSeekContinuation= p3
-              dr.previousProgressSec = 0 
-         
-            },400)*/
-          }
           return 'reload'
         },
         set(nv) {
@@ -1134,8 +1120,6 @@ function injection_script_1() {
       (function () {
         // this.detached();
 
-
-        // dr.previousProgressSec = 0 
         // see M0.prototype.onLoadReloadContinuation_
         this.smoothedQueue_.clear();
         this.activeRequest && (this.activeRequest.promise.cancel(),
@@ -1149,7 +1133,7 @@ function injection_script_1() {
 
 
         // see M0.prototype.onNavigate_
-        cr.requestData_(a)
+        this.requestData_(a)
 
         // cr.$$("yt-player-seek-continuation").fireSeekContinuationAtCurrentProgress()
         // cr.retry(a, null)
@@ -1162,19 +1146,8 @@ function injection_script_1() {
       }).call(cr);
 
 
-
-      // the problem is the continuation
-      // type = seek would not flush everything but still works
-      /*
-      
-      let p = chat.data
-      chat.data = null
-      await Promise.resolve(0)
-      chat.data = p
-      */
       await Promise.resolve(0)
       chat = null
-      // p = null
       kr = null
 
       chatDataFN = () => {

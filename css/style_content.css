@@ -658,29 +658,6 @@ body .ytp-autohide .ytp-unmute,
 
 @supports(color: var(--compatibile-with-detailedtime)){
 
-    /*
-    @media screen {
-        h1.style-scope.ytd-watch-metadata > yt-formatted-string + span {
-
-            margin-left:24px;
-
-        }
-    }
-        
-    @media screen and (min-width: 1000px) {
-        h1.style-scope.ytd-watch-metadata > yt-formatted-string + span {
-
-
-            margin-left:12px;
-
-        }
-
-    }
-
-    h1.style-scope.ytd-watch-metadata 
-
-    */
-
     h1.style-scope.ytd-watch-metadata span.d-time,
     h1.style-scope.ytd-watch-metadata span.d-button {
         color: var(--yt-spec-text-secondary);
@@ -688,14 +665,9 @@ body .ytp-autohide .ytp-unmute,
         cursor: pointer;
         width: max-content;
         display: inline-block;
-        /* margin-left: 32px;
-        margin-bottom: 12px; */
         margin-left: 12px;
         font-weight: 600;
         letter-spacing: 0.5px;
-        /* position: fixed; */
-        /*left: 0;
-        bottom: 0; */
         background-color: var(--yt-spec-badge-chip-background);
         padding: 4px 12px;
         border-radius: 6px;
@@ -705,12 +677,6 @@ body .ytp-autohide .ytp-unmute,
     h1.style-scope.ytd-watch-metadata span.d-time:hover,
     h1.style-scope.ytd-watch-metadata span.d-button:hover{
         background-color: var(--yt-spec-button-chip-background-hover);
-    }
-
-    
-    h1.style-scope.ytd-watch-metadata:hover span.d-time:not(:hover),
-    h1.style-scope.ytd-watch-metadata:hover span.d-button:not(:hover) {
-        position: static;
     }
 
 }
