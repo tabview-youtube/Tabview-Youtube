@@ -33,9 +33,11 @@ function injection_script_1() {
 
   DEBUG_e32 && console.log(9442, 103);
 
+  let chatroomRenderer = null
 
   // let lvoSymbol = Symbol();
   document.addEventListener('tabview-chatroom-ready', function (evt) {
+    // trigger on every iframe loaded
 
     DEBUG_e32 && console.log(9442, evt.type);
 
@@ -43,6 +45,15 @@ function injection_script_1() {
     let iframe = evt.target;
     if (!iframe || iframe.nodeType !== 1 || !iframe.matches('ytd-live-chat-frame #chatframe')) return;
 
+    try{
+      chatroomRenderer = mWeakRef(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'))
+    }catch(e){}
+
+    try{
+
+      document.querySelector('#chat').postToContentWindow({ 'yt-player-video-progress': document.querySelector('#movie_player video[src]').currentTime })
+
+    }catch(e){ }
   }, true)
 
   document.addEventListener('userscript-call-dom', function (evt) {
@@ -900,10 +911,8 @@ function injection_script_1() {
     };
 
     let _lastPT = 0;
-    let activeFlag = 0;
 
     resetChatroomFlags = () => {
-      activeFlag = 0;
       _lastPT = 0;
     };
 
@@ -948,59 +957,9 @@ function injection_script_1() {
     }, true);
 
 
-    let ytLiveChatRenderer = null
-
 
     let messageExist = false
     let chatDataFN = null
-
-    // function isRefreshIframeRequired (chat){
-
-    //   let p = chat.data
-    //   if(p && typeof p ==='object'){
-
-    //     if(p.liveChatRenderer && p.liveChatRenderer.continuations && p.liveChatRenderer.isReplay === true ){
-
-    //       return true;
-
-    //     }
-    //   }
-    //   return false;
-    // }
-
-    // async function refreshIframe(chat){
-
-    //   let p = chat.data
-    //   chat.data = null
-    //   await Promise.resolve(0)
-    //   // https://www.youtube.com/s/desktop/451d4225/jsbin/live_chat_polymer.vflset/live_chat_polymer.js
-    //   // topb.win_.top.location.href is accessed to get the initial playback time
-    //   let m = /&t=\w+/.exec(location.href)
-    //   if(m){
-    //     history.replaceState( history.state, document.title, location.href.replace(m[0],''))
-    //   }
-    //   chat.data = p
-    //   await Promise.resolve(0)
-    //   chat = null
-    //   p = null
-    //   chatDataFN = () => {
-    //     chatDataFN = null
-    //     activeFlag = 0;
-    //     ptcBusy = false;
-    //   }
-    //   setTimeout(() => {
-    //     if (chatDataFN && !chatDataFN.trigger) {
-    //       try {
-    //         chatDataFN()
-    //         document.querySelector('#chat').postToContentWindow({ 'yt-player-video-progress': _lastPT })
-    //       } catch (e) {
-    //         console.warn(e)
-    //       }
-    //     }
-    //   }, 800)
-
-
-    // }
 
 
 
@@ -1042,6 +1001,7 @@ function injection_script_1() {
 
     async function refreshIframe(kr) {
       let { chat, continuation, cr } = kr;
+      let dr = cr.$$("yt-player-seek-continuation")
 
       /*
 
@@ -1152,10 +1112,10 @@ function injection_script_1() {
 
       chatDataFN = () => {
         chatDataFN = null
-        activeFlag = 0;
         ptcBusy = false;
       }
 
+ 
       setTimeout(() => {
         if (chatDataFN && !chatDataFN.trigger) {
           try {
@@ -1170,11 +1130,11 @@ function injection_script_1() {
 
     }
 
-    const g_postToContentWindow = function () {
-      //console.log(1723,8,arguments)
+    let postI =0
+
+    const g_postToContentWindow = async function () {
 
 
-      if (activeFlag > 0) return; // no action when reloading
       let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
       let pt = arguments[0]['yt-player-video-progress'];
 
@@ -1186,12 +1146,25 @@ function injection_script_1() {
         let lastPT = _lastPT
         _lastPT = pt;
 
+        postI++
+        let tmp_postI= postI;
+
+        
         if (chatDataFN) {
           pt > lastPT && chatDataFN()
         }
 
-        if (ptcBusy === true) {
-          return;
+        while (ptcBusy) {
+          await new Promise(r => window.requestAnimationFrame(r))
+          if(tmp_postI!== postI) return
+        }
+        
+      
+        let cr =  kRef(chatroomRenderer);
+        if (!cr) return
+        while (cr.hasAttribute('loading')) {
+          await new Promise(r => window.requestAnimationFrame(r))
+          if(tmp_postI!== postI) return
         }
 
 
@@ -1201,34 +1174,6 @@ function injection_script_1() {
 
         isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
 
-        if (!isRefreshRequired) {
-          // persistent fast forward
-          if (pt > lastPT && pt - lastPT > 4.5 && typeof this.urlChanged == 'function') {
-
-            if (ytLiveChatRenderer && ytLiveChatRenderer.hasAttribute('loading')) {
-
-              isRefreshRequired = true
-              ytLiveChatRenderer = null
-
-            } else {
-
-
-              ytLiveChatRenderer = null
-              try {
-
-                let iframe = document.querySelector('#chatframe')
-                ytLiveChatRenderer = mWeakRef(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'))
-
-              } catch (e) { }
-            }
-
-          }
-        }
-        if (ytLiveChatRenderer) {
-          let elm = kRef(ytLiveChatRenderer)
-          if (elm && elm.hasAttribute('loading')) return
-        }
-        ytLiveChatRenderer = null
         DEBUG_e32 && console.log(573, 2, pt, lastPT)
 
 
@@ -1237,22 +1182,19 @@ function injection_script_1() {
           let isSkip = false
 
           let tmp_messageExist = null
+ 
 
-          try {
+          let items = cr.querySelector('#items')
+          if (items) {
 
-            let iframe = document.querySelector('#chatframe')
-            let idoc = iframe.contentWindow.document
-            let items = idoc.querySelector('#items')
             if (items.firstChild) {
               tmp_messageExist = true
             } else {
               tmp_messageExist = false
             }
 
-          } catch (e) {
-
-
           }
+
 
 
           if (tmp_messageExist === null) { isSkip = true }
@@ -1300,6 +1242,7 @@ function injection_script_1() {
 
           let ret = this.__$$postToContentWindow$$__(...arguments)
           DEBUG_e32 && console.log(573, 6, ret)
+          await Promise.resolve(0)
 
         }
 
