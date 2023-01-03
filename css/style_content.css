@@ -686,28 +686,28 @@ body .ytp-autohide .ytp-unmute,
 
 @supports(color: var(--title-livestream-time)){
 
-    #below h1.ytd-watch-metadata{
+    #below h1.ytd-watch-metadata yt-formatted-string{
         cursor: default;
     }
 
-    #below h1.ytd-watch-metadata::after{
+    #below h1.ytd-watch-metadata yt-formatted-string::after{
         opacity: 0;
         content:attr(data-title-details);
-        position: absolute;
+        position: fixed;
         top:auto;
         left:auto;
         min-width: 200px;
         border: 1px #aaaaaa solid;
-        border-radius: 10px;
+        border-radius: 4px;
         background-color: #ffffcc;
-        padding: 8px;
+        padding: 4px 16px;
         color: #000000;
-        font-size: 10px;
-        line-height: 16px;
-        z-index: 9999;
-        transform: translateY(calc(50% + 5.6rem / 2));
+        font-size: 1.2rem;
+        line-height: 1.8rem;
+        font-weight: 400;
+        z-index: 4;
         white-space: pre-wrap;
-        font-family: monospace;
+        font-family: monaco, Consolas, "Lucida Console", monospace;
         pointer-events: none;
         touch-action: none;
         user-select: none;
@@ -716,23 +716,37 @@ body .ytp-autohide .ytp-unmute,
         transition: opacity 180ms ease 99s;
         transition-delay:10ms;
         margin:0;
+        margin-top:0.6rem;
+
+        background-color: var(--paper-tooltip-background, #616161);
+        color: var(--paper-tooltip-text-color, white);
+        -webkit-font-smoothing: antialiased;
+
+        background-color: var(--yt-spec-button-chip-background-hover);
+        color: var(--yt-live-chat-toast-text-color);
+
+        background-color: var(--yt-spec-badge-chip-background);
+
+        background-color: var(--yt-live-chat-toast-background-color);
+
+        text-transform: none;
+        bottom:0;
+
     }
-    #below h1.ytd-watch-metadata:hover::after{
+    #below h1.ytd-watch-metadata yt-formatted-string:hover::after{
         transition-delay:350ms;
         opacity: 1;
         visibility: visible;
     }
 
     @media screen {
-        #below h1.ytd-watch-metadata::after {
-            margin-left:28px;
+        #below h1.ytd-watch-metadata yt-formatted-string::after {
             max-width: 80vw;
         }
     }
         
     @media screen and (min-width: 1000px) {
-        #below h1.ytd-watch-metadata::after {
-            margin-left:48px;
+        #below h1.ytd-watch-metadata yt-formatted-string::after {
             max-width: 60vw;
         }
     }

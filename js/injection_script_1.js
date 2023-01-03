@@ -954,34 +954,214 @@ function injection_script_1() {
     let messageExist = false
     let chatDataFN = null
 
-    function isRefreshIframeRequired (chat){
+    // function isRefreshIframeRequired (chat){
       
+    //   let p = chat.data
+    //   if(p && typeof p ==='object'){
+
+    //     if(p.liveChatRenderer && p.liveChatRenderer.continuations && p.liveChatRenderer.isReplay === true ){
+
+    //       return true;
+
+    //     }
+    //   }
+    //   return false;
+    // }
+
+    // async function refreshIframe(chat){
+
+    //   let p = chat.data
+    //   chat.data = null
+    //   await Promise.resolve(0)
+    //   // https://www.youtube.com/s/desktop/451d4225/jsbin/live_chat_polymer.vflset/live_chat_polymer.js
+    //   // topb.win_.top.location.href is accessed to get the initial playback time
+    //   let m = /&t=\w+/.exec(location.href)
+    //   if(m){
+    //     history.replaceState( history.state, document.title, location.href.replace(m[0],''))
+    //   }
+    //   chat.data = p
+    //   await Promise.resolve(0)
+    //   chat = null
+    //   p = null
+    //   chatDataFN = () => {
+    //     chatDataFN = null
+    //     activeFlag = 0;
+    //     ptcBusy = false;
+    //   }
+    //   setTimeout(() => {
+    //     if (chatDataFN && !chatDataFN.trigger) {
+    //       try {
+    //         chatDataFN()
+    //         document.querySelector('#chat').postToContentWindow({ 'yt-player-video-progress': _lastPT })
+    //       } catch (e) {
+    //         console.warn(e)
+    //       }
+    //     }
+    //   }, 800)
+
+
+    // }
+    
+
+    
+    function isRefreshIframeRequired (chat){
+      let res = false
+
       let p = chat.data
-      if(p && typeof p ==='object'){
+      if (p && typeof p === 'object') {
 
-        if(p.liveChatRenderer && p.liveChatRenderer.continuations && p.liveChatRenderer.isReplay === true ){
+        if (p.liveChatRenderer && p.liveChatRenderer.continuations && p.liveChatRenderer.isReplay === true) {
 
-          return true;
+
+          try {
+
+            /** @type {HTMLIFrameElement | null} */
+            let iframe = chat.querySelector('iframe')
+            let idoc = iframe.contentWindow.document
+
+            let continuation = idoc.querySelector('[aria-selected="true"] yt-reload-continuation').data.continuation
+            
+            // suck
+            // let continuation = idoc.querySelector("yt-player-seek-continuation").data.continuation
+
+            // suck
+            // let continuation = idoc.querySelector("yt-live-chat-replay-continuation").data.continuation
+
+            let cr = idoc.querySelector('yt-live-chat-renderer')
+            if( typeof continuation === 'string' && cr){
+              res = {cr, continuation, chat}
+            }
+          } catch (e) { }
 
         }
       }
-      return false;
+
+
+      return res;
     }
 
-    async function refreshIframe(chat){
+    async function refreshIframe(kr) {
+      let { chat, continuation, cr } = kr;
 
+      /*
+
+      yt-live-chat-app
+
+      yt-live-chat-renderer
+
+      reloadContinuationData
+
+      2 x yt-reload-continuation (1 elm per each sub-menu item)
+      
+      1 x yt-live-chat-replay-continuation
+      1 x yt-player-seek-continuation
+      
+      $$("yt-player-seek-continuation").fireSeekContinuationAtCurrentProgress()
+      buggy
+
+      
+      timeRemainingMsecs
+
+
+    "promise": {
+        "state_": 1,
+        "parent_": null,
+        "callbackEntries_": null,
+        "callbackEntriesTail_": null,
+        "executing_": false,
+        "hadUnhandledRejection_": false
+    }
+
+      */
+
+      let a = {
+        endpoint: {
+          liveChatReplayEndpoint: {
+            continuation: continuation // string
+          }
+        },
+        params: {
+          hidden: false // see a = N0(this, b, "reload");
+        },
+        // type: "seek", // "reload"
+        retries: 0,
+        continuationUrl: "navigateEvent", // no use; for logging message only
+        createdTime: Date.now() // no use
+      }
+
+      let pi = 0;
+      Object.defineProperty(a, 'type', {
+        get() {
+          // "seek" == b.type ? By(a, "yt-live-chat-seek-start", []) : "reload" == b.type && By(a, "yt-live-chat-reload-start", []))
+          // fake it as seek to make "yt-live-chat-seek-start" instead of "yt-live-chat-reload-start"
+          // this is to prevent seek for "t=xxxx" by default
+          // 1. make seek effect
+          // 2. avoid t=xxxx
+          pi++
+          if (pi <= 2) return 'seek'
+          return 'reload'
+        },
+        set(nv) {
+          return true // could be read-only
+        },
+        enumerable: true,
+        configurable: true // could be false
+      });
+
+      // let mm = { reloadContinuationData: { continuation: continuation } };
+
+      (function () {
+        // this.detached();
+
+
+        // see M0.prototype.onLoadReloadContinuation_
+        this.smoothedQueue_.clear();
+        this.activeRequest && (this.activeRequest.promise.cancel(),
+          this.activeRequest = null);
+        this.nextRequest_ && (this.nextRequest_.promise.cancel(),
+          this.nextRequest_ = null);
+
+        // avoid playback cache
+        this.currentPlayerState_ = {}
+        this.replayBuffer_.clear()
+
+
+
+        // see M0.prototype.onNavigate_
+        cr.requestData_(a)
+
+        // cr.$$("yt-player-seek-continuation").fireSeekContinuationAtCurrentProgress()
+        // cr.retry(a, null)
+
+        // this.requestData_(a)
+        // this.attached()
+
+        // this.onLoadSeekContinuation_(new CustomEvent('yt-reload-continuation', {detail:{    endpoint: {liveChatEndpoint: {  continuation: mm }  }  }}))
+
+      }).call(cr);
+
+
+
+      // the problem is the continuation
+      // type = seek would not flush everything but still works
+      /*
+      
       let p = chat.data
       chat.data = null
       await Promise.resolve(0)
       chat.data = p
+      */
       await Promise.resolve(0)
       chat = null
-      p = null
+      // p = null
+      kr = null
+
       chatDataFN = () => {
         chatDataFN = null
         activeFlag = 0;
         ptcBusy = false;
       }
+
       setTimeout(() => {
         if (chatDataFN && !chatDataFN.trigger) {
           try {
@@ -995,7 +1175,6 @@ function injection_script_1() {
 
 
     }
-    
 
     const g_postToContentWindow = function () {
       //console.log(1723,8,arguments)
@@ -1089,9 +1268,11 @@ function injection_script_1() {
             messageExist = tmp_messageExist
 
             let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-            if(chat && isRefreshIframeRequired(chat)) {
+            let kr = chat ?  isRefreshIframeRequired(chat) : null
+
+           if(kr) {
               ptcBusy = true;
-              refreshIframe(chat);
+              refreshIframe(kr);
             }
        
             return; // skip update and wait for page refresh

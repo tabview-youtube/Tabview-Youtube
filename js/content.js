@@ -4300,7 +4300,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           domInit_teaserInfo() // YouTube obsoleted feature? 
 
 
-          let h1 = document.querySelector('#below h1.ytd-watch-metadata')
+          let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string')
           if (h1) {
 
 
