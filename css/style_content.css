@@ -661,7 +661,6 @@ body .ytp-autohide .ytp-unmute,
     h1.style-scope.ytd-watch-metadata span.d-time,
     h1.style-scope.ytd-watch-metadata span.d-button {
         color: var(--yt-spec-text-secondary);
-        font-size: 1.2rem;
         cursor: pointer;
         width: max-content;
         display: inline-block;
@@ -671,9 +670,10 @@ body .ytp-autohide .ytp-unmute,
         background-color: var(--yt-spec-badge-chip-background);
         padding: 4px 12px;
         border-radius: 6px;
-        line-height: 16px;
         float: right;
+        font-size: 60%;
         line-height: 140%;
+        margin: .208% 0%; /* (28-24.8)/2 = 1.6px */
     }
     
     h1.style-scope.ytd-watch-metadata span.d-time:hover,
