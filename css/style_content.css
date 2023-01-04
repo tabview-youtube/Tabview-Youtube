@@ -673,7 +673,7 @@ body .ytp-autohide .ytp-unmute,
         float: right;
         font-size: 60%;
         line-height: 140%;
-        margin: .208% 0%; /* (28-24.8)/2 = 1.6px */
+        margin: 1.6px 0px; /* (28-24.8)/2 = 1.6px */
     }
     
     h1.style-scope.ytd-watch-metadata span.d-time:hover,
