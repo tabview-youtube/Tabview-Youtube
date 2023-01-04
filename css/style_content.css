@@ -750,6 +750,29 @@ body .ytp-autohide .ytp-unmute,
     }
 }
 
+@supports (color:var(--hover-title-to-expand-up-to-three-lines)) and (-webkit-line-clamp:3){
+
+    @keyframes titleHoverShowUpToThreeLines {
+        from {
+            /* */
+        }
+        to {
+            -webkit-line-clamp: 3;
+            max-height: unset;
+        }
+    }
+
+    #below h1.ytd-watch-metadata {
+        line-height: 140%;
+        margin-bottom: -2px;
+    }
+
+    #below h1.ytd-watch-metadata:hover {
+        animation: titleHoverShowUpToThreeLines 1ms ease 670ms forwards;
+    }
+
+}
+
 
 @media screen and (max-width: 1294px) {
 
