@@ -243,7 +243,7 @@ console.time("Tabview Youtube Init Script")
 
     body yt-live-chat-app {
         contain: size layout paint style;
-        content-visibility: auto;
+        /* content-visibility: auto; */
         transform: translate3d(0, 0, 0);
         overflow: hidden;
     }
@@ -314,13 +314,26 @@ console.time("Tabview Youtube Init Script")
         contain: layout paint style;
     }
 
-    
+    /*
     yt-live-chat-banner-renderer[collapsed] #contents, yt-live-chat-banner-renderer[collapsed] #contents * {
 
       content-visibility: visible !important;
       contain: none !important;
 
     }
+    */
+
+     
+    /* YouTube Native Bug - style="height:0px; translateY(0px);" */
+    yt-live-chat-banner-renderer[collapsed]:has(#contents[style*="0px;"][style*="translateY(0px);"]) #header.yt-live-chat-banner-renderer{
+      position:absolute;
+    }
+
+    yt-live-chat-banner-renderer[collapsed]:has(#contents[style*="0px;"][style*="translateY(0px);"]) #contents.yt-live-chat-banner-renderer{
+      height:auto !important;
+      transform:initial !important;
+    }
+
   
   }
   
