@@ -672,6 +672,8 @@ body .ytp-autohide .ytp-unmute,
         padding: 4px 12px;
         border-radius: 6px;
         line-height: 16px;
+        float: right;
+        line-height: 140%;
     }
     
     h1.style-scope.ytd-watch-metadata span.d-time:hover,
