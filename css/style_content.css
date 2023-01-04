@@ -684,11 +684,11 @@ body .ytp-autohide .ytp-unmute,
 
 @supports(color: var(--title-livestream-time)){
 
-    #below h1.ytd-watch-metadata yt-formatted-string {
+    #below h1.ytd-watch-metadata yt-formatted-string[data-title-details] {
         cursor: default;
     }
 
-    #below h1.ytd-watch-metadata yt-formatted-string::after {
+    #below h1.ytd-watch-metadata yt-formatted-string[data-title-details]::after {
         opacity: 0;
         content:attr(data-title-details);
         position: fixed;
@@ -731,20 +731,20 @@ body .ytp-autohide .ytp-unmute,
         bottom:0;
 
     }
-    #below h1.ytd-watch-metadata yt-formatted-string:hover::after {
+    #below h1.ytd-watch-metadata yt-formatted-string[data-title-details]:hover::after {
         transition-delay:350ms;
         opacity: 1;
         visibility: visible;
     }
 
     @media screen {
-        #below h1.ytd-watch-metadata yt-formatted-string::after {
+        #below h1.ytd-watch-metadata yt-formatted-string[data-title-details]::after {
             max-width: 80vw;
         }
     }
         
     @media screen and (min-width: 1000px) {
-        #below h1.ytd-watch-metadata yt-formatted-string::after {
+        #below h1.ytd-watch-metadata yt-formatted-string[data-title-details]::after {
             max-width: 60vw;
         }
     }
