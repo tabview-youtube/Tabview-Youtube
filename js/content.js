@@ -6719,8 +6719,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (pageType === 'watch') {
           // ytMicroEventsInit set + tabview-loaded delay set
           onNavigationEndAsync(mIsPageFirstLoaded)
-          unlock();
         }
+        unlock();
       })
     }
   }
