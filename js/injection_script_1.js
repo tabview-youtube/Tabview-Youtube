@@ -617,9 +617,10 @@ function injection_script_1() {
 
         for (const entry of entries) {
 
-          let h = entry.boundingClientRect.height
-          let threadRenderer = entry.target;
+          const threadRenderer = entry.target;
           if (!threadRenderer) continue;
+          
+          let h = entry.boundingClientRect.height
 
           let b1 = h > 10;
           let b2 = !entry.isIntersecting;
@@ -647,19 +648,21 @@ function injection_script_1() {
 
           if (m === -1) continue; // h is not available
 
+          const style = threadRenderer.style
+
           if (b2) {
             // set CSS rule when it leaves the visible region
 
-            if (entry.target.style.getPropertyValue("--tabview-cmt-height") !== m) {
-              entry.target.style.setProperty("--tabview-cmt-height", m)
+            if (style.getPropertyValue("--tabview-cmt-height") !== m) {
+              style.setProperty("--tabview-cmt-height", m)
             }
 
-            entry.target.classList.remove('tyt-visible-comment')
+            threadRenderer.classList.remove('tyt-visible-comment')
 
           } else {
             //invisible -> visible
-            entry.target.style.removeProperty("--tabview-cmt-height")
-            entry.target.classList.add('tyt-visible-comment')
+            style.removeProperty("--tabview-cmt-height")
+            threadRenderer.classList.add('tyt-visible-comment')
           }
 
         }
@@ -668,6 +671,7 @@ function injection_script_1() {
         rootMargin: "-18px 0px -18px 0px" // before fully leave the visible region
       })
 
+      const targets = []
 
       insObserver = new IntersectionObserver(function (entries, observer) {
         for (const entry of entries) {
@@ -686,9 +690,15 @@ function injection_script_1() {
               cmtWM.set(pElm, flag);
               cmtObserver.observe(pElm)
             }
-            entry.target.calculateCanCollapse();
+            targets.push(entry.target);
           }
         }
+        Promise.resolve(0).then(()=>{
+          for(const target of targets){
+            target.calculateCanCollapse(true);
+          }
+          targets.length = 0
+        })
       }, {
         threshold: [0],
         rootMargin: "750px 0px 750px 0px" // (top, right, bottom, left)  // +ve => enlarge intersection area
@@ -1280,27 +1290,33 @@ function injection_script_1() {
 
     // note: after content expanded, resizing window will casue the "collapse" feature disappears.
     // this.$.content.scrollHeight>this.collapsedHeight  is used for recomputeOnResize = true 
-    //let f1= function(){this.canToggle=!this.recomputeOnResize&&this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
+    
     // new browser - 84>80 would not lead to line clamp [as using -webkit-line-clamp]
     // this.$.content.offsetHeight<this.$.content.scrollHeight is not working for collapsed content
 
     // f.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     // e.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
-    let f1 = function () { this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed) ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight };
+    // const funcCanCollapse = function () { this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed) ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight };
+    const funcCanCollapse = function (s) {
+      if (!s) return;
+      this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed)
+        ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight
+        : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight
+    };
 
     let insObserver = getInsObserver();
 
     Object.defineProperty(customElements.get('ytd-expander').prototype, 'recomputeOnResize', {
       get() {
-        if (this.calculateCanCollapse !== f1) {
-          this.calculateCanCollapse = f1
+        if (this.calculateCanCollapse !== funcCanCollapse) {
+          this.calculateCanCollapse = funcCanCollapse
           if (insObserver) insObserver.observe(this)
         }
         return this[s1];
       },
       set(nv) {
-        if (this.calculateCanCollapse !== f1) {
-          this.calculateCanCollapse = f1
+        if (this.calculateCanCollapse !== funcCanCollapse) {
+          this.calculateCanCollapse = funcCanCollapse
           if (insObserver) insObserver.observe(this)
         }
         if (nv === false) nv = true;
@@ -2484,7 +2500,7 @@ function injection_script_1() {
     //console.log('tabview-resize-comments-rows')
     for (const s of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')) {
       Promise.resolve(s).then(() => {
-        s.calculateCanCollapse();
+        s.calculateCanCollapse(true);
       });
     }
 

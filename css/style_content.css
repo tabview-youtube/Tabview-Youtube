@@ -181,6 +181,52 @@ Same for #secondary
 
 }
 
+@supports (color: var(--playlist-items-contain)){
+
+    #items.ytd-playlist-panel-renderer {
+        contain: content;
+    }
+    #items.ytd-playlist-panel-renderer > .ytd-playlist-panel-renderer {
+        contain: content;
+    }
+    .header.ytd-playlist-panel-renderer {
+        contain: content;
+    }
+    #thumbnail-container.ytd-playlist-panel-video-renderer>ytd-thumbnail.ytd-playlist-panel-video-renderer, 
+    #thumbnail-container.ytd-playlist-panel-video-renderer {
+        contain: strict;
+        content-visibility: auto;
+    }
+    /*
+    #container.ytd-playlist-panel-renderer {
+        contain: strict;
+        content-visibility: auto;
+    }
+    */
+}
+
+
+@supports (color: var(--videos-items-contain)){
+
+    ytd-compact-video-renderer:not([watch-feed-big-thumbs]) ytd-thumbnail.ytd-compact-video-renderer {
+        contain: strict;
+        content-visibility: auto;
+    }
+
+}
+
+@supports (color: var(--tooltip-nowrap)) {
+    div#overlays.style-scope.ytd-thumbnail,
+    div#mouseover-overlay.style-scope.ytd-thumbnail,
+    div#hover-overlays.style-scope.ytd-thumbnail {
+        contain: content;
+        content-visibility: visible;
+    }
+    
+    div#hover-overlays.style-scope.ytd-thumbnail > * {
+        white-space: nowrap;
+    }
+}
 @supports (color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
 
 /* <<< pre-fix for japanese layout native bug */
@@ -409,7 +455,7 @@ Same for #secondary
 
 }
 
-@supports (not (color:var(--backup-code-for-autohide))){
+@supports (not (color: var(--backup-code-for-autohide))){
 /*
 
 body .ytp-autohide {
@@ -809,7 +855,7 @@ body .ytp-autohide .ytp-unmute,
 
 
     ytd-watch-flexy.tyt-chat-popup #show-hide-button button span{
-        color:var(--disabled-text-color) !important;
+        color: var(--disabled-text-color) !important;
     }
     
 
@@ -885,7 +931,7 @@ body .ytp-autohide .ytp-unmute,
     }
 }
 
-@supports (color:var(--hover-title-to-expand-up-to-three-lines)) and (-webkit-line-clamp:3){
+@supports (color: var(--hover-title-to-expand-up-to-three-lines)) and (-webkit-line-clamp:3){
 
     @keyframes titleHoverShowUpToThreeLines {
         from {
@@ -1021,7 +1067,7 @@ body .ytp-autohide .ytp-unmute,
     }
 
     /*
-    @supports (color:var(--try-fix-transcript-clickable)) {
+    @supports (color: var(--try-fix-transcript-clickable)) {
         ytd-engagement-panel-section-list-renderer ytd-transcript-renderer ytd-transcript-search-panel-renderer ytd-transcript-segment-list-renderer ytd-transcript-segment-renderer.style-scope.ytd-transcript-segment-list-renderer {
             pointer-events: none;
             touch-action: none;
@@ -1108,7 +1154,7 @@ body .ytp-autohide .ytp-unmute,
     }
     
 
-    @supports (color:var(--anti-youtube-layout-bug-)){
+    @supports (color: var(--anti-youtube-layout-bug-)){
 
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ div[class^=" "].style-scope.ytd-watch-flexy:not([id]):not([hidden]){
             display: none;
@@ -3799,7 +3845,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     
   
-    @supports (color:var(--rendering-autohide-visibility)){
+    @supports (color: var(--rendering-autohide-visibility)){
         
         .ytp-autohide .ytp-playlist-menu-button,.ytp-autohide .ytp-back-button,.ytp-autohide .ytp-title-channel,.ytp-autohide .ytp-title,.ytp-autohide .ytp-chrome-top .ytp-watch-later-button,.ytp-autohide .ytp-chrome-top .ytp-share-button,.ytp-autohide .ytp-chrome-top .ytp-copylink-button,.ytp-autohide:not(.ytp-cards-teaser-shown) .ytp-cards-button,.ytp-autohide .ytp-overflow-button,.ytp-autohide .ytp-chrome-bottom,.ytp-chrome-top[aria-hidden=true],.ytp-chrome-bottom[aria-hidden=true] {
             visibility: var(--tyt-native-ui-autohide-visibility);
@@ -4537,7 +4583,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         transition-delay: 16ms;
     }
 
-    @supports (color:var(--super-title-better-spacing)){
+    @supports (color: var(--super-title-better-spacing)){
 
         ytd-watch-flexy[is-two-columns_] #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
             --tyt-primary-main-title-mt: 2px;
@@ -4639,7 +4685,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color:var(--fullscreen-scrollable-info)) {
+    @supports (color: var(--fullscreen-scrollable-info)) {
 
         :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #columns.ytd-watch-flexy,
         :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy,

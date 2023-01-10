@@ -2233,10 +2233,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
     prependTo(autoComplete, positioner);
 
-    positioner.style.setProperty('--tyt-swwv-searchbox-mb', getComputedStyle(searchBox).marginBottom)
-    positioner.style.setProperty('--tyt-swwv-searchbox-h', searchBox.offsetHeight + 'px')
+    setupSearchBox(searchBox, positioner);
 
-    mtf_autocomplete_search();
+
+  }
+
+  async function setupSearchBox(searchBox, positioner) {
+
+    let mb = getComputedStyle(searchBox).marginBottom
+    let h = searchBox.offsetHeight + 'px'
+
+    positioner.style.setProperty('--tyt-swwv-searchbox-mb', mb)
+    positioner.style.setProperty('--tyt-swwv-searchbox-h', h)
+
+    mtf_autocomplete_search()
 
   }
 
@@ -5060,6 +5070,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let newElm = docTmp.content.firstElementChild;
       if (newElm !== null) {
         insertBeforeTo(newElm, related);
+        querySelectorFromAnchor.call(newElm, '#material-tabs').addEventListener('mousemove', (evt)=>{
+          evt.preventDefault();
+          evt.stopPropagation();
+          evt.stopImmediatePropagation();
+        }, true);
         console.log('#right-tabs inserted')
       }
       docTmp.textContent = '';
