@@ -4430,6 +4430,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                   mins = Math.floor(bdd / 60000)
                   bdd = bdd - mins * 60000
                   seconds = Math.round(bdd / 1000)
+                  if(seconds === 0) seconds = null
                 }
 
                 return  `Duration: ${hrs > 0 ? `${hrs} hours ` : ''}${seconds === null ? `${mins} minutes` : `${mins} minutes ${seconds} seconds`}`
