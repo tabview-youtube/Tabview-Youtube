@@ -5025,6 +5025,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (pageType !== 'watch') return
 
+
     let tdt = Date.now();
     _navigateLoadDT = tdt;
 
@@ -6453,20 +6454,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let ytEventSequence = 0
   let formatDates = null
 
+  
   function pageBeingFetched(evt, isPageFirstLoaded) {
 
-    if (!evt || !evt.target || evt.target.nodeType !== 1) return;
-    let nodeName = evt.target.nodeName.toUpperCase()
+    let nodeName = (((evt||0).target||0).nodeName||'').toUpperCase()
     if (nodeName !== 'YTD-APP') return;
 
-    let d_page = ((evt.detail || 0).pageData || 0).page;
+    let pageFetchedDataLocal = evt.detail;
+
+    let d_page = ((pageFetchedDataLocal||0).pageData||0).page;
     if (!d_page) return;
 
     pageType = d_page;
 
     if (pageType !== 'watch') return
-
-    let pageFetchedDataLocal = null;
 
     let promiseChatDetails = null
 
@@ -6481,21 +6482,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     variableResets();
 
     if (isFirstLoad) {
-      Promise.resolve(0).then(() => {
-        if (ytEventSequence >= 2) {
-          let docElement = document.documentElement
-          if (docElement.hasAttribute('tabview-loaded')) {
-            throw 'Tabview Youtube Duplicated';
-          }
-          docElement.setAttribute('tabview-loaded', '')
-          docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
-          docElement = null
+
+      if (ytEventSequence >= 2) {
+        let docElement = document.documentElement
+        if (docElement.hasAttribute('tabview-loaded')) {
+          throw 'Tabview Youtube Duplicated';
         }
-      })
+        docElement.setAttribute('tabview-loaded', '')
+
+        Promise.resolve(docElement).then(docElement => {
+          if (ytEventSequence >= 2) {
+            docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+            docElement = null
+          }
+        })
+
+      }
     }
     // tabview-loaded delay set
-
-    pageFetchedDataLocal = evt.detail;
 
     formatDates={}
     try{
@@ -6608,13 +6612,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  let isPageFirstLoaded = true
+  let _isPageFirstLoaded = true
+  let pageSeqMutex = new Mutex()
 
   function pageSeq1(evt) {
     _navigateLoadDT = 0
     if (ytEventSequence !== 1) {
       ytEventSequence = 1
-      pageBeingInit();
+      pageSeqMutex.lockWith(unlock=>{
+        pageBeingInit();
+        unlock();
+      })
     }
   }
 
@@ -6623,61 +6631,81 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (ytEventSequence !== 1) {
       ytEventSequence = 1
-      pageBeingInit();
+      pageSeqMutex.lockWith(unlock=>{
+        pageBeingInit();
+        unlock();
+      })
     }
     if (ytEventSequence === 1) {
       ytEventSequence = 2
+
+      
+      let mIsPageFirstLoaded = _isPageFirstLoaded
       pageType = null
-      isPageFirstLoaded && console.time("Tabview Youtube Load")
-      pageBeingFetched(evt, isPageFirstLoaded)
-      isPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
-      // ytMicroEventsInit set + tabview-loaded delay set
-      new Promise(() => {
-        if (ytEventSequence === 2) {
-          document.documentElement.classList.toggle('tabview-normal-player', pageType === 'watch');
-        }
-      })
-      if (pageType !== 'watch') {
-        ytdFlexy = null
-        chatroomDetails = null
-        Promise.resolve(0).then(() => {
-          if (ytEventSequence === 2) {
-            variableResets();
-            emptyCommentSection();
-            _console.log(9360, 75);
-            tabsDeferred.reset();
-            _pageBeingInit();
-            tabsDeferred.resolve(); // for page initialization
+      
+      pageSeqMutex.lockWith(unlock=>{
+        
+        pageType = null
+        mIsPageFirstLoaded && console.time("Tabview Youtube Load")
+        pageBeingFetched(evt, mIsPageFirstLoaded)
+        mIsPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
+        // ytMicroEventsInit set + tabview-loaded delay set
+        new Promise(() => {
+          if (ytEventSequence >= 2) {
+            document.documentElement.classList.toggle('tabview-normal-player', pageType === 'watch');
           }
         })
-      }
+        if (pageType !== 'watch') {
+          ytdFlexy = null
+          chatroomDetails = null
+          Promise.resolve(0).then(() => {
+            if (ytEventSequence >= 2) {
+              variableResets();
+              emptyCommentSection();
+              _console.log(9360, 75);
+              tabsDeferred.reset();
+              _pageBeingInit();
+              tabsDeferred.resolve(); // for page initialization
+            }
+          })
+        }
 
-      if (_updateTimeAccum > 0) {
-        let currentVideo = document.querySelector('#movie_player video[src]')
-        let keep_viTime = false
-        if (currentVideo && currentVideo.readyState > currentVideo.HAVE_CURRENT_DATA && currentVideo.currentTime > 2.2) {
-          // allow miniview browsing
-          keep_viTime = true
+        if (_updateTimeAccum > 0) {
+          let currentVideo = document.querySelector('#movie_player video[src]')
+          let keep_viTime = false
+          if (currentVideo && currentVideo.readyState > currentVideo.HAVE_CURRENT_DATA && currentVideo.currentTime > 2.2) {
+            // allow miniview browsing
+            keep_viTime = true
+          }
+          if (!keep_viTime) {
+            _viTimeNum = 200;
+            _updateTimeAccum = 0;
+            delete document.head.dataset.viTime;
+          }
         }
-        if (!keep_viTime) {
-          _viTimeNum = 200;
-          _updateTimeAccum = 0;
-          delete document.head.dataset.viTime;
-        }
-      }
+
+        unlock();
+      })
     }
 
   }
 
   function pageSeq3(evt) {
     _navigateLoadDT = 0
+    
     if (ytEventSequence === 2) {
       ytEventSequence = 3
-      if (pageType === 'watch') {
-        // ytMicroEventsInit set + tabview-loaded delay set
-        onNavigationEndAsync(isPageFirstLoaded)
-        isPageFirstLoaded = false
-      }
+      
+      let mIsPageFirstLoaded = _isPageFirstLoaded
+      _isPageFirstLoaded = false
+
+      pageSeqMutex.lockWith(unlock => {
+        if (pageType === 'watch') {
+          // ytMicroEventsInit set + tabview-loaded delay set
+          onNavigationEndAsync(mIsPageFirstLoaded)
+          unlock();
+        }
+      })
     }
   }
 

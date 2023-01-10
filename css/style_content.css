@@ -131,6 +131,56 @@ Same for #secondary
 
  */
 
+@supports (color: var(--performance-fix)){
+
+    #primary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer {
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important; /* Chrome/Edge 85+ only */
+    }
+
+    #primary-inner > #related .ytd-item-section-renderer,
+    #secondary-inner > #related .ytd-item-section-renderer {
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important; /* Chrome/Edge 85+ only */
+    }
+
+
+    #primary-inner > ytd-comments#comments .ytd-comment-thread-renderer, 
+    #secondary-inner > ytd-comments#comments .ytd-comment-thread-renderer {
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important; /* Chrome/Edge 85+ only */
+    }
+
+
+    #primary-inner > ytd-playlist-panel-renderer#playlist,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist{
+        contain: strict !important;
+    }
+
+    #primary-inner > #related,
+    #secondary-inner > #related  {
+        contain: strict !important;
+    }
+
+
+    #primary-inner > ytd-comments#comments, 
+    #secondary-inner > ytd-comments#comments {
+        contain: strict !important;
+    }
+
+    html:not([tabview-loaded]) #secondary-inner #right-tabs {
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important; /* Chrome/Edge 85+ only */
+    }
+
+
+}
+
 @supports (color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
 
 /* <<< pre-fix for japanese layout native bug */
