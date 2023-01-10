@@ -6656,10 +6656,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       ytEventSequence = 2
 
       
-      let mIsPageFirstLoaded = _isPageFirstLoaded
       pageType = null
       
       pageSeqMutex.lockWith(unlock=>{
+        
+        let mIsPageFirstLoaded = _isPageFirstLoaded
         
         pageType = null
         mIsPageFirstLoaded && console.time("Tabview Youtube Load")
@@ -6712,13 +6713,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (ytEventSequence === 2) {
       ytEventSequence = 3
       
-      let mIsPageFirstLoaded = _isPageFirstLoaded
-      _isPageFirstLoaded = false
-
       pageSeqMutex.lockWith(unlock => {
         if (pageType === 'watch') {
+          let mIsPageFirstLoaded = _isPageFirstLoaded
           // ytMicroEventsInit set + tabview-loaded delay set
           onNavigationEndAsync(mIsPageFirstLoaded)
+          _isPageFirstLoaded = false
         }
         unlock();
       })
