@@ -2565,28 +2565,38 @@ function injection_script_1() {
 
       mtoIframePopup=new MutationObserver((mutations)=>{
 
-        let currentHas = null
         let cm = null
         let required = false
-        for(const mutation of mutations){
-          if(!cm){
+        let popuped = null
+        for (const mutation of mutations) {
+          let currentHas = null
+          if (!cm) {
             cm = mutation.target
-            currentHas= cm.classList.contains('iron-selected')
+            currentHas = cm.classList.contains('iron-selected')
           }
           let c = mutation.oldValue
-          if(typeof currentHas =='boolean'){
-            if(currentHas === true){
-              if(c.indexOf('iron-selected')<0) required= true
-            }else if(currentHas === false){
-              if(c.indexOf('iron-selected')>=0) required= true
+          if (typeof currentHas == 'boolean') {
+            if (currentHas === true) {
+              if (c.indexOf('iron-selected') < 0) {
+                required = true
+                popuped = false
+              }
+            } else if (currentHas === false) {
+              if (c.indexOf('iron-selected') >= 0) {
+                let cr = kRef(chatroomRenderer)
+                if (cr && cr.popoutWindow) {
+                  required = true
+                  popuped = (popupClose.mPopupWindow === null) // no WeakRef was set
+                }
+                cr = null
+              }
             }
           }
-          if(required) break;
+          if (required) break;
         }
-        
 
         if (required) {
-          const popuped = !currentHas
+          
           let btnElm = kRef(btn)
           if (btnElm) {
             btnElm.classList.toggle('tyt-btn-popuped', popuped)
@@ -2603,11 +2613,9 @@ function injection_script_1() {
           }
           if(popuped && popupClose){
       
-
               let cr = kRef(chatroomRenderer)
               if(cr){ 
                 popupClose.mPopupWindow = mWeakRef(cr.popoutWindow)
-  
               }
    
           }
