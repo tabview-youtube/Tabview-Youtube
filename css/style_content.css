@@ -197,12 +197,6 @@ Same for #secondary
         contain: strict;
         content-visibility: auto;
     }
-    /*
-    #container.ytd-playlist-panel-renderer {
-        contain: strict;
-        content-visibility: auto;
-    }
-    */
 }
 
 
@@ -220,13 +214,35 @@ Same for #secondary
     div#mouseover-overlay.style-scope.ytd-thumbnail,
     div#hover-overlays.style-scope.ytd-thumbnail {
         contain: content;
-        content-visibility: visible;
     }
     
-    div#hover-overlays.style-scope.ytd-thumbnail > * {
+    div#hover-overlays.style-scope.ytd-thumbnail #tooltip {
+        contain: content;
         white-space: nowrap;
     }
 }
+
+@supports (color: var(--fix-charity-box-fadeout-after-resizing)) {
+    /*
+    https://www.youtube.com/watch?v=30PcoavqFq0&list=PLS3XGZxi7cBXnYfJpUas1ud6XATvWATHb&index=342
+    #charity-box
+    two-col => single-col => #charity-box disappear due to #cinematics
+    */
+
+    #clarify-box {
+        position: relative;
+        contain: content;
+    }
+}
+
+@supports (color: var(--fix-charity-box-menu-button)) {
+    #clarify-box ytd-info-panel-content-renderer[has-menu] #menu.ytd-info-panel-content-renderer {
+        display: flex;
+        margin-top: 0;
+        align-items: center;
+    }
+}
+
 @supports (color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
 
 /* <<< pre-fix for japanese layout native bug */
