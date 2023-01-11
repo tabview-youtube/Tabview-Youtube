@@ -2507,18 +2507,18 @@ function injection_script_1() {
   }, false)
 
 
-  document.addEventListener('tyt-close-popup', (evt)=>{
+  document.addEventListener('tyt-close-popup', (evt) => {
     let cr = kRef(chatroomRenderer)
 
-    if(cr) {
+    if (cr) {
 
-      try{
+      try {
         cr.closePopoutWindow();
-      }catch(e){}
+      } catch (e) { }
 
-    } 
-    
-  },false)
+    }
+
+  }, false)
 
   let popupBtnId = 0
   let mtoIframePopup = null
@@ -2540,34 +2540,36 @@ function injection_script_1() {
     function isPopuped(cm) {
       return cm.matches('iron-pages > :not(slot):not(.iron-selected)')
     }
-    function clearMTO(){
+    function clearMTO() {
       // when btn appear
-      
-      if(mtoIframePopup){
+
+      if (mtoIframePopup) {
         mtoIframePopup.takeRecords()
         mtoIframePopup.disconnect()
-        mtoIframePopup=null
+        mtoIframePopup = null
       }
 
     }
-    function setupMTO(btn){
+    function setupMTO(btn) {
       // when btn clicked
 
       btn = mWeakRef(btn)
-     
-
-      
-      let cr = kRef(chatroomRenderer) 
-      if(!cr) return;
-      let cm = cr.querySelector('#chat-messages') 
-      if(!cm) return;
 
 
-      mtoIframePopup=new MutationObserver((mutations)=>{
+
+      let cr = kRef(chatroomRenderer)
+      if (!cr) return;
+      let cm = cr.querySelector('#chat-messages')
+      if (!cm) return;
+
+
+      mtoIframePopup = new MutationObserver((mutations) => {
 
         let cm = null
-        let required = false
+        let required = null
         let popuped = null
+        let toHideBtn = null
+        let toShowBtn = null
         for (const mutation of mutations) {
           let currentHas = null
           if (!cm) {
@@ -2577,6 +2579,7 @@ function injection_script_1() {
           let c = mutation.oldValue
           if (typeof currentHas == 'boolean') {
             if (currentHas === true) {
+              toShowBtn = true
               if (c.indexOf('iron-selected') < 0) {
                 required = true
                 popuped = false
@@ -2587,17 +2590,25 @@ function injection_script_1() {
                 if (cr && cr.popoutWindow) {
                   required = true
                   popuped = (popupClose.mPopupWindow === null) // no WeakRef was set
+                } else {
+                  toHideBtn = true
                 }
                 cr = null
               }
             }
           }
-          if (required) break;
+          if (required === true) break;
         }
 
-        if (required) {
-          
-          let btnElm = kRef(btn)
+        /** @type {HTMLElement} */
+        let btnElm = kRef(btn)
+
+        if (toShowBtn === true && toHideBtn === null) {
+          if (btnElm) btnElm.classList.add('tyt-btn-enabled')
+        }
+
+        if (required === true) {
+
           if (btnElm) {
             btnElm.classList.toggle('tyt-btn-popuped', popuped)
             document.dispatchEvent(new CustomEvent('tyt-chat-popup', {
@@ -2605,28 +2616,29 @@ function injection_script_1() {
                 popuped: popuped
               }
             }))
-            try{
-              if(!popuped && popupClose) {
+            try {
+              if (!popuped && popupClose) {
                 popupClose();
               }
-            }catch(e){}
+            } catch (e) { }
           }
-          if(popuped && popupClose){
-      
-              let cr = kRef(chatroomRenderer)
-              if(cr){ 
-                popupClose.mPopupWindow = mWeakRef(cr.popoutWindow)
-              }
-   
+          if (popuped && popupClose) {
+            let cr = kRef(chatroomRenderer)
+            if (cr) {
+              popupClose.mPopupWindow = mWeakRef(cr.popoutWindow)
+            }
+            cr = null
           }
+        } else if (required === null && toHideBtn === true && toShowBtn === null) {
+          if (btnElm) btnElm.classList.remove('tyt-btn-enabled')
         }
       })
       mtoIframePopup.observe(cm, {
-      
+
         attributes: true,
         attributeFilter: ['class'],
         attributeOldValue: true
-      
+
       })
       cm = null
       cr = null
@@ -2634,8 +2646,8 @@ function injection_script_1() {
 
     }
 
-    function isThisChatCanPopup(cr){
-      
+    function isThisChatCanPopup(cr) {
+
       let canAddBtn = false
       let cm = null
 
@@ -2643,18 +2655,18 @@ function injection_script_1() {
 
 
         let crData = cr.data
-        if(crData){
+        if (crData) {
 
           let isReplay = crData.isReplay === true
           let bool = !isReplay
           // bool = true
           if (bool) {
-  
+
             cm = cr.querySelector('#chat-messages')
             if (cm && !cm.matches('iron-pages > :not(slot):not(.iron-selected)')) {
               canAddBtn = true
             }
-  
+
           }
         }
 
@@ -2664,47 +2676,47 @@ function injection_script_1() {
     }
 
     let popupClose = null
- 
- 
-    function popupBtnOnClick(){
-   
 
-        let cr = kRef(chatroomRenderer)
- 
-        if (cr && typeof cr.openPopoutWindow === 'function' && cr.openPopoutWindow.length === 1 && typeof cr.closePopoutWindow === 'function') {
- 
-          let v = getV()
-          if (v) { 
-            let cm = cr.querySelector('#chat-messages')
-            if (cm) {
 
-              let isReplay = cr.data.isReplay === true
+    function popupBtnOnClick() {
 
-              let url;
-              if(!isReplay){
-                url = "https://www.youtube.com/live_chat?is_popout=1&v=" + v
-              }else {
-                url = "https://www.youtube.com/live_chat_replay?is_popout=1&v=" + v
-              }
-              // https://studio.youtube.com/live_chat?is_popout=1&v=
- 
 
-              !isPopuped(cm) ? cr.openPopoutWindow(url) : popupClose();
+      let cr = kRef(chatroomRenderer)
 
+      if (cr && typeof cr.openPopoutWindow === 'function' && cr.openPopoutWindow.length === 1 && typeof cr.closePopoutWindow === 'function') {
+
+        let v = getV()
+        if (v) {
+          let cm = cr.querySelector('#chat-messages')
+          if (cm) {
+
+            let isReplay = cr.data.isReplay === true
+
+            let url;
+            if (!isReplay) {
+              url = "https://www.youtube.com/live_chat?is_popout=1&v=" + v
+            } else {
+              url = "https://www.youtube.com/live_chat_replay?is_popout=1&v=" + v
             }
+            // https://studio.youtube.com/live_chat?is_popout=1&v=
+
+
+            !isPopuped(cm) ? cr.openPopoutWindow(url) : popupClose();
 
           }
 
-
         }
 
- 
+
+      }
+
+
 
     }
-    
+
     async function runner(btn) {
 
-      
+
       clearMTO()
       popupClose = null
 
@@ -2715,23 +2727,23 @@ function injection_script_1() {
       let cr = null
       let itemScroller = null
       while (!itemScroller) {
-        if(!cr) cr = kRef(chatroomRenderer)
-        if(cr) itemScroller = cr.querySelector('#item-scroller.yt-live-chat-item-list-renderer')
+        if (!cr) cr = kRef(chatroomRenderer)
+        if (cr) itemScroller = cr.querySelector('#item-scroller.yt-live-chat-item-list-renderer')
         await new Promise(resolve => window.requestAnimationFrame(resolve));
         if (tid !== popupBtnId) return
         if (count++ > 200) return
-      } 
-      if(!document.contains(btn)) return
+      }
+      if (!document.contains(btn)) return
 
 
       clearMTO()
 
       let canAddBtn = isThisChatCanPopup(cr)
- 
+
       if (canAddBtn) {
 
 
-        btn.removeEventListener('click',popupBtnOnClick , false);
+        btn.removeEventListener('click', popupBtnOnClick, false);
 
         popupClose = function () {
 
@@ -2741,7 +2753,7 @@ function injection_script_1() {
           } catch (e) { }
           let mPopupWindow = kRef(popupClose.mPopupWindow)
           popupClose.mPopupWindow = null
-          if(mPopupWindow){
+          if (mPopupWindow) {
             try {
               mPopupWindow.close()
             } catch (e) { }
@@ -2750,20 +2762,20 @@ function injection_script_1() {
         }
         popupClose.mPopupWindow = null
         popupClose.closePopoutWindow = cr.closePopoutWindow.bind(cr)
-  
+
         setupMTO(btn)
 
 
-        btn.addEventListener('click',popupBtnOnClick , false);
+        btn.addEventListener('click', popupBtnOnClick, false);
 
 
         btn.classList.toggle('tyt-btn-enabled', true)
 
 
 
-      }else{
-        
-        btn.removeEventListener('click',popupBtnOnClick , false);
+      } else {
+
+        btn.removeEventListener('click', popupBtnOnClick, false);
         btn.classList.toggle('tyt-btn-enabled', false)
 
       }
@@ -2774,7 +2786,7 @@ function injection_script_1() {
 
 
     }
-    runner(evt.target ) 
+    runner(evt.target)
 
   }, true)
 
