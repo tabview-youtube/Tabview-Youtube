@@ -210,16 +210,34 @@ Same for #secondary
 }
 
 @supports (color: var(--tooltip-nowrap)) {
+
+    html {
+        --tyt-thumbnail-contain: style;
+        /* by default, layout and paint are excluded; element height is zero for browse page */
+        /* see https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/164946 */
+    }
+
+    html #right-tabs {
+        --tyt-thumbnail-contain: content;
+        /* rendering acceleration for thumbnail inside #right-tabs only */
+    }
+
     div#overlays.style-scope.ytd-thumbnail,
     div#mouseover-overlay.style-scope.ytd-thumbnail,
     div#hover-overlays.style-scope.ytd-thumbnail {
-        contain: content;
+        contain: var(--tyt-thumbnail-contain); 
     }
     
     div#hover-overlays.style-scope.ytd-thumbnail #tooltip {
         contain: content;
         white-space: nowrap;
     }
+    
+    div#hover-overlays.style-scope.ytd-thumbnail div {
+        contain: content;
+    }
+    
+
 }
 
 @supports (color: var(--fix-charity-box-fadeout-after-resizing)) {
