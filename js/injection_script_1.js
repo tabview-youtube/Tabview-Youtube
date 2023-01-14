@@ -1289,6 +1289,7 @@ function injection_script_1() {
         this.classList.add('tyt-chat-frame-ready')
       }
 
+
       /* this.isListeningForPlayerProgress is no longer applicable */
       let pt = arguments[0]['yt-player-video-progress'];
 
@@ -1299,6 +1300,7 @@ function injection_script_1() {
 
 
       if (boolz && pt >= 0) {
+        if (!isChatReplay) return; // only chat replay requires yt-player-video-progress
 
         // if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
         // reduce memory usage; avoid tab killing
