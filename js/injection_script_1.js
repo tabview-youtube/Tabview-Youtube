@@ -1197,7 +1197,9 @@ function injection_script_1() {
           if(p.isAttached === true){
 
           }else{
-            p.urlChanged();
+            try {
+              p.urlChanged();
+            } catch (e) { }
           }
           
         }
@@ -1216,8 +1218,10 @@ function injection_script_1() {
         detachIt(p);
       }
     }
+
+    let isChatReplay = null
     document.addEventListener('yt-page-data-fetched', function (evt) {
-      
+      isChatReplay = null
       checkPageSwitchedForChat2();
     })
     document.addEventListener('yt-navigate-finish', function (evt) {
@@ -1259,14 +1263,18 @@ function injection_script_1() {
       }
       */
 
-      if(this.collapsed === true && this.isAttached === true) {
-        detachIt(this)
-        return;
+      if (isChatReplay === null) {
+        isChatReplay = ((this.data || 0).liveChatRenderer || 0).isReplay
       }
-      
-      if(this.collapsed === false && this.isAttached === false) {
-        attachIt(this)
-        return;
+      if (isChatReplay === true) {
+        if (this.collapsed === true && this.isAttached === true) {
+          detachIt(this)
+          return;
+        }
+        if (this.collapsed === false && this.isAttached === false) {
+          attachIt(this)
+          return;
+        }
       }
 
       if(this.collapsed === true) return;
