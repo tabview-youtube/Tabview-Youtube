@@ -1188,7 +1188,7 @@ function injection_script_1() {
     async function checkPageSwitchedForChat3(){
 
       let p = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-      if (p) {
+      if (p && p.isAttached === false) {
         // reloadedCounter = 0;
         // console.log(p.isAttached, p.isFrameReady,p.isConnected)
         await new Promise(r => setTimeout(r, 300));
@@ -1207,22 +1207,24 @@ function injection_script_1() {
 
     }
     
-    async function checkPageSwitchedForChat2(){
+    async function checkPageSwitchedForChat2(m){
       
       let q = document.querySelector('ytd-live-chat-frame#chat')
       if(q) chat.classList.remove('tyt-chat-frame-ready')
       addedChatFrameReady = false;
 
-      let p = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-      if (p) {
-        detachIt(p);
+      if (m === true) {
+        let p = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
+        if (p) {
+          detachIt(p);
+        }
       }
     }
 
     let isChatReplay = null
     document.addEventListener('yt-page-data-fetched', function (evt) {
       isChatReplay = null
-      checkPageSwitchedForChat2();
+      checkPageSwitchedForChat2(isChatReplay === true);
     })
     document.addEventListener('yt-navigate-finish', function (evt) {
       // when chat is open, page switching
