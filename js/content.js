@@ -4329,7 +4329,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
               await Promise.resolve(0)
 
-              descToggleBtn = querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+              descToggleBtn = descMetaLines ? querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])') : null;
               if (descToggleBtn) {
 
                 let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
@@ -4358,7 +4358,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
               await Promise.resolve(0)
 
-              let detailsIntersectioner = descMetaExpander.querySelector('#info-container.style-scope.ytd-watch-metadata');
+              let detailsIntersectioner = querySelectorFromAnchor.call(descMetaExpander, '#info-container.style-scope.ytd-watch-metadata');
               if (detailsIntersectioner) {
                 Promise.resolve(detailsIntersectioner).then(detailsIntersectioner => {
                   let dom = detailsIntersectioner;
