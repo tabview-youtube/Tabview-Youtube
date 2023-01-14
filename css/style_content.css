@@ -117,7 +117,7 @@ html:not(.style-scope) {
 }
 
 @supports (color: var(--tyt-chat-frame-ready)){
-    #chat:not(.tyt-chat-frame-ready){
+    ytd-watch-flexy[tyt-chat="+chat$playback"] #chat:not(.tyt-chat-frame-ready){
         --tyt-chat-frame-display: none;
     }
     #chat iframe{

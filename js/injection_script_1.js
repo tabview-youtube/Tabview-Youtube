@@ -1223,8 +1223,9 @@ function injection_script_1() {
 
     let isChatReplay = null
     document.addEventListener('yt-page-data-fetched', function (evt) {
+      let mIsChatReplay = isChatReplay
       isChatReplay = null
-      checkPageSwitchedForChat2(isChatReplay === true);
+      checkPageSwitchedForChat2(mIsChatReplay === true);
     })
     document.addEventListener('yt-navigate-finish', function (evt) {
       // when chat is open, page switching
@@ -1299,8 +1300,11 @@ function injection_script_1() {
         postI++
         boolz = false; // skip postI === 0
       }
-      
-      if (isChatReplay === false) boolz = false; // only chat replay requires yt-player-video-progress
+
+      if (isChatReplay === false) {
+        boolz = false; // only chat replay requires yt-player-video-progress
+        if (pt > 0) return;
+      }
 
 
       if (boolz && pt >= 0) {
