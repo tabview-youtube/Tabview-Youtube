@@ -52,6 +52,18 @@ console.time("Tabview Youtube Init Script")
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
 
+  
+  let _isPageFirstLoaded = true
+
+  async function makeTytLock() {
+    let c = 8;
+    while (!document.documentElement) {
+      if(--c === 0) return
+      await new Promise(window.requestAnimationFrame)
+    }
+    if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
+  }
+  if (location.pathname === '/watch') makeTytLock()
   /*
 
   youtube page
@@ -3477,6 +3489,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const pageBeingInit = function () {
 
+    if(_isPageFirstLoaded && location.pathname==='/watch') document.documentElement.setAttribute('tyt-lock', '')
+
     // call regardless pageType
     // run once on / before pageSeq2
 
@@ -5103,6 +5117,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
 
+    isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock')
+
   }
 
 
@@ -6628,7 +6644,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  let _isPageFirstLoaded = true
   let pageSeqMutex = new Mutex()
 
   function pageSeq1(evt) {
@@ -6720,6 +6735,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           onNavigationEndAsync(mIsPageFirstLoaded)
           _isPageFirstLoaded = false
         }
+        
+        
         unlock();
       })
     }

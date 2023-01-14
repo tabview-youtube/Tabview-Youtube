@@ -68,6 +68,23 @@ html:not(.style-scope) {
 
 }
 
+ytd-watch-flexy[video-id] #columns {
+    --tyt-lock-display: none;
+}
+ytd-watch-flexy[video-id] #player {
+    --tyt-lock-display: block;
+}
+html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy {
+    --tyt-lock-display: block;
+}
+html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy > * {
+    --tyt-lock-display: none;
+}
+
+html[tyt-lock] #secondary-inner > * {
+    display: var(--tyt-lock-display) !important;
+}
+
 ytd-watch-flexy {
 
     --tabview-youtube-tabbtn-height: 46px;
@@ -131,7 +148,108 @@ Same for #secondary
 
  */
 
-@supports (color: var(--performance-fix)){
+@supports (not-color: var(--performance-fix-v2)){
+
+    #primary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer,
+    #primary-inner > ytd-playlist-panel-renderer#playlist .watch-skeleton,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist .watch-skeleton,
+    #primary-inner > ytd-playlist-panel-renderer#playlist .ytd-playlist-panel-renderer,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist .ytd-playlist-panel-renderer,
+    #primary-inner > ytd-playlist-panel-renderer#playlist dom-if,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist dom-if {
+        display: none !important;
+        /*
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important; */ /* Chrome/Edge 85+ only */
+    }
+
+    #primary-inner > #related .ytd-item-section-renderer,
+    #secondary-inner > #related .ytd-item-section-renderer,
+    #primary-inner > #related .watch-skeleton,
+    #secondary-inner > #related .watch-skeleton,
+    #primary-inner > #related #player-ads,
+    #secondary-inner > #related #player-ads,
+    #primary-inner > #related ytd-watch-next-secondary-results-renderer,
+    #secondary-inner > #related ytd-watch-next-secondary-results-renderer,
+    #primary-inner > #related dom-if,
+    #secondary-inner > #related dom-if {
+        
+        display: none !important;
+        /*
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important;*/ /* Chrome/Edge 85+ only */
+    }
+
+
+    #primary-inner > ytd-comments#comments .ytd-comment-thread-renderer, 
+    #secondary-inner > ytd-comments#comments .ytd-comment-thread-renderer {
+        
+        display: none !important; /*
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important;*/ /* Chrome/Edge 85+ only */
+    }
+
+
+    #primary-inner > ytd-playlist-panel-renderer#playlist,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist {
+        contain: strict !important;
+        visibility: collapse !important;
+    }
+
+    #primary-inner > #related,
+    #secondary-inner > #related {
+        contain: strict !important;
+        visibility: collapse !important;
+    }
+
+
+    #primary-inner > ytd-comments#comments, 
+    #secondary-inner > ytd-comments#comments {
+        contain: strict !important;
+        visibility: collapse !important;
+    }
+
+    html:not([tabview-loaded]) #secondary-inner #right-tabs {
+        
+        display: none !important; 
+        /*
+        contain: strict !important;
+        visibility: collapse !important;
+        content-visibility: hidden !important;*/ /* Chrome/Edge 85+ only */
+    }
+
+
+}
+
+
+
+@supports (not-color: var(--performance-fix-v3)){
+
+
+    #primary-inner > ytd-playlist-panel-renderer#playlist #items > *,
+    #secondary-inner > ytd-playlist-panel-renderer#playlist #items > * {
+        display: none !important;
+    }
+
+    #primary-inner > #related > *, 
+    #secondary-inner > #related > * {
+        display: none !important; 
+    }
+    
+    #primary-inner > ytd-comments#comments > *, 
+    #secondary-inner > ytd-comments#comments > * {
+        
+        display: none !important; 
+    }
+
+}
+
+
+@supports (color: var(--performance-fix-v1)){
 
     #primary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer,
     #secondary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer {
@@ -180,6 +298,10 @@ Same for #secondary
 
 
 }
+
+
+
+
 
 @supports (color: var(--playlist-items-contain)){
 
@@ -489,7 +611,7 @@ Same for #secondary
 
 }
 
-@supports (not (color: var(--backup-code-for-autohide))){
+@supports (not-color: var(--backup-code-for-autohide)){
 /*
 
 body .ytp-autohide {
@@ -785,6 +907,31 @@ body .ytp-autohide .ytp-unmute,
 }
 */
 }
+/*
+@supports(color: var(--tooltip-bg-sizing-fix)) and (aspect-ratio: 1600 / 900){
+    .ytp-tooltip-bg[style*="height"][style*=" / 800px 450px;"] {
+        aspect-ratio: 1600 / 900 !important;
+        width: auto !important;
+    }
+    .ytp-tooltip-bg[style*="height"][style*=" / 1600px 900px;"] {
+        aspect-ratio: 1600 / 900 !important;
+        width: auto !important;
+    }
+    
+    .ytp-tooltip-bg[style*="height"][style*=" / 800px 800px;"] {
+        aspect-ratio: 900 / 900 !important;
+        width: auto !important;
+    }
+    .ytp-tooltip-bg[style*="height"][style*=" / 900px 900px;"] {
+        aspect-ratio: 900 / 900 !important;
+        width: auto !important;
+    }
+
+    .ytp-tooltip-bg[style*="height: 89.5px"][style*=" / "] {
+        height: 90px !important;
+    }
+}
+*/
 
 @supports(color: var(--compatibile-with-detailedtime)){
 
@@ -1945,7 +2092,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (not (color: var(--removed-page-old-design-sentiment-bar-renderer-adjustment))){
+    @supports (not-color: var(--removed-page-old-design-sentiment-bar-renderer-adjustment)){
 
         /* for page info - old desing */
         /* REMOVED */
@@ -2104,7 +2251,7 @@ body .ytp-autohide .ytp-unmute,
         padding: 12px 0 2px 0;
     }
 
-    @supports (not (color: var(--removed-page-old-info-1))){
+    @supports (not-color: var(--removed-page-old-info-1)){
 
         /* left side - like menu smaller */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
@@ -2130,7 +2277,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (not (color: var(--removed-page-old-info-2-single-column))) {
+    @supports (not-color: var(--removed-page-old-info-2-single-column)) {
 
         /* ytd-watch-flexy:not([is-two-columns_]) #player ~ #info > #info-contents */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
@@ -2198,7 +2345,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (not (color: var(--removed-page-old-info-3-two-columns))) {
+    @supports (not-color: var(--removed-page-old-info-3-two-columns)) {
 
         /* ytd-watch-flexy[is-two-columns_] #player ~ #info > #info-contents */
         /* REMOVED since #player ~ #info becomes #player ~ #below */
@@ -2266,7 +2413,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (not (color: var(--removed-page-old-info-4))){
+    @supports (not-color: var(--removed-page-old-info-4)){
             
         /* two column mainly;  theater view make font smaller */
         ytd-watch-flexy[theater] #player ~ #info #info-contents .title {
@@ -4491,7 +4638,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     
 
-    @supports (not (color: var(--removed-teaser-ui-layout-adjustment))){
+    @supports (not-color: var(--removed-teaser-ui-layout-adjustment)){
 
         /**  ==== for Teaser UI  ===  */
 
@@ -4565,7 +4712,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         max-width: 100%;
     }
 
-    @supports (not (color: var(--teaser-ui-content-stylish))) and (opacity:0.137) {
+    @supports (not-color: var(--teaser-ui-content-stylish)) and (opacity:0.137) {
     
         /* experimental css - teaser ui */
         /* visible if tab-info is with no content */
