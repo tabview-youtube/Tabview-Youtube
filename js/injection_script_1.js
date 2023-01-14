@@ -1297,10 +1297,11 @@ function injection_script_1() {
         postI++
         boolz = false; // skip postI === 0
       }
+      
+      if (isChatReplay === false) boolz = false; // only chat replay requires yt-player-video-progress
 
 
       if (boolz && pt >= 0) {
-        if (!isChatReplay) return; // only chat replay requires yt-player-video-progress
 
         // if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
         // reduce memory usage; avoid tab killing
