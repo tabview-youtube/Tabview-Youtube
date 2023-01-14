@@ -1313,15 +1313,17 @@ function injection_script_1() {
         let pt = arguments[0]['yt-player-video-progress'];
         if (this.collapsed === true && this.isAttached === true) {
           if(pt>0 || pt === 0) _lastPT = pt;
-          detachIt(this) // this.isAttached === false // detachIt(this)
           resetChatMessageCanDisplay(this)
+          Promise.resolve(0).then(()=>{   
+            detachIt(this) // this.isAttached === false // detachIt(this)
+          })
           return;
         }
         if (this.collapsed === false && this.isAttached === false && ptcBusy !== true) {
           if(pt>0 || pt === 0) _lastPT = pt;
           resetChatMessageCanDisplay(this)
           ptcBusy = true;
-          setTimeout(()=>{
+          Promise.resolve(0).then(()=>{      
             attachIt(this) // this.isAttached = true // attachIt(this)
             ptcBusy = true;
             if(tryRefresh(this, true)===2){
@@ -1329,7 +1331,7 @@ function injection_script_1() {
             }else{
               ptcBusy = false;
             }
-          },300)
+          })
           return;
         }
       }
