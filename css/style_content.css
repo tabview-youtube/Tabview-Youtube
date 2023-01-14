@@ -68,22 +68,54 @@ html:not(.style-scope) {
 
 }
 
-ytd-watch-flexy[video-id] #columns {
-    --tyt-lock-display: none;
-}
-ytd-watch-flexy[video-id] #player {
-    --tyt-lock-display: block;
-}
-html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy {
-    --tyt-lock-display: block;
-}
-html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy > * {
-    --tyt-lock-display: none;
+@supports (color: var(--performance-hack)){
+
+    ytd-watch-flexy[video-id] #columns {
+        --tyt-lock-display: none;
+    }
+    ytd-watch-flexy[video-id] #player {
+        --tyt-lock-display: block;
+    }
+    html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy {
+        --tyt-lock-display: block;
+    }
+    html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy > * {
+        --tyt-lock-display: none;
+    }
+
+    html[tyt-lock] #secondary-inner > * {
+        display: var(--tyt-lock-display) !important;
+    }
+
 }
 
-html[tyt-lock] #secondary-inner > * {
-    display: var(--tyt-lock-display) !important;
+
+/*
+@supports (color: var(--endpoint-hover-colorize)){
+
+    ytd-watch-metadata[has-metamove] #info.ytd-watch-metadata a.yt-simple-endpoint{
+        --yt-endpoint-color: var(--yt-spec-text-secondary);
+        --yt-endpoint-hover-color: var(--yt-spec-text-secondary);
+        --yt-endpoint-visited-color: var(--yt-spec-text-secondary);
+    }
+    
+    ytd-watch-metadata[has-metamove] #info.ytd-watch-metadata a.yt-simple-endpoint:hover{
+        --yt-endpoint-color: var(--yt-spec-call-to-action);
+        --yt-endpoint-hover-color: var(--yt-spec-call-to-action);
+        --yt-endpoint-visited-color: var(--yt-spec-call-to-action);
+    }
+    
 }
+*/
+
+@supports (color: var(--non-clickable-endpoint)){
+
+    ytd-watch-metadata[has-metamove][description-collapsed] #info.ytd-watch-metadata a.yt-simple-endpoint{
+        pointer-events: none;
+    }
+    
+}
+
 
 ytd-watch-flexy {
 
