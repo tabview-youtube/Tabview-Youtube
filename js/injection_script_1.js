@@ -1180,20 +1180,6 @@ function injection_script_1() {
       reset(0);
     }
 
-    async function checkPageSwitchedForChat3(){
-      resetChatMessageCanDisplay()
-
-      let chat = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')
-      if (chat && !chat.currentPageUrl && chat._currentPageUrl) {
-        await new Promise(r => setTimeout(r, 300));
-        if(chat.collapsed === false && !chat.currentPageUrl && chat._currentPageUrl){
-          chat.currentPageUrl = chat._currentPageUrl;
-          delete chat._currentPageUrl;
-        }
-      }
-
-    }
-
     function resetChatMessageCanDisplay(chat){
       if(isChatMessageCanDisplay === true){
         isChatMessageCanDisplay = false
@@ -1202,13 +1188,26 @@ function injection_script_1() {
       }
     }
 
+
+    async function checkPageSwitchedForChat3(){
+      resetChatMessageCanDisplay()
+
+      let chat = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')
+      if (chat) {
+        await new Promise(r => setTimeout(r, 300));
+        if(chat.collapsed === false && !chat.currentPageUrl){
+          attachIt(chat);
+        }
+      }
+
+    }
+
     async function checkPageSwitchedForChat2(){
       resetChatMessageCanDisplay()
       
       let chat = document.querySelector('ytd-live-chat-frame#chat:not([collapsed])')
-      if(chat && chat.collapsed === false && chat.currentPageUrl && !chat._currentPageUrl){
-        chat._currentPageUrl = chat.currentPageUrl
-        chat.currentPageUrl = '';
+      if(chat && chat.collapsed === false){
+        detachIt(chat);
       }
 
     }
@@ -1308,9 +1307,10 @@ function injection_script_1() {
       if (isChatReplay === null) {
         isChatReplay = ((this.data || 0).liveChatRenderer || 0).isReplay
       }
+      let pt = null
       if (isChatReplay === true) {
         
-        let pt = arguments[0]['yt-player-video-progress'];
+        pt = arguments[0]['yt-player-video-progress'];
         if (this.collapsed === true && this.isAttached === true) {
           if(pt>0 || pt === 0) _lastPT = pt;
           resetChatMessageCanDisplay(this)
@@ -1339,21 +1339,21 @@ function injection_script_1() {
       if(this.collapsed === true) return;
       
 
-      let boolz = checkChatNativeReady(this);
+      let boolz = false;
 
       
 
       /* this.isListeningForPlayerProgress is no longer applicable */
-      let pt = arguments[0]['yt-player-video-progress'];
-
-      if(postI === 0){
-        postI++
-        boolz = false; // skip postI === 0
-      }
+      // let pt = arguments[0]['yt-player-video-progress'];
 
       if (isChatReplay === false) {
         boolz = false; // only chat replay requires yt-player-video-progress
-        if (pt > 0 || pt===0) return;
+        if (pt > 0 || pt === 0) return;
+      } else if (postI === 0) {
+        postI++;
+        boolz = false; // skip postI === 0
+      } else {
+        boolz = checkChatNativeReady(this);
       }
 
 
