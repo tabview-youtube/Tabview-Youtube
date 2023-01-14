@@ -954,9 +954,8 @@ function injection_script_1() {
         let cDoc = iframe.contentDocument
         if (!cDoc) return;
 
-        //console.log(12399,5, chat.isFrameReady , chat.isListeningForPlayerProgress, cDoc.querySelector('body:empty'))
-
-        if (chat.isFrameReady && chat.isListeningForPlayerProgress && cDoc.querySelector('body:empty')) {
+        /* chat.isListeningForPlayerProgress is no longer applicable */
+        if (checkChatNativeReady(chat) && cDoc.querySelector('body:empty')) {
           chat.urlChanged();
 
         }
@@ -1011,9 +1010,37 @@ function injection_script_1() {
       return res;
     }
 
+    async function refreshIframe2(kr) {
+      let { chat, continuation, cr } = kr; 
+
+      let a = {
+        endpoint: {
+          liveChatReplayEndpoint: {
+            continuation: continuation // string
+          }
+        },
+        params: {
+          hidden: false // see a = N0(this, b, "reload");
+        },
+        // type: "seek", // "reload"
+        type: "reload",
+        retries: 0,
+        continuationUrl: "navigateEvent", // no use; for logging message only
+        createdTime: Date.now() // no use
+      }
+  
+      (function () {
+        this.requestData_(a) 
+      }).call(cr);
+
+
+
+
+    }
+
     async function refreshIframe(kr) {
       let { chat, continuation, cr } = kr;
-      let dr = cr.$$("yt-player-seek-continuation")
+      // let dr = cr.$$("yt-player-seek-continuation")
 
       /*
 
@@ -1144,21 +1171,135 @@ function injection_script_1() {
 
     let postI =0
 
+    //let reloadedCounter = 0;
+    function detachIt(chat){
+      chat.classList.remove('tyt-chat-frame-ready')
+      addedChatFrameReady = false;
+      chat.detached();
+      if (chat.isAttached === true) chat.isAttached = false;
+      reset(0);
+    }
+    function attachIt(chat){
+      chat.attached();
+      if (chat.isAttached === false) chat.isAttached = true;
+      reset(0);
+    }
+
+    async function checkPageSwitchedForChat3(){
+
+      let p = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
+      if (p) {
+        // reloadedCounter = 0;
+        // console.log(p.isAttached, p.isFrameReady,p.isConnected)
+        await new Promise(r => setTimeout(r, 300));
+        if(p.collapsed===false && addedChatFrameReady === false){
+          // console.log(p.isAttached, p.isFrameReady,p.isConnected)
+          if(p.isAttached === true){
+
+          }else{
+            p.urlChanged();
+          }
+          
+        }
+      }
+
+    }
+    
+    async function checkPageSwitchedForChat2(){
+      
+      let q = document.querySelector('ytd-live-chat-frame#chat')
+      if(q) chat.classList.remove('tyt-chat-frame-ready')
+      addedChatFrameReady = false;
+
+      let p = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
+      if (p) {
+        detachIt(p);
+      }
+    }
+    document.addEventListener('yt-page-data-fetched', function (evt) {
+      
+      checkPageSwitchedForChat2();
+    })
+    document.addEventListener('yt-navigate-finish', function (evt) {
+      // when chat is open, page switching
+      // eg. live replay -> video -> click livestream -> expand chat -> history back to live replay
+
+      checkPageSwitchedForChat3();
+      
+
+    }, true)
+
+    function reset(k){
+      ptcBusy = false
+      chatDataFN = null
+      _lastPT = 0
+      messageExist = false
+      postI = k;
+    }
+
+    let addedChatFrameReady = false
+    document.addEventListener('tabview-chatroom-ready', function (evt) {
+      // trigger on every iframe loaded
+  
+      reset(0);
+
+    }, true)
+
+    function checkChatNativeReady(chat){
+      if(chat.isAttached === false) return false;
+      if('isFrameReady' in chat && chat.isFrameReady !== true) return false
+      return true;
+    }
+  
+
     const g_postToContentWindow = async function () {
+      /*
+      if(!reloadedCounter && this.isFrameReady === true) {
+        reloadedCounter = 1;
+      }
+      */
 
+      if(this.collapsed === true && this.isAttached === true) {
+        detachIt(this)
+        return;
+      }
+      
+      if(this.collapsed === false && this.isAttached === false) {
+        attachIt(this)
+        return;
+      }
 
-      let boolz = this.isListeningForPlayerProgress === true && this.isFrameReady === true;
+      if(this.collapsed === true) return;
+
+      
+
+      let boolz = checkChatNativeReady(this);
+
+      
+      if (!addedChatFrameReady && boolz) {
+        addedChatFrameReady = true
+        this.classList.add('tyt-chat-frame-ready')
+      }
+
+      /* this.isListeningForPlayerProgress is no longer applicable */
       let pt = arguments[0]['yt-player-video-progress'];
+
+      if(postI === 0){
+        postI++
+        boolz = false; // skip postI === 0
+      }
+
 
       if (boolz && pt >= 0) {
 
-        if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
+        // if (!isPageRendered) return; // ignore the chatroom rendering if it is completely under background wihtout rendering
         // reduce memory usage; avoid tab killing
 
         let lastPT = _lastPT
         _lastPT = pt;
 
         postI++
+        if (postI > 1e9) postI = 9;
         let tmp_postI= postI;
 
         
@@ -1184,7 +1325,15 @@ function injection_script_1() {
         //console.log(1723,9,ptcBusy)
         let isRefreshRequired = false;
 
-        isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function'; // backward timeline => YouTube Bug - update forzen
+        
+
+        // for livechat replay, expanded the chat
+       // console.log(334,9999,postI)
+        
+        // backward timeline => YouTube Bug - update forzen
+        isRefreshRequired = pt < lastPT && lastPT - pt > 0.18 && typeof this.urlChanged == 'function';
+        
+
 
         DEBUG_e32 && console.log(573, 2, pt, lastPT)
 
@@ -1215,11 +1364,11 @@ function injection_script_1() {
           if (!isSkip) {
             messageExist = tmp_messageExist
 
-            let chat = document.querySelector('ytd-live-chat-frame#chat[tyt-iframe-loaded]:not([collapsed])')
-            let kr = chat ? isRefreshIframeRequired(chat) : null
+            let kr = isRefreshIframeRequired(this) 
 
             if (kr) {
               ptcBusy = true;
+              // console.log(666)
               refreshIframe(kr);
             }
 
@@ -1266,7 +1415,7 @@ function injection_script_1() {
         //{'yt-player-state-change': 3}
         //{'yt-player-state-change': 2}
         //{'yt-player-state-change': 1}
-        DEBUG_e32 && console.log(573, 25, this.isListeningForPlayerProgress, this.isFrameReady, arguments)
+        
         //isFrameReady is false if iframe is not shown
         this.__$$postToContentWindow$$__(...arguments)
       }
