@@ -4992,6 +4992,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  let iframeLoadHookA_id = 0
+
   const iframeLoadHookA = function (evt) {
 
 
@@ -5000,14 +5002,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (isIframe && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
 
       let iframe = evt.target;
+      let tid = ++iframeLoadHookA_id;
+      
       new Promise(resolve => {
+        if (tid !== iframeLoadHookA_id) return
 
         let k = 270
         let cid = setInterval(() => {
+          
+          if (tid !== iframeLoadHookA_id) return
+
+          if(!cid) return;
 
           if (k-- < 1) {
             clearInterval(cid);
-            resolve(false);
+            cid = 0;
+            return resolve(false);
           }
 
           let cDoc = iframe.contentDocument;
@@ -5015,16 +5025,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (cDoc.readyState != 'complete') return;
           if (!cDoc.querySelector('body')) {
             clearInterval(cid);
-            resolve(false);
+            cid = 0;
+            return resolve(false);
           }
 
           if (!cDoc.querySelector('yt-live-chat-app')) return;
 
           clearInterval(cid);
+          cid = 0;
 
           if (!document.contains(iframe)) return resolve(false);
 
-          resolve(cDoc);
+          resolve([cDoc, iframe]);
+          
+          cDoc = null
+
+          iframe = null
 
 
         }, 17)
@@ -5032,9 +5048,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }).then((res) => {
 
-        if (res) {
-          iFrameContentReady(res)
-        }
+        if (tid !== iframeLoadHookA_id) return
+        if (!res) return;
+        
+
+        const [cDoc, iframe] = res
+
+        iFrameContentReady(cDoc)
+        iframe.dispatchEvent(new CustomEvent('tabview-chatframe-loaded'))
+
 
       })
 

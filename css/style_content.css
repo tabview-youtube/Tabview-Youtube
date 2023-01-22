@@ -124,6 +124,30 @@ html:not(.style-scope) {
         display: var(--tyt-chat-frame-display);
     }
 
+
+    ytd-live-chat-frame#chat::after {
+        display: none;
+        -webkit-animation: gradient-slide 1.2s ease infinite;
+        animation: gradient-slide 1.2s ease infinite;
+        -webkit-animation-name: gradient-slide;
+        animation-name: gradient-slide;
+        background-color: var(--yt-live-chat-shimmer-background-color);
+        background-image: var(--yt-live-chat-shimmer-linear-gradient);
+        background-size: 300% 300%;
+        transform: rotateX(180deg);
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+
+    ytd-watch-flexy[tyt-chat="+chat$playback"] ytd-live-chat-frame#chat[tyt-iframe-loaded]:not(.tyt-chat-frame-ready)::after {
+        content: "";
+        display: block;
+    }
+
 }
 
 
