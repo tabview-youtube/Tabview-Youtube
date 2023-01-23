@@ -2058,10 +2058,6 @@ function injection_script_1() {
   class YTLiveProcessUnit {
 
     constructor(){
-      /** @type {HTMLElement | null} */
-      this.ytLiveChatApp = null
-      /** @type {HTMLElement | null} */
-      this.ytLiveChatRenderer = null
       /** @type {Window | null} */
       // this.ytLivePopupWindow = null
       /** @type {HTMLElement | null} */
@@ -2083,6 +2079,11 @@ function injection_script_1() {
 
     clearVars(t){
       
+      /** @type {HTMLElement | null} */
+      this.ytLiveChatApp = null
+      /** @type {HTMLElement | null} */
+      this.ytLiveChatRenderer = null
+      
       this.initialFetchReq = 0
 
       this.renderBusyS = 0
@@ -2101,7 +2102,7 @@ function injection_script_1() {
 
       
       /** @type {HTMLElement | null} */
-      this.__playerSeekCont__ = null
+      // this.__playerSeekCont__ = null
     }
 
     initByIframe(iframe) {
@@ -2134,8 +2135,6 @@ function injection_script_1() {
 
 
         this.clearVars();
-        this.ytLiveChatRenderer = null
-        this.ytLiveChatApp = null
         if (this.loadStatus & 4) this.loadStatus -= 4
 
       } else {
@@ -2152,8 +2151,6 @@ function injection_script_1() {
         if (chat.collapsed === true) {
           this.renderedVideoProgress = null
           this.clearVars();
-          this.ytLiveChatRenderer = null
-          this.ytLiveChatApp = null
           if (this.loadStatus & 4) this.loadStatus -= 4
         } else if (this.initialFetchReq === 0) {
           this.initialFetchReq = 1
@@ -2973,28 +2970,19 @@ function injection_script_1() {
     }
 
     _handlerPageDataFetched() {
-      ytLivePU.ytLiveChatApp = null
-      ytLivePU.ytLiveChatRenderer = null
       // ytLivePU.elmChat = null
       // ytLivePU.elmChatFrame = null
       ytLivePU.isChatReplay = null
       ytLivePU.loadStatus = 0;
       ytLivePU.requestedVideoProgress = null
       ytLivePU.renderedVideoProgress = null
-      ytLivePU.initialFetchReq = 0
+      ytLivePU.clearVars()
 
       if (ytLivePU.elmChat) {
         ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
         ytLivePU.elmChat.removeAttribute('tyt-iframe-loaded')
       }
-      // console.log(!!ytLivePU.elmChat, ytLivePU.elmChat && !document.contains(ytLivePU.elmChat))
-      /*
-      // handle in initByChat(null)
-      if (ytLivePU.elmChat && !document.contains(ytLivePU.elmChat)) {
-        ytLivePU.elmChat = null
-        ytLivePU.elmChatFrame = null
-      }
-      */
+
     }
 
     async fakeReload(){
