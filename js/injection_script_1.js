@@ -822,14 +822,6 @@ function injection_script_1() {
   function onPageFetched(evt) {
     ytLivePU.postI++;
     pageType = ((evt.detail || 0).pageData || 0).page;
-    let chat = ytLivePU.elmChat
-    if (chat && chat.collapsed === false) {
-      try {
-        // chat.attached();
-        chat.urlChanged();
-      } catch (e) { }
-    }
-    chat = null
     if(ytLivePU.handlerPageDataFetched) ytLivePU.handlerPageDataFetched();
   }
 
@@ -2085,6 +2077,7 @@ function injection_script_1() {
       this.ytLiveChatRenderer = null
       
       this.initialFetchReq = 0
+      // console.log(99)
 
       this.renderBusyS = 0
       this.renderBusyR = 0
@@ -2106,16 +2099,24 @@ function injection_script_1() {
     }
 
     initByIframe(iframe) {
-      // console.log('initByIframe')
       if ((iframe || 0).nodeName !== 'IFRAME') return;
+      if (this.elmChatFrame === iframe) return;
+      // console.log('initByIframe')
+      // just to catch the iframe element; content loading determined by initByChatRenderer
+      // if the iframe is changed, the initByChatRenderer must also be triggered and iframe load event will be also triggered before that.
+      // if the iframe not changed, just content changed, initByChatRenderer will come out while iframe element remains the same
       this.elmChatFrame = iframe
+      // if(this.loadStatus)
       this.loadStatus |= 2
       this.init();
     }
 
     /** @param {HTMLElement | null} chat */
     initByChat(chat) {
+      // this is triggered when collapsed / expanded / initial state
       // console.log('initByChat')
+
+      
       
       if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
 
@@ -2123,6 +2124,12 @@ function injection_script_1() {
         this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
       if (chat === null) {
+        // console.log(2241)
+        if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true){
+          this.elmChat.disconnectedCallback()
+          // console.log('aa', this.elmChat.isAttached)
+          // console.log(3341)
+        } 
         this.elmChat = null
         this.elmChatFrame = null
         if (this.loadStatus & 1) this.loadStatus -= 1;
@@ -2139,12 +2146,23 @@ function injection_script_1() {
 
       } else {
         
+        // console.log(2242)
         // console.log('initByChat')
         if ((chat || 0).id !== 'chat') return;
+        // if(this.initialFetchReq === 21) return;
 
+        // console.log(this.initialFetchReq)
 
-
+        
         this.elmChat = chat
+        if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false){
+          // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
+          this.elmChat.connectedCallback()
+          // console.log('ab', this.elmChat.isAttached)
+          // console.log(3342)
+          this.initialFetchReq = 21;
+        }
+
         this.loadStatus |= 1
         if (this.loadStatus & 16) this.loadStatus -= 16
         if (this.loadStatus & 32) this.loadStatus -= 32
@@ -2155,6 +2173,10 @@ function injection_script_1() {
         } else if (this.initialFetchReq === 0) {
           this.initialFetchReq = 1
           // console.log(this.renderedVideoProgress, this.ytLiveChatRenderer ,this.ytLiveChatApp, this.loadStatus.toString(2) )
+        } else if (this.initialFetchReq === 21) {
+          // url changed
+          // this fire mutiple times until initByChatRenderer reset it.
+          this.chatUrlChanged();
         }
 
         chat.classList.remove('tyt-chat-frame-ready')
@@ -2163,7 +2185,45 @@ function injection_script_1() {
       }
     }
 
+    initByChatRenderer(cr) {
+      // this is triggered when liveChatApp + Renderer ready
+
+      // console.log('initByChatRenderer')
+      if (!cr) return;
+      this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
+      if (!this.ytLiveChatApp) return;
+
+     
+
+      if (this.initialFetchReq >= 3) {
+        // including  this.initialFetchReq === 21
+        this.initialFetchReq = 0;
+        this.initByChat(this.elmChat);
+      }
+
+      if ((this.loadStatus & 1) === 0) {
+        ytLiveMOHandler();
+      }
+
+      this.ytLiveChatRenderer = cr
+
+      this.setUpPlayerSeekCont();
+
+      this.isChatReplay = this.isReplay()
+
+
+
+      this.setupChatRenderer()
+
+
+
+
+      this.loadStatus |= 4
+      this.init();
+    }
+
     createCMWaiter(){
+      // render (seek/reload) start/sucess/fail when yt-action is triggered
 
       return new Promise(resolve=>{
 
@@ -2184,6 +2244,7 @@ function injection_script_1() {
     }
 
     createLoadingWaiter(){
+      // loading finished when yt-action is triggered
       
       return new Promise(resolve=>{
 
@@ -2198,8 +2259,48 @@ function injection_script_1() {
       })
       
     }
+    
+    async chatUrlChanged(){
+      // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
+      
+      // first call not effect; only take effect in second call.
+
+      // console.log('chatUrlChanged - 1')
+      // console.log(301)
+      await Promise.resolve(0)
+      let chat = this.elmChat
+
+      // console.log(302)
+      if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
+
+        // console.log(305)
+        let cr = this.ytLiveChatRenderer
+        // console.log(306)
+        if (cr) {
+          this.initialFetchReq = 1
+          this.initByChatRenderer(cr);
+          // console.log('chatUrlChanged - 2a')
+          return false
+        } else {
+
+          // console.log(307)
+          // this.initialFetchReq = 1
+          chat.urlChanged(); // neccessary
+          // console.log('chatUrlChanged - 2b')
+          return true
+        }
+      }
+      this.initialFetchReq = 0
+
+      // console.log('chatUrlChanged - 2c')
+      return null
+      
+
+    }
 
     setUpPlayerSeekCont(shadow) {
+      // player seek cont will be replaced frenquently when list content is updated
+      // re-hook by each yt-action if replaced
 
       // if(this.__playerSeekCont__ && (this.__playerSeekCont__.isAttached === false ? false : this.ytLiveChatApp.contains(this.__playerSeekCont__))) return;
 
@@ -2254,23 +2355,8 @@ function injection_script_1() {
 
     }
 
-    initByChatRenderer(cr) {
-      // console.log('initByChatRenderer')
-      if (!cr) return;
-      this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
-      if (!this.ytLiveChatApp) return;
-
-
-      if ((this.loadStatus & 1) === 0) {
-        ytLiveMOHandler();
-      }
-
-      this.ytLiveChatRenderer = cr
-
-      this.setUpPlayerSeekCont();
-
-      this.isChatReplay = this.isReplay()
-
+    setupChatRenderer(){
+      // only triggered in init
 
 
       if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
@@ -2443,8 +2529,7 @@ function injection_script_1() {
 
       }
 
-
-
+      
       if (this.isChatReplay && !ytLivePU.queryCR('style#tyt-chatframe-css')) {
         let style = ytLivePU.ytLiveChatApp.ownerDocument.createElement('style')
         style.id = 'tyt-chatframe-css'
@@ -2457,10 +2542,8 @@ function injection_script_1() {
         ytLivePU.ytLiveChatApp.appendChild(style)
       }
 
-
-      this.loadStatus |= 4
-      this.init();
     }
+
 
     // playerProgressChanged2_(a,b,c){
 
@@ -2523,6 +2606,9 @@ function injection_script_1() {
      * @return {undefined}
      */
     playerProgressChangedForStatusSeek(a) {
+      // just update the variables according to the native method; no specific use. 
+      // just play safe
+
       if (this.data.isReplay && !this.isAdPlaying) {
         this.currentPlayerState_ = {};
         /** @type {number} */
@@ -2548,6 +2634,8 @@ function injection_script_1() {
     }
 
     statusSeek(pt) {
+      // see playerProgressChangedForStatusSeek
+
       // if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
 
       let cr = ytLivePU.ytLiveChatRenderer
@@ -2568,6 +2656,7 @@ function injection_script_1() {
 
 
     async sReload(endPointClicker) {
+      // this is to perform the reload cont with simplified mechanism to make the process faster
 
       try {
 
@@ -2657,6 +2746,8 @@ function injection_script_1() {
     }
 
     directVideoProgress(progress) {
+      // instead of postToContentWindow, directly call DOM method(s) of the chat renderer
+
       // if (progress < 1) progress = 1
 
       try {
@@ -2777,6 +2868,8 @@ function injection_script_1() {
     }
 
     async initReload(endPointClicker) {
+      // the initial chat messages usually wrong; 
+      // this force the full reload at the begining.
       try {
 
         if (!endPointClicker) return
@@ -2842,16 +2935,27 @@ function injection_script_1() {
           let ytReloadCont = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu')
           let getContinuationUrl = ytReloadCont.getContinuationUrl.bind(ytReloadCont)
           // ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
+          
+          // ytReloadCont.trigger();
+          ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
 
+          /*
           let chatRenderer = HTMLElement.prototype.closest.call(ytReloadCont, 'yt-live-chat-renderer')
-          chatRenderer.onLoadReloadContinuation_(new CustomEvent('yt-load-reload-continuation', { detail: getContinuationUrl }), getContinuationUrl)
-
+          try{
+            chatRenderer.onLoadReloadContinuation_(new CustomEvent('yt-load-reload-continuation', { detail: getContinuationUrl }), getContinuationUrl)
+          }catch(e){
+            // known as buggy for single column view
+            console.log(e)
+          }
+          */
+          
 
         }
       }
     }
 
     prepareReload() {
+      // empty the pending request/queue as reload action
 
       (function () {
 
@@ -2904,7 +3008,9 @@ function injection_script_1() {
         */
       }
       // console.log('init', this.loadStatus.toString(2))
+      // console.log(796, this.elmChat, this.elmChatFrame)
       if(!this.elmChat || !this.elmChatFrame) return;
+      // console.log(55667, this.initialFetchReq)
       
       if(this.initialFetchReq === 1 && (this.loadStatus &4) && (this.loadStatus &2)){
         this.initialFetchReq = 2;
@@ -2921,6 +3027,7 @@ function injection_script_1() {
     }
 
     triggeredPTC1() {
+      // just reserved for future purpose
       if (!ytLivePU.ytLiveChatRenderer) return;
       if (this.loadStatus & 8) return;
       this.loadStatus |= 8
@@ -2928,6 +3035,7 @@ function injection_script_1() {
     }
 
     triggeredPTC2() {
+      // just reserved for future purpose
       if (this.loadStatus & 16) return;
       this.loadStatus |= 16
       this.init();
@@ -2935,6 +3043,7 @@ function injection_script_1() {
     }
 
     handlerChatRoomNewPage(evt) {
+      // to be removed
 
       // if (this.cnpCID) clearTimeout(this.cnpCID);
       // this.cnpCID = 0;
@@ -2970,6 +3079,9 @@ function injection_script_1() {
     }
 
     _handlerPageDataFetched() {
+
+      // reset stuff once video (page) is changed
+
       // ytLivePU.elmChat = null
       // ytLivePU.elmChatFrame = null
       ytLivePU.isChatReplay = null
@@ -2983,10 +3095,23 @@ function injection_script_1() {
         ytLivePU.elmChat.removeAttribute('tyt-iframe-loaded')
       }
 
+        
+      // let chat = ytLivePU.elmChat
+      // console.log(33, chat)
+      // if (chat && chat.collapsed === false) {
+      //   console.log(34)
+      //   try {
+      //     // chat.attached();
+      //     ytLivePU.initialFetchReq = 21
+      //   } catch (e) { }
+      // }
+      // console.log(35, ytLivePU.initialFetchReq)
+      // chat = null
+
     }
 
     async fakeReload(){
-
+      // reserved for future reference.
       
            
       ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
@@ -3019,6 +3144,7 @@ function injection_script_1() {
     }
     
     clearList() {
+      // clear chat body messages
 
       let list = this.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true)
       if (list && list.clearList) list.clearList();
@@ -3026,6 +3152,7 @@ function injection_script_1() {
     }
 
     clearTickerList(){
+      // clear chat header messages
       let list = this.queryCR('yt-live-chat-ticker-renderer.yt-live-chat-renderer', true)
       if (list && list.clearList) list.clearList();
 
@@ -3330,6 +3457,10 @@ function injection_script_1() {
     if (attr) {
       chat = document.querySelector('ytd-live-chat-frame#chat');
     }
+    // console.log('m - attr', attr)
+    // note: there is multiple triggering of this (with same final attr value);
+    //       not sure whether the bug of tabview layout itself or the element is truly removed and reinserted.
+    // the same attr would happen twice
     ytLivePU.initByChat(chat)
 
 
