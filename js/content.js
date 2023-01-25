@@ -353,6 +353,12 @@ console.time("Tabview Youtube Init Script")
   #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button {
       margin-right: var(--ytd-margin-12x);
   }
+
+
+  tp-yt-iron-dropdown.yt-live-chat-app[vertical-align="top"] ytd-menu-popup-renderer.yt-live-chat-app {
+    max-height: 60vh !important; /* override style */
+  }
+
     `.trim();
   });
 
