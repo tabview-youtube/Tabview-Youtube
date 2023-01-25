@@ -465,6 +465,67 @@ console.time("Tabview Youtube Init Script")
       'playlist': 'Плейлист'
     }
   };
+
+  const getGMT = () => {
+    let m = new Date('2023-01-01T00:00:00Z');
+    return m.getDate() === 1 ? `+${m.getHours()}` : `-${24 - m.getHours()}`;
+  };
+
+  function durationInfoTS(durationInfo) {
+    /**
+     * @type {{ hrs: number, mins: number, seconds: number }}
+     */
+    let _durationInfo = durationInfo
+    return _durationInfo
+  }
+
+  function formatDateReqTS(req) {
+    /**
+     * @type {{ bd1: KDate | undefined, bd2: KDate | undefined, isSameDay: number | undefined, durationInfo: object | undefined, formatDates: object | undefined }}
+     */
+    let _req = req
+    return _req
+  }
+
+  function durationLocaleEN(durationInfo) {
+
+    const { hrs, mins, seconds } = durationInfoTS(durationInfo)
+    let ret = []
+    ret.push(`Duration:`)
+    if (hrs > 0) ret.push(`${hrs} ${hrs === 1 ? 'hour' : 'hours'}`)
+    if (mins > 0) ret.push(`${mins} ${mins === 1 ? 'minute' : 'minutes'}`)
+    if (seconds !== null) ret.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`)
+    return ret.join(' ')
+  }
+
+  function formatDateResultEN(type, req) {
+
+    const { bd1, bd2, durationInfo, formatDates } = formatDateReqTS(req)
+
+    switch (type) {
+      case 0x200:
+        return [
+          `The livestream was in ${bd1.lokStringDate()} from ${bd1.lokStringTime()} to ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
+          durationLocaleEN(durationInfo)
+        ].join('\n');
+      case 0x210:
+        return [
+          `The livestream was from ${bd1.lokStringDate()} ${bd1.lokStringTime()} to ${bd2.lokStringDate()} ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
+          durationLocaleEN(durationInfo)
+        ].join('\n');
+      case 0x300:
+        return `The livestream started at ${bd1.lokStringTime()} [GMT${getGMT()}] in ${bd1.lokStringDate()}.`;
+      case 0x600:
+        return `The video was uploaded in ${formatDates.uploadDate} and published in ${formatDates.publishDate}.`;
+      case 0x610:
+        return `The video was uploaded in ${formatDates.uploadDate}.`;
+      case 0x700:
+        return `The video was published in ${formatDates.publishDate}.`;
+    }
+    return '';
+
+  }
+
   const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER', 'YTD-MENU-RENDERER']
 
   let globalHook_symbols = [];
@@ -772,6 +833,64 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }, delay)
     }
   }
+
+
+  class KDate extends Date {
+
+    constructor(...args) {
+      super(...args)
+      this.dayBack = false
+    }
+
+    browserSupported() {
+
+    }
+
+
+    lokStringDate() {
+      const d = this
+
+      let y = d.getFullYear()
+      let m = d.getMonth() + 1
+      let date = d.getDate()
+
+      let sy = y < 1000 ? (`0000${y}`).slice(-4) : '' + y
+
+      let sm = m < 10 ? '0' + m : '' + m
+      let sd = date < 10 ? '0' + date : '' + date
+
+      return `${sy}.${sm}.${sd}`
+
+    }
+
+    lokStringTime() {
+      const d = this
+
+      let h = d.getHours()
+      let m = d.getMinutes()
+
+      const k = this.dayBack
+
+      if (k) h += 24
+
+      let sh = h < 10 ? '0' + h : '' + h
+      let sm = m < 10 ? '0' + m : '' + m
+
+
+      return `${sh}:${sm}`
+
+    }
+
+
+
+
+  }
+
+  console.assert('browserSupported' in (new KDate()),
+    { error: "0x87FF", errorMsg: "Your userscript manager is not supported. FireMonkey is not recommended." }
+  );
+
+
 
   let pageSession = new Session(0);
   const tabsDeferred = new Deferred();
@@ -3117,6 +3236,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (isCollapsed) {
           chatBlock.removeAttribute('tyt-iframe-loaded');
+          // console.log(922,1)
           // buggy; this section might not be correctly executed.
           // guess no collaspe change but still iframe will distory and reload.
           let btn = document.querySelector('tyt-iframe-popup-btn')
@@ -4397,43 +4517,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             let s = '';
             if (formatDates && Object.keys(formatDates).length > 0) {
 
-
-              function getGMT() {
-                let m = new Date('2023-01-01T00:00:00Z')
-                if(m.getDate()===1){
-                  return `+${m.getHours()}`
-                }else{
-                  return `-${24 - m.getHours()}`
-                }
-              }
-              function getLocaleDateString(d) {
-                let y = d.getFullYear()
-                let m = d.getMonth() + 1
-                let date = d.getDate()
-
-                let sy = y < 1000 ? (`0000${y}`).slice(-4) : '' + y
-
-                let sm = m < 10 ? '0' + m : '' + m
-                let sd = date < 10 ? '0' + date : '' + date
-
-                return `${sy}.${sm}.${sd}`
-
-              }
-              function getLocaleTimeString(d, k) {
-
-                let h = d.getHours()
-                let m = d.getMinutes()
-
-                if (k) h += 24
-
-                let sh = h < 10 ? '0' + h : '' + h
-                let sm = m < 10 ? '0' + m : '' + m
-
-
-                return `${sh}:${sm}`
-
-              }
-              function getDurationText(bd1,bd2){
+              function getDurationInfo(bd1, bd2) {
 
                 let bdd = bd2 - bd1
                 let hrs = Math.floor(bdd / 3600000)
@@ -4444,16 +4528,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                   mins = Math.floor(bdd / 60000)
                   bdd = bdd - mins * 60000
                   seconds = Math.round(bdd / 1000)
-                  if(seconds === 0) seconds = null
+                  if (seconds === 0) seconds = null
                 }
 
-                return  `Duration: ${hrs > 0 ? `${hrs} hours ` : ''}${seconds === null ? `${mins} minutes` : `${mins} minutes ${seconds} seconds`}`
-                
+                return { hrs, mins, seconds }
+
               }
+
+              const formatDateResult = formatDateResultEN
+
               if (formatDates.broadcastBeginAt && formatDates.isLiveNow === false) {
 
-                let bd1 = new Date(formatDates.broadcastBeginAt)
-                let bd2 = formatDates.broadcastEndAt ? new Date(formatDates.broadcastEndAt) : null
+                let bd1 = new KDate(formatDates.broadcastBeginAt)
+                let bd2 = formatDates.broadcastEndAt ? new KDate(formatDates.broadcastEndAt) : null
 
                 let isSameDay = 0
                 if (bd2 && bd1.toLocaleDateString() === bd2.toLocaleDateString()) {
@@ -4467,46 +4554,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
                 }
 
+                let durationInfo = getDurationInfo(bd1, bd2)
                 if (isSameDay > 0) {
 
-                  s = [
-                    `The livestream was in ${getLocaleDateString(bd1)} from ${getLocaleTimeString(bd1)} to ${getLocaleTimeString(bd2, isSameDay === 2)}. [GMT${getGMT()}]`,
-                    getDurationText(bd1,bd2)
-                  ].join('\n')
+                  bd2.dayBack = (isSameDay === 2)
 
-                }
+                  s = formatDateResult(0x200, { bd1, bd2, isSameDay, durationInfo, formatDates })
 
+                } else if (bd2 && isSameDay === 0) {
 
-                if (bd2 && isSameDay === 0) {
-
-                  s = [
-                    `The livestream was from ${getLocaleDateString(bd1)} ${getLocaleTimeString(bd1)} to ${getLocaleDateString(bd2)} ${getLocaleTimeString(bd2)}. [GMT${getGMT()}]`,
-                    getDurationText(bd1,bd2)
-                  ].join('\n')
+                  s = formatDateResult(0x210, { bd1, bd2, isSameDay, durationInfo, formatDates })
 
                 }
 
 
               } else if (formatDates.broadcastBeginAt && formatDates.isLiveNow === true) {
 
-                let bd1 = new Date(formatDates.broadcastBeginAt)
+                let bd1 = new KDate(formatDates.broadcastBeginAt)
 
-                s = `The livestream started at ${getLocaleTimeString(bd1)} [GMT${getGMT()}] in ${getLocaleDateString(bd1)}.`
-
+                s = formatDateResult(0x300, { bd1, formatDates })
 
               } else {
                 if (formatDates.uploadDate) {
 
                   if (formatDates.publishDate && formatDates.publishDate !== formatDates.uploadDate) {
 
-                    s = `The video was uploaded in ${formatDates.uploadDate} and published in ${formatDates.publishDate}.`
+                    s = formatDateResult(0x600, { formatDates })
                   } else {
-                    s = `The video was uploaded in ${formatDates.uploadDate}.`
+                    s = formatDateResult(0x610, { formatDates })
 
                   }
-                }else if(!formatDates.uploadDate && formatDates.publishDate){
+                } else if (!formatDates.uploadDate && formatDates.publishDate) {
 
-                  s = `The video was published in ${formatDates.publishDate}.`
+                  s = formatDateResult(0x700, { formatDates })
 
 
                 }
@@ -4531,7 +4611,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         mtf_fix_details().then(() => {
           // setKeywords();
           setToggleInfo();
-          renderDeferred.debounce(() => {  
+          renderDeferred.debounce(() => {
             if (renderId !== renderIdentifier) return
             setTimeout(() => {
               //dispatchWindowResize(); //try to omit
@@ -4935,50 +5015,64 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }, 300)
   }
 
-  function addPopupButton(chat){
+  function addPopupButton(chat) {
     let showHideBtn = chat.querySelector('div#show-hide-button')
-    if(showHideBtn){
-      
+    if (showHideBtn) {
+
       let btn;
       btn = document.querySelector('tyt-iframe-popup-btn')
-      if(btn) btn.remove();
+      if (btn) btn.remove();
 
       btn = document.createElement('tyt-iframe-popup-btn')
       showHideBtn.appendChild(btn)
+      // console.log(334,2)
       btn.dispatchEvent(new CustomEvent('tyt-iframe-popup-btn-setup'))
     }
-    
+
   }
 
   function iFrameContentReady(cDoc) {
 
+    // console.log(702, 1)
     if (!cDoc) return;
 
+    // console.log(702, 2)
     if (addIframeStyle(cDoc) === false) return;
 
+    // console.log(702, 3)
     let frc = 0;
     let cid = 0;
 
     let fullReady = () => {
 
+      // console.log(702, 4)
       if (!cDoc.documentElement.hasAttribute('style') && ++frc < 900) return;
       clearInterval(cid);
 
+      // console.log(702, 5)
       if (!scriptEnable || !isChatExpand()) return;
 
+      // console.log(702, 6)
       let iframe = document.querySelector('body ytd-watch-flexy ytd-live-chat-frame iframe#chatframe');
 
+      // console.log(702, 7)
       if (!iframe) return; //prevent iframe is detached from the page
 
+      // console.log(702, 8)
       if (cDoc.querySelector('yt-live-chat-renderer #continuations')) {
+
+        // console.log(702, 9)
         let chatFrame = document.querySelector('ytd-live-chat-frame#chat');
         if (chatFrame) {
           chatFrame.setAttribute('tyt-iframe-loaded', '')
- 
+          // console.log(711, chatFrame)
 
+
+          // console.log(702, 10)
           forceDisplayChatReplay();
-          checkIframeDblClick(); //user request for compatible with https://greasyfork.org/en/scripts/452335
+          checkIframeDblClick(); // user request for compatible with https://greasyfork.org/en/scripts/452335
           iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
+          // console.log(334,1)
           addPopupButton(chatFrame)
 
         }
@@ -5000,68 +5094,78 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
 
     if (isIframe && evt.target.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+    } else {
+      return;
+    }
 
-      let iframe = evt.target;
-      let tid = ++iframeLoadHookA_id;
-      
-      new Promise(resolve => {
+    let iframe = evt.target;
+    let tid = ++iframeLoadHookA_id;
+
+    // console.log(701, 2)
+    new Promise(resolve => {
+      if (tid !== iframeLoadHookA_id) return
+
+      // console.log(701, 3)
+      let k = 270
+      let cid = setInterval(() => {
+
         if (tid !== iframeLoadHookA_id) return
 
-        let k = 270
-        let cid = setInterval(() => {
-          
-          if (tid !== iframeLoadHookA_id) return
+        if (!cid) return;
 
-          if(!cid) return;
-
-          if (k-- < 1) {
-            clearInterval(cid);
-            cid = 0;
-            return resolve(false);
-          }
-
-          let cDoc = iframe.contentDocument;
-          if (!cDoc) return null;
-          if (cDoc.readyState != 'complete') return;
-          if (!cDoc.querySelector('body')) {
-            clearInterval(cid);
-            cid = 0;
-            return resolve(false);
-          }
-
-          if (!cDoc.querySelector('yt-live-chat-app')) return;
-
+        if (k-- < 1) {
           clearInterval(cid);
           cid = 0;
+          return resolve(false);
+        }
 
-          if (!document.contains(iframe)) return resolve(false);
+        let cDoc = iframe.contentDocument;
+        if (!cDoc) return null;
+        if (cDoc.readyState != 'complete') return;
+        if (!cDoc.querySelector('body')) {
+          clearInterval(cid);
+          cid = 0;
+          return resolve(false);
+        }
 
-          resolve([cDoc, iframe]);
-          
-          cDoc = null
+        if (!cDoc.querySelector('yt-live-chat-app')) return;
 
-          iframe = null
+        clearInterval(cid);
+        cid = 0;
 
+        if (!document.contains(iframe)) return resolve(false);
 
-        }, 17)
+        resolve([cDoc, iframe]);
 
+        cDoc = null
 
-      }).then((res) => {
-
-        if (tid !== iframeLoadHookA_id) return
-        if (!res) return;
-        
-
-        const [cDoc, iframe] = res
-
-        iFrameContentReady(cDoc)
-        iframe.dispatchEvent(new CustomEvent('tabview-chatframe-loaded'))
-
-
-      })
+        iframe = null
 
 
-    }
+      }, 17)
+
+
+    }).then((res) => {
+
+
+      // console.log(701, 4, res)
+      if (tid !== iframeLoadHookA_id) return
+
+      // console.log(701, 5)
+      if (!res) return;
+
+      // console.log(701, 6)
+
+      const [cDoc, iframe] = res
+
+      iFrameContentReady(cDoc)
+      iframe.dispatchEvent(new CustomEvent('tabview-chatframe-loaded'))
+
+
+    })
+
+
+
   }
 
   let videosDeferred = new Deferred();

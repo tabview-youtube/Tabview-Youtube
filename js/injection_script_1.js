@@ -8,6 +8,8 @@ function injection_script_1() {
   if (document.documentElement.hasAttribute('tabview-unwrapjs')) return;
   document.documentElement.setAttribute('tabview-unwrapjs', '')
 
+  // top.switchVideoPage
+
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
@@ -120,6 +122,1526 @@ function injection_script_1() {
 
   }, false)
   */
+
+
+
+
+
+
+
+
+  const pm1 = (progress) => (progress > 1e-9 ? progress - 1e-99 : Math.max(progress || 0, 0));
+
+  class YTLiveProcessUnit {
+
+    constructor() {
+      /** @type {Window | null} */
+      // this.ytLivePopupWindow = null
+      /** @type {HTMLElement | null} */
+      this.elmChat = null
+      /** @type {HTMLIFrameElement | null} */
+      this.elmChatFrame = null
+      this.isChatReplay = null
+      this.loadStatus = 0
+      this.renderedVideoProgress = null
+      this.requestedVideoProgress = null
+      this.clearVars(0);
+
+      this.postI = 0
+      this.isChatMessageCanDisplay = false
+      this.cnpCID = 0
+      this.handlerPageDataFetched = null
+
+      this.ytLiveMO = null
+      // this.ytLiveMOHandlerI = 0
+
+    }
+
+    clearVars(t) {
+
+      /** @type {HTMLElement | null} */
+      this.ytLiveChatApp = null
+      /** @type {HTMLElement | null} */
+      this.ytLiveChatRenderer = null
+
+      this.initialFetchReq = 0
+      // console.log(99)
+
+      this.renderBusyS = 0
+      this.renderBusyR = 0
+      if (t === 0) {
+
+        this.seekWaiterResolves = []
+        this.reloadWaiterResolves = []
+        this.loadingWaiterResolves = []
+      } else {
+
+        this.seekWaiterResolves.length = 0
+        this.reloadWaiterResolves.length = 0
+        this.loadingWaiterResolves.length = 0
+      }
+
+
+      /** @type {HTMLElement | null} */
+      // this.__playerSeekCont__ = null
+    }
+
+    initByIframe(iframe) {
+      if ((iframe || 0).nodeName !== 'IFRAME') return;
+      if (this.elmChatFrame === iframe) return; // this condition could be buggy; further handled in init() with (loadState & 7) === 5
+      // console.log('initByIframe')
+      // just to catch the iframe element; content loading determined by initByChatRenderer
+      // if the iframe is changed, the initByChatRenderer must also be triggered and iframe load event will be also triggered before that.
+      // if the iframe not changed, just content changed, initByChatRenderer will come out while iframe element remains the same
+      this.elmChatFrame = iframe
+      // if(this.loadStatus)
+      this.loadStatus |= 2 // 00000010
+      this.init();
+    }
+
+    /** @param {HTMLElement | null} chat */
+    initByChat(chat) {
+      // this is triggered when collapsed / expanded / initial state
+      // console.log('initByChat')
+
+
+
+      if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
+
+        this.elmChat.classList.remove('tyt-chat-frame-ready')
+        // this.elmChat.removeAttribute('tyt-iframe-loaded')
+        // console.log(922,5)
+      }
+      if (chat === null) {
+        // console.log(2241)
+        if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true) {
+          this.elmChat.disconnectedCallback()
+          // console.log('aa', this.elmChat.isAttached)
+          // console.log(3341)
+        }
+        this.elmChat = null
+        this.elmChatFrame = null
+        if (this.loadStatus & 1) this.loadStatus -= 1;
+        if (this.loadStatus & 2) this.loadStatus -= 2;
+
+        if (this.loadStatus & 16) this.loadStatus -= 16
+        if (this.loadStatus & 32) this.loadStatus -= 32
+
+        this.renderedVideoProgress = null
+
+
+        this.clearVars();
+        if (this.loadStatus & 4) this.loadStatus -= 4
+
+      } else {
+
+        // console.log(2242)
+        // console.log('initByChat')
+        if ((chat || 0).id !== 'chat') return;
+        // if(this.initialFetchReq === 21) return;
+
+        // console.log(this.initialFetchReq)
+
+
+        this.elmChat = chat
+        if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false) {
+          // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
+          this.elmChat.connectedCallback()
+          // console.log('ab', this.elmChat.isAttached)
+          // console.log(3342)
+          this.initialFetchReq = 21;
+        }
+
+        this.loadStatus |= 1 // 00000001
+        if (this.loadStatus & 16) this.loadStatus -= 16
+        if (this.loadStatus & 32) this.loadStatus -= 32
+        if (chat.collapsed === true) {
+          this.renderedVideoProgress = null
+          this.clearVars();
+          if (this.loadStatus & 4) this.loadStatus -= 4
+        } else if (this.initialFetchReq === 0) {
+          this.initialFetchReq = 1
+          // console.log(this.renderedVideoProgress, this.ytLiveChatRenderer ,this.ytLiveChatApp, this.loadStatus.toString(2) )
+        } else if (this.initialFetchReq === 21) {
+          // url changed
+          // this fire mutiple times until initByChatRenderer reset it.
+          this.chatUrlChanged();
+        }
+
+        chat.classList.remove('tyt-chat-frame-ready')
+        // chat.removeAttribute('tyt-iframe-loaded')
+
+        // console.log(922,6)
+        this.init();
+      }
+    }
+
+    initByChatRenderer(cr) {
+      // this is triggered when liveChatApp + Renderer ready
+
+      // console.log('initByChatRenderer')
+      if (!cr) return;
+      this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
+      if (!this.ytLiveChatApp) return;
+
+
+
+      if (this.initialFetchReq >= 3) {
+        // including  this.initialFetchReq === 21
+        this.initialFetchReq = 0;
+        this.initByChat(this.elmChat);
+      }
+
+      if ((this.loadStatus & 1) === 0) {
+        this.ytLiveMOHandler();
+      }
+
+      this.ytLiveChatRenderer = cr // for both playback replay and livestream
+      chatroomRenderer = mWeakRef(cr) // avoid memory leak for live popup
+      // playback replay: loading correct comments at specific time
+      // livestream: control popup
+
+      this.setUpPlayerSeekCont();
+
+      this.isChatReplay = this.isReplay()
+
+
+
+      this.setupChatRenderer()
+
+
+
+
+      this.loadStatus |= 4 // 00000100
+      this.init();
+    }
+
+    // async ytLiveMOHandler() {
+    ytLiveMOHandler() {
+      // `this` is not available
+
+      /*
+      ytLivePU.ytLiveMOHandlerI++;
+      if (ytLivePU.ytLiveMOHandlerI > 1e9) ytLivePU.ytLiveMOHandlerI = 9;
+
+      let ti = ytLivePU.ytLiveMOHandlerI;
+      // avoid loading in background and multiple calling
+      await new Promise(window.requestAnimationFrame)
+      if (ti !== ytLivePU.ytLiveMOHandlerI) return;
+
+      */
+      // console.log(333)
+
+      let chat = null
+
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+      if (!ytdFlexyElm) {
+        console.warn('error F032')
+      }
+      let attr = ytdFlexyElm ? ytdFlexyElm.getAttribute('tyt-chat') : null
+
+      if (attr) {
+        chat = document.querySelector('ytd-live-chat-frame#chat');
+      }
+      // console.log('m - attr', attr)
+      // note: there is multiple triggering of this (with same final attr value);
+      //       not sure whether the bug of tabview layout itself or the element is truly removed and reinserted.
+      // the same attr would happen twice
+      ytLivePU.initByChat(chat)
+
+
+    }
+
+    setupYtLiveMO() {
+
+      if (this.ytLiveMO) return;
+      this.ytLiveMO = new MutationObserver(this.ytLiveMOHandler);
+
+      this.ytLiveMOHandler();
+
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+      if (ytdFlexyElm) {
+        this.ytLiveMO.observe(ytdFlexyElm, {
+          attributes: true,
+          attributeFilter: ["tyt-chat"],
+          attributeOldValue: false,
+          subtree: false,
+          childList: false,
+          characterData: false,
+          characterDataOldValue: false
+        })
+      } else {
+        console.warn('error F031')
+      }
+
+    }
+
+
+    createCMWaiter() {
+      // render (seek/reload) start/sucess/fail when yt-action is triggered
+
+      const ytLivePU = this
+      return new Promise(resolve => {
+
+        if (ytLivePU.renderBusyS === 1 && ytLivePU.renderBusyR === 0) {
+          this.seekWaiterResolves.push(resolve)
+        } else if (ytLivePU.renderBusyR === 1 && ytLivePU.renderBusyS === 0) {
+          this.reloadWaiterResolves.push(resolve)
+        } else {
+
+          if (ytLivePU.renderBusyR + ytLivePU.renderBusyS !== 0) {
+            console.log(ytLivePU.renderBusyR, ytLivePU.renderBusyS)
+          }
+          resolve()
+        }
+
+
+      })
+    }
+
+    createLoadingWaiter() {
+      // loading finished when yt-action is triggered
+      const ytLivePU = this
+
+      return new Promise(resolve => {
+
+        if (ytLivePU.ytLiveChatRenderer.hasAttribute('loading')) {
+          this.loadingWaiterResolves.push(resolve)
+        } else {
+
+          resolve()
+        }
+
+
+      })
+
+    }
+
+    async chatUrlChanged() {
+      // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
+
+      // first call not effect; only take effect in second call.
+
+      // console.log('chatUrlChanged - 1')
+      // console.log(301)
+      await Promise.resolve(0)
+      let chat = this.elmChat
+
+      // console.log(302)
+      if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
+
+        // console.log(305)
+        let cr = this.ytLiveChatRenderer
+        // console.log(306)
+        if (cr) {
+          this.initialFetchReq = 1
+          this.initByChatRenderer(cr);
+          // console.log('chatUrlChanged - 2a')
+          return false
+        } else {
+
+          // console.log(5661, chat.isAttached)
+          // console.log(307)
+          // this.initialFetchReq = 1
+          chat.urlChanged(); // neccessary
+          // console.log('chatUrlChanged - 2b')
+          return true
+        }
+      }
+      this.initialFetchReq = 0
+
+      // console.log('chatUrlChanged - 2c')
+      return null
+
+
+    }
+
+    setUpPlayerSeekCont(shadow) {
+
+      const ytLivePU = this
+
+      // player seek cont will be replaced frenquently when list content is updated
+      // re-hook by each yt-action if replaced
+
+      // if(this.__playerSeekCont__ && (this.__playerSeekCont__.isAttached === false ? false : this.ytLiveChatApp.contains(this.__playerSeekCont__))) return;
+
+      // console.log(22,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
+
+      let playerSeekCont = this.queryCR("yt-player-seek-continuation")
+
+      // this.__playerSeekCont__ = playerSeekCont
+      // console.log(33,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
+
+
+
+      if (!playerSeekCont) return;
+
+      if (playerSeekCont.uxTqc) return;
+      playerSeekCont.uxTqc = 1;
+      // console.log(333)
+
+      let fixer = shadow ? null : (f, ek) => {
+        return function () {
+          if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
+          // console.log( 'cxxs', arguments)
+          //if (ek) console.log(arguments)
+          let t = f.apply(this, arguments)
+          if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
+          return t
+        }
+      }
+
+      playerSeekCont.maybeFireSeekContinuation = shadow ? shadow.maybeFireSeekContinuation : fixer(playerSeekCont.maybeFireSeekContinuation, 1)
+      playerSeekCont.playerProgressSecChanged_ = shadow ? shadow.playerProgressSecChanged_ : fixer(playerSeekCont.playerProgressSecChanged_)
+      playerSeekCont.fireSeekContinuation_ = shadow ? shadow.fireSeekContinuation_ : fixer(playerSeekCont.fireSeekContinuation_)
+
+      fixer = null;
+
+      playerSeekCont.detached = shadow ? shadow.detached : ((f) => {
+
+        return function () {
+
+          let ret = f.call(this);
+          Promise.resolve(0).then(() => {
+            ytLivePU.setUpPlayerSeekCont(this);
+          })
+          return ret;
+
+        }
+
+
+      })(playerSeekCont.detached)
+
+      shadow = null
+
+    }
+
+    setupChatRenderer() {
+      // only triggered in init
+
+      const ytLivePU = this
+
+
+      if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
+        this.ytLiveChatRenderer._gIxmf = 1
+        this.renderBusyS = 0
+        this.renderBusyR = 0
+        /*
+        const fixer = (f,ek)=>{
+          return function () {
+            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
+            console.log(arguments)
+            let t = f.apply(this, arguments)
+            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
+            return t
+          }
+        }
+        this.ytLiveChatRenderer._setPlayerProgressSec = ((f)=>{
+
+          return function (x) {
+            if (x === 0) x = 1e-99
+            let t = f.apply(this, arguments)
+            return t
+          }
+
+        })(this.ytLiveChatRenderer._setPlayerProgressSec);
+
+        console.log(this.ytLiveChatRenderer)
+        this.ytLiveChatRenderer.maybeFireSeekContinuation = fixer(this.ytLiveChatRenderer.maybeFireSeekContinuation,1)
+        this.ytLiveChatRenderer.playerProgressSecChanged_ = fixer(this.ytLiveChatRenderer.playerProgressSecChanged_)
+        this.ytLiveChatRenderer.fireSeekContinuation_ = fixer(this.ytLiveChatRenderer.fireSeekContinuation_)
+        */
+
+
+        this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
+
+          return function (x) {
+            if (x === 0) x = 1e-99
+            let t = f.apply(this, arguments)
+            return t
+          }
+
+        })(this.ytLiveChatRenderer._setPlayerProgressSec);
+
+
+        /*
+        this.ytLiveChatRenderer.onLoadSeekContinuation_ = ((f) => {
+
+          return function (a,b) {
+            console.log(a,b)
+            let t = f.apply(this, arguments)
+            return t
+          }
+
+        })(this.ytLiveChatRenderer.onLoadSeekContinuation_);
+        */
+
+        this.ytLiveChatRenderer.addEventListener('yt-action', function (evt) {
+          // console.log(evt)
+
+
+
+
+
+          /*
+          ytLivePU.ytLiveChatRenderer.dispatchEvent(new CustomEvent('yt-action', {
+            detail:{
+              actionName: 'yt-live-chat-reload-success',
+              optionalAction: true,
+              args: null,
+              returnValue: []
+            }
+          })) 
+          */
+
+
+
+
+          const d = (evt || 0).detail || 0
+          // console.log('yt-action', d.actionName)
+          // console.log(d)
+
+          let m3 = 0
+          if (d.actionName === 'yt-live-chat-actions') {
+            m3 = 1
+            // console.log(d)
+          } else if (d.actionName === 'yt-live-chat-replay-progress') {
+            m3 = 1;
+          }
+
+          let m1 = 0
+          let m2 = 0
+
+
+          if (d.actionName === 'yt-live-chat-seek-success') {
+            m1 = 1
+            m2 = 1
+            ytLivePU.renderBusyS--
+          } else if (d.actionName === 'yt-live-chat-seek-start') {
+            ytLivePU.renderBusyS++
+          } else if (d.actionName === 'yt-live-chat-reload-start') {
+            ytLivePU.renderBusyR++
+          } else if (d.actionName === 'yt-live-chat-reload-success') {
+            m1 = 2
+            m2 = 1
+            ytLivePU.renderBusyR--
+          } else if (d.actionName === 'yt-live-chat-seek-fail') {
+            m1 = 1
+            m2 = 1
+            ytLivePU.renderBusyS--
+          } else if (d.actionName === 'yt-live-chat-reload-fail') {
+            m1 = 2
+            ytLivePU.renderBusyR--
+          } else if (d.actionName === 'yt-live-chat-continuation-behavior-reload-success') {
+            m2 = 1
+          }
+
+          if (m1) {
+
+
+
+            m3 = 1;
+
+
+            if (ytLivePU.renderBusyR < 0 || ytLivePU.renderBusyS < 0) {
+              console.warn('render count error: ', ytLivePU.renderBusyR, ytLivePU.renderBusyS)
+            }
+
+
+            let u = 0;
+            const resolves = m1 === 1 ? ytLivePU.seekWaiterResolves : ytLivePU.reloadWaiterResolves
+            for (const resolve of resolves) {
+
+              if (!u) resolves.length = 0;
+              u++
+
+
+              resolve();
+
+            }
+
+          }
+
+
+          if (m2) {
+
+
+
+            let u = 0;
+            const resolves = ytLivePU.loadingWaiterResolves;
+            for (const resolve of resolves) {
+
+              if (!u) resolves.length = 0;
+              u++
+
+
+              resolve();
+
+            }
+
+          }
+
+          if (m3) {
+            // ytLivePU.setUpPlayerSeekCont();
+          }
+
+
+        })
+
+
+
+      }
+
+
+      if (this.isChatReplay && !ytLivePU.queryCR('style#tyt-chatframe-css')) {
+        let style = ytLivePU.ytLiveChatApp.ownerDocument.createElement('style')
+        style.id = 'tyt-chatframe-css'
+        style.textContent = `
+          yt-live-chat-renderer[loading2] #chat.yt-live-chat-renderer::after {
+            display: block;
+          }
+          
+          `
+        ytLivePU.ytLiveChatApp.appendChild(style)
+      }
+
+    }
+
+
+    // playerProgressChanged2_(a,b,c){
+
+
+    //   return
+    //   if ((this.data.isReplay || c) && !this.isAdPlaying) {
+    //     // Iy(this, "yt-live-chat-replay-progress", [a]);
+    //     this.currentPlayerState_ = {};
+    //     b && (this.currentPlayerState_.videoId = b);
+    //     c && (this.currentPlayerState_.watchPartyId = c);
+    //     b = 1E3 * a;
+    //     this.currentPlayerState_.playerOffsetMs = Math.floor(b).toString();
+    //     c = this.$$("yt-live-chat-replay-continuation");
+    //     var d = this.$$("yt-player-seek-continuation");
+    //     this._setPlayerProgressSec(a);
+    //     d && d.maybeFireSeekContinuation(a, this.replayBuffer_.lastVideoOffsetTimeMsec) ? (this._setIsSeeking(!0),
+    //       this.replayBuffer_.clear(),
+    //       this.setAttribute("loading", "")) : this.isSeeking_ || (c && this.replayBuffer_.lastVideoOffsetTimeMsec && (c.timeRemainingMsecs = this.replayBuffer_.lastVideoOffsetTimeMsec - b),
+    //         this.immediatelyApplyLiveChatActions([]))
+    //   }
+
+
+    // }
+
+    // statusSeek(pt) {
+    //   if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
+
+    //   let cr = ytLivePU.ytLiveChatRenderer
+
+    //   let q1 = cr.onLoadReplayContinuation_
+    //   let q2 = null
+
+    //   let playerSeekCont = null
+    //   try {
+    //     playerSeekCont = ytLivePU.queryCR('yt-player-seek-continuation')
+    //     q2 = playerSeekCont ? playerSeekCont.fireSeekContinuation_ : null
+    //   } catch (e) { }
+
+    //   if (!playerSeekCont) q2 = null
+
+    //   try {
+    //     if (q1) cr.onLoadReplayContinuation_ = function () { }
+    //     if (q2) playerSeekCont.fireSeekContinuation_ = function (a) {
+    //       this.previousProgressSec = a;
+    //     }
+
+    //     // cr.playerProgressChanged_(pt)
+    //     this.playerProgressChanged2_.call(cr,pt)
+
+    //   } catch (e) { }
+    //   if (q2) playerSeekCont.fireSeekContinuation_ = q2
+    //   if (q1) cr.onLoadReplayContinuation_ = q1
+
+    // }
+
+
+
+    /**
+     * @param {number} a
+     * @return {undefined}
+     */
+    playerProgressChangedForStatusSeek(a) {
+      // just update the variables according to the native method; no specific use. 
+      // just play safe
+
+      if (this.data.isReplay && !this.isAdPlaying) {
+        this.currentPlayerState_ = {};
+        /** @type {number} */
+        let r = 1E3 * a;
+        /** @type {string} */
+        this.currentPlayerState_.playerOffsetMs = Math.floor(r).toString();
+        let replayCont = this.$$("yt-live-chat-replay-continuation");
+        let seekCont = this.$$("yt-player-seek-continuation");
+        this._setPlayerProgressSec(a);
+        if (seekCont) {
+          seekCont.previousProgressSec = a;
+          // this._setIsSeeking(true);
+          this.replayBuffer_.clear();
+        } else if (!this.isSeeking_) {
+          if (replayCont && this.replayBuffer_.lastVideoOffsetTimeMsec) {
+            /** @type {number} */
+            replayCont.timeRemainingMsecs = this.replayBuffer_.lastVideoOffsetTimeMsec - r;
+          }
+          this.immediatelyApplyLiveChatActions([]);
+        }
+
+      }
+    }
+
+    statusSeek(pt) {
+      const ytLivePU = this
+      // see playerProgressChangedForStatusSeek
+
+      // if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
+
+      let cr = ytLivePU.ytLiveChatRenderer
+      if (!cr) {
+        console.warn('cr is not found')
+        return
+      }
+
+      try {
+
+        // cr.playerProgressChanged_(pt)
+        this.playerProgressChangedForStatusSeek.call(cr, pt)
+
+      } catch (e) { }
+
+    }
+
+
+
+    async sReload(endPointClicker) {
+      // this is to perform the reload cont with simplified mechanism to make the process faster
+
+      const ytLivePU = this
+      try {
+
+        let cr = ytLivePU.ytLiveChatRenderer
+
+        if (!cr) {
+          console.warn('wrong parameter')
+          return
+        }
+
+        if (typeof cr.handleReloadSuccess_ != 'function') {
+          console.warn('cr.handleReloadSuccess_ is not a function.')
+          return
+        }
+
+        let q = cr.triggerReloadContinuation
+        if (q) cr.triggerReloadContinuation = function () { }
+
+        ytLivePU.renderedVideoProgress = null
+
+        endPointClicker.click();
+        await Promise.resolve(0); // allow triggering of yt-live-chat-reload-start
+        await ytLivePU.createCMWaiter(); // expect that renderBusyR = 1
+
+        ytLivePU.prepareReload();
+
+        if (q) {
+          cr.triggerReloadContinuation = q
+          cr.triggerReloadContinuation()
+        }
+        if (ytLivePU.elmChat.collapsed) return
+        cr.handleReloadSuccess_()
+
+      } catch (e) {
+        console.warn(e)
+      }
+
+    }
+
+    // async awaitDetach(elemChecker) {
+    //   if (!elemChecker) {
+    //     console.warn('wrong parameter')
+    //     return
+    //   }
+    //   try {
+    //     while (elemChecker.isAttached === true) {
+    //       await new Promise(r => setTimeout(r, 100));
+    //     }
+    //     return true
+    //   } catch (e) {
+    //     console.warn(e)
+    //   }
+    // }
+
+    // async awaitLoading() {
+
+    //   let cr = this.ytLiveChatRenderer;
+    //   if (!cr) {
+    //     console.warn('wrong parameter')
+    //     return
+    //   }
+    //   try {
+    //     while (cr.hasAttribute('loading')) {
+    //       await Promise.race([new Promise(r => window.requestAnimationFrame(r)), new Promise(r => setTimeout(r, 400))])
+    //     }
+    //   } catch (e) {
+    //     console.warn(e)
+    //   }
+    // }
+
+    queryCR(query, inCR) {
+      let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
+      if (elm) return HTMLElement.prototype.querySelector.call(elm, query)
+      return null
+    }
+
+    queryAllCR(query, inCR) {
+      let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
+      if (elm) return HTMLElement.prototype.querySelectorAll.call(elm, query)
+      return null
+    }
+
+    dispatchYtAction(elm, detail) {
+
+      let customEvent = new CustomEvent("yt-action", { bubbles: true, cancelable: false, composed: true, detail: detail })
+      elm.dispatchEvent(customEvent);
+    }
+
+    directVideoProgress(progress) {
+      // instead of postToContentWindow, directly call DOM method(s) of the chat renderer
+
+      // if (progress < 1) progress = 1
+
+      try {
+
+        if ('playerProgressChanged_' in this.ytLiveChatRenderer) {
+
+
+          this.ytLiveChatRenderer.playerProgressChanged_(progress)
+
+        } else {
+          this.dispatchYtAction(
+            this.queryCR('yt-iframed-player-events-relay'),
+            {
+              actionName: "yt-live-player-video-progress",
+              args: [progress],
+              optionalAction: true,
+              returnValue: []
+            }
+          );
+        }
+
+        // console.log(5656533)
+        return true
+      } catch (e) {
+        console.warn(e);
+      }
+
+      return false;
+
+
+    }
+
+
+    /*
+    // not accurate
+    async seekRender(pt){
+
+
+      if(!this.elmChat || !this.ytLiveChatRenderer) return
+            
+
+      let ret = false;
+      let playerSeekCont = this.queryCR('yt-player-seek-continuation')
+      if (playerSeekCont) {
+        // force fireSeekContinuation_ at the begining
+        // if('previousProgressSec' in playerSeekCont && !playerSeekCont.previousProgressSec) playerSeekCont.previousProgressSec = 1e99
+        // playerSeekCont.previousProgressSec = 1e99 // 1e-9
+
+        playerSeekCont.fireSeekContinuation_(pt)
+        ret = true
+
+      }
+
+      if (ret === false) {
+        this.elmChat.__$$postToContentWindow$$__({ 'yt-player-video-progress': pt })
+      }
+      this.renderedVideoProgress = pt
+      await Promise.resolve(0)
+      if (!ytLivePU.isChatMessageCanDisplay) {
+        ytLivePU.isChatMessageCanDisplay = true
+        await this.awaitLoading()
+        this.elmChat.classList.add('tyt-chat-frame-ready')
+      }
+
+      this.triggeredPTC2();
+
+
+    }
+
+    */
+
+    async actualRender(pt) {
+
+      const ytLivePU = this
+      try {
+
+        if (!this.elmChat || !this.ytLiveChatRenderer) return
+
+
+
+        if (this.renderedVideoProgress === null) {
+
+          let playerSeekCont = this.queryCR('yt-player-seek-continuation')
+          if (playerSeekCont) {
+            // force fireSeekContinuation_ at the begining
+            // if('previousProgressSec' in playerSeekCont && !playerSeekCont.previousProgressSec) playerSeekCont.previousProgressSec = 1e99
+            // playerSeekCont.previousProgressSec = 1e99 // 1e-9
+
+            playerSeekCont.fireSeekContinuation_(pt)
+
+          }
+
+        }
+
+        let ret = this.directVideoProgress(pt)
+        if (ret === false) {
+          this.elmChat.__$$postToContentWindow$$__({ 'yt-player-video-progress': pt })
+        }
+        this.renderedVideoProgress = pt
+        await Promise.resolve(0)
+        if (!ytLivePU.isChatMessageCanDisplay) {
+          ytLivePU.isChatMessageCanDisplay = true
+          await this.createLoadingWaiter()
+          // await this.awaitLoading()
+          this.elmChat.classList.add('tyt-chat-frame-ready')
+        }
+
+        this.triggeredPTC2();
+
+
+      } catch (e) {
+        console.warn(e)
+      }
+    }
+
+    videoCurrentTime() {
+
+      let video = document.querySelector('#movie_player video[src]')
+      return video.currentTime
+    }
+
+    async initReload(endPointClicker) {
+
+      const ytLivePU = this
+      // the initial chat messages usually wrong; 
+      // this force the full reload at the begining.
+      try {
+
+        if (!endPointClicker) return
+
+        if (this.initialFetchReq !== 2) return;
+
+        let progress = ytLivePU.videoCurrentTime();
+        // if (progress < 1) progress = 1;
+
+        ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
+
+        // const progressM1 =   progress - 1.04;
+        const progressM1 = pm1(progress);
+        ytLivePU.prepareReload()
+        ytLivePU.statusSeek(progressM1);
+        // await Promise.resolve(0);
+        ytLivePU.clearList();
+        ytLivePU.clearTickerList();
+        ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
+        ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
+
+        ytLivePU.prepareReload()
+        ytLivePU.renderedVideoProgress = null;
+        await ytLivePU.sReload(endPointClicker);
+        await Promise.resolve(0);
+        if (this.initialFetchReq !== 2) return;
+        ytLivePU.clearList();
+        ytLivePU.clearTickerList();
+        ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
+        ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
+
+        ytLivePU.isChatMessageCanDisplay = false
+        await this.actualRender(progress);
+        await Promise.resolve(0)
+        await ytLivePU.createCMWaiter();
+        if (this.initialFetchReq !== 2) return;
+
+        ytLivePU.ytLiveChatRenderer.removeAttribute('loading2')
+
+        this.initialFetchReq = 3;
+
+
+        if (`${ytLivePU.requestedVideoProgress}` !== `${ytLivePU.renderedVideoProgress}`) {
+          this.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
+        }
+
+
+      } catch (e) {
+        console.warn(e)
+      }
+
+
+    }
+
+    getEndPointClicker() {
+      let p = this.queryCR('yt-live-chat-header-renderer a.yt-simple-endpoint[aria-selected="true"]', true)
+
+      if (!p) return null
+      return {
+        // click: ()=>p.click()
+        click: () => {
+
+          let ytReloadCont = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu')
+          let getContinuationUrl = ytReloadCont.getContinuationUrl.bind(ytReloadCont)
+          // ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
+
+          // ytReloadCont.trigger();
+          ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
+
+          /*
+          let chatRenderer = HTMLElement.prototype.closest.call(ytReloadCont, 'yt-live-chat-renderer')
+          try{
+            chatRenderer.onLoadReloadContinuation_(new CustomEvent('yt-load-reload-continuation', { detail: getContinuationUrl }), getContinuationUrl)
+          }catch(e){
+            // known as buggy for single column view
+            console.log(e)
+          }
+          */
+
+
+        }
+      }
+    }
+
+    prepareReload() {
+      // empty the pending request/queue as reload action
+
+      (function () {
+
+        this.smoothedQueue_.clear();
+        this.activeRequest && (this.activeRequest.promise.cancel(),
+          this.activeRequest = null);
+        this.nextRequest_ && (this.nextRequest_.promise.cancel(),
+          this.nextRequest_ = null);
+
+        // avoid playback cache
+        this.currentPlayerState_ = {}
+        this.replayBuffer_.clear()
+
+        // this._setPlayerProgressSec(a);
+        // this._setIsSeeking(!0),
+
+      }).call(this.ytLiveChatRenderer);
+
+    }
+
+    isReplay() {
+      let liveChatRendererData = (this.ytLiveChatRenderer || 0).data
+      return liveChatRendererData && liveChatRendererData.continuations && liveChatRendererData.isReplay === true
+    }
+
+    init() {
+
+      // console.log(933, 7.1, this.loadStatus.toString(2))
+      // console.log(944, 1,(this.loadStatus & 7))
+
+      if ((this.loadStatus & 7) === 5 && this.elmChat !== null) {
+        // usually not used
+        // chat element found; cr found.
+        // bug - no load event;
+        let iframe = HTMLElement.prototype.querySelector.call(this.elmChat, 'iframe#chatframe')
+        // console.log(944,2, iframe)
+        if (iframe) {
+          this.elmChatFrame = null; // required
+          this.initByIframe(iframe); // supplementary
+        }
+      }
+      // console.log(933, 7.2, this.loadStatus.toString(2))
+
+      if (this.loadStatus.toString(2) === '11111') {
+
+        /*
+        let playerSeekCont = this.queryCR('yt-player-seek-continuation')
+        if (playerSeekCont) {
+          // console.log(993434)
+          playerSeekCont.previousProgressSec = 1e99 // 1e-9
+        }
+        */
+        /*
+          setTimeout(() => {
+  
+  
+            if (this.queryCR('#items.yt-live-chat-item-list-renderer:empty', true)) {
+              
+              let playerSeekCont = this.queryCR('yt-player-seek-continuation')
+            if (playerSeekCont) {
+              playerSeekCont.previousProgressSec = 1e-9
+            }
+              console.log(6767)
+              this.directVideoProgress(this.videoCurrentTime())
+            }
+          }, 1200)
+          */
+      }
+      // console.log('init', this.loadStatus.toString(2))
+      // console.log(796, this.elmChat, this.elmChatFrame)
+      if (!this.elmChat || !this.elmChatFrame) return;
+      // console.log(55667, this.initialFetchReq)
+
+      // console.log(933, 8)
+      if (this.initialFetchReq === 1 && (this.loadStatus & 4) && (this.loadStatus & 2)) {
+        this.initialFetchReq = 2;
+        let endPointClicker = this.isReplay() ? this.getEndPointClicker() : null
+
+        if (endPointClicker) {
+          // console.log(933, 9)
+          this.initReload(endPointClicker)
+        } else {
+          this.initialFetchReq = 3;
+        }
+
+      }
+
+    }
+
+    triggeredPTC1() {
+      // just reserved for future purpose
+      if (!this.ytLiveChatRenderer) return;
+      if (this.loadStatus & 8) return;
+      this.loadStatus |= 8 // 00001000
+      this.init();
+    }
+
+    triggeredPTC2() {
+      // just reserved for future purpose
+      if (this.loadStatus & 16) return;
+      this.loadStatus |= 16 // 00010000
+      this.init();
+
+    }
+
+    handlerChatRoomNewPage(evt) {
+      // to be removed
+
+      // if (this.cnpCID) clearTimeout(this.cnpCID);
+      // this.cnpCID = 0;
+
+      // //console.log(12399,2)
+      // let nodeName = ((evt || 0).target || 0).nodeName
+      // if (nodeName !== 'YTD-LIVE-CHAT-FRAME') return;
+
+      // //console.log(12399,3)
+      // let chat = evt.target
+      // let iframe = chat.querySelector('iframe#chatframe[src]')
+      // if (!iframe) return;
+
+
+      // //let cc=3;
+      // this.cnpCID = setTimeout(function () {
+
+      //   this.cnpCID = 0;
+
+
+      //   //console.log(12399,4)
+      //   let cDoc = iframe.contentDocument
+      //   if (!cDoc) return;
+
+      //   /* chat.isListeningForPlayerProgress is no longer applicable */
+      //   if (ytLivePU.checkChatNativeReady(chat) && cDoc.querySelector('body:empty')) {
+      //     chat.urlChanged();
+      //   }
+
+      // }, 46); // delay in case empty body cannot be detected
+
+
+    }
+
+    _handlerPageDataFetched() {
+
+      const ytLivePU = this
+
+      // reset stuff once video (page) is changed
+
+      // ytLivePU.elmChat = null
+      // ytLivePU.elmChatFrame = null
+      ytLivePU.isChatReplay = null
+      ytLivePU.loadStatus = 0;
+      ytLivePU.requestedVideoProgress = null
+      ytLivePU.renderedVideoProgress = null
+      ytLivePU.clearVars()
+
+      if (ytLivePU.elmChat) {
+        ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
+        // ytLivePU.elmChat.removeAttribute('tyt-iframe-loaded')
+        // console.log(922,7)
+
+      }
+
+
+      // let chat = ytLivePU.elmChat
+      // console.log(33, chat)
+      // if (chat && chat.collapsed === false) {
+      //   console.log(34)
+      //   try {
+      //     // chat.attached();
+      //     ytLivePU.initialFetchReq = 21
+      //   } catch (e) { }
+      // }
+      // console.log(35, ytLivePU.initialFetchReq)
+      // chat = null
+
+    }
+
+    async fakeReload() {
+      // reserved for future reference.
+      const ytLivePU = this;
+
+      ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
+        actionName: "yt-live-chat-pause-replay",
+        args: null,
+        optionalAction: true,
+        returnValue: []
+      })
+      ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
+        actionName: "yt-live-chat-reload-start",
+        args: [],
+        optionalAction: true,
+        returnValue: []
+      })
+      ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
+        actionName: "yt-live-chat-actions",
+        args: [[]],
+        optionalAction: false,
+        returnValue: []
+      })
+      ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
+        actionName: "yt-live-chat-reload-success",
+        args: [],
+        optionalAction: true,
+        returnValue: []
+      })
+
+      ytLivePU.ytLiveChatRenderer.triggerReloadContinuation();
+
+    }
+
+    clearList() {
+      // clear chat body messages
+
+      let list = this.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true)
+      if (list && list.clearList) list.clearList();
+
+    }
+
+    clearTickerList() {
+      // clear chat header messages
+      let list = this.queryCR('yt-live-chat-ticker-renderer.yt-live-chat-renderer', true)
+      if (list && list.clearList) list.clearList();
+
+    }
+    async timelineBackward() {
+      const ytLivePU = this
+
+
+      try {
+
+
+        let progress = ytLivePU.requestedVideoProgress;
+
+        // if (pt < 1) pt = 1;
+
+        let tmp_postI = ytLivePU.postI;
+        await new Promise(requestAnimationFrame);
+        if (tmp_postI !== ytLivePU.postI) return;
+
+        let endPointClicker = ytLivePU.getEndPointClicker()
+
+        if (endPointClicker) {
+          ytLivePU.initialFetchReq = 9;
+
+
+          if (ytLivePU.isChatMessageCanDisplay) {
+            ytLivePU.isChatMessageCanDisplay = false
+            // ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
+          }
+
+
+          ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
+
+
+
+          // let list;
+          // list = this.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true)
+          // if (list && list.clearList) {
+          //   list.clearList = function () { }
+          // }
+
+
+          // list = this.queryCR('yt-live-chat-ticker-renderer.yt-live-chat-renderer', true)
+          // if (list && list.clearList) {
+          //   list.clearList = function () { }
+          // }
+
+
+          let progressM1;
+
+          // const progressM1 = progress - 1.04;
+          progress = ytLivePU.requestedVideoProgress;
+          ytLivePU.prepareReload()
+          // if (progress > 1.4) ytLivePU.statusSeek(progressM1);
+          progressM1 = pm1(progress)
+          ytLivePU.statusSeek(progressM1);
+          // await Promise.resolve(0);
+          progress = ytLivePU.requestedVideoProgress;
+          ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
+          ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
+          if (ytLivePU.elmChat.collapsed) return
+          // ytLivePU.ytLiveChatRenderer.handleChatSeekSuccess_()
+
+          /*
+          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatAction_=function(){}
+          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatActions_=function(){}
+          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).maybeResizeScrollContainer_=function(){}
+          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).flushActiveItems_=function(){}
+          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).maybeScrollToBottom_=function(){}
+          
+          // handleClearChatWindowAction_
+          // clearList
+
+          console.log(553, ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatAction_)
+*/
+
+
+          ytLivePU.clearList();
+          ytLivePU.clearTickerList();
+
+          ytLivePU.prepareReload()
+          ytLivePU.renderedVideoProgress = null;
+          await ytLivePU.sReload(endPointClicker); // await ytLivePU.fakeReload();
+          // ytLivePU.queryCR('yt-player-seek-continuation').fireSeekContinuationAtCurrentProgress()
+          await Promise.resolve(0);
+          progress = ytLivePU.requestedVideoProgress;
+          progressM1 = pm1(progress)
+          ytLivePU.clearList();
+          ytLivePU.clearTickerList();
+          ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
+          ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
+
+          ytLivePU.prepareReload()
+          if (ytLivePU.elmChat.collapsed) return
+
+          // let actualRenderProgress = progress
+          // let doNext = false
+          // if (`${ytLivePU.requestedVideoProgress}` === `${progress}`) {
+          //   actualRenderProgress = progress
+          //   doNext = false
+          // } else if (ytLivePU.requestedVideoProgress > progress) {
+          //   actualRenderProgress = ytLivePU.requestedVideoProgress
+          //   doNext = false
+          // } else {
+          //   // not yet rendererd; can just do the request instead
+
+          //   // actualRenderProgress = progress
+          //   // doNext = true
+
+          //   actualRenderProgress = ytLivePU.requestedVideoProgress
+          //   doNext = false
+          // }
+
+          let actualRenderProgress = ytLivePU.requestedVideoProgress
+          let doNext = false
+
+          ytLivePU.isChatMessageCanDisplay = false
+          await ytLivePU.actualRender(actualRenderProgress)
+          await Promise.resolve(0);
+          if (ytLivePU.elmChat.collapsed) return
+
+          await ytLivePU.createCMWaiter();
+          if (ytLivePU.elmChat.collapsed) return
+
+
+          // console.log(556545, ytLivePU.ytLiveChatRenderer.hasAttribute('loading') )
+          ytLivePU.ytLiveChatRenderer.removeAttribute('loading2')
+
+          if (ytLivePU.initialFetchReq !== 9) return;
+
+          ytLivePU.initialFetchReq = 3;
+
+          // this.ytLiveChatRenderer.handleLiveChatActions = q3
+
+          if (doNext) ytLivePU.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
+
+        } else {
+
+          ytLivePU.initialFetchReq = 3;
+        }
+
+
+      } catch (e) {
+        console.warn(e)
+      }
+
+
+    }
+
+
+    checkChatNativeReady(chat) {
+      if (chat.isAttached === false) return false;
+      if ('isFrameReady' in chat && chat.isFrameReady !== true) return false
+      // this.isListeningForPlayerProgress is no longer applicable
+      return true;
+    }
+
+
+    getFunc_postToContentWindow() {
+      const ytLivePU = this
+      let refreshAt = 0;
+      let rfaId = 0;
+      const tf_gtcw2 = function (x) {
+        if (rfaId > 0) {
+          rfaId = 0;
+          refreshAt = Date.now() + 460;
+        }
+      };
+
+      ytLivePU.postI = 0
+      ytLivePU.handlerPageDataFetched = ytLivePU._handlerPageDataFetched
+
+      document.addEventListener('tabview-chatroom-newpage', ytLivePU.handlerChatRoomNewPage, true);
+
+      const g_postToContentWindow = async function () {
+
+        try {
+
+
+          ytLivePU.triggeredPTC1();
+          let isChatReplay = ytLivePU.isChatReplay
+
+          let pt = null
+          if (isChatReplay === true) {
+            pt = arguments[0]['yt-player-video-progress'];
+          }
+          let ptUndefinded = pt === undefined
+          if (!ptUndefinded) {
+            /*
+            if (ytLivePU.renderedVideoProgress > pt && pt < 3) {
+              pt = 3 //minimum for seeking
+            }
+            */
+            ytLivePU.requestedVideoProgress = pt
+          }
+
+
+          if (ytLivePU.initialFetchReq === 2 || ytLivePU.initialFetchReq === 9) return;
+          if (this.collapsed === true) return;
+
+
+
+          let boolz = false;
+
+          // let pt = arguments[0]['yt-player-video-progress'];
+          if (isChatReplay === null) return;
+          else if (isChatReplay === false) {
+            // boolz = false; // only chat replay requires yt-player-video-progress
+            if (!ptUndefinded) return;
+          } else if (!ptUndefinded) {
+            // isChatReplay === true
+            if (ytLivePU.initialFetchReq !== 3) return;
+            boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
+          }
+
+
+          if (boolz) {
+            // isChatReplay === true
+            // checkChatNativeReady(this) && pt >= 0;
+
+            ytLivePU.postI++
+            if (ytLivePU.postI > 1e9) ytLivePU.postI = 9;
+
+            let tmp_postI = ytLivePU.postI;
+
+            let cr = ytLivePU.ytLiveChatRenderer;
+            if (!cr) return;
+
+            await ytLivePU.createLoadingWaiter()
+
+            if (tmp_postI !== ytLivePU.postI) return;
+
+
+            // console.log(ytLivePU.requestedVideoProgress , ytLivePU.renderedVideoProgress)
+
+
+
+            if (ytLivePU.requestedVideoProgress < ytLivePU.renderedVideoProgress && ytLivePU.requestedVideoProgress >= 0 && ytLivePU.renderedVideoProgress >= 0 && ytLivePU.renderedVideoProgress !== null) {
+              ytLivePU.timelineBackward();
+              return;
+            }
+
+
+
+
+            let exec = true;
+            if (rfaId > 0 && Date.now() > refreshAt) {
+              $cancelAnimationFrame(rfaId); //rfaId is still >0
+              tf_gtcw2();
+            } else if (rfaId === 0) {
+              rfaId = $requestAnimationFrame(tf_gtcw2);
+            } else {
+              exec = false;
+            }
+
+            if (ytLivePU.initialFetchReq !== 3) return;
+            if (exec) {
+              ytLivePU.initialFetchReq = 8;
+              await ytLivePU.actualRender(pt);
+              // if (pt < 1) ytLivePU.fireSeekContinuationAtCurrentProgress()
+              await Promise.resolve(0);
+              await ytLivePU.createCMWaiter();
+              if (ytLivePU.initialFetchReq !== 8) return;
+              ytLivePU.initialFetchReq = 3;
+              if (`${pt}` !== `${ytLivePU.requestedVideoProgress}` && ytLivePU.elmChat) {
+                ytLivePU.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
+              }
+            }
+
+          } else {
+
+            //{'yt-player-state-change': 3}
+            //{'yt-player-state-change': 2}
+            //{'yt-player-state-change': 1}
+
+            //isFrameReady is false if iframe is not shown
+            this.__$$postToContentWindow$$__(...arguments)
+          }
+
+        } catch (e) {
+          console.warn(e)
+        }
+
+      }
+      return g_postToContentWindow;
+    }
+
+
+  }
+
+
+  const ytLivePU = new YTLiveProcessUnit()
+
+
+
+
+
 
   document.addEventListener('tyt-engagement-panel-visibility-change', (evt) => {
 
@@ -595,7 +2117,7 @@ function injection_script_1() {
 
           const threadRenderer = entry.target;
           if (!threadRenderer) continue;
-          
+
           let h = entry.boundingClientRect.height
 
           let b1 = h > 10;
@@ -669,8 +2191,8 @@ function injection_script_1() {
             targets.push(entry.target);
           }
         }
-        Promise.resolve(0).then(()=>{
-          for(const target of targets){
+        Promise.resolve(0).then(() => {
+          for (const target of targets) {
             target.calculateCanCollapse(true);
           }
           targets.length = 0
@@ -822,7 +2344,7 @@ function injection_script_1() {
   function onPageFetched(evt) {
     ytLivePU.postI++;
     pageType = ((evt.detail || 0).pageData || 0).page;
-    if(ytLivePU.handlerPageDataFetched) ytLivePU.handlerPageDataFetched();
+    if (ytLivePU.handlerPageDataFetched) ytLivePU.handlerPageDataFetched();
   }
 
   function onPageFinished(evt) {
@@ -833,7 +2355,7 @@ function injection_script_1() {
         translateHanlder = getTranslate(); // release the memory used for previous page
       })
       ytLivePU.postI++;
-      
+
       // console.log(!!ytLivePU.elmChat, ytLivePU.elmChat && !document.contains(ytLivePU.elmChat))
     }
   }
@@ -858,7 +2380,7 @@ function injection_script_1() {
   document.addEventListener('yt-page-data-fetched', onPageFetched)
   document.addEventListener('yt-navigate-finish', onPageFinished)
 
-  
+
 
   let translateHanlder = null;
 
@@ -876,7 +2398,7 @@ function injection_script_1() {
 
     // note: after content expanded, resizing window will casue the "collapse" feature disappears.
     // this.$.content.scrollHeight>this.collapsedHeight  is used for recomputeOnResize = true 
-    
+
     // new browser - 84>80 would not lead to line clamp [as using -webkit-line-clamp]
     // this.$.content.offsetHeight<this.$.content.scrollHeight is not working for collapsed content
 
@@ -951,8 +2473,9 @@ function injection_script_1() {
 
 
     let trial55 = 20;
+    let cid55 = 0;
 
-    let cid55 = setInterval(() => {
+    const func55 = () => {
       let frameCE_prototype = customElements.get('ytd-live-chat-frame').prototype;
       //p&&(p.configurable=!0,Object.defineProperty(a,m,p))}}
 
@@ -960,14 +2483,20 @@ function injection_script_1() {
         const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
         frameCE_prototype.__$$postToContentWindow$$__ = frameCE_prototype.postToContentWindow
         frameCE_prototype.postToContentWindow = g_postToContentWindow
+        // true
+      } else if (--trial55 === 0 && cid55 > 0) {
+        // true
+      } else {
+        return false;
+      }
+      if (cid55 > 0) {
         clearInterval(cid55)
         cid55 = 0;
       }
-      if (--trial55 === 0 && cid55 > 0) {
-        clearInterval(cid55);
-        cid55 = 0;
-      }
-    }, 150)
+      return true;
+    };
+
+    if (!func55()) cid55 = setInterval(func55, 150);
 
 
     let s32 = Symbol();
@@ -1273,7 +2802,7 @@ function injection_script_1() {
 
     let lyricsIframe = document.querySelector('#lyricsiframe');
     let ytdApp = document.querySelector('ytd-app');
-    if (lyricsIframe && ytdApp && lyricsIframe.contentDocument !== null){
+    if (lyricsIframe && ytdApp && lyricsIframe.contentDocument !== null) {
 
       Promise.resolve(0).then(() => {
         lyricsIframe.classList.remove('tyt-tmp-hide-lyricsiframe');
@@ -1752,11 +3281,17 @@ function injection_script_1() {
       });
     }
 
-  }, false)
+  }, false);
 
+
+  // ----------------------------- ytLive / Popup / Begin -----------------------------
+
+  // chatroomRenderer
+  // popupBtnId
+  // mtoIframePopup
 
   document.addEventListener('tyt-close-popup', (evt) => {
-    let cr = kRef(chatroomRenderer)
+    let cr = kRef(chatroomRenderer);
 
     if (cr) {
 
@@ -1766,12 +3301,14 @@ function injection_script_1() {
 
     }
 
-  }, false)
+  }, false);
 
-  let popupBtnId = 0
-  let mtoIframePopup = null
+  let popupBtnId = 0;
+  let mtoIframePopup = null;
   document.addEventListener('tyt-iframe-popup-btn-setup', (evt) => {
 
+    // console.log(334,3)
+    // popupClose
 
     popupBtnId++
     function getV() {
@@ -1798,6 +3335,91 @@ function injection_script_1() {
       }
 
     }
+
+    function codeFixForParticipants() {
+      let cr = kRef(chatroomRenderer)
+      if (!cr) return;
+      let participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
+      if (!participants) return;
+      participants.canShow322 = !participants.matches('iron-pages > :not(slot):not(.iron-selected)')
+      // console.log('canShow322', participants.canShow322)
+
+      if (!participants.onParticipantsChanged322 && typeof participants.onParticipantsChanged === 'function') {
+        participants.onParticipantsChanged322 = participants.onParticipantsChanged
+
+        // let _lastData = null
+        participants.participantsChangeIfPending = function () {
+
+          if (this.canShow322 === true && this.showPending322 === true && this.onParticipantsChangedBusy322 === false) {
+            this.onParticipantsChanged();
+          }
+        }
+        participants.onParticipantsChanged = async function () {
+          try {
+            this.showPending322 = true; // refresh next time
+
+            if (this.canShow322 !== true) return; // avoid refresh participants when the list is not shown
+
+            if (this.onParticipantsChangedBusy322 === true) return;
+
+            this.onParticipantsChangedBusy322 = true;
+
+            let waiter = new Promise(window.requestAnimationFrame); // avoid frequently update
+
+            /*
+            let lastData = _lastData
+            let cParticipants  = this.participantsManager.participants
+          
+            _lastData = JSON.parse(JSON.stringify(cParticipants))
+ 
+
+
+            
+            if(lastData){
+              top.q33 = JSON.parse(JSON.stringify(lastData))
+              top.q34 = JSON.parse(JSON.stringify(cParticipants))
+              // top.p33 = JSON.stringify(lastData)
+              // top.p34 = JSON.stringify(cParticipants)
+
+              console.log(top.p33, top.p34)
+              
+            }
+            */
+
+            this.onParticipantsChanged322()
+
+            this.showPending322 = false; // refreshed
+
+            // console.log('onParticipantsChanged322')
+
+
+            await waiter;
+
+
+
+
+          } catch (e) {
+            console.warn(e)
+          }
+
+          this.onParticipantsChangedBusy322 = false;
+          this.participantsChangeIfPending();
+
+
+
+        }
+
+      }
+
+      participants.onParticipantsChangedBusy322 = false; // force change
+      participants.participantsChangeIfPending();
+
+      participants = null
+      cr = null
+
+
+    }
+
     function setupMTO(btn) {
       // when btn clicked
 
@@ -1880,6 +3502,23 @@ function injection_script_1() {
         } else if (required === null && toHideBtn === true && toShowBtn === null) {
           if (btnElm) btnElm.classList.remove('tyt-btn-enabled')
         }
+
+        // resolve issue - participant list loaded causing long re-rendering time required for chat messages switching (top chats vs full chats)
+        // Promise.resolve(0).then(()=>{
+        //   let cr = kRef(chatroomRenderer)
+        //   if(!cr) return;
+        //   let participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
+        //   if(participants){
+        //     if (participants.matches('iron-pages > :not(slot):not(.iron-selected):not(:empty)')) {
+        //       participants.textContent = '';
+        //     }
+        //   }
+        // })
+
+        // resolve issue - participant list loaded causing long re-rendering time required for chat messages switching (top chats vs full chats)
+        Promise.resolve(0).then(codeFixForParticipants);
+
+
       })
       mtoIframePopup.observe(cm, {
 
@@ -1964,6 +3603,7 @@ function injection_script_1() {
 
     async function runner(btn) {
 
+      // console.log(334,4)
 
       clearMTO()
       popupClose = null
@@ -1985,8 +3625,9 @@ function injection_script_1() {
 
 
       clearMTO()
-
       let canAddBtn = isThisChatCanPopup(cr)
+      // console.log(334,5, canAddBtn)
+
 
       if (canAddBtn) {
 
@@ -2039,1460 +3680,22 @@ function injection_script_1() {
   }, true);
 
 
+  // ----------------------------- ytLive / Popup / End -----------------------------
+
+
   document.addEventListener('tabview-page-rendered', () => {
     // reserved
   });
 
-  function pm1(progress){
-    return progress > 1e-9 ? progress - 1e-99 : Math.max(progress || 0, 0);
-  }
-
-  class YTLiveProcessUnit {
-
-    constructor(){
-      /** @type {Window | null} */
-      // this.ytLivePopupWindow = null
-      /** @type {HTMLElement | null} */
-      this.elmChat = null
-       /** @type {HTMLIFrameElement | null} */
-      this.elmChatFrame = null
-      this.isChatReplay = null
-      this.loadStatus = 0
-      this.renderedVideoProgress = null
-      this.requestedVideoProgress = null
-      this.clearVars(0);
-
-      this.postI = 0
-      this.isChatMessageCanDisplay = false
-      this.cnpCID = 0
-      this.handlerPageDataFetched = null
-
-    }
-
-    clearVars(t){
-      
-      /** @type {HTMLElement | null} */
-      this.ytLiveChatApp = null
-      /** @type {HTMLElement | null} */
-      this.ytLiveChatRenderer = null
-      
-      this.initialFetchReq = 0
-      // console.log(99)
-
-      this.renderBusyS = 0
-      this.renderBusyR = 0
-      if (t === 0) {
-
-        this.seekWaiterResolves = []
-        this.reloadWaiterResolves = []
-        this.loadingWaiterResolves = []
-      } else {
-
-        this.seekWaiterResolves.length = 0
-        this.reloadWaiterResolves.length = 0
-        this.loadingWaiterResolves.length = 0
-      }
-
-      
-      /** @type {HTMLElement | null} */
-      // this.__playerSeekCont__ = null
-    }
-
-    initByIframe(iframe) {
-      if ((iframe || 0).nodeName !== 'IFRAME') return;
-      if (this.elmChatFrame === iframe) return;
-      // console.log('initByIframe')
-      // just to catch the iframe element; content loading determined by initByChatRenderer
-      // if the iframe is changed, the initByChatRenderer must also be triggered and iframe load event will be also triggered before that.
-      // if the iframe not changed, just content changed, initByChatRenderer will come out while iframe element remains the same
-      this.elmChatFrame = iframe
-      // if(this.loadStatus)
-      this.loadStatus |= 2
-      this.init();
-    }
-
-    /** @param {HTMLElement | null} chat */
-    initByChat(chat) {
-      // this is triggered when collapsed / expanded / initial state
-      // console.log('initByChat')
-
-      
-      
-      if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
-
-        this.elmChat.classList.remove('tyt-chat-frame-ready')
-        this.elmChat.removeAttribute('tyt-iframe-loaded')
-      }
-      if (chat === null) {
-        // console.log(2241)
-        if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true){
-          this.elmChat.disconnectedCallback()
-          // console.log('aa', this.elmChat.isAttached)
-          // console.log(3341)
-        } 
-        this.elmChat = null
-        this.elmChatFrame = null
-        if (this.loadStatus & 1) this.loadStatus -= 1;
-        if (this.loadStatus & 2) this.loadStatus -= 2;
-
-        if (this.loadStatus & 16) this.loadStatus -= 16
-        if (this.loadStatus & 32) this.loadStatus -= 32
-
-        this.renderedVideoProgress = null
-
-
-        this.clearVars();
-        if (this.loadStatus & 4) this.loadStatus -= 4
-
-      } else {
-        
-        // console.log(2242)
-        // console.log('initByChat')
-        if ((chat || 0).id !== 'chat') return;
-        // if(this.initialFetchReq === 21) return;
-
-        // console.log(this.initialFetchReq)
-
-        
-        this.elmChat = chat
-        if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false){
-          // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
-          this.elmChat.connectedCallback()
-          // console.log('ab', this.elmChat.isAttached)
-          // console.log(3342)
-          this.initialFetchReq = 21;
-        }
-
-        this.loadStatus |= 1
-        if (this.loadStatus & 16) this.loadStatus -= 16
-        if (this.loadStatus & 32) this.loadStatus -= 32
-        if (chat.collapsed === true) {
-          this.renderedVideoProgress = null
-          this.clearVars();
-          if (this.loadStatus & 4) this.loadStatus -= 4
-        } else if (this.initialFetchReq === 0) {
-          this.initialFetchReq = 1
-          // console.log(this.renderedVideoProgress, this.ytLiveChatRenderer ,this.ytLiveChatApp, this.loadStatus.toString(2) )
-        } else if (this.initialFetchReq === 21) {
-          // url changed
-          // this fire mutiple times until initByChatRenderer reset it.
-          this.chatUrlChanged();
-        }
-
-        chat.classList.remove('tyt-chat-frame-ready')
-        chat.removeAttribute('tyt-iframe-loaded')
-        this.init();
-      }
-    }
-
-    initByChatRenderer(cr) {
-      // this is triggered when liveChatApp + Renderer ready
-
-      // console.log('initByChatRenderer')
-      if (!cr) return;
-      this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
-      if (!this.ytLiveChatApp) return;
-
-     
-
-      if (this.initialFetchReq >= 3) {
-        // including  this.initialFetchReq === 21
-        this.initialFetchReq = 0;
-        this.initByChat(this.elmChat);
-      }
-
-      if ((this.loadStatus & 1) === 0) {
-        ytLiveMOHandler();
-      }
-
-      this.ytLiveChatRenderer = cr
-
-      this.setUpPlayerSeekCont();
-
-      this.isChatReplay = this.isReplay()
-
-
-
-      this.setupChatRenderer()
-
-
-
-
-      this.loadStatus |= 4
-      this.init();
-    }
-
-    createCMWaiter(){
-      // render (seek/reload) start/sucess/fail when yt-action is triggered
-
-      return new Promise(resolve=>{
-
-        if(ytLivePU.renderBusyS===1 && ytLivePU.renderBusyR===0){
-          this.seekWaiterResolves.push(resolve)
-        } else if(ytLivePU.renderBusyR===1 && ytLivePU.renderBusyS===0){
-          this.reloadWaiterResolves.push(resolve)
-        } else {
-          
-          if (ytLivePU.renderBusyR + ytLivePU.renderBusyS !== 0) {
-            console.log(ytLivePU.renderBusyR, ytLivePU.renderBusyS)
-          }
-          resolve()
-        }
-
-
-      })
-    }
-
-    createLoadingWaiter(){
-      // loading finished when yt-action is triggered
-      
-      return new Promise(resolve=>{
-
-        if(ytLivePU.ytLiveChatRenderer.hasAttribute('loading')){
-          this.loadingWaiterResolves.push(resolve)
-        } else {
-          
-          resolve()
-        }
-
-
-      })
-      
-    }
-    
-    async chatUrlChanged(){
-      // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
-      
-      // first call not effect; only take effect in second call.
-
-      // console.log('chatUrlChanged - 1')
-      // console.log(301)
-      await Promise.resolve(0)
-      let chat = this.elmChat
-
-      // console.log(302)
-      if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
-
-        // console.log(305)
-        let cr = this.ytLiveChatRenderer
-        // console.log(306)
-        if (cr) {
-          this.initialFetchReq = 1
-          this.initByChatRenderer(cr);
-          // console.log('chatUrlChanged - 2a')
-          return false
-        } else {
-
-          // console.log(307)
-          // this.initialFetchReq = 1
-          chat.urlChanged(); // neccessary
-          // console.log('chatUrlChanged - 2b')
-          return true
-        }
-      }
-      this.initialFetchReq = 0
-
-      // console.log('chatUrlChanged - 2c')
-      return null
-      
-
-    }
-
-    setUpPlayerSeekCont(shadow) {
-      // player seek cont will be replaced frenquently when list content is updated
-      // re-hook by each yt-action if replaced
-
-      // if(this.__playerSeekCont__ && (this.__playerSeekCont__.isAttached === false ? false : this.ytLiveChatApp.contains(this.__playerSeekCont__))) return;
-
-      // console.log(22,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
-
-      let playerSeekCont = this.queryCR("yt-player-seek-continuation")
-      
-      // this.__playerSeekCont__ = playerSeekCont
-      // console.log(33,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
-
-      
-
-      if (!playerSeekCont) return;
-
-      if (playerSeekCont.c366) return;
-      playerSeekCont.c366 = 1;
-      // console.log(333)
-
-      let fixer = shadow ? null : (f, ek) => {
-        return function () {
-          if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-          // console.log( 'cxxs', arguments)
-          //if (ek) console.log(arguments)
-          let t = f.apply(this, arguments)
-          if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-          return t
-        }
-      }
-
-      playerSeekCont.maybeFireSeekContinuation = shadow ? shadow.maybeFireSeekContinuation : fixer(playerSeekCont.maybeFireSeekContinuation, 1)
-      playerSeekCont.playerProgressSecChanged_ =shadow ? shadow.playerProgressSecChanged_ : fixer(playerSeekCont.playerProgressSecChanged_)
-      playerSeekCont.fireSeekContinuation_ = shadow ? shadow.fireSeekContinuation_ :fixer(playerSeekCont.fireSeekContinuation_)
-
-      fixer = null;
-
-      playerSeekCont.detached = shadow?shadow.detached: ((f)=>{
-
-        return function(){
-
-          let ret =  f.call(this);
-          Promise.resolve(0).then(()=>{
-            ytLivePU.setUpPlayerSeekCont(this);
-          })
-          return ret;
-
-        }
-
-
-      })(playerSeekCont.detached )
-
-      shadow = null
-
-    }
-
-    setupChatRenderer(){
-      // only triggered in init
-
-
-      if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
-        this.ytLiveChatRenderer._gIxmf = 1
-        this.renderBusyS = 0
-        this.renderBusyR = 0
-        /*
-        const fixer = (f,ek)=>{
-          return function () {
-            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-            console.log(arguments)
-            let t = f.apply(this, arguments)
-            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-            return t
-          }
-        }
-        this.ytLiveChatRenderer._setPlayerProgressSec = ((f)=>{
-
-          return function (x) {
-            if (x === 0) x = 1e-99
-            let t = f.apply(this, arguments)
-            return t
-          }
-
-        })(this.ytLiveChatRenderer._setPlayerProgressSec);
-
-        console.log(this.ytLiveChatRenderer)
-        this.ytLiveChatRenderer.maybeFireSeekContinuation = fixer(this.ytLiveChatRenderer.maybeFireSeekContinuation,1)
-        this.ytLiveChatRenderer.playerProgressSecChanged_ = fixer(this.ytLiveChatRenderer.playerProgressSecChanged_)
-        this.ytLiveChatRenderer.fireSeekContinuation_ = fixer(this.ytLiveChatRenderer.fireSeekContinuation_)
-        */
-
-
-        this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
-
-          return function (x) {
-            if (x === 0) x = 1e-99
-            let t = f.apply(this, arguments)
-            return t
-          }
-
-        })(this.ytLiveChatRenderer._setPlayerProgressSec);
-
-
-        /*
-        this.ytLiveChatRenderer.onLoadSeekContinuation_ = ((f) => {
-
-          return function (a,b) {
-            console.log(a,b)
-            let t = f.apply(this, arguments)
-            return t
-          }
-
-        })(this.ytLiveChatRenderer.onLoadSeekContinuation_);
-        */
-
-        this.ytLiveChatRenderer.addEventListener('yt-action', function (evt) {
-          // console.log(evt)
-
-
-
-
-
-          /*
-          ytLivePU.ytLiveChatRenderer.dispatchEvent(new CustomEvent('yt-action', {
-            detail:{
-              actionName: 'yt-live-chat-reload-success',
-              optionalAction: true,
-              args: null,
-              returnValue: []
-            }
-          })) 
-          */
-
-
-
-
-          const d = (evt || 0).detail || 0
-          // console.log('yt-action', d.actionName)
-          // console.log(d)
-
-          let m3 = 0
-          if (d.actionName === 'yt-live-chat-actions') {
-            m3 = 1
-            // console.log(d)
-          }else if (d.actionName === 'yt-live-chat-replay-progress'){
-            m3=1;
-          }
-
-          let m1 = 0
-          let m2 = 0
-
-
-          if (d.actionName === 'yt-live-chat-seek-success') {
-            m1 = 1
-            m2 = 1
-            ytLivePU.renderBusyS--
-          } else if (d.actionName === 'yt-live-chat-seek-start') {
-            ytLivePU.renderBusyS++
-          } else if (d.actionName === 'yt-live-chat-reload-start') {
-            ytLivePU.renderBusyR++
-          } else if (d.actionName === 'yt-live-chat-reload-success') {
-            m1 = 2
-            m2 = 1
-            ytLivePU.renderBusyR--
-          } else if (d.actionName === 'yt-live-chat-seek-fail') {
-            m1 = 1
-            m2 = 1
-            ytLivePU.renderBusyS--
-          } else if (d.actionName === 'yt-live-chat-reload-fail') {
-            m1 = 2
-            ytLivePU.renderBusyR--
-          } else if (d.actionName === 'yt-live-chat-continuation-behavior-reload-success') {
-            m2 = 1
-          }
-
-          if (m1) {
-
-
-
-            m3=1;
-
-
-            if (ytLivePU.renderBusyR < 0 || ytLivePU.renderBusyS < 0) {
-              console.warn('render count error: ', ytLivePU.renderBusyR, ytLivePU.renderBusyS)
-            }
-
-
-            let u = 0;
-            const resolves = m1 === 1 ? ytLivePU.seekWaiterResolves : ytLivePU.reloadWaiterResolves
-            for (const resolve of resolves) {
-
-              if (!u) resolves.length = 0;
-              u++
-
-
-              resolve();
-
-            }
-
-          }
-
-
-          if (m2) {
-
-
-
-            let u = 0;
-            const resolves = ytLivePU.loadingWaiterResolves;
-            for (const resolve of resolves) {
-
-              if (!u) resolves.length = 0;
-              u++
-
-
-              resolve();
-
-            }
-
-          }
-
-          if(m3){
-            // ytLivePU.setUpPlayerSeekCont();
-          }
-
-
-        })
-
-
-
-      }
-
-      
-      if (this.isChatReplay && !ytLivePU.queryCR('style#tyt-chatframe-css')) {
-        let style = ytLivePU.ytLiveChatApp.ownerDocument.createElement('style')
-        style.id = 'tyt-chatframe-css'
-        style.textContent = `
-          yt-live-chat-renderer[loading2] #chat.yt-live-chat-renderer::after {
-            display: block;
-          }
-          
-          `
-        ytLivePU.ytLiveChatApp.appendChild(style)
-      }
-
-    }
-
-
-    // playerProgressChanged2_(a,b,c){
-
-
-    //   return
-    //   if ((this.data.isReplay || c) && !this.isAdPlaying) {
-    //     // Iy(this, "yt-live-chat-replay-progress", [a]);
-    //     this.currentPlayerState_ = {};
-    //     b && (this.currentPlayerState_.videoId = b);
-    //     c && (this.currentPlayerState_.watchPartyId = c);
-    //     b = 1E3 * a;
-    //     this.currentPlayerState_.playerOffsetMs = Math.floor(b).toString();
-    //     c = this.$$("yt-live-chat-replay-continuation");
-    //     var d = this.$$("yt-player-seek-continuation");
-    //     this._setPlayerProgressSec(a);
-    //     d && d.maybeFireSeekContinuation(a, this.replayBuffer_.lastVideoOffsetTimeMsec) ? (this._setIsSeeking(!0),
-    //       this.replayBuffer_.clear(),
-    //       this.setAttribute("loading", "")) : this.isSeeking_ || (c && this.replayBuffer_.lastVideoOffsetTimeMsec && (c.timeRemainingMsecs = this.replayBuffer_.lastVideoOffsetTimeMsec - b),
-    //         this.immediatelyApplyLiveChatActions([]))
-    //   }
-
-
-    // }
-
-    // statusSeek(pt) {
-    //   if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
-
-    //   let cr = ytLivePU.ytLiveChatRenderer
-
-    //   let q1 = cr.onLoadReplayContinuation_
-    //   let q2 = null
-
-    //   let playerSeekCont = null
-    //   try {
-    //     playerSeekCont = ytLivePU.queryCR('yt-player-seek-continuation')
-    //     q2 = playerSeekCont ? playerSeekCont.fireSeekContinuation_ : null
-    //   } catch (e) { }
-
-    //   if (!playerSeekCont) q2 = null
-
-    //   try {
-    //     if (q1) cr.onLoadReplayContinuation_ = function () { }
-    //     if (q2) playerSeekCont.fireSeekContinuation_ = function (a) {
-    //       this.previousProgressSec = a;
-    //     }
-
-    //     // cr.playerProgressChanged_(pt)
-    //     this.playerProgressChanged2_.call(cr,pt)
-
-    //   } catch (e) { }
-    //   if (q2) playerSeekCont.fireSeekContinuation_ = q2
-    //   if (q1) cr.onLoadReplayContinuation_ = q1
-
-    // }
-
-  
-      
-    /**
-     * @param {number} a
-     * @return {undefined}
-     */
-    playerProgressChangedForStatusSeek(a) {
-      // just update the variables according to the native method; no specific use. 
-      // just play safe
-
-      if (this.data.isReplay && !this.isAdPlaying) {
-        this.currentPlayerState_ = {};
-        /** @type {number} */
-        let r = 1E3 * a;
-        /** @type {string} */
-        this.currentPlayerState_.playerOffsetMs = Math.floor(r).toString();
-        let replayCont = this.$$("yt-live-chat-replay-continuation");
-        let seekCont = this.$$("yt-player-seek-continuation");
-        this._setPlayerProgressSec(a);
-        if (seekCont) {
-          seekCont.previousProgressSec = a;
-          // this._setIsSeeking(true);
-          this.replayBuffer_.clear();
-        } else if (!this.isSeeking_) {
-          if (replayCont && this.replayBuffer_.lastVideoOffsetTimeMsec) {
-            /** @type {number} */
-            replayCont.timeRemainingMsecs = this.replayBuffer_.lastVideoOffsetTimeMsec - r;
-          }
-          this.immediatelyApplyLiveChatActions([]);
-        }
-
-      }
-    }
-
-    statusSeek(pt) {
-      // see playerProgressChangedForStatusSeek
-
-      // if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
-
-      let cr = ytLivePU.ytLiveChatRenderer
-      if(!cr){
-        console.warn('cr is not found')
-        return
-      }
-
-      try {
-
-        // cr.playerProgressChanged_(pt)
-        this.playerProgressChangedForStatusSeek.call(cr, pt)
-
-      } catch (e) { }
-
-    }
-
-
-
-    async sReload(endPointClicker) {
-      // this is to perform the reload cont with simplified mechanism to make the process faster
-
-      try {
-
-        let cr = ytLivePU.ytLiveChatRenderer
-
-        if (!cr) {
-          console.warn('wrong parameter')
-          return
-        }
-
-        if (typeof cr.handleReloadSuccess_ != 'function') {
-          console.warn('cr.handleReloadSuccess_ is not a function.')
-          return
-        }
-
-        let q = cr.triggerReloadContinuation
-        if (q) cr.triggerReloadContinuation = function () { }
-
-        ytLivePU.renderedVideoProgress = null
-
-        endPointClicker.click();
-        await Promise.resolve(0); // allow triggering of yt-live-chat-reload-start
-        await ytLivePU.createCMWaiter(); // expect that renderBusyR = 1
-
-        ytLivePU.prepareReload();
-
-        if (q) {
-          cr.triggerReloadContinuation = q
-          cr.triggerReloadContinuation()
-        }
-        if (ytLivePU.elmChat.collapsed) return
-        cr.handleReloadSuccess_()
-
-      } catch (e) {
-        console.warn(e)
-      }
-
-    }
-
-    // async awaitDetach(elemChecker) {
-    //   if (!elemChecker) {
-    //     console.warn('wrong parameter')
-    //     return
-    //   }
-    //   try {
-    //     while (elemChecker.isAttached === true) {
-    //       await new Promise(r => setTimeout(r, 100));
-    //     }
-    //     return true
-    //   } catch (e) {
-    //     console.warn(e)
-    //   }
-    // }
-
-    // async awaitLoading() {
-
-    //   let cr = this.ytLiveChatRenderer;
-    //   if (!cr) {
-    //     console.warn('wrong parameter')
-    //     return
-    //   }
-    //   try {
-    //     while (cr.hasAttribute('loading')) {
-    //       await Promise.race([new Promise(r => window.requestAnimationFrame(r)), new Promise(r => setTimeout(r, 400))])
-    //     }
-    //   } catch (e) {
-    //     console.warn(e)
-    //   }
-    // }
-
-    queryCR(query, inCR) {
-      let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
-      if(elm) return HTMLElement.prototype.querySelector.call(elm, query)
-      return null
-    }
-
-    queryAllCR(query, inCR) {
-      let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
-      if(elm) return HTMLElement.prototype.querySelectorAll.call(elm, query)
-      return null
-    }
-
-    dispatchYtAction(elm, detail){
-
-      let customEvent = new CustomEvent("yt-action", { bubbles: true, cancelable: false, composed: true, detail: detail })
-      elm.dispatchEvent(customEvent);
-    }
-
-    directVideoProgress(progress) {
-      // instead of postToContentWindow, directly call DOM method(s) of the chat renderer
-
-      // if (progress < 1) progress = 1
-
-      try {
-        
-        if('playerProgressChanged_' in this.ytLiveChatRenderer){
-          
-
-          this.ytLiveChatRenderer.playerProgressChanged_(progress)
-
-        } else {
-          this.dispatchYtAction(
-            this.queryCR('yt-iframed-player-events-relay'),
-            {
-              actionName: "yt-live-player-video-progress",
-              args: [progress],
-              optionalAction: true,
-              returnValue: []
-            }
-          );
-        }
-
-        // console.log(5656533)
-        return true
-      } catch (e) {
-        console.warn(e);
-      }
-
-      return false;
-
-
-    }
-
-
-    /*
-    // not accurate
-    async seekRender(pt){
-
-
-      if(!this.elmChat || !this.ytLiveChatRenderer) return
-            
-
-      let ret = false;
-      let playerSeekCont = this.queryCR('yt-player-seek-continuation')
-      if (playerSeekCont) {
-        // force fireSeekContinuation_ at the begining
-        // if('previousProgressSec' in playerSeekCont && !playerSeekCont.previousProgressSec) playerSeekCont.previousProgressSec = 1e99
-        // playerSeekCont.previousProgressSec = 1e99 // 1e-9
-
-        playerSeekCont.fireSeekContinuation_(pt)
-        ret = true
-
-      }
-
-      if (ret === false) {
-        this.elmChat.__$$postToContentWindow$$__({ 'yt-player-video-progress': pt })
-      }
-      this.renderedVideoProgress = pt
-      await Promise.resolve(0)
-      if (!ytLivePU.isChatMessageCanDisplay) {
-        ytLivePU.isChatMessageCanDisplay = true
-        await this.awaitLoading()
-        this.elmChat.classList.add('tyt-chat-frame-ready')
-      }
-
-      this.triggeredPTC2();
-
-
-    }
-
-    */
-
-    async actualRender(pt) {
-      try {
-
-        if (!this.elmChat || !this.ytLiveChatRenderer) return
-
-
-
-        if (this.renderedVideoProgress === null) {
-
-          let playerSeekCont = this.queryCR('yt-player-seek-continuation')
-          if (playerSeekCont) {
-            // force fireSeekContinuation_ at the begining
-            // if('previousProgressSec' in playerSeekCont && !playerSeekCont.previousProgressSec) playerSeekCont.previousProgressSec = 1e99
-            // playerSeekCont.previousProgressSec = 1e99 // 1e-9
-
-            playerSeekCont.fireSeekContinuation_(pt)
-
-          }
-
-        }
-
-        let ret = this.directVideoProgress(pt)
-        if (ret === false) {
-          this.elmChat.__$$postToContentWindow$$__({ 'yt-player-video-progress': pt })
-        }
-        this.renderedVideoProgress = pt
-        await Promise.resolve(0)
-        if (!ytLivePU.isChatMessageCanDisplay) {
-          ytLivePU.isChatMessageCanDisplay = true
-          await this.createLoadingWaiter()
-          // await this.awaitLoading()
-          this.elmChat.classList.add('tyt-chat-frame-ready')
-        }
-
-        this.triggeredPTC2();
-
-
-      } catch (e) {
-        console.warn(e)
-      }
-    }
-
-    videoCurrentTime() {
-
-      let video = document.querySelector('#movie_player video[src]')
-      return video.currentTime
-    }
-
-    async initReload(endPointClicker) {
-      // the initial chat messages usually wrong; 
-      // this force the full reload at the begining.
-      try {
-
-        if (!endPointClicker) return
-
-        if (this.initialFetchReq !== 2) return;
-
-        let progress = ytLivePU.videoCurrentTime();
-        // if (progress < 1) progress = 1;
-
-        ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
-        
-        // const progressM1 =   progress - 1.04;
-        const progressM1 = pm1(progress);
-        ytLivePU.prepareReload()
-        ytLivePU.statusSeek(progressM1);
-        // await Promise.resolve(0);
-        ytLivePU.clearList();
-        ytLivePU.clearTickerList();
-        ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
-        ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
-
-        ytLivePU.prepareReload()
-        ytLivePU.renderedVideoProgress = null;
-        await ytLivePU.sReload(endPointClicker);
-        await Promise.resolve(0);
-        if (this.initialFetchReq !== 2) return;
-        ytLivePU.clearList();
-        ytLivePU.clearTickerList();
-        ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
-        ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
-
-        ytLivePU.isChatMessageCanDisplay = false
-        await this.actualRender(progress);
-        await Promise.resolve(0)
-        await ytLivePU.createCMWaiter();
-        if (this.initialFetchReq !== 2) return;
-
-        ytLivePU.ytLiveChatRenderer.removeAttribute('loading2')
-
-        this.initialFetchReq = 3;
-
-
-        if (`${ytLivePU.requestedVideoProgress}` !== `${ytLivePU.renderedVideoProgress}`) {
-          this.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
-        }
-
-
-      } catch (e) {
-        console.warn(e)
-      }
-
-
-    }
-
-    getEndPointClicker() {
-      let p = this.queryCR('yt-live-chat-header-renderer a.yt-simple-endpoint[aria-selected="true"]', true)
-
-      if (!p) return null
-      return {
-        // click: ()=>p.click()
-        click: () => {
-
-          let ytReloadCont = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu')
-          let getContinuationUrl = ytReloadCont.getContinuationUrl.bind(ytReloadCont)
-          // ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
-          
-          // ytReloadCont.trigger();
-          ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
-
-          /*
-          let chatRenderer = HTMLElement.prototype.closest.call(ytReloadCont, 'yt-live-chat-renderer')
-          try{
-            chatRenderer.onLoadReloadContinuation_(new CustomEvent('yt-load-reload-continuation', { detail: getContinuationUrl }), getContinuationUrl)
-          }catch(e){
-            // known as buggy for single column view
-            console.log(e)
-          }
-          */
-          
-
-        }
-      }
-    }
-
-    prepareReload() {
-      // empty the pending request/queue as reload action
-
-      (function () {
-
-        this.smoothedQueue_.clear();
-        this.activeRequest && (this.activeRequest.promise.cancel(),
-          this.activeRequest = null);
-        this.nextRequest_ && (this.nextRequest_.promise.cancel(),
-          this.nextRequest_ = null);
-
-        // avoid playback cache
-        this.currentPlayerState_ = {}
-        this.replayBuffer_.clear()
-
-        // this._setPlayerProgressSec(a);
-        // this._setIsSeeking(!0),
-
-      }).call(this.ytLiveChatRenderer);
-
-    }
-
-    isReplay(){
-      let liveChatRendererData = (this.ytLiveChatRenderer || 0).data
-      return liveChatRendererData && liveChatRendererData.continuations && liveChatRendererData.isReplay === true
-    }
-
-    init(){
-      if(this.loadStatus.toString(2)==='11111'){
-        
-        /*
-        let playerSeekCont = this.queryCR('yt-player-seek-continuation')
-        if (playerSeekCont) {
-          // console.log(993434)
-          playerSeekCont.previousProgressSec = 1e99 // 1e-9
-        }
-        */
-/*
-        setTimeout(() => {
-
-
-          if (this.queryCR('#items.yt-live-chat-item-list-renderer:empty', true)) {
-            
-            let playerSeekCont = this.queryCR('yt-player-seek-continuation')
-          if (playerSeekCont) {
-            playerSeekCont.previousProgressSec = 1e-9
-          }
-            console.log(6767)
-            this.directVideoProgress(this.videoCurrentTime())
-          }
-        }, 1200)
-        */
-      }
-      // console.log('init', this.loadStatus.toString(2))
-      // console.log(796, this.elmChat, this.elmChatFrame)
-      if(!this.elmChat || !this.elmChatFrame) return;
-      // console.log(55667, this.initialFetchReq)
-      
-      if(this.initialFetchReq === 1 && (this.loadStatus &4) && (this.loadStatus &2)){
-        this.initialFetchReq = 2;
-        let endPointClicker = this.isReplay() ? this.getEndPointClicker() : null
-
-        if(endPointClicker){
-          this.initReload(endPointClicker)
-        } else {
-          this.initialFetchReq = 3;
-        }
-
-      }
-
-    }
-
-    triggeredPTC1() {
-      // just reserved for future purpose
-      if (!ytLivePU.ytLiveChatRenderer) return;
-      if (this.loadStatus & 8) return;
-      this.loadStatus |= 8
-      this.init();
-    }
-
-    triggeredPTC2() {
-      // just reserved for future purpose
-      if (this.loadStatus & 16) return;
-      this.loadStatus |= 16
-      this.init();
-
-    }
-
-    handlerChatRoomNewPage(evt) {
-      // to be removed
-
-      // if (this.cnpCID) clearTimeout(this.cnpCID);
-      // this.cnpCID = 0;
-
-      // //console.log(12399,2)
-      // let nodeName = ((evt || 0).target || 0).nodeName
-      // if (nodeName !== 'YTD-LIVE-CHAT-FRAME') return;
-
-      // //console.log(12399,3)
-      // let chat = evt.target
-      // let iframe = chat.querySelector('iframe#chatframe[src]')
-      // if (!iframe) return;
-
-
-      // //let cc=3;
-      // this.cnpCID = setTimeout(function () {
-
-      //   this.cnpCID = 0;
-
-
-      //   //console.log(12399,4)
-      //   let cDoc = iframe.contentDocument
-      //   if (!cDoc) return;
-
-      //   /* chat.isListeningForPlayerProgress is no longer applicable */
-      //   if (ytLivePU.checkChatNativeReady(chat) && cDoc.querySelector('body:empty')) {
-      //     chat.urlChanged();
-      //   }
-
-      // }, 46); // delay in case empty body cannot be detected
-
-
-    }
-
-    _handlerPageDataFetched() {
-
-      // reset stuff once video (page) is changed
-
-      // ytLivePU.elmChat = null
-      // ytLivePU.elmChatFrame = null
-      ytLivePU.isChatReplay = null
-      ytLivePU.loadStatus = 0;
-      ytLivePU.requestedVideoProgress = null
-      ytLivePU.renderedVideoProgress = null
-      ytLivePU.clearVars()
-
-      if (ytLivePU.elmChat) {
-        ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
-        ytLivePU.elmChat.removeAttribute('tyt-iframe-loaded')
-      }
-
-        
-      // let chat = ytLivePU.elmChat
-      // console.log(33, chat)
-      // if (chat && chat.collapsed === false) {
-      //   console.log(34)
-      //   try {
-      //     // chat.attached();
-      //     ytLivePU.initialFetchReq = 21
-      //   } catch (e) { }
-      // }
-      // console.log(35, ytLivePU.initialFetchReq)
-      // chat = null
-
-    }
-
-    async fakeReload(){
-      // reserved for future reference.
-      
-           
-      ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
-        actionName: "yt-live-chat-pause-replay",
-        args: null,
-        optionalAction: true,
-        returnValue: []
-      })
-       ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
-        actionName: "yt-live-chat-reload-start",
-        args: [],
-        optionalAction: true,
-        returnValue: []
-      })
-       ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
-         actionName: "yt-live-chat-actions",
-         args: [[]],
-         optionalAction: false,
-         returnValue: []
-       })
-       ytLivePU.dispatchYtAction(ytLivePU.ytLiveChatRenderer, {
-         actionName: "yt-live-chat-reload-success",
-         args: [],
-         optionalAction: true,
-         returnValue: []
-       })
-       
-       ytLivePU.ytLiveChatRenderer.triggerReloadContinuation();
-
-    }
-    
-    clearList() {
-      // clear chat body messages
-
-      let list = this.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true)
-      if (list && list.clearList) list.clearList();
-
-    }
-
-    clearTickerList(){
-      // clear chat header messages
-      let list = this.queryCR('yt-live-chat-ticker-renderer.yt-live-chat-renderer', true)
-      if (list && list.clearList) list.clearList();
-
-    }
-    async timelineBackward() {
-
-
-      try {
-
-
-        let progress = ytLivePU.requestedVideoProgress;
-
-        // if (pt < 1) pt = 1;
-
-        let tmp_postI = ytLivePU.postI;
-        await new Promise(requestAnimationFrame);
-        if (tmp_postI !== ytLivePU.postI) return;
-
-        let endPointClicker = ytLivePU.getEndPointClicker()
-
-        if (endPointClicker) {
-          ytLivePU.initialFetchReq = 9;
-
-
-          if (ytLivePU.isChatMessageCanDisplay) {
-            ytLivePU.isChatMessageCanDisplay = false
-            // ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
-          }
-
-
-          ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
-
-
-
-          // let list;
-          // list = this.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true)
-          // if (list && list.clearList) {
-          //   list.clearList = function () { }
-          // }
-
-
-          // list = this.queryCR('yt-live-chat-ticker-renderer.yt-live-chat-renderer', true)
-          // if (list && list.clearList) {
-          //   list.clearList = function () { }
-          // }
-
-
-          let progressM1;
-
-          // const progressM1 = progress - 1.04;
-          progress = ytLivePU.requestedVideoProgress; 
-          ytLivePU.prepareReload()
-          // if (progress > 1.4) ytLivePU.statusSeek(progressM1);
-          progressM1 = pm1(progress)
-          ytLivePU.statusSeek(progressM1);
-          // await Promise.resolve(0);
-          progress = ytLivePU.requestedVideoProgress; 
-          ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
-          ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
-          if (ytLivePU.elmChat.collapsed) return
-          // ytLivePU.ytLiveChatRenderer.handleChatSeekSuccess_()
-
-          /*
-          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatAction_=function(){}
-          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatActions_=function(){}
-          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).maybeResizeScrollContainer_=function(){}
-          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).flushActiveItems_=function(){}
-          ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).maybeScrollToBottom_=function(){}
-          
-          // handleClearChatWindowAction_
-          // clearList
-
-          console.log(553, ytLivePU.queryCR('yt-live-chat-item-list-renderer#live-chat-item-list-panel', true).handleLiveChatAction_)
-*/
-
-
-          ytLivePU.clearList();
-          ytLivePU.clearTickerList();
-
-          ytLivePU.prepareReload()
-          ytLivePU.renderedVideoProgress = null;
-          await ytLivePU.sReload(endPointClicker); // await ytLivePU.fakeReload();
-          // ytLivePU.queryCR('yt-player-seek-continuation').fireSeekContinuationAtCurrentProgress()
-          await Promise.resolve(0);
-          progress = ytLivePU.requestedVideoProgress; 
-          progressM1 = pm1(progress)
-          ytLivePU.clearList();
-          ytLivePU.clearTickerList();
-          ytLivePU.ytLiveChatRenderer._setIsSeeking(false);
-          ytLivePU.ytLiveChatRenderer._setPlayerProgressSec(progressM1);
-
-          ytLivePU.prepareReload()
-          if (ytLivePU.elmChat.collapsed) return
-
-          // let actualRenderProgress = progress
-          // let doNext = false
-          // if (`${ytLivePU.requestedVideoProgress}` === `${progress}`) {
-          //   actualRenderProgress = progress
-          //   doNext = false
-          // } else if (ytLivePU.requestedVideoProgress > progress) {
-          //   actualRenderProgress = ytLivePU.requestedVideoProgress
-          //   doNext = false
-          // } else {
-          //   // not yet rendererd; can just do the request instead
-
-          //   // actualRenderProgress = progress
-          //   // doNext = true
-
-          //   actualRenderProgress = ytLivePU.requestedVideoProgress
-          //   doNext = false
-          // }
-
-          let actualRenderProgress = ytLivePU.requestedVideoProgress
-          let doNext = false
-
-          ytLivePU.isChatMessageCanDisplay = false
-          await ytLivePU.actualRender(actualRenderProgress)
-          await Promise.resolve(0);
-          if (ytLivePU.elmChat.collapsed) return
-
-          await ytLivePU.createCMWaiter();
-          if (ytLivePU.elmChat.collapsed) return
-
-
-          // console.log(556545, ytLivePU.ytLiveChatRenderer.hasAttribute('loading') )
-          ytLivePU.ytLiveChatRenderer.removeAttribute('loading2')
-
-          if (ytLivePU.initialFetchReq !== 9) return;
-
-          ytLivePU.initialFetchReq = 3;
-
-          // this.ytLiveChatRenderer.handleLiveChatActions = q3
-
-          if (doNext) ytLivePU.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
-
-        } else {
-
-          ytLivePU.initialFetchReq = 3;
-        }
-
-
-      } catch (e) {
-        console.warn(e)
-      }
-
-
-    }
-
-
-    checkChatNativeReady(chat) {
-      if (chat.isAttached === false) return false;
-      if ('isFrameReady' in chat && chat.isFrameReady !== true) return false
-      // this.isListeningForPlayerProgress is no longer applicable
-      return true;
-    }
-
-      
-    getFunc_postToContentWindow() {
-      let refreshAt = 0;
-      let rfaId = 0;
-      const tf_gtcw2 = function (x) {
-        if (rfaId > 0) {
-          rfaId = 0;
-          refreshAt = Date.now() + 460;
-        }
-      };
-      
-      ytLivePU.postI = 0
-      ytLivePU.handlerPageDataFetched = ytLivePU._handlerPageDataFetched
-
-      document.addEventListener('tabview-chatroom-newpage', ytLivePU.handlerChatRoomNewPage, true);
-
-      const g_postToContentWindow = async function(){
-
-        try {
-          
-
-          ytLivePU.triggeredPTC1();
-          let isChatReplay = ytLivePU.isChatReplay
-
-          let pt = null
-          if (isChatReplay === true) {
-            pt = arguments[0]['yt-player-video-progress'];
-          }
-          let ptUndefinded = pt === undefined
-          if (!ptUndefinded) {
-            /*
-            if (ytLivePU.renderedVideoProgress > pt && pt < 3) {
-              pt = 3 //minimum for seeking
-            }
-            */
-            ytLivePU.requestedVideoProgress = pt
-          }
-
-
-          if (ytLivePU.initialFetchReq === 2 || ytLivePU.initialFetchReq === 9) return;
-          if (this.collapsed === true) return;
-
-
-
-          let boolz = false;
-
-          // let pt = arguments[0]['yt-player-video-progress'];
-          if (isChatReplay === null) return;
-          else if (isChatReplay === false) {
-            // boolz = false; // only chat replay requires yt-player-video-progress
-            if (!ptUndefinded) return;
-          } else if (!ptUndefinded) {
-            // isChatReplay === true
-            if (ytLivePU.initialFetchReq !== 3) return;
-            boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
-          }
-          
-
-          if (boolz) {
-            // isChatReplay === true
-            // checkChatNativeReady(this) && pt >= 0;
-
-            ytLivePU.postI++
-            if (ytLivePU.postI > 1e9) ytLivePU.postI = 9;
-            
-            let tmp_postI = ytLivePU.postI;
-
-            let cr = ytLivePU.ytLiveChatRenderer;
-            if (!cr) return;
-
-            await ytLivePU.createLoadingWaiter()
-            
-            if (tmp_postI !== ytLivePU.postI) return;
-
-
-            // console.log(ytLivePU.requestedVideoProgress , ytLivePU.renderedVideoProgress)
-
-
-
-            if (ytLivePU.requestedVideoProgress < ytLivePU.renderedVideoProgress && ytLivePU.requestedVideoProgress >= 0 && ytLivePU.renderedVideoProgress >= 0 && ytLivePU.renderedVideoProgress !== null) {
-              ytLivePU.timelineBackward();
-              return;
-            }
-
-
-
-
-            let exec = true;
-            if (rfaId > 0 && Date.now() > refreshAt) {
-              $cancelAnimationFrame(rfaId); //rfaId is still >0
-              tf_gtcw2();
-            } else if (rfaId === 0) {
-              rfaId = $requestAnimationFrame(tf_gtcw2);
-            } else {
-              exec = false;
-            }
-            
-            if (ytLivePU.initialFetchReq !== 3) return;
-            if (exec) {
-              ytLivePU.initialFetchReq = 8;
-              await ytLivePU.actualRender(pt);
-              // if (pt < 1) ytLivePU.fireSeekContinuationAtCurrentProgress()
-              await Promise.resolve(0);
-              await ytLivePU.createCMWaiter();
-              if (ytLivePU.initialFetchReq !== 8) return;
-              ytLivePU.initialFetchReq = 3;
-              if (`${pt}` !== `${ytLivePU.requestedVideoProgress}` && ytLivePU.elmChat) {
-                ytLivePU.elmChat.postToContentWindow({ 'yt-player-video-progress': ytLivePU.videoCurrentTime() })
-              }
-            }
-
-          } else {
-
-            //{'yt-player-state-change': 3}
-            //{'yt-player-state-change': 2}
-            //{'yt-player-state-change': 1}
-
-            //isFrameReady is false if iframe is not shown
-            this.__$$postToContentWindow$$__(...arguments)
-          }
-
-        } catch (e) {
-          console.warn(e)
-        }
-
-      }
-      return g_postToContentWindow;
-    }
-
-
-  }
-
-  let ytLivePU = new YTLiveProcessUnit()
-
-
-  const ytLiveMOHandler = () => {
-
-    let chat = null
-
-    let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
-    let attr = ytdFlexyElm ? ytdFlexyElm.getAttribute('tyt-chat') : null
-    if (!ytdFlexyElm) {
-      console.warn('error F032')
-    }
-
-    if (attr) {
-      chat = document.querySelector('ytd-live-chat-frame#chat');
-    }
-    // console.log('m - attr', attr)
-    // note: there is multiple triggering of this (with same final attr value);
-    //       not sure whether the bug of tabview layout itself or the element is truly removed and reinserted.
-    // the same attr would happen twice
-    ytLivePU.initByChat(chat)
-
-
-  }
-
-  let ytLiveMO = new MutationObserver(ytLiveMOHandler);
-
-  ytLiveMOHandler();
-  (function () {
-
-    let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
-    if (ytdFlexyElm) {
-      ytLiveMO.observe(ytdFlexyElm, {
-        attributes: true,
-        attributeFilter: ["tyt-chat"],
-        attributeOldValue: false,
-        subtree: false,
-        childList: false,
-        characterData: false,
-        characterDataOldValue: false
-      })
-    } else {
-      console.warn('error F031')
-    }
-
-  })();
 
   document.addEventListener('tabview-chatframe-loaded', function (evt) {
 
     let iframe = evt.target
     if (!iframe) return
-    ytLivePU.initByIframe(iframe);
+
+    ytLivePU.setupYtLiveMO(); // setup when iframe is loaded; no need to setup when the video is without chatroom
+    ytLivePU.elmChatFrame = null; // required
+    ytLivePU.initByIframe(iframe); // main
 
 
   }, true)
@@ -3561,6 +3764,72 @@ function injection_script_1() {
     else return;
 
     loadStartFxAsync(video);
+
+  }
+
+  top.switchVideoPage = (video_id) => {
+
+    if (typeof video_id !== 'string') return;
+
+    let ytApp = document.querySelector('ytd-app');
+    if (!ytApp || typeof ytApp.handleNavigate !== 'function') return;
+
+    let req = {
+      "type": 0,
+      "command": {
+        // "clickTrackingParams": "XXXXX",
+        "commandMetadata": {
+          "webCommandMetadata": {
+            "url": "/watch?v=" + video_id, // required; string
+            "webPageType": "WEB_PAGE_TYPE_WATCH", // required; string
+            "rootVe": 3832 // required; number
+          }
+        },
+        "watchEndpoint": {
+          "videoId": video_id,
+          "nofollow": true, // optional; boolean
+          "watchEndpointSupportedOnesieConfig": { // optional; object
+            "html5PlaybackOnesieConfig": {
+            }
+          }
+        }
+      },
+      "form": {
+        "tempData": {}, // required; object
+        "reload": false // required; boolean
+      }
+    }
+
+
+    /*
+
+    let req = {
+      "type": 0,
+      "command": {
+        "watchEndpoint": {
+          "videoId": video_id
+        },
+        "commandMetadata": {
+          "webCommandMetadata": {
+            "url": "/watch?v=" + video_id,
+            "rootVe": 3832,
+            "webPageType": "WEB_PAGE_TYPE_WATCH"
+          }
+        },
+        // "clickTrackingParams": "XXXXX"
+      },
+      "form": {
+        "tempData": {
+          // "itct": "XXXXX",
+          "lact": 1,
+          "vis": 0
+        },
+        "reload": false
+      }
+    }
+
+    */
+    ytApp.handleNavigate(req);
 
   }
 

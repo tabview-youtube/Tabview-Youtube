@@ -118,10 +118,10 @@ html:not(.style-scope) {
 
 @supports (color: var(--tyt-chat-frame-ready)){
     ytd-watch-flexy[tyt-chat="+chat$playback"] #chat:not(.tyt-chat-frame-ready){
-        --tyt-chat-frame-display: none;
+        --tyt-chat-frame-visibility: collapse;
     }
     #chat iframe{
-        display: var(--tyt-chat-frame-display);
+        visibility: var(--tyt-chat-frame-visibility);
     }
 
 
