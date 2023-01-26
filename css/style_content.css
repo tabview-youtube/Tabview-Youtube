@@ -143,7 +143,7 @@ html:not(.style-scope) {
     }
 
 
-    ytd-watch-flexy[tyt-chat="+chat$playback"] ytd-live-chat-frame#chat[tyt-iframe-loaded]:not(.tyt-chat-frame-ready)::after {
+    ytd-watch-flexy[tyt-chat="+chat$playback"] ytd-live-chat-frame#chat[tyt-iframe-loaded]:not(.tyt-chat-frame-ready):not(.tyt-chat-ads-playing)::after {
         content: "";
         display: block;
     }

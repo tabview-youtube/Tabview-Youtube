@@ -154,6 +154,7 @@ function injection_script_1() {
 
       this.ytLiveMO = null
       // this.ytLiveMOHandlerI = 0
+      this.adsPlaying = false
 
     }
 
@@ -276,6 +277,32 @@ function injection_script_1() {
       }
     }
 
+
+
+    setAdPlaying(b) {
+
+      if (this.adsPlaying === b) return;
+      if (typeof b !== 'boolean') return;
+
+      // let changeToFalse = (this.adsPlaying === true && b === false)
+      this.adsPlaying = b
+
+      if (this.ytLiveChatRenderer) {
+        this.ytLiveChatRenderer._setIsAdPlaying(b);
+      }
+
+      if (this.elmChat) {
+        this.elmChat.classList.toggle('tyt-chat-ads-playing', this.adsPlaying === true)
+      }
+
+      /*
+      if(changeToFalse){
+        this.init()
+      }
+      */
+
+    }
+
     initByChatRenderer(cr) {
       // this is triggered when liveChatApp + Renderer ready
 
@@ -298,6 +325,21 @@ function injection_script_1() {
 
       this.ytLiveChatRenderer = cr // for both playback replay and livestream
       chatroomRenderer = mWeakRef(cr) // avoid memory leak for live popup
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+      if (ytdFlexyElm) {
+        let playerData = ytdFlexyElm.player || 0
+        if (typeof playerData.getPresentingPlayerType === 'function') {
+          let playerType = playerData.getPresentingPlayerType()
+          // 2 for ads
+          // 1 for normal
+          this.setAdPlaying(playerType === 2);
+        }
+      }
+      if (this.adsPlaying === true && this.ytLiveChatRenderer.isAdPlaying === false) {
+        // unlikely
+        this.setAdPlaying(true);
+      }
+      // console.log(771, this.adsPlaying, this.ytLiveChatRenderer.isAdPlaying)
       // playback replay: loading correct comments at specific time
       // livestream: control popup
 
@@ -1152,6 +1194,9 @@ function injection_script_1() {
 
     init() {
 
+
+      if (this.adsPlaying === true) return;
+
       // console.log(933, 7.1, this.loadStatus.toString(2))
       // console.log(944, 1,(this.loadStatus & 7))
 
@@ -1164,6 +1209,7 @@ function injection_script_1() {
         if (iframe) {
           this.elmChatFrame = null; // required
           this.initByIframe(iframe); // supplementary
+          return // init fire again in this.initByIframe
         }
       }
       // console.log(933, 7.2, this.loadStatus.toString(2))
@@ -1199,7 +1245,8 @@ function injection_script_1() {
       // console.log(55667, this.initialFetchReq)
 
       // console.log(933, 8)
-      if (this.initialFetchReq === 1 && (this.loadStatus & 4) && (this.loadStatus & 2)) {
+      // console.log(5522, this.initialFetchReq, this.loadStatus, this.adsPlaying)
+      if (this.initialFetchReq === 1 && ((this.loadStatus & 6) === 6)) {
         this.initialFetchReq = 2;
         let endPointClicker = this.isReplay() ? this.getEndPointClicker() : null
 
@@ -1212,6 +1259,31 @@ function injection_script_1() {
 
       }
 
+    }
+
+    checkAdPlaying(arg0) {
+      if (!arg0) return
+      let startID = arg0['yt-player-ad-start'] // string = 'xxx'
+      let endBool = arg0['yt-player-ad-end'] // boolean = true
+
+      let playerStateChange = typeof arg0['yt-player-state-change'] === 'number';
+
+      if (playerStateChange) {
+
+        if ((this.loadStatus & 16) === 0 && this.adsPlaying === false) this.init()
+
+      } else if (((!!startID) ^ (!!endBool)) === 1) {
+
+        let b = (!!startID) ? true : false;
+
+        // console.log(555, this.adsPlaying)
+
+
+        this.setAdPlaying(b);
+
+
+
+      }
     }
 
     triggeredPTC1() {
@@ -1279,12 +1351,11 @@ function injection_script_1() {
       ytLivePU.requestedVideoProgress = null
       ytLivePU.renderedVideoProgress = null
       ytLivePU.clearVars()
+      ytLivePU.adsPlaying = false
 
       if (ytLivePU.elmChat) {
-        ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
-        // ytLivePU.elmChat.removeAttribute('tyt-iframe-loaded')
-        // console.log(922,7)
-
+        ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready');
+        ytLivePU.elmChat.classList.remove('tyt-chat-ads-playing');
       }
 
 
@@ -1522,17 +1593,19 @@ function injection_script_1() {
       const g_postToContentWindow = async function () {
 
         try {
+          // console.log(6223, arguments)
+          ytLivePU.checkAdPlaying(arguments[0])
 
 
           ytLivePU.triggeredPTC1();
           let isChatReplay = ytLivePU.isChatReplay
 
-          let pt = null
-          if (isChatReplay === true) {
-            pt = arguments[0]['yt-player-video-progress'];
-          }
-          let ptUndefinded = pt === undefined
-          if (!ptUndefinded) {
+          const pt = (isChatReplay === true) ? arguments[0]['yt-player-video-progress'] : undefined
+          const isVideoProgress = (pt !== undefined)
+
+          if (ytLivePU.adsPlaying === true && isVideoProgress === true) return;
+
+          if (isVideoProgress === true) {
             /*
             if (ytLivePU.renderedVideoProgress > pt && pt < 3) {
               pt = 3 //minimum for seeking
@@ -1553,8 +1626,8 @@ function injection_script_1() {
           if (isChatReplay === null) return;
           else if (isChatReplay === false) {
             // boolz = false; // only chat replay requires yt-player-video-progress
-            if (!ptUndefinded) return;
-          } else if (!ptUndefinded) {
+            if (isVideoProgress === true) return;
+          } else if (isVideoProgress === true) {
             // isChatReplay === true
             if (ytLivePU.initialFetchReq !== 3) return;
             boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
