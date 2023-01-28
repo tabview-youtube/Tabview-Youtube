@@ -1,69 +1,72 @@
 @supports (color: var(--reference-dimension)){
     /* reference dimension */
 
-/* --ytd-watch-flexy-panel-max-height: 549px */
+    /* 
+    --ytd-watch-flexy-panel-max-height: 549px
+    */
 
-/*
-ytd-watch-flexy {
-    --ytd-watch-flexy-sidebar-width: 402px;
-    --ytd-watch-flexy-sidebar-min-width: 300px;
-    --ytd-watch-flexy-masthead-height: 56px;
-    min-width: 0;
-}
-ytd-watch-flexy[flexy] {
-    --ytd-watch-flexy-width-ratio: 16;
-    --ytd-watch-flexy-height-ratio: 9;
-    --ytd-watch-flexy-space-below-player: 136px;
-    --ytd-watch-flexy-non-player-height: calc( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) );
-    --ytd-watch-flexy-non-player-width: calc( var(--ytd-watch-flexy-sidebar-width) + (3 * var(--ytd-margin-6x)) );
-    --ytd-watch-flexy-min-player-height: 240px;
-    --ytd-watch-flexy-min-player-width: calc( var(--ytd-watch-flexy-min-player-height) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
-    --ytd-watch-flexy-max-player-height: calc( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) );
-    --ytd-watch-flexy-max-player-width: calc( ( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) ) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
-}
-*/
+    /*
+    ytd-watch-flexy {
+        --ytd-watch-flexy-sidebar-width: 402px;
+        --ytd-watch-flexy-sidebar-min-width: 300px;
+        --ytd-watch-flexy-masthead-height: 56px;
+        min-width: 0;
+    }
+    ytd-watch-flexy[flexy] {
+        --ytd-watch-flexy-width-ratio: 16;
+        --ytd-watch-flexy-height-ratio: 9;
+        --ytd-watch-flexy-space-below-player: 136px;
+        --ytd-watch-flexy-non-player-height: calc( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) );
+        --ytd-watch-flexy-non-player-width: calc( var(--ytd-watch-flexy-sidebar-width) + (3 * var(--ytd-margin-6x)) );
+        --ytd-watch-flexy-min-player-height: 240px;
+        --ytd-watch-flexy-min-player-width: calc( var(--ytd-watch-flexy-min-player-height) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+        --ytd-watch-flexy-max-player-height: calc( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) );
+        --ytd-watch-flexy-max-player-width: calc( ( 100vh - ( var(--ytd-watch-flexy-masthead-height) + var(--ytd-margin-6x) + var(--ytd-watch-flexy-space-below-player) ) ) * (var(--ytd-watch-flexy-width-ratio) / var(--ytd-watch-flexy-height-ratio)) );
+    }
+    */
 
-/*
-html:not(.style-scope) {
-    --ytd-grid-base: 103px;
-    --ytd-margin-base: 4px;
-    --ytd-avatar-size: 32px;
-    --ytd-toolbar-height: 56px;
-    --ytd-margin-2x: 8px;
-    --ytd-margin-3x: 12px;
-    --ytd-margin-4x: 16px;
-    --ytd-margin-5x: 20px;
-    --ytd-margin-6x: 24px;
-    --ytd-margin-7x: 28px;
-    --ytd-margin-8x: 32px;
-    --ytd-margin-9x: 36px;
-    --ytd-margin-10x: 40px;
-    --ytd-margin-11x: 44px;
-    --ytd-margin-12x: 48px;
-    --ytd-margin-14x: 56px;
-    --ytd-margin-16x: 64px;
-    --ytd-margin-17x: 68px;
-    --ytd-margin-24x: 96px;
-    --ytd-margin-25x: 100px;
-    --ytd-margin-35x: 140px;
-    --ytd-neg-margin-base: -4px;
-    --ytd-neg-margin-2x: -8px;
-    --ytd-neg-margin-3x: -12px;
-    --ytd-neg-margin-4x: -16px;
-    --ytd-neg-margin-5x: -20px;
-    --ytd-neg-margin-6x: -24px;
-    --ytd-neg-margin-7x: -28px;
-    --ytd-neg-margin-8x: -32px;
-    --ytd-neg-margin-10x: -40px;
-    --ytd-neg-margin-11x: -44px;
-    --ytd-neg-margin-12x: -48px;
-    --ytd-neg-margin-14x: -56px;
-    --ytd-neg-margin-16x: -64px;
-    --ytd-neg-margin-24x: -96px;
-    --ytd-neg-margin-25x: -100px;
-    --ytd-grid-1x1_-_height: 103px;
-    --ytd-grid-1x1_-_width: 103px;
+    /*
+    html:not(.style-scope) {
+        --ytd-grid-base: 103px;
+        --ytd-margin-base: 4px;
+        --ytd-avatar-size: 32px;
+        --ytd-toolbar-height: 56px;
+        --ytd-margin-2x: 8px;
+        --ytd-margin-3x: 12px;
+        --ytd-margin-4x: 16px;
+        --ytd-margin-5x: 20px;
+        --ytd-margin-6x: 24px;
+        --ytd-margin-7x: 28px;
+        --ytd-margin-8x: 32px;
+        --ytd-margin-9x: 36px;
+        --ytd-margin-10x: 40px;
+        --ytd-margin-11x: 44px;
+        --ytd-margin-12x: 48px;
+        --ytd-margin-14x: 56px;
+        --ytd-margin-16x: 64px;
+        --ytd-margin-17x: 68px;
+        --ytd-margin-24x: 96px;
+        --ytd-margin-25x: 100px;
+        --ytd-margin-35x: 140px;
+        --ytd-neg-margin-base: -4px;
+        --ytd-neg-margin-2x: -8px;
+        --ytd-neg-margin-3x: -12px;
+        --ytd-neg-margin-4x: -16px;
+        --ytd-neg-margin-5x: -20px;
+        --ytd-neg-margin-6x: -24px;
+        --ytd-neg-margin-7x: -28px;
+        --ytd-neg-margin-8x: -32px;
+        --ytd-neg-margin-10x: -40px;
+        --ytd-neg-margin-11x: -44px;
+        --ytd-neg-margin-12x: -48px;
+        --ytd-neg-margin-14x: -56px;
+        --ytd-neg-margin-16x: -64px;
+        --ytd-neg-margin-24x: -96px;
+        --ytd-neg-margin-25x: -100px;
+        --ytd-grid-1x1_-_height: 103px;
+        --ytd-grid-1x1_-_width: 103px;
 
+    }
     */
 
 }
@@ -3873,9 +3876,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             margin-top: 51px;
         }
 
+        /*
+        // useless css? cause effected subtitle lagging
         html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater]:not([fullscreen]) #columns.ytd-watch-flexy #secondary.ytd-watch-flexy #secondary-inner>* {
             transform: initial;
         }
+        */
 
         html:has(style#ytlctn-style-for-native-control) ytd-watch-flexy[flexy]{
             --tyt-native-ui-autohide-visibility: '--NULL-';
@@ -4044,7 +4050,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
  
     
     /* 2022/11/07 - adjust spacing */
-/*
+    /*
     #primary.style-scope.ytd-watch-flexy #super-title.style-scope.ytd-watch-metadata[is-empty]:not(.use-shadow)+h1.style-scope.ytd-watch-metadata {
         margin-top: 2px;
     }
@@ -4064,13 +4070,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
     tyt-caption-window{
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    pointer-events: none;
-}
-*/
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        pointer-events: none;
+    }
+    */
 
     
 
@@ -4281,9 +4287,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /*
-    ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
-        contain: layout paint style;
-    }*/
+        ytd-watch-flexy .tab-content-cld#tab-comments > ytd-comments#comments > ytd-item-section-renderer#sections > #contents{
+            contain: layout paint style;
+        }
+        */
 
         ytd-watch-flexy .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents {
             contain: layout style;
@@ -4516,11 +4523,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
             --ytd-watch-flexy-sidebar-width-d: var(--tabview-slider-offset-p);
 
-/*
+            /*
             --tabview-slider-offset-actual-old: calc(var(--ytd-watch-flexy-sidebar-width-d) - var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset));
 
             --tabview-slider-offset-actual: calc( var(--tabview-slider-offset));
-*/
+            */
 
             --tabview-hover-slider-x1: 0px;
             --tabview-hover-slider-x2: calc(-0.5*var(--tabview-slider-offset-actual));
@@ -4570,9 +4577,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             transition: initial;
 
             transition-delay: initial;
-/*
+
+            /* 
             max-width: var(--ytd-watch-flexy-sidebar-width-d);
-*/
+            */
+
 
         }
 
@@ -4682,7 +4691,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     ytd-watch-flexy[is-two-columns_][theater][tyt-tab=""]:not([fullscreen]) > #columns > #secondary{
         overflow: initial;  fix border
     }
-     */
+    */
 
     ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns.ytd-watch-flexy > #secondary.ytd-watch-flexy #right-tabs #material-tabs {
         outline: 0;
