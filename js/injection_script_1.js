@@ -2786,7 +2786,9 @@ function injection_script_1() {
 
   }
 
-  function showLyricsWhenReady() {
+  function showLyricsWhenReady(data) {
+    
+    console.assert(!!data, 'parameter "data" is not defined.')
 
     let lyricsIframe = document.querySelector('#lyricsiframe');
     let ytdApp = document.querySelector('ytd-app');
@@ -2999,7 +3001,9 @@ function injection_script_1() {
   let iframeCache = null
 
 
-  function onLyricsDisplayStateChanged() {
+  function onLyricsDisplayStateChanged(data) {
+
+    console.assert(!!data, 'parameter "data" is not defined.')
 
 
     const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
@@ -3070,9 +3074,9 @@ function injection_script_1() {
 
       switch (data.type) {
         case 'pageready':
-          showLyricsWhenReady();
+          showLyricsWhenReady(data);
         case 'lyricsDisplayState':
-          onLyricsDisplayStateChanged();
+          onLyricsDisplayStateChanged(data);
 
       }
 
