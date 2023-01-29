@@ -2959,8 +2959,10 @@ body .ytp-autohide .ytp-unmute,
 
     /* added in 2022/11/24 */
 
-    html:has(body) {
-        --tabview-has-selector-enabled: 1;
+    @supports (selector(:has(body))){
+        html:has(body) {
+            --tabview-has-selector-enabled: 1;
+        }
     }
     
 
@@ -3847,8 +3849,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
     }
-    
-    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock)) {
+
+    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock)) and (selector(:has(style#id))) {
 
         /* 2022/11/07 - specific fix for YouTubeLiveClock - chrome only */
         html:has(style#ytlctn-style-for-native-control) #columns.ytd-watch-flexy #player::after {
@@ -4110,7 +4112,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
 @media not all and (display-mode: fullscreen) {
 
-    @supports (color: var(--compatibile-with-enhancer-youtube-single-col)){
+    @supports (color: var(--compatibile-with-enhancer-youtube-single-col)) and (selector(:has(a#id + b))) {
 
         ytd-watch-flexy:not([is-two-columns_]) #player:has(ytd-player#ytd-player + .efyt-control-bar) {
 
@@ -4592,6 +4594,16 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
                 border: 1px solid transparent;
             }
 
+        }
+
+        /* 2023/01/29 added for old browser empty space between content and border issue */
+        @supports (color: var(--css-fix-for-old-browser-view-pholder)){
+            /* view pholder is just an element for space determintation; no css event related */
+            tabview-view-pholder {
+                position: absolute; /* or float: left */
+                contain: strict;
+                visibility: collapse;
+            }
         }
 
         ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner,
