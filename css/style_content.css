@@ -1743,6 +1743,7 @@ body .ytp-autohide .ytp-unmute,
             padding: 4px 0;
             justify-content: space-evenly;
             align-content: space-evenly;
+            pointer-events: none;
         }
 
         html body ytd-watch-flexy.style-scope .font-size-btn {
@@ -1767,6 +1768,7 @@ body .ytp-autohide .ytp-unmute,
             line-height: 100%;
             font-weight: 900;
             transition: background-color 90ms linear, color 90ms linear;
+            pointer-events: all;
         }
 
         .font-size-btn:hover {
