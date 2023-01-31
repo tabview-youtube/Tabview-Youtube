@@ -119,6 +119,66 @@
     
 }
 
+@supports (color: var(--donation-shelf-related)) {
+    @keyframes swVq1DOMAppended {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] ytd-masthead#masthead div#buttons.ytd-masthead path[swVq1="1"] {
+        animation: swVq1DOMAppended 1ms linear 0s 1 normal forwards;
+    }
+    body #donation-shelf.ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy,
+    body #donation-shelf.ytd-watch-flexy ytd-donation-unavailable-renderer.ytd-watch-flexy {
+        margin-bottom: var(--ytd-margin-3x);
+    }
+
+    
+    /* this works for latest browsers only */
+    ytd-watch-flexy[is-two-columns_]:has(ytd-donation-unavailable-renderer.ytd-watch-flexy){
+        --tyt-tabs-upspace-donation-unavailable: 42px;
+    }
+
+
+    @keyframes swVq2DOMAppended {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty):not([swVq2="1"]) {
+        animation: swVq2DOMAppended 1ms linear 0s 1 normal forwards;
+    }
+
+    
+
+    ytd-watch-flexy[tyt-donation-shelf] #collapse-controls-section.ytd-donation-shelf-renderer {
+        display: none;
+    }
+
+    ytd-watch-flexy[tyt-donation-shelf] ytd-donation-shelf-renderer.ytd-watch-flexy[swVq2="1"]:not([hidden]):not(:empty){
+
+        --tyt-x-chat-max-height: calc(var(--tyt-x-base-height) - 36px - 6px);
+        max-height: var(--tyt-x-chat-max-height);
+        overflow: auto;
+    }
+    
+
+    :fullscreen ytd-watch-flexy[tyt-donation-shelf] ytd-donation-shelf-renderer.ytd-watch-flexy[swVq2="1"]:not([hidden]):not(:empty) {
+        --tyt-x-chat-max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x) - 46px);
+    }
+
+    ytd-watch-flexy[theater][tyt-chat^="-"] ytd-donation-unavailable-renderer.ytd-watch-flexy {
+        display: none;
+    }
+
+}
+
 @supports (color: var(--tyt-chat-frame-ready)){
     ytd-watch-flexy[tyt-chat="+chat$playback"] #chat:not(.tyt-chat-frame-ready){
         --tyt-chat-frame-visibility: collapse;
@@ -2197,7 +2257,7 @@ body .ytp-autohide .ytp-unmute,
     body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
     body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
-        --tyt-x-chat-max-height: calc(var(--tyt-x-base-height) - 20px);
+        --tyt-x-chat-max-height: calc(var(--tyt-x-base-height) - 20px - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
         height: var(--tyt-x-chat-max-height);
         min-height: 10px;
     }
@@ -2205,21 +2265,21 @@ body .ytp-autohide .ytp-unmute,
     /* double .ytd-watch-flexy is Youtube Coding Bug */
     body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
 
-        --tyt-x-chat-max-height: var(--tyt-x-chatroom-height);
+        --tyt-x-chat-max-height: calc(var(--tyt-x-chatroom-height) - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
         /* not override if value not set */
 
     }
 
     
     ytd-watch-flexy #right-tabs{
-        --tyt-tabs-upspace: 0px;
+        --tyt-tabs-upspace: calc(var(--tyt-tabs-upspace-chat-unavailable, 0px) + var(--tyt-tabs-upspace-donation-unavailable, 0px));
     }
 
     /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */
     ytd-watch-flexy[is-two-columns_][tyt-chat] #right-tabs,
     ytd-watch-flexy[is-two-columns_]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed] ~ #right-tabs{
         /* button size + margin = 42px */
-        --tyt-tabs-upspace: 42px;
+        --tyt-tabs-upspace-chat-unavailable: 42px;
     }
 
     ytd-watch-flexy[is-two-columns_] #right-tabs{
@@ -4896,12 +4956,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 2022/11/07 */
     :fullscreen ytd-watch-flexy[flexy][fullscreen] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
-        --tyt-x-chat-max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x));
+        --tyt-x-chat-max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 40px - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x) - var(--ytd-margin-6x) - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
     }
 
     /* 2022/11/07 */
     :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs {
-        --tyt-tabs-content-height: calc(var(--tyt-x-base-height) - var(--tyt-tabs-upspace, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x) - var(--ytd-margin-6x));
+        --tyt-tabs-content-height: calc(var(--tyt-x-base-height) - var(--tyt-tabs-upspace, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x) - var(--ytd-margin-6x) );
     }
 
     /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */

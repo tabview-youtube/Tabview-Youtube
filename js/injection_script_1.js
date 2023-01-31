@@ -2376,7 +2376,7 @@ function injection_script_1() {
 
     if (_ceHack_calledOnce) return;
     _ceHack_calledOnce = true;
-    console.log('ce-hack')
+    console.log('[tyt] ce-hack')
 
     if (typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
     // note: YouTube implements its on window.customElements when it detects the browser is old.
@@ -4035,6 +4035,349 @@ rcb(b) => a = playlistId = undefinded
     })(ytdApp.handleNavigate);
 
   })
+
+
+  
+  const prependTo = HTMLElement.prototype.prepend ? (elm, target) => {
+    if (!target || !elm) return null;
+    // using prepend
+    HTMLElement.prototype.prepend.call(target, elm);
+    return true;
+  } : (elm, target) => {
+    if (!target || !elm) return null;
+    // using insertBefore
+    try {
+      HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
+      return true;
+    } catch (e) {
+      console.log('element insert failed in old browser CE')
+    }
+    return false;
+  }
+
+
+  
+  const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
+  // https://caniuse.com/?search=observer
+  // https://caniuse.com/?search=addEventListener%20passive
+
+  const bubblePassive = isPassiveArgSupport ? { capture: false, passive: true } : false;
+  const capturePassive = isPassiveArgSupport ? { capture: true, passive: true } : true;
+
+
+  /** @type {Map<string, Function>} */
+  let handleDOMAppearFN = new Map();
+  function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
+    if (handleDOMAppearFN.size === 0) {
+      document.addEventListener('animationstart', (evt) => {
+        let func = handleDOMAppearFN.get(evt.animationName);
+        if (func) func(evt);
+      }, capturePassive)
+    } else {
+      if (handleDOMAppearFN.has(fn)) return;
+    }
+    handleDOMAppearFN.set(fn, func);
+  }
+
+  function onShelfToggled() {
+
+    let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+    if (ytdFlexyElm) {
+      let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
+      if (shelf && !shelf.hasAttribute('hidden')) {
+        shelf.isCollapsed = false
+        ytdFlexyElm.setAttribute('tyt-donation-shelf', '')
+      } else {
+        ytdFlexyElm.removeAttribute('tyt-donation-shelf')
+      }
+    }
+  }
+
+  // function fixShelfBtnStyle(br){
+  //   if (br && br.isAttached === true) { } else { return }
+  //   let shape = br.querySelector('yt-button-shape')
+  //   if(shape){
+  //     // buggy style
+  //     let data = shape.data
+  //     let brData = ((br || 0).data || 0)
+  //     if (data) {
+  //       if (brData.style == 'STYLE_BLUE_TEXT' && data.style !== 'call-to-action') {
+  //         data.style = 'call-to-action'
+  //         data.type = 'text'
+  //         shape.notifyPath('data.style')
+  //         shape.notifyPath('data.type')
+  //       }
+  //     }
+  //   }
+  //   br = null;
+  //   shape = null;
+  // }
+
+  function onShelfBtnClick(evt){
+
+    let br = this
+    let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
+    if (!shelf) return;
+    if (!shelf.hasAttribute('hidden')) {
+
+      shelf.setAttribute('hidden', '')
+      br.data.style = 'STYLE_DEFAULT'
+      if(!br.overrides || br.overrides.style) br.overrides = {}
+      br.notifyPath('data.style')
+      if(!br.overrides || br.overrides.style) br.overrides = {}
+    } else {
+
+      shelf.removeAttribute('hidden')
+      br.data.style = 'STYLE_BLUE_TEXT'
+      if(!br.overrides || br.overrides.style) br.overrides = {}
+      br.notifyPath('data.style')
+      if(!br.overrides || br.overrides.style) br.overrides = {}
+    }
+
+    onShelfToggled();
+  }
+  function closestYTDButton(elm) {
+    let pelm = elm;
+    while (pelm) {
+      if (pelm && pelm.nodeType === 1) {
+        let nodeName = pelm.nodeName.toUpperCase()
+        if (nodeName === 'YTD-BUTTON-RENDERER' || nodeName === 'YT-BUTTON-RENDERER') break;
+      }
+      pelm = pelm.parentNode;
+    }
+    return pelm ? pelm : null
+  }
+  handleDOMAppear('swVq1DOMAppended', function (evt) {
+    if(!evt || !evt.target) return;
+    let path = evt.target;
+    if (path.getAttribute('swVq1')!=='1') return;
+    path.setAttribute('swVq1','2')
+    let br = closestYTDButton(path)
+    if (!br) return;
+    if(!br.overrides || br.overrides.style) br.overrides = {}
+    br.id = 'tyt-donation-shelf-toggle-btn'
+    br.removeEventListener('click', onShelfBtnClick, false)
+    br.addEventListener('click', onShelfBtnClick, false)
+    if(!br.overrides || br.overrides.style) br.overrides = {}
+    onShelfToggled();
+  })
+
+  
+  handleDOMAppear('swVq2DOMAppended', function (evt) {
+ 
+    let target = (evt||0).target||0
+    if(target.nodeType !==1) return
+    target.setAttribute('swVq2', '1')
+
+    let donationShelf = target;
+    // let donationShelf=document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+    if(donationShelf){
+
+      let buttons = document.querySelector('div#buttons.ytd-masthead');
+      if(buttons){
+
+            
+            buttons.dispatchEvent(new CustomEvent('tabview-create-donation-shelf-toggle-btn'))
+ 
+
+
+      }
+
+      
+
+    }
+  })
+
+  function detachedFunc(elm, f) {
+
+    if (!elm.detacheds) {
+      elm.detacheds = []
+      if (typeof elm.detached !== 'function') console.warn('elm.detached is not a function.')
+      elm._detached_original = elm.detached
+      elm.detached = function () {
+        let ret = this._detached_original();
+        try {
+          for (const s of this.detacheds) s(this);
+        } catch (e) {
+          console.warn(e)
+        }
+        return ret;
+      }
+    }
+    elm.detacheds.push(f)
+
+  }
+
+  const DONATION_HANDS_D = "DONATION_HANDS";
+  const DONATION_HANDS_id = "donation_hands";
+  const DONATION_PATH = 
+  `M11.6 22.4c-.6-.1-1-.4-1.4-1.2-.2-.4-.4-.6-.7-.7-.6-.2-1-.6-1.3-1.2-.2-.5-.4-.7-.6-.8-.7-.2-1.1-.6-1.4-1.2-.2-.5-.3-.6-.8-.9-.7-.3-3.8-3.3-4.3-4.3a8 
+  8 0 0 1-.7-5.3A7.7 7.7 0 0 1 5 1.9c2.1-.7 4.4-.5 6.2.7l.8.4.9-.4a7.5 7.5 0 0 1 7.1-.3c1.2.6 2.5 1.9 3.1 3.1a6 6 0 0 1 .7 
+  3.2c0 2.1-.5 3.4-2.3 5.2-.7.8-1.2 1.2-1.6 1.4-.5.2-.6.3-.9.9-.3.5-.4.7-1 1-.5.2-.7.4-.9.9-.3.6-.7 1-1.3 1.2-.3 0-.4.2-.6.6-.3.5-1.8 2.2-2.3 
+  2.4-.4.2-.9.3-1.3.2zm1.6-1.8c1-1 1.1-1.3.7-1.8-.4-.6-.8-.4-1.9.6-.9.9-1.1 1.3-.6 1.7.5.5.9.3 1.8-.5zm-1.9-2c.6-.7.8-1 .8-1.3 0-.4-.4-.9-.8-.9a6 6 0 0 
+  0-2 1.9c-.3.5.1 1.1.8 1.1.2 0 .5-.2 1.2-.8zm4.5-.7c.2-.1.3-.3.3-.6 0-.4-.2-.6-2.7-3.1l-2.6-2.9a.5.5 0 0 1 .5-.5c.2 0 1.3 1 2.9 2.6 2.7 2.7 2.7 2.7 3.1 
+  2.7.6-.1.8-.4.7-.9 0-.2-1.2-1.5-2.7-3s-2.6-2.8-2.6-2.9a.5.5 0 0 1 .5-.5 31 31 0 0 1 2.9 2.7c2.4 2.4 2.7 2.7 3.1 2.7.5 0 
+  .8-.3.8-.8 0-.3-.4-.8-3.1-3.5l-3.2-3.1-1.8 1.6-1.9 1.8c-.4.3-1 .3-1.8.1C7.3 10 7 9.7 6.9 9c-.1-.5-.1-.5 1.9-2.5l2.1-2.3c.2-.3.2-.3-.2-.6a6.3 6.3 0 0 
+  0-4.2-1c-1.4.2-2.4.7-3.4 1.7a5.8 5.8 0 0 0-1.8 4.3c0 1.8.5 3 1.9 4.4a12.3 12.3 0 0 1 .9.8l1.3-1.1c1.3-1.3 1.7-1.4 2.5-1.2.5.1 1.1.7 3.8 3.4 3.4 3.4 
+  3.5 3.5 4.1 3zm-6.5-1.4.9-1.1c0-.4-.5-.9-.9-.9-.3 0-.5.2-1.2.9-1 .9-1.1 1.2-.7 1.7.1.2.3.3.6.3.4 0 .6-.1 1.3-.9zM7 14.8c1.1-.9 1.2-1 1.1-1.5 
+  0-.2-.1-.5-.3-.6-.3-.2-.4-.2-.7-.1l-1.1.9c-.8.8-.9 1.3-.5 1.7s.8.3 1.5-.4zm14.8-3A6 6 0 0 0 20 3.5a6.6 6.6 0 0 0-6.5-.1C13 3.8 8 8.6 8 8.8c0 
+  .3.3.4.8.5s.5.1 2.5-1.9c1.6-1.4 2.1-1.9 2.4-1.9s1 .7 3.8 3.5l3.7 3.4c.1 0 .4-.2.6-.6z`;
+
+  document.addEventListener('tabview-create-donation-shelf-toggle-btn', function (evt) {
+
+    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+    if (!donationShelf) return;
+
+    if ((donationShelf.detacheds || 0).swVq2 !== 1) {
+      detachedFunc(donationShelf, (s) => {
+        if (s && typeof s.removeAttribute === 'function') s.removeAttribute('swVq2');
+        Promise.resolve(0).then(() => {
+          document.dispatchEvent(new CustomEvent('tabview-remove-donation-shelf-toggle-btn'));
+        })
+        onShelfToggled()
+      });
+      (donationShelf.detacheds || 0).swVq2 = 1;
+    }
+
+    // if(document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
+
+    /** @type {object[]} */
+    let masthead = document.querySelector('ytd-masthead#masthead')
+    if (!masthead) return;
+
+    let mastheadData = masthead.data
+    if (!mastheadData) return;
+
+    let topbarButtons = mastheadData.topbarButtons
+    if (!topbarButtons) return;
+
+
+    function addIcon(g, k) {
+
+      let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
+      let defs = document.querySelector(`iron-iconset-svg[name="${k}"] defs`)
+      let g1 = g.cloneNode(true);
+      defs.appendChild(g1)
+      svgSet._icons = null;
+
+    }
+
+    // function clearIconsCache(k) {
+
+    //   let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
+    //   svgSet._icons = null;
+    // }
+
+    function createDonationHandsIcon(){
+      let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      g.appendChild(path);
+
+      g.setAttribute('id', `${DONATION_HANDS_id}`);
+      const d = DONATION_PATH
+      path.setAttribute('d', d);
+      path.setAttribute('swVq1', '1');
+
+      return g;
+    }
+
+
+    if (!document.querySelector(`iron-iconset-svg[name="yt-icons"] [id="${DONATION_HANDS_id}"]`)) {
+      let g = createDonationHandsIcon();
+      addIcon(g, "yt-icons");
+    }
+
+    // if (!document.querySelector(`iron-iconset-svg[name="yt-sys-icons"] [id="${DONATION_HANDS_id}"]`)) {
+    //   let g = createDonationHandsIcon();
+    //   addIcon(g, "yt-sys-icons")
+    // }
+
+
+    let arr = topbarButtons
+    let skip = false
+    for (const s of arr) {
+      if (s && s.buttonRenderer && s.buttonRenderer.icon && s.buttonRenderer.icon.iconType === DONATION_HANDS_D) {
+        skip = true;
+        break;
+      }
+    }
+
+    if (skip === false) {
+
+      arr.unshift({
+        "buttonRenderer": {
+          "icon": {
+            "iconType": DONATION_HANDS_D,
+          },
+          "accessibility": {
+            "accessibilityData": {
+              "label": "Toggle Donation Shelf"
+            }
+          },
+          "tooltip": "Toggle Donation Shelf",
+          "style": "STYLE_BLUE_TEXT",
+          "size": "SIZE_DEFAULT",
+        }
+      })
+
+      masthead.notifyPath("data.topbarButtons")
+    } else {
+      let br = document.querySelector('#tyt-donation-shelf-toggle-btn')
+      if (br) {
+        if(!br.overrides || br.overrides.style) br.overrides = {}
+      }
+    }
+
+    onShelfToggled()
+
+  }, true)
+
+  
+  document.addEventListener('tabview-remove-donation-shelf-toggle-btn', function (evt) {
+
+    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+    if (donationShelf && donationShelf.isAttached === true) return;
+
+
+    // console.log(4455)
+    // if(!document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
+
+    /** @type {object[]} */
+    let masthead = document.querySelector('ytd-masthead#masthead')
+    if (!masthead) return;
+
+    let mastheadData = masthead.data
+    if (!mastheadData) return;
+
+    let topbarButtons = mastheadData.topbarButtons
+    if (!topbarButtons) return;
+
+
+
+    let arr = topbarButtons
+
+    let j = -1, l = arr.length;
+    for (let i = 0; i < l; i++) {
+      if (j > -1) {
+        arr[i - 1] = arr[i]
+      } else {
+        // j < 0
+
+        let s = arr[i]
+        if (s && s.buttonRenderer && s.buttonRenderer.icon && s.buttonRenderer.icon.iconType === DONATION_HANDS_D) {
+          j = i;
+          arr[i] = null
+        }
+      }
+    }
+    // console.log(j, l)
+    if (j > -1) {
+      arr.length = l - 1;
+      masthead.notifyPath("data.topbarButtons")
+    }
+
+    // console.log(552)
+  }, true)
 
 
   document.documentElement.setAttribute('tabview-unwrapjs', '1')

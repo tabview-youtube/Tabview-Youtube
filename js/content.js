@@ -1,5 +1,5 @@
 "use strict";
-console.time("Tabview Youtube Init Script")
+// console.time("Tabview Youtube Init Script")
 -(function mainBody() {
   'use strict';
 
@@ -173,8 +173,9 @@ console.time("Tabview Youtube Init Script")
   const LAYOUT_CHATROOM = 16;
   const LAYOUT_CHATROOM_COLLAPSED = 32;
   const LAYOUT_TAB_EXPANDED = 64;
-  const LAYOUT_ENGAGEMENT_PANEL_EXPAND = 128;
+  const LAYOUT_ENGAGEMENT_PANEL_EXPANDED = 128;
   const LAYOUT_CHATROOM_EXPANDED = 256;
+  const LAYOUT_DONATION_SHELF_EXPANDED = 512;
 
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -601,6 +602,17 @@ console.time("Tabview Youtube Init Script")
   //const elementRemove = HTMLElement.prototype.remove;
   //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
+
+  /**
+   * 
+   * @param {number} f bit flag
+   * @param {number} w bit flag (with)
+   * @param {number} wo bit flag (without)
+   * @returns 
+   */
+  const fT = function (f, w, wo) {
+    return (f & (w | wo)) === w
+  }
 
   /* globals WeakRef:false */
 
@@ -1083,7 +1095,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       "collapsed": FP.mtf_attrChatroom
     })
   })
-  const sa_chatroom = mtoVisibility_Chatroom.uid;
+  // const sa_chatroom = mtoVisibility_Chatroom.uid;
 
 
 
@@ -1542,7 +1554,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return !!jElm;
   }
 
-  let skipPopupChatChecking = true
+  let enableLivePopupCheck = false
 
   function layoutStatusChanged(/** @type {number} */ old_layoutStatus, /** @type {number} */ new_layoutStatus) {
 
@@ -1563,7 +1575,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let new_isTabExpanded = !!(new_layoutStatus & LAYOUT_TAB_EXPANDED);
     let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
-    let new_isExpandEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND);
+    let new_isExpandedEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPANDED);
+    let new_isExpandedDonationShelf = !!(new_layoutStatus & LAYOUT_DONATION_SHELF_EXPANDED);
 
 
     function showTabOrChat() {
@@ -1578,7 +1591,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         } else if (lstTab.lastPanel && lstTab.lastPanel.indexOf('#engagement-panel-') == 0) {
 
           if (new_isTabExpanded) switchTabActivity(null)
-          if (!new_isExpandEPanel) ytBtnOpenEngagementPanel(lstTab.lastPanel);
+          if (!new_isExpandedEPanel) ytBtnOpenEngagementPanel(lstTab.lastPanel);
+
+        } else if (lstTab.lastPanel == '#donation-shelf') {
+
+          if (new_isTabExpanded) switchTabActivity(null)
+          if (!new_isExpandedDonationShelf) openDonationShelf();
 
         } else {
 
@@ -1598,7 +1616,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (new_isTabExpanded) switchTabActivity(null)
         if (new_isExpandedChat) ytBtnCollapseChat()
-        if (new_isExpandEPanel) ytBtnCloseEngagementPanels();
+        if (new_isExpandedEPanel) ytBtnCloseEngagementPanels();
+        if (new_isExpandedDonationShelf) closeDonationShelf();
 
 
         timeline.setTimeout(unlock, 40);
@@ -1607,9 +1626,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    const statusCollapsedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED))
+    const statusCollapsedFalse = !!(new_layoutStatus & (LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_CHATROOM_EXPANDED))
     const statusCollapsedTrue = !statusCollapsedFalse
-
 
     let changes = (old_layoutStatus & LAYOUT_VAILD) ? old_layoutStatus ^ new_layoutStatus : 0;
 
@@ -1619,7 +1637,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let theater_mode_changed = !!(changes & LAYOUT_THEATER)
     let column_mode_changed = !!(changes & LAYOUT_TWO_COLUMNS)
     let fullscreen_mode_changed = !!(changes & LAYOUT_FULLSCREEN)
-    let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPAND)
+    let epanel_expanded_changed = !!(changes & LAYOUT_ENGAGEMENT_PANEL_EXPANDED)
+    let ds_expanded_changed = !!(changes & LAYOUT_DONATION_SHELF_EXPANDED)
 
     _console.log(8221, 1, chat_collapsed_changed, chat_expanded_changed, tab_expanded_changed, theater_mode_changed, column_mode_changed, fullscreen_mode_changed, epanel_expanded_changed)
 
@@ -1627,17 +1646,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //console.log(169, 1, chat_collapsed_changed, tab_expanded_changed)
     //console.log(169, 2, new_isExpandedChat, new_isCollapsedChat, new_isTabExpanded)
 
-    let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND))
+    let BF_LayoutCh_Panel = (changes & (LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED))
     let tab_change = BF_LayoutCh_Panel;
     let isChatOrTabExpandTriggering = !!((new_layoutStatus) & BF_LayoutCh_Panel);
     let isChatOrTabCollaspeTriggering = !!((~new_layoutStatus) & BF_LayoutCh_Panel);
 
 
-    let moreThanOneShown = (new_isTabExpanded + new_isExpandedChat + new_isExpandEPanel) > 1
+    const moreThanOneShown = (new_isTabExpanded + new_isExpandedChat + new_isExpandedEPanel + new_isExpandedDonationShelf) > 1
+
+
+    const base_twoCol_NoTheather_chatExpand_a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED
+    const base_twoCol_NoTheather_chatExpand_b = LAYOUT_TWO_COLUMNS | 0 | LAYOUT_CHATROOM | 0
 
     // two column; not theater; tab collapse; chat expand; ep expand
-    const IF_01a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED | LAYOUT_ENGAGEMENT_PANEL_EXPAND;
-    const IF_01b = LAYOUT_TWO_COLUMNS | 0 | 0 | LAYOUT_CHATROOM | 0 | LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const IF_01a = base_twoCol_NoTheather_chatExpand_a | LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
+    const IF_01b = base_twoCol_NoTheather_chatExpand_b | 0 | LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
+
+    
+    // two column; not theater; tab collapse; chat expand; ep expand
+    const IF_07a = base_twoCol_NoTheather_chatExpand_a | LAYOUT_TAB_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED;
+    const IF_07b = base_twoCol_NoTheather_chatExpand_b | 0 | LAYOUT_DONATION_SHELF_EXPANDED;
 
 
     // two column; not theater;
@@ -1645,8 +1673,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_02b = LAYOUT_TWO_COLUMNS;
 
     // two column; not theater; tab expand; chat expand; 
-    const IF_03a = LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | LAYOUT_CHATROOM_COLLAPSED;
-    const IF_03b = LAYOUT_TWO_COLUMNS | 0 | LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM | 0;
+    const IF_03a = base_twoCol_NoTheather_chatExpand_a | LAYOUT_TAB_EXPANDED;
+    const IF_03b = base_twoCol_NoTheather_chatExpand_b | LAYOUT_TAB_EXPANDED;
 
 
     // two column; tab expand; chat expand; 
@@ -1658,9 +1686,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_04a = BF_TWOCOL_N_THEATER;
     const IF_04b = BF_TWOCOL_N_THEATER;
 
-    // not fullscreen; two column; not theater; not tab expand; not EP expand; not expand chat
-    const IF_05a = LAYOUT_FULLSCREEN | LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED;
-    const IF_05b = 0 | LAYOUT_TWO_COLUMNS | 0 | 0 | 0 | 0;
+    // not fullscreen; two column; not theater; not tab expand; not EP expand; not expand chat; not donation shelf
+    const IF_05a = LAYOUT_FULLSCREEN | LAYOUT_TWO_COLUMNS | LAYOUT_THEATER | LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_CHATROOM_EXPANDED;
+    const IF_05b = 0 | LAYOUT_TWO_COLUMNS | 0 | 0 | 0 | 0 | 0;
 
     let _isChatPopupedF = null
     let isChatPopupedF = ()=>{
@@ -1696,7 +1724,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
-      if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPAND) && new_isExpandEPanel) {
+      if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPANDED) && new_isExpandedEPanel) {
 
         timeline.setTimeout(() => {
           let scrollElement = document.querySelector('ytd-app[scrolling]')
@@ -1718,6 +1746,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     } else if (fullscreen_mode_changed) {
+
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: true
       
 
       if (!new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()) {
@@ -1734,7 +1765,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-    } else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND)) {
+    } else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPANDED)) {
+
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
 
       // two column; not theater; tab collapse; chat expand; ep expand
 
@@ -1751,7 +1785,30 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
+    } else if ((new_layoutStatus & IF_07a) === IF_07b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_DONATION_SHELF_EXPANDED)) {
+
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
+
+      // two column; not theater; tab collapse; chat expand; ds expand
+
+      if (ds_expanded_changed) {
+        layoutStatusMutex.lockWith(unlock => {
+          ytBtnCollapseChat();
+          setTimeout(unlock, 13)
+        })
+      } else if (chat_collapsed_changed) {
+        layoutStatusMutex.lockWith(unlock => {
+          closeDonationShelf();
+          setTimeout(unlock, 13)
+        })
+
+      }
+
     } else if (!tab_change && column_mode_changed && (new_layoutStatus & IF_02a) === IF_02b && moreThanOneShown) {
+
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
 
       // two column; not theater;
       // moreThanOneShown
@@ -1760,26 +1817,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     } else if (tab_change == LAYOUT_CHATROOM_EXPANDED && (new_layoutStatus & IF_03a) === IF_03b && statusCollapsedFalse && !column_mode_changed) {
 
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
+
       // two column; not theater; tab expand; chat expand; 
 
       switchTabActivity(null);
 
     } else if (isChatOrTabExpandTriggering && (new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse && (changes & BF_TWOCOL_N_THEATER) === 0) {
 
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
+
       ytBtnCancelTheater();
 
     } else if ((new_layoutStatus & IF_04a) === IF_04b && statusCollapsedFalse) {
 
-      if(isChatPopupedF()){
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
 
-      }else{
+      if (isChatPopupedF()) {
+
+      } else {
 
         hideTabAndChat();
       }
 
     } else if (isChatOrTabCollaspeTriggering && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue && !column_mode_changed) {
 
-      if (tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPAND) {
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
+
+      if (tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPANDED) {
+
+        lstTab.lastPanel = null;
+
+        if (new_isFullScreen) {
+
+        } else {
+          showTabOrChat();
+        }
+      } else if (tab_change == LAYOUT_DONATION_SHELF_EXPANDED) {
 
         lstTab.lastPanel = null;
 
@@ -1812,6 +1890,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     } else if (!tab_change && !!(changes & BF_TWOCOL_N_THEATER) && (new_layoutStatus & IF_02a) === IF_02b && statusCollapsedTrue) {
 
+      // new_isFullScreen: false
+      // fullscreen_mode_changed: false
+
       showTabOrChat();
 
     } else if ((new_layoutStatus & IF_05a) === IF_05b) {
@@ -1821,10 +1902,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         setToActiveTab();
         timeline.setTimeout(unlock, 40);
       });
-
-    } else if (tab_expanded_changed) {
-
-      // 
 
     }
 
@@ -1844,15 +1921,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-    if (((old_layoutStatus ^ new_layoutStatus) & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN) {
+    if (fullscreen_mode_changed) {
       detailsTriggerReset = true;
-      setTimeout(()=>{
+      setTimeout(() => {
         setHiddenStateForDesc();
-      },80);
+      }, 80);
     }
 
     // resize => is-two-columns_
-    if (((new_layoutStatus ^ old_layoutStatus) & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+    if (column_mode_changed) {
 
 
       Promise.resolve(0).then(() => {
@@ -1874,17 +1951,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
     }
 
-    if(!skipPopupChatChecking){
+    if (enableLivePopupCheck === true) {
 
-      const new_isTwoColumns = (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS;
- 
-      const new_isTheater = (new_layoutStatus & LAYOUT_THEATER) === LAYOUT_THEATER;
+      const new_isTwoColumnsTheater = fT(new_layoutStatus, LAYOUT_TWO_COLUMNS | LAYOUT_THEATER, 0)
 
-
-      let currentIsTheaterPopupChat = new_isTwoColumns && new_isTheater && new_isExpandedChat && isChatPopupedF()
-     
+      let currentIsTheaterPopupChat = new_isTwoColumnsTheater && new_isExpandedChat && isChatPopupedF()
       if (!currentIsTheaterPopupChat) {
-        skipPopupChatChecking = true
+        enableLivePopupCheck = false
         document.dispatchEvent(new CustomEvent("tyt-close-popup"))
       }
 
@@ -1969,9 +2042,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  function hasAttribute(obj, key) {
-    return obj && obj.hasAttribute(key);
-  }
+  // function hasAttribute(obj, key) {
+  //   return obj && obj.hasAttribute(key);
+  // }
 
   function isTheater() {
     const cssElm = es.ytdFlexy;
@@ -1993,35 +2066,61 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return (cssElm && cssElm.hasAttribute('is-two-columns_'))
   }
 
+  
   function isAnyActiveTab() {
-    return document.querySelectorAll('#right-tabs .tab-btn.active').length > 0
+    return document.querySelector('#right-tabs .tab-btn.active') !== null
   }
+  // function isAnyActiveTab2() {
+  //   return document.querySelectorAll('#right-tabs .tab-btn.active').length > 0
+  // }
 
   function isEngagementPanelExpanded() { //note: not checking the visual elements
     const cssElm = es.ytdFlexy;
     return (cssElm && +cssElm.getAttribute('tyt-ep-visible') > 0)
   }
 
+  function isDonationShelfExpanded() {
+    const cssElm = es.ytdFlexy;
+    return (cssElm && cssElm.hasAttribute('tyt-donation-shelf'))
+  }
+
+  const engagementIdMap = new Map();
+  let engagementIdNext = 1; // max 1 << 62
+
   function engagement_panels_() {
 
     let res = [];
-    let shownRes = [];
+    // let shownRes = [];
 
-    let v = 0,
-      k = 1,
-      count = 0;
+    let v = 0;
+    // let k = 1;
+    // let count = 0;
 
     for (const ePanel of document.querySelectorAll(
       `ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
     )) {
+      let targetId = ePanel.getAttribute('target-id')
+      if (typeof targetId !== 'string') continue;
+      let eId = engagementIdMap.get(targetId)
+      if (!eId) {
+        engagementIdMap.set(targetId, eId = engagementIdNext)
+        if (engagementIdNext === (1 << 62)) {
+          engagementIdNext = 1;
+          console.warn('engagementId reached 1 << 62')
+        } else {
+          engagementIdNext = engagementIdNext << 1;
+        }
+      }
+      // console.log(55,eId, targetId)
 
       let visibility = ePanel.getAttribute('visibility') //ENGAGEMENT_PANEL_VISIBILITY_EXPANDED //ENGAGEMENT_PANEL_VISIBILITY_HIDDEN
 
+      let k = eId
       switch (visibility) {
         case 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED':
           v |= k;
-          count++;
-          shownRes.push(ePanel)
+          // count++;
+          // shownRes.push(ePanel)
           res.push({ ePanel, k, visible: true });
           break;
         case 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN':
@@ -2031,15 +2130,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           res.push({ ePanel, k, visible: false });
       }
 
-      k = k << 1;
+      //k = k << 1;
 
     }
-    return { list: res, value: v, count: count, shownRes };
+    return { list: res, value: v };
+    // return { list: res, value: v, count: count, shownRes };
   }
 
 
   function ytBtnOpenEngagementPanel(/** @type {number | string} */ panel_id) {
 
+    // console.log(panel_id)
     if (typeof panel_id == 'string') {
       panel_id = panel_id.replace('#engagement-panel-', '');
       panel_id = parseInt(panel_id);
@@ -2047,6 +2148,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (panel_id >= 0) { } else return false;
 
     let panels = engagement_panels_();
+    // console.log(panels)
 
     let actions = []
     for (const { ePanel, k, visible } of panels.list) {
@@ -2102,6 +2204,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (s.getAttribute('visibility') == "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED") ytBtnCloseEngagementPanel(s);
       }
     }
+  }
+
+  function openDonationShelf() {
+    if (!isDonationShelfExpanded()){
+      let btn = document.querySelector('#tyt-donation-shelf-toggle-btn')
+      if(btn){
+        btn.click();
+        return true;
+      }
+    }
+    return false;
+  }
+  function closeDonationShelf() {
+    if (isDonationShelfExpanded()){
+      let btn = document.querySelector('#tyt-donation-shelf-toggle-btn')
+      if(btn){
+        btn.click();
+        return true;
+      }
+    }
+    return false;
   }
 
   function ytBtnSetTheater() {
@@ -3233,7 +3356,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (typeof newAttrV === 'string' && !isCollapsed) lstTab.lastPanel = '#chatroom';
 
-        if (!isCollapsed && document.querySelector('#right-tabs .tab-btn.active') && isWideScreenWithTwoColumns() && !isTheater()) {
+        if (!isCollapsed && isAnyActiveTab() && isWideScreenWithTwoColumns() && !isTheater()) {
           switchTabActivity(null);
           timeline.setTimeout(unlock, 40);
         } else {
@@ -3966,7 +4089,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       req = null;
 
-      console.log('check-info-duplicate', `r|${infoDuplicated ? 1 : 0}, b1|${mb1 ? 1 : 0}, b2|${mb2 ? 1 : 0}`)
+      console.log('[tyt] modern-info-duplicate', `(r, b1, b2) = (${infoDuplicated ? 1 : 0}, ${mb1 ? 1 : 0}, ${mb2 ? 1 : 0})`, `${infoDuplicated && mb1 && mb2 ? 'Success' : 'Failed'}`)
 
       if (g_check_detail_A !== t) return;
 
@@ -4180,7 +4303,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppear('pageLoaderAnimation', (evt) => {
       pageRendered = 2;
       renderDeferred.resolve();
-      console.log('pageRendered')
+      console.log('[tyt] pageRendered')
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'))
@@ -5208,7 +5331,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
     if (!related) return;
 
-    isPageFirstLoaded && console.time("Tabview Youtube Render")
+    // isPageFirstLoaded && console.time("Tabview Youtube Render")
 
     if (!document.querySelector("#right-tabs")) {
       getLang();
@@ -5222,7 +5345,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           evt.stopPropagation();
           evt.stopImmediatePropagation();
         }, true);
-        console.log('#right-tabs inserted')
+        console.log('[tyt] #right-tabs inserted')
       }
       docTmp.textContent = '';
       docTmp = null;
@@ -5247,7 +5370,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     tabsDeferred.resolve();
     FP.mtf_attrEngagementPanel(); // check whether no visible panels
 
-    isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
+    // isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
 
     isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock')
 
@@ -5524,7 +5647,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         attrElm = es.ytdFlexy;
         v = attrElm.getAttribute('tyt-ep-visible');
         b = (+v > 0)
-        nls = flexyAttr_toggleFlag(nls, b, LAYOUT_ENGAGEMENT_PANEL_EXPAND);
+        nls = flexyAttr_toggleFlag(nls, b, LAYOUT_ENGAGEMENT_PANEL_EXPANDED);
+        break;
+
+      case 'tyt-donation-shelf':
+        attrElm = es.ytdFlexy;
+        b = attrElm.hasAttribute('tyt-donation-shelf');
+        nls = flexyAttr_toggleFlag(nls, b, LAYOUT_DONATION_SHELF_EXPANDED);
         break;
 
     }
@@ -5535,22 +5664,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  const mtf_attrFlexy_functions = {
-    'tyt-chat': () => {
-      if (!scriptEnable) return;
-      //delayed call => check with the "no active focus" condition with chatroom status
-      if (!isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()) {
-        setToActiveTab();
-      }
-    },
-    'tyt-ep-visible': () => {
-      if (!scriptEnable) return;
-      //delayed call => check with the "no active focus" condition with engagement panel status
-      if (!isAnyActiveTab() && !isEngagementPanelExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()) {
-        setToActiveTab();
-      }
-    }
-  }
 
   function ito_details(entries, observer) {
     if (!detailsTriggerReset) return;
@@ -5559,20 +5672,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //console.log(entries)
     if (entry.isIntersecting === true) {
 
-      if ((wls.layoutStatus & (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN)) !== (LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN))
-        return;
+      if (fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS | LAYOUT_FULLSCREEN, 0) === false) return;
 
       let dom = entry.target;
       if (!dom) return; //unlikely
 
       let bool = false;
-
       let descClickable = null;
-
-      if ((wls.layoutStatus & (LAYOUT_ENGAGEMENT_PANEL_EXPAND | LAYOUT_CHATROOM_EXPANDED | LAYOUT_TAB_EXPANDED)) === 0) {
-        bool = false;
-      } else {
-
+      
+      if (fT(wls.layoutStatus, 0, LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_TAB_EXPANDED) === false) {
         descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
         if (descClickable) {
           detailsTriggerReset = false;
@@ -5580,49 +5688,62 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-
-      async function runAsync(dom) {
+      async function runAsync(dom, bool) {
 
         if (bool) {
-
           let descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
           if (descClickable) {
             descClickable.click();
           }
-
         }
 
         await new Promise(r => setTimeout(r, 20));
 
-        let pInner, h1, h2;
+        let pInner, nw = null;
         try {
           let x = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata');
-          h2 = x.offsetHeight;
+          let h2 = x.offsetHeight;
           pInner = closestDOM.call(x, '#primary-inner')
-          h1 = pInner.offsetHeight;
+          let h1 = pInner.offsetHeight;
           x.setAttribute('userscript-scrollbar-render', '')
-        } catch (e) {
-
+          if (h1 > h2 && h2 > 0 && h1 > 0) nw = h1 - h2
+        } catch (e) { }
+        if(pInner){
+          pInner.style.setProperty('--tyt-desc-top-h', `${nw ? nw : 0}px`)
         }
-
-        //console.log(56565, h1, h2)
-
-        if (h1 > h2 && h2 > 0 && h1 > 0) {
-
-          pInner.style.setProperty('--tyt-desc-top-h', `${h1 - h2}px`)
-
-        } else {
-          pInner.style.setProperty('--tyt-desc-top-h', 0)
-
-        }
-
       }
 
-      runAsync(dom);
+      runAsync(dom, bool);
 
 
     }
 
+  }
+
+  async function delayFlexyCheck(dcall) {
+
+    if (!scriptEnable) return;
+    await new Promise(r => timeline.setTimeout(r, 240));
+    if (!scriptEnable) return;
+
+    let b = false
+    if (dcall & 1) { // !cssElm.hasAttribute('tyt-chat')
+      //delayed call => check with the "no active focus" condition with chatroom status
+      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN)
+      // b = !isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()
+    }
+    if (dcall & 2) { // tyt-ep-visible removed
+      //delayed call => check with the "no active focus" condition with engagement panel status
+      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)
+      // b = !isAnyActiveTab() && !isEngagementPanelExpanded() && !isDonationShelfExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()
+    }
+    if (dcall & 4) { // without tyt-donation-shelf
+      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)
+      // b = !isAnyActiveTab() && !isEngagementPanelExpanded() && !isDonationShelfExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()
+    }
+    if (b) {
+      setToActiveTab();
+    }
   }
 
   const mtf_attrFlexy = (mutations, observer) => {
@@ -5647,6 +5768,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let new_layoutStatus = old_layoutStatus;
 
     let checkedChat = false;
+    let mss = 0;
+    let dcall = 0;
 
     for (const mutation of mutations) {
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
@@ -5665,7 +5788,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           if (!cssElm.hasAttribute('tyt-chat')) {
             // might or might not collapsed before
-            timeline.setTimeout(mtf_attrFlexy_functions['tyt-chat'], 240);
+            dcall |= 1;
           }
         }
 
@@ -5673,8 +5796,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // assume any other active component such as tab content and chatroom
 
         if (+(cssElm.getAttribute('tyt-ep-visible') || 0) === 0 && +mutation.oldValue > 0) {
-          timeline.setTimeout(mtf_attrFlexy_functions['tyt-ep-visible'], 240);
+          dcall |= 2;
         }
+
+        if (mss === 0) mss = 1;
+        else mss = -1;
+
+      } else if (mutation.attributeName === 'tyt-donation-shelf') {
+        // assume any other active component such as tab content and chatroom
+
+        if (!(cssElm.hasAttribute('tyt-donation-shelf'))) {
+          dcall |= 4;
+        } else {
+          lstTab.lastPanel = '#donation-shelf'
+          switchTabActivity(null);
+        }
+        if (mss === 0) mss = 2;
+        else mss = -1;
+
       } else if (mutation.attributeName === 'is-extra-wide-video_') {
         setTimeout(() => {
           updateFloatingSlider();  //required for hover slider // eg video after ads
@@ -5685,11 +5824,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     new_layoutStatus = fixLayoutStatus(new_layoutStatus);
 
     if (new_layoutStatus !== old_layoutStatus) {
+
+      if (fT(new_layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_THEATER | LAYOUT_CHATROOM_EXPANDED)) {
+        if (mss === 1) {
+          if (fT(new_layoutStatus, LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED, 0)) {
+            closeDonationShelf();
+          }
+        } else if (mss === 2) {
+          if (fT(new_layoutStatus, LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED, 0)) {
+            ytBtnCloseEngagementPanels();
+          }
+        }
+      }
       wls.layoutStatus = new_layoutStatus
 
-
-
     }
+
+    if (dcall > 0) delayFlexyCheck(dcall);
 
   }
 
@@ -5856,6 +6007,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     ls = flexAttr_toLayoutStatus(ls, 'tyt-tab')
     ls = flexAttr_toLayoutStatus(ls, 'fullscreen')
     ls = flexAttr_toLayoutStatus(ls, 'tyt-ep-visible')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-donation-shelf')
 
     fixLayoutStatus(ls)
 
@@ -5863,7 +6015,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     mtoFlexyAttr.bindElement(ytdFlexyElm, {
       attributes: true,
-      attributeFilter: ['tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'hidden', 'is-extra-wide-video_'],
+      attributeFilter: ['tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'tyt-donation-shelf', 'hidden', 'is-extra-wide-video_'],
       attributeOldValue: true
     })
 
@@ -5972,8 +6124,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
     });
 
-    //console.log(8514)
-    let unlock = layoutStatusMutexUnlock;
+    // locked
+    let unlock = layoutStatusMutexUnlock; // function of unlock inside layoutStatusMutex
 
     //console.log(8515)
     switchTabActivity_lastTab = tabBtn.getAttribute('tyt-tab-content');
@@ -6007,7 +6159,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           ytBtnCollapseChat();
         } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
           ytBtnCloseEngagementPanels();
+        } else if (isDonationShelfExpanded() && isWideScreenWithTwoColumns()) {
+          closeDonationShelf();
         }
+
 
         timeline.setTimeout(fullScreenTabScrollIntoView, 60)
 
@@ -6015,7 +6170,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         switchTabActivity(tabBtn)
       }
 
-    }else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
+    } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
 
       _console.log(8221, 16, 2)
       //optional
@@ -6035,6 +6190,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         ytBtnCollapseChat();
       } else if (isEngagementPanelExpanded() && isWideScreenWithTwoColumns()) {
         ytBtnCloseEngagementPanels();
+      } else if (isDonationShelfExpanded() && isWideScreenWithTwoColumns()) {
+        closeDonationShelf();
       } else if (isWideScreenWithTwoColumns() && isTheater() && !isFullScreen()) {
         ytBtnCancelTheater(); //ytd-watch-flexy attr [theater]
       }
@@ -6375,13 +6532,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const new_isTheater = new_layoutStatus & LAYOUT_THEATER;
     const new_isTabExpanded = new_layoutStatus & LAYOUT_TAB_EXPANDED;
     const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
-    const new_isExpandEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPAND;
+    const new_isExpandedEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
+    const new_isExpandedDonationShelf = new_layoutStatus & LAYOUT_DONATION_SHELF_EXPANDED;
+    
+    const nothingShown = !new_isTabExpanded && !new_isExpandedChat && !new_isExpandedEPanel && !new_isExpandedDonationShelf
 
-    if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && !new_isTabExpanded && !new_isFullScreen && !new_isExpandEPanel && !new_isExpandedChat) {
+    if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && nothingShown && !new_isFullScreen) {
       // e.g. engage panel removed after miniview and change video
       setToActiveTab();
-    } else if (new_isExpandEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])').length === 0) {
-      wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPAND)
+    } else if (new_isExpandedEPanel && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])').length === 0) {
+      wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPANDED)
+    } else if (new_isExpandedDonationShelf && querySelectorAllFromAnchor.call(ytdFlexyElm, 'ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden])').length === 0) {
+      wls.layoutStatus = new_layoutStatus & (~LAYOUT_DONATION_SHELF_EXPANDED)
     }
 
   }
@@ -6436,7 +6598,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     //toggleBtnDC = 1;
 
-    console.log('newVideoPage')
+    console.log('[tyt] newVideoPage')
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
@@ -6810,9 +6972,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let mIsPageFirstLoaded = _isPageFirstLoaded
         
         pageType = null
-        mIsPageFirstLoaded && console.time("Tabview Youtube Load")
+        // mIsPageFirstLoaded && console.time("Tabview Youtube Load")
         pageBeingFetched(evt, mIsPageFirstLoaded)
-        mIsPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
+        // mIsPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
         // ytMicroEventsInit set + tabview-loaded delay set
         new Promise(() => {
           if (ytEventSequence >= 2) {
@@ -6956,21 +7118,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   document.addEventListener("tyt-chat-popup",(evt)=>{
 
+    let detail = (evt || 0).detail
+    if (!detail) return
+    const { popuped } = detail
+    if (typeof popuped !== 'boolean') return;
 
-    let detail =(evt||0).detail
-    if(!detail) return
-    const {popuped} = detail
-    if(typeof popuped !=='boolean') return;
-    
     let ytdFlexyElm = es.ytdFlexy
-    if(!ytdFlexyElm) return
-    
+    if (!ytdFlexyElm) return
+
     ytdFlexyElm.classList.toggle('tyt-chat-popup', popuped)
-    if(popuped===true){
-      skipPopupChatChecking = false;
+    if (popuped === true) {
+      enableLivePopupCheck = true;
       ytBtnSetTheater()
-    }else{
-      skipPopupChatChecking = true;
+    } else {
+      enableLivePopupCheck = false;
       ytBtnCancelTheater()
     }
 
@@ -6993,38 +7154,38 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  function nestedObjectFlatten(prefix, obj) {
-    let ret = {};
-    let _prefix = prefix ? `${prefix}.` : '';
-    let isObject = (obj && typeof obj == 'object' && obj.constructor.name == 'Object');
-    let isArray = (obj && typeof obj == 'object' && obj.constructor.name == 'Array');
-    const f = (k, v) => {
-      let isObject = (v && typeof v == 'object' && v.constructor.name == 'Object');
-      let isArray = (v && typeof v == 'object' && v.constructor.name == 'Array');
-      if (isObject || isArray) {
-        let r = nestedObjectFlatten(k, v)
-        for (const w in r) {
-          ret[`${_prefix}${w}`] = r[w];
-        }
-      } else {
-        ret[`${_prefix}${k}`] = v;
-      }
-    }
-    if (isObject) {
-      for (const k in obj) {
-        let v = obj[k];
-        f(k, v);
-      }
-    } else if (isArray) {
-      let idx = 0;
-      for (const v of obj) {
-        let k = `[${idx}]`;
-        f(k, v);
-        idx++;
-      }
-    }
-    return ret;
-  }
+  // function nestedObjectFlatten(prefix, obj) {
+  //   let ret = {};
+  //   let _prefix = prefix ? `${prefix}.` : '';
+  //   let isObject = (obj && typeof obj == 'object' && obj.constructor.name == 'Object');
+  //   let isArray = (obj && typeof obj == 'object' && obj.constructor.name == 'Array');
+  //   const f = (k, v) => {
+  //     let isObject = (v && typeof v == 'object' && v.constructor.name == 'Object');
+  //     let isArray = (v && typeof v == 'object' && v.constructor.name == 'Array');
+  //     if (isObject || isArray) {
+  //       let r = nestedObjectFlatten(k, v)
+  //       for (const w in r) {
+  //         ret[`${_prefix}${w}`] = r[w];
+  //       }
+  //     } else {
+  //       ret[`${_prefix}${k}`] = v;
+  //     }
+  //   }
+  //   if (isObject) {
+  //     for (const k in obj) {
+  //       let v = obj[k];
+  //       f(k, v);
+  //     }
+  //   } else if (isArray) {
+  //     let idx = 0;
+  //     for (const v of obj) {
+  //       let k = `[${idx}]`;
+  //       f(k, v);
+  //       idx++;
+  //     }
+  //   }
+  //   return ret;
+  // }
 
   /*
 
@@ -7094,4 +7255,4 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
 
 
 })();
-console.timeEnd("Tabview Youtube Init Script")
+// console.timeEnd("Tabview Youtube Init Script")
