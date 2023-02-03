@@ -190,6 +190,7 @@
         z-index: -1;
         visibility: collapse;
         transform: scale(0.01);
+        transform-origin: 0 0;
         pointer-events: none;
         user-select: none;
         touch-action: none;
