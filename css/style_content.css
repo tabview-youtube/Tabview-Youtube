@@ -177,6 +177,25 @@
         display: none;
     }
 
+    ytd-donation-shelf-renderer.ytd-watch-flexy {
+        position: relative; /* css fix for cinematic effect */
+    }
+
+    ytd-donation-shelf-renderer.ytd-watch-flexy.tyt-hidden:not([hidden]) {
+
+        display: block !important;
+        position: fixed !important;
+        left: 10px;
+        top: 10px;
+        z-index: -1;
+        visibility: collapse;
+        transform: scale(0.01);
+        pointer-events: none;
+        user-select: none;
+        touch-action: none;
+        
+    }
+
 }
 
 @supports (color: var(--tyt-chat-frame-ready)){

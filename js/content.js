@@ -5372,6 +5372,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
 
+    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
+    if(donationShelf) donationShelf.classList.remove('tyt-hidden')
+
     isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock')
 
   }

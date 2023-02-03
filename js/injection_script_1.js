@@ -4084,7 +4084,7 @@ rcb(b) => a = playlistId = undefinded
     let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
     if (ytdFlexyElm) {
       let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-      if (shelf && !shelf.hasAttribute('hidden')) {
+      if (shelf && !shelf.classList.contains('tyt-hidden') && !shelf.hasAttribute('hidden')) {
         shelf.isCollapsed = false
         ytdFlexyElm.setAttribute('tyt-donation-shelf', '')
       } else {
@@ -4118,16 +4118,16 @@ rcb(b) => a = playlistId = undefinded
     let br = this
     let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
     if (!shelf) return;
-    if (!shelf.hasAttribute('hidden')) {
+    if (!shelf.classList.contains('tyt-hidden')) {
 
-      shelf.setAttribute('hidden', '')
+      shelf.classList.add('tyt-hidden')
       br.data.style = 'STYLE_DEFAULT'
       if(!br.overrides || br.overrides.style) br.overrides = {}
       br.notifyPath('data.style')
       if(!br.overrides || br.overrides.style) br.overrides = {}
     } else {
 
-      shelf.removeAttribute('hidden')
+      shelf.classList.remove('tyt-hidden')
       br.data.style = 'STYLE_BLUE_TEXT'
       if(!br.overrides || br.overrides.style) br.overrides = {}
       br.notifyPath('data.style')
@@ -4163,29 +4163,30 @@ rcb(b) => a = playlistId = undefinded
   })
 
   
-  handleDOMAppear('swVq2DOMAppended', function (evt) {
- 
-    let target = (evt||0).target||0
-    if(target.nodeType !==1) return
-    target.setAttribute('swVq2', '1')
+  function initDonationShelfButton(donationShelf) {
 
-    let donationShelf = target;
+    donationShelf.setAttribute('swVq2', '1')
+ 
     // let donationShelf=document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
     if(donationShelf){
 
       let buttons = document.querySelector('div#buttons.ytd-masthead');
       if(buttons){
 
-            
             buttons.dispatchEvent(new CustomEvent('tabview-create-donation-shelf-toggle-btn'))
- 
-
 
       }
 
       
 
     }
+  }
+
+  handleDOMAppear('swVq2DOMAppended', function (evt) {
+ 
+    let target = (evt||0).target||0
+    if(target.nodeType !==1) return
+    initDonationShelfButton(target);
   })
 
   function detachedFunc(elm, f) {
@@ -4297,10 +4298,13 @@ rcb(b) => a = playlistId = undefinded
     let skip = false
     for (const s of arr) {
       if (s && s.buttonRenderer && s.buttonRenderer.icon && s.buttonRenderer.icon.iconType === DONATION_HANDS_D) {
-        skip = true;
+        skip = s;
         break;
       }
     }
+
+    let toggleActive = true
+    if(donationShelf.classList.contains('tyt-hidden')) toggleActive = false
 
     if (skip === false) {
 
@@ -4315,18 +4319,28 @@ rcb(b) => a = playlistId = undefinded
             }
           },
           "tooltip": "Toggle Donation Shelf",
-          "style": "STYLE_BLUE_TEXT",
+          "style": toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT",
           "size": "SIZE_DEFAULT",
         }
-      })
+      });
 
-      masthead.notifyPath("data.topbarButtons")
+      masthead.notifyPath("data.topbarButtons");
     } else {
-      let br = document.querySelector('#tyt-donation-shelf-toggle-btn')
+      let br = document.querySelector('#tyt-donation-shelf-toggle-btn');
       if (br) {
-        if(!br.overrides || br.overrides.style) br.overrides = {}
+        if(!br.overrides || br.overrides.style) br.overrides = {};
+        let data = br.data;
+        data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+        br.notifyPath('data.style');
+      } else {
+        let s = skip
+        s.buttonRenderer.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+        masthead.notifyPath("data.topbarButtons");
       }
+      
     }
+
+    skip = null
 
     onShelfToggled()
 
