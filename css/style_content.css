@@ -183,6 +183,8 @@
 
     ytd-donation-shelf-renderer.ytd-watch-flexy.tyt-hidden:not([hidden]) {
 
+        display: none !important;
+        /*
         display: block !important;
         position: fixed !important;
         left: 10px;
@@ -194,6 +196,7 @@
         pointer-events: none;
         user-select: none;
         touch-action: none;
+        */
         
     }
 

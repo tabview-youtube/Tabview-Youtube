@@ -5,10 +5,14 @@ function injection_script_1() {
 
   if (!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
 
-  if (document.documentElement.hasAttribute('tabview-unwrapjs')) return;
+  
+  if(document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')){
+    console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
+    return;
+  }
+
   document.documentElement.setAttribute('tabview-unwrapjs', '')
 
-  // top.switchVideoPage
 
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
@@ -127,7 +131,25 @@ function injection_script_1() {
 
 
 
+  // top.tabviewSwitchVideoPage
+  // top.tabviewDispatchEvent
 
+  function globalFunc(f){
+    if (typeof f !== 'function') return null;
+    let p = f.name || '';
+    if (p.length >= 2) { } else return null;
+    try {
+      if (p in top) return false;
+      top[p] = f;
+      return true;
+    } catch (e) {
+      console.warn(e)
+    }
+  }
+
+
+
+  
 
 
   const pm1 = (progress) => (progress > 1e-9 ? progress - 1e-99 : Math.max(progress || 0, 0));
@@ -2328,8 +2350,8 @@ function injection_script_1() {
 
   let pageType = null;
 
-
   function onPageFetched(evt) {
+    dsMgr._dsToggleButtonRenderer.i8KBd = 1;
     ytLivePU.postI++;
     pageType = ((evt.detail || 0).pageData || 0).page;
     if (ytLivePU.handlerPageDataFetched) ytLivePU.handlerPageDataFetched();
@@ -2344,6 +2366,11 @@ function injection_script_1() {
       })
       ytLivePU.postI++;
 
+      let ds = document.querySelector('ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)')
+      if (ds && ds.isAttached === true) {
+      } else {
+        dsMgr._lastDSVideo = null; // for next video page
+      }
       // console.log(!!ytLivePU.elmChat, ytLivePU.elmChat && !document.contains(ytLivePU.elmChat))
     }
   }
@@ -3759,7 +3786,7 @@ function injection_script_1() {
 
   }
 
-  top.switchVideoPage = (video_id) => {
+  globalFunc(function tabviewSwitchVideoPage(video_id) {
 
     if (typeof video_id !== 'string') return;
 
@@ -3823,7 +3850,7 @@ function injection_script_1() {
     */
     ytApp.handleNavigate(req);
 
-  }
+  });
 
   document.addEventListener("tabview-miniview-browser-enable", () => {
 
@@ -4038,22 +4065,22 @@ rcb(b) => a = playlistId = undefinded
 
 
   
-  const prependTo = HTMLElement.prototype.prepend ? (elm, target) => {
-    if (!target || !elm) return null;
-    // using prepend
-    HTMLElement.prototype.prepend.call(target, elm);
-    return true;
-  } : (elm, target) => {
-    if (!target || !elm) return null;
-    // using insertBefore
-    try {
-      HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
-      return true;
-    } catch (e) {
-      console.log('element insert failed in old browser CE')
-    }
-    return false;
-  }
+  // const prependTo = HTMLElement.prototype.prepend ? (elm, target) => {
+  //   if (!target || !elm) return null;
+  //   // using prepend
+  //   HTMLElement.prototype.prepend.call(target, elm);
+  //   return true;
+  // } : (elm, target) => {
+  //   if (!target || !elm) return null;
+  //   // using insertBefore
+  //   try {
+  //     HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
+  //     return true;
+  //   } catch (e) {
+  //     console.log('element insert failed in old browser CE')
+  //   }
+  //   return false;
+  // }
 
 
   
@@ -4079,115 +4106,6 @@ rcb(b) => a = playlistId = undefinded
     handleDOMAppearFN.set(fn, func);
   }
 
-  function onShelfToggled() {
-
-    let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
-    if (ytdFlexyElm) {
-      let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-      if (shelf && !shelf.classList.contains('tyt-hidden') && !shelf.hasAttribute('hidden')) {
-        shelf.isCollapsed = false
-        ytdFlexyElm.setAttribute('tyt-donation-shelf', '')
-      } else {
-        ytdFlexyElm.removeAttribute('tyt-donation-shelf')
-      }
-    }
-  }
-
-  // function fixShelfBtnStyle(br){
-  //   if (br && br.isAttached === true) { } else { return }
-  //   let shape = br.querySelector('yt-button-shape')
-  //   if(shape){
-  //     // buggy style
-  //     let data = shape.data
-  //     let brData = ((br || 0).data || 0)
-  //     if (data) {
-  //       if (brData.style == 'STYLE_BLUE_TEXT' && data.style !== 'call-to-action') {
-  //         data.style = 'call-to-action'
-  //         data.type = 'text'
-  //         shape.notifyPath('data.style')
-  //         shape.notifyPath('data.type')
-  //       }
-  //     }
-  //   }
-  //   br = null;
-  //   shape = null;
-  // }
-
-  function onShelfBtnClick(evt){
-
-    let br = this
-    let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-    if (!shelf) return;
-    if (!shelf.classList.contains('tyt-hidden')) {
-
-      shelf.classList.add('tyt-hidden')
-      br.data.style = 'STYLE_DEFAULT'
-      if(!br.overrides || br.overrides.style) br.overrides = {}
-      br.notifyPath('data.style')
-      if(!br.overrides || br.overrides.style) br.overrides = {}
-    } else {
-
-      shelf.classList.remove('tyt-hidden')
-      br.data.style = 'STYLE_BLUE_TEXT'
-      if(!br.overrides || br.overrides.style) br.overrides = {}
-      br.notifyPath('data.style')
-      if(!br.overrides || br.overrides.style) br.overrides = {}
-    }
-
-    onShelfToggled();
-  }
-  function closestYTDButton(elm) {
-    let pelm = elm;
-    while (pelm) {
-      if (pelm && pelm.nodeType === 1) {
-        let nodeName = pelm.nodeName.toUpperCase()
-        if (nodeName === 'YTD-BUTTON-RENDERER' || nodeName === 'YT-BUTTON-RENDERER') break;
-      }
-      pelm = pelm.parentNode;
-    }
-    return pelm ? pelm : null
-  }
-  handleDOMAppear('swVq1DOMAppended', function (evt) {
-    if(!evt || !evt.target) return;
-    let path = evt.target;
-    if (path.getAttribute('swVq1')!=='1') return;
-    path.setAttribute('swVq1','2')
-    let br = closestYTDButton(path)
-    if (!br) return;
-    if(!br.overrides || br.overrides.style) br.overrides = {}
-    br.id = 'tyt-donation-shelf-toggle-btn'
-    br.removeEventListener('click', onShelfBtnClick, false)
-    br.addEventListener('click', onShelfBtnClick, false)
-    if(!br.overrides || br.overrides.style) br.overrides = {}
-    onShelfToggled();
-  })
-
-  
-  function initDonationShelfButton(donationShelf) {
-
-    donationShelf.setAttribute('swVq2', '1')
- 
-    // let donationShelf=document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
-    if(donationShelf){
-
-      let buttons = document.querySelector('div#buttons.ytd-masthead');
-      if(buttons){
-
-            buttons.dispatchEvent(new CustomEvent('tabview-create-donation-shelf-toggle-btn'))
-
-      }
-
-      
-
-    }
-  }
-
-  handleDOMAppear('swVq2DOMAppended', function (evt) {
- 
-    let target = (evt||0).target||0
-    if(target.nodeType !==1) return
-    initDonationShelfButton(target);
-  })
 
   function detachedFunc(elm, f) {
 
@@ -4209,6 +4127,19 @@ rcb(b) => a = playlistId = undefinded
 
   }
 
+  
+  function closestYTDButton(elm) {
+    let pelm = elm;
+    while (pelm) {
+      if (pelm && pelm.nodeType === 1) {
+        let nodeName = pelm.nodeName.toUpperCase()
+        if (nodeName === 'YTD-BUTTON-RENDERER' || nodeName === 'YT-BUTTON-RENDERER') break;
+      }
+      pelm = pelm.parentNode;
+    }
+    return pelm ? pelm : null;
+  }
+
   const DONATION_HANDS_D = "DONATION_HANDS";
   const DONATION_HANDS_id = "donation_hands";
   const DONATION_PATH = 
@@ -4224,174 +4155,441 @@ rcb(b) => a = playlistId = undefinded
   0-.2-.1-.5-.3-.6-.3-.2-.4-.2-.7-.1l-1.1.9c-.8.8-.9 1.3-.5 1.7s.8.3 1.5-.4zm14.8-3A6 6 0 0 0 20 3.5a6.6 6.6 0 0 0-6.5-.1C13 3.8 8 8.6 8 8.8c0 
   .3.3.4.8.5s.5.1 2.5-1.9c1.6-1.4 2.1-1.9 2.4-1.9s1 .7 3.8 3.5l3.7 3.4c.1 0 .4-.2.6-.6z`;
 
-  document.addEventListener('tabview-create-donation-shelf-toggle-btn', function (evt) {
 
-    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
-    if (!donationShelf) return;
+  // https://www.youtube.com/watch?v=L_tg2u26tCU
+  // https://www.youtube.com/watch?v=uz8dDuKVjJI
 
-    if ((donationShelf.detacheds || 0).swVq2 !== 1) {
-      detachedFunc(donationShelf, (s) => {
-        if (s && typeof s.removeAttribute === 'function') s.removeAttribute('swVq2');
-        Promise.resolve(0).then(() => {
-          document.dispatchEvent(new CustomEvent('tabview-remove-donation-shelf-toggle-btn'));
-        })
-        onShelfToggled()
-      });
-      (donationShelf.detacheds || 0).swVq2 = 1;
-    }
-
-    // if(document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
-
-    /** @type {object[]} */
-    let masthead = document.querySelector('ytd-masthead#masthead')
-    if (!masthead) return;
-
-    let mastheadData = masthead.data
-    if (!mastheadData) return;
-
-    let topbarButtons = mastheadData.topbarButtons
-    if (!topbarButtons) return;
-
-
-    function addIcon(g, k) {
-
-      let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
-      let defs = document.querySelector(`iron-iconset-svg[name="${k}"] defs`)
-      let g1 = g.cloneNode(true);
-      defs.appendChild(g1)
-      svgSet._icons = null;
-
-    }
-
-    // function clearIconsCache(k) {
-
-    //   let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
-    //   svgSet._icons = null;
-    // }
-
-    function createDonationHandsIcon(){
-      let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      g.appendChild(path);
-
-      g.setAttribute('id', `${DONATION_HANDS_id}`);
-      const d = DONATION_PATH
-      path.setAttribute('d', d);
-      path.setAttribute('swVq1', '1');
-
-      return g;
-    }
-
-
-    if (!document.querySelector(`iron-iconset-svg[name="yt-icons"] [id="${DONATION_HANDS_id}"]`)) {
-      let g = createDonationHandsIcon();
-      addIcon(g, "yt-icons");
-    }
-
-    // if (!document.querySelector(`iron-iconset-svg[name="yt-sys-icons"] [id="${DONATION_HANDS_id}"]`)) {
-    //   let g = createDonationHandsIcon();
-    //   addIcon(g, "yt-sys-icons")
-    // }
-
-
-    let arr = topbarButtons
-    let skip = false
-    for (const s of arr) {
-      if (s && s.buttonRenderer && s.buttonRenderer.icon && s.buttonRenderer.icon.iconType === DONATION_HANDS_D) {
-        skip = s;
-        break;
-      }
-    }
-
-    let toggleActive = true
-    if(donationShelf.classList.contains('tyt-hidden')) toggleActive = false
-
-    if (skip === false) {
-
-      arr.unshift({
-        "buttonRenderer": {
-          "icon": {
-            "iconType": DONATION_HANDS_D,
-          },
-          "accessibility": {
-            "accessibilityData": {
-              "label": "Toggle Donation Shelf"
-            }
-          },
-          "tooltip": "Toggle Donation Shelf",
-          "style": toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT",
-          "size": "SIZE_DEFAULT",
+  const dsMgr = {
+    onVisibilityChanged() {
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+      // let updateIcon = false
+      if (ytdFlexyElm) {
+        let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
+        let currentVisibile = shelf && shelf.isAttached === true && !shelf.classList.contains('tyt-hidden') && !shelf.hasAttribute('hidden')
+        let tytAttr = ytdFlexyElm.hasAttribute('tyt-donation-shelf')
+        if (currentVisibile) {
+          if (shelf.isCollapsed === true) shelf.isCollapsed = false // for shelf content
         }
-      });
+        if((currentVisibile === true) ^ (tytAttr === true)){
+          if(currentVisibile) ytdFlexyElm.setAttribute('tyt-donation-shelf', '');
+          else ytdFlexyElm.removeAttribute('tyt-donation-shelf');
+          // updateIcon = true;
+        }
+        // if(updateIcon){
+        //   Promise.resolve(ytdFlexyElm).then((ytdFlexyElm)=>{
+        //     dsMgr.setVisibility({detail: {
+        //       visibility: ytdFlexyElm.hasAttribute('tyt-donation-shelf'),
+        //       flushDOM: true
+        //     }})
+        //   })
+        // }
+      }
+    },
+    toggleVisibility(br) {
 
-      masthead.notifyPath("data.topbarButtons");
-    } else {
+      let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy');
+      if (!shelf || shelf.hasAttribute('hidden') || !br) return;
+      if (!br.data || typeof br.notifyPath !== 'function') {
+        console.warn('unknown error found in dsMgr.toggleVisibility()');
+        return;
+      }
+      if (!shelf.classList.contains('tyt-hidden')) {
+        shelf.classList.add('tyt-hidden'); // note: the content will be still updating with tyt-hidden => dataChanged
+        br.data.style = 'STYLE_DEFAULT';
+      } else {
+        shelf.classList.remove('tyt-hidden');
+        br.data.style = 'STYLE_BLUE_TEXT';
+      }
+      if (!br.overrides || br.overrides.style) br.overrides = {}
+      br.notifyPath('data.style')
+      if (!br.overrides || br.overrides.style) br.overrides = {}
+    },
+    onButtonAppended(br) {
+      if (!br) return;
+      if (!br.overrides || br.overrides.style) br.overrides = {}
+      br.id = 'tyt-donation-shelf-toggle-btn'
+      br.removeEventListener('click', dsMgr.shelfBtnClickHanlder, false)
+      br.addEventListener('click', dsMgr.shelfBtnClickHanlder, false)
+      if (!br.overrides || br.overrides.style) br.overrides = {}
+      dsMgr.onVisibilityChanged();
+    },
+    onDSAppended(donationShelf) {
+      if (!donationShelf) return;
+
+      let buttons = document.querySelector('div#buttons.ytd-masthead');
+      if (buttons) {
+        dsMgr.createToggleBtn();
+      }
+
+    },
+    shelfBtnClickHanlder(evt) {
+      let br = this
+      dsMgr.toggleVisibility(br);
+      dsMgr.onVisibilityChanged();
+    },
+    checkS(s){
+
+      if (!s) return false;
+      let br = s.buttonRenderer;
+      if (br === dsMgr._dsToggleButtonRenderer) return true;
+      if (((br || 0).icon || 0).iconType === DONATION_HANDS_D) return true;
+      return false;
+
+    },
+    regenTopButtons(){
+ 
+        let masthead = document.querySelector('ytd-masthead#masthead')
+        if (!masthead) return;
+    
+        let mastheadData = masthead.data
+        if (!mastheadData) return;
+    
+        let topbarButtons = mastheadData.topbarButtons
+        if (!topbarButtons) return;
+
+        mastheadData.topbarButtons = null;
+        masthead.notifyPath('data.topbarButtons')
+        
+        mastheadData.topbarButtons = topbarButtons;
+        masthead.notifyPath('data.topbarButtons')
+        
+ 
+
+    },
+    createToggleBtn(evt){ 
+      let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+      if (!donationShelf) return;
+  
+      if ((donationShelf.detacheds || 0).swVq2 !== 1) {
+        detachedFunc(donationShelf, (s) => {
+          Promise.resolve(s).then((s) => {
+            if(s.isAttached === true) return;
+            dsMgr._dsToggleButtonRenderer.i8KBd= 1;
+            dsMgr._lastDSVideo = null;
+            // if (s && typeof s.removeAttribute === 'function') s.removeAttribute('swVq2');
+            dsMgr.removeToggleBtn();
+            dsMgr.onVisibilityChanged();
+          })
+        });
+        (donationShelf.detacheds || 0).swVq2 = 1;
+      }
+  
+      /** @type {object[]} */
+      let masthead = document.querySelector('ytd-masthead#masthead')
+      if (!masthead) return;
+  
+      let mastheadData = masthead.data
+      if (!mastheadData) return;
+  
+      let topbarButtons = mastheadData.topbarButtons
+      if (!topbarButtons) return;
+  
+  
+      function addIcon(g, k) {
+  
+        let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
+        let defs = document.querySelector(`iron-iconset-svg[name="${k}"] defs`)
+        let g1 = g.cloneNode(true);
+        defs.appendChild(g1)
+        svgSet._icons = null;
+  
+      }
+  
+      function createDonationHandsIcon(){
+        let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        g.appendChild(path);
+  
+        g.setAttribute('id', `${DONATION_HANDS_id}`);
+        const d = DONATION_PATH
+        path.setAttribute('d', d);
+        path.setAttribute('swVq1', '1');
+  
+        return g;
+      }
+  
+      let arr = topbarButtons
+      let dBtn = false
+      for (const s of arr) {
+        if (dsMgr.checkS(s)) {
+          dBtn = s;
+          break;
+        }
+      }
+  
+      const toggleActive = donationShelf.classList.contains('tyt-hidden') === false
+  
+      dsMgr._dsToggleButtonRenderer = {
+        "icon": {
+          "iconType": DONATION_HANDS_D,
+        },
+        "accessibility": {
+          "accessibilityData": {
+            "label": "Toggle Donation Shelf"
+          }
+        },
+        "tooltip": "Toggle Donation Shelf",
+        "style": toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT",
+        "size": "SIZE_DEFAULT",
+      }
+
+      if (dBtn === false) {
+          
+        if (!document.querySelector(`iron-iconset-svg[name="yt-icons"] [id="${DONATION_HANDS_id}"]`)) {
+          let g = createDonationHandsIcon();
+          addIcon(g, "yt-icons");
+        }
+  
+        arr.unshift({
+          get buttonRenderer(){
+            // console.log(4545, dsMgr._dsToggleButtonRenderer.i8KBd)
+            if (dsMgr._dsToggleButtonRenderer.i8KBd === 1) {
+              // regenerate after re-attachment
+              dsMgr._dsToggleButtonRenderer = Object.assign({}, dsMgr._dsToggleButtonRenderer);
+              dsMgr._dsToggleButtonRenderer.i8KBd = 0;
+              Promise.resolve(0).then(dsMgr.regenTopButtons)
+            }
+            return dsMgr._dsToggleButtonRenderer
+          }
+        });
+  
+        // if(masthead.__dataHasAccessor && masthead.__dataHasAccessor.buttonOverrides === true) masthead.__dataHasAccessor.buttonOverrides = false;
+        masthead.notifyPath("data.topbarButtons");
+      } else {
+        let br = document.querySelector('#tyt-donation-shelf-toggle-btn');
+        if (br) {
+          if(!br.overrides || br.overrides.style) br.overrides = {};
+          let data = br.data;
+          data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+          br.notifyPath('data.style');
+        } else {
+          dsMgr._dsToggleButtonRenderer.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+          masthead.notifyPath("data.topbarButtons");
+        }
+        
+      }
+  
+      dBtn = null
+  
+      dsMgr.onVisibilityChanged();
+    
+    },
+    removeToggleBtn(evt){
+
+      let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+      if (donationShelf && donationShelf.isAttached === true) return;
+  
+  
+      // console.log(4455)
+      // if(!document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
+  
+      /** @type {object[]} */
+      let masthead = document.querySelector('ytd-masthead#masthead')
+      if (!masthead) return;
+  
+      let mastheadData = masthead.data
+      if (!mastheadData) return;
+  
+      let topbarButtons = mastheadData.topbarButtons
+      if (!topbarButtons) return;
+  
+  
+  
+      let arr = topbarButtons
+  
+      let j = -1, l = arr.length;
+      for (let i = 0; i < l; i++) {
+        if (j > -1) {
+          arr[i - 1] = arr[i]
+        } else {
+          // j < 0
+  
+          let s = arr[i]
+          
+          if (dsMgr.checkS(s)) {
+            j = i;
+            arr[i] = null
+          }
+        }
+      }
+      // console.log(j, l)
+      if (j > -1) {
+        arr.length = l - 1;
+        masthead.notifyPath("data.topbarButtons")
+      }
+  
+      // console.log(552)
+    
+    },
+    setVisibility(evt){
+      let detail = (evt || 0).detail || 0
+      if(typeof detail.visibility !== 'boolean') return;
+
+      let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+      if (!donationShelf) return;
+  
+      if ((donationShelf.detacheds || 0).swVq2 !== 1) {
+        return;
+      }
+  
+      /** @type {object[]} */
+      let masthead = document.querySelector('ytd-masthead#masthead')
+      if (!masthead) return;
+  
+      let mastheadData = masthead.data
+      if (!mastheadData) return;
+  
+      let topbarButtons = mastheadData.topbarButtons
+      if (!topbarButtons) return;
+
+      if (!document.querySelector(`iron-iconset-svg[name="yt-icons"] [id="${DONATION_HANDS_id}"]`)) {
+        return;
+      }
+
+      let arr = topbarButtons
+      let dBtn = false
+      for (const s of arr) {
+        if (dsMgr.checkS(s)) {
+          dBtn = s;
+          break;
+        }
+      }
+
+      if(dBtn === false){
+        // if the page is switched; the topbarButtons will be updated before the donation shelf is removed.
+        // if(donationShelf.isAttached === false) donationShelf.classList.remove('tyt-hidden');
+        // dsMgr._dsToggleButtonRenderer = {};
+        // dsMgr.onVisibilityChanged();
+        return; 
+      } 
+
+      if(!dsMgr._dsToggleButtonRenderer || !dsMgr._dsToggleButtonRenderer.icon) return;
+
+  
+      const toggleActive = detail.visibility === true
+      const currentHidden = donationShelf.classList.contains('tyt-hidden')
+      if(currentHidden === true && toggleActive === true){
+        donationShelf.classList.remove('tyt-hidden');
+      }else if(currentHidden === false && toggleActive === false){
+        donationShelf.classList.add('tyt-hidden');
+      }
+
+      let flushDOM = detail.flushDOM === true
+
       let br = document.querySelector('#tyt-donation-shelf-toggle-btn');
       if (br) {
-        if(!br.overrides || br.overrides.style) br.overrides = {};
+        if (!br.overrides || br.overrides.style) br.overrides = {};
         let data = br.data;
         data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
         br.notifyPath('data.style');
       } else {
-        let s = skip
-        s.buttonRenderer.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+        dsMgr._dsToggleButtonRenderer.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
+        flushDOM = true;
+      }
+      if (flushDOM) {
+        dsMgr._dsToggleButtonRenderer = Object.assign({}, dsMgr._dsToggleButtonRenderer);
         masthead.notifyPath("data.topbarButtons");
       }
-      
-    }
+      // console.log(33435, dsMgr._dsToggleButtonRenderer.style)
 
-    skip = null
-
-    onShelfToggled()
-
-  }, true)
-
+      dBtn = null
   
-  document.addEventListener('tabview-remove-donation-shelf-toggle-btn', function (evt) {
+      dsMgr.onVisibilityChanged();
 
-    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
-    if (donationShelf && donationShelf.isAttached === true) return;
+    },
+    async triggerDOMAppearWhenDataChanged(ds){
+        
+      await Promise.resolve(0);
+      let videoId = ((ds || 0).data || 0).videoId || 0;
+      if (!videoId) return;
+      let lastDSVideo = dsMgr._lastDSVideo;
+      if (lastDSVideo === videoId) {
+        return;
+      }
+      dsMgr._lastDSVideo = videoId;
+      if (typeof videoId === 'string') {
+        // note: this will not work for video with donation section -> switching to normal video -> switching back to this.
+        ds.disconnectedCallback(); // native bug - switch between two campaign videos -> donation money flashing
+        dsMgr._dsToggleButtonRenderer.i8KBd = 1;
+        ds.classList.remove('tyt-hidden');
+        HTMLElement.prototype.removeAttribute.call(ds, 'swVq2');
+        await Promise.resolve(0);
+        ds.connectedCallback();
 
+        Promise.resolve(ds).then((ds)=>{
+          dsMgr.setVisibility({detail: {
+            visibility: !ds.classList.has('tyt-hidden'),
+            flushDOM: true
+          }})
+        })
+          
+      }
 
-    // console.log(4455)
-    // if(!document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
-
-    /** @type {object[]} */
-    let masthead = document.querySelector('ytd-masthead#masthead')
-    if (!masthead) return;
-
-    let mastheadData = masthead.data
-    if (!mastheadData) return;
-
-    let topbarButtons = mastheadData.topbarButtons
-    if (!topbarButtons) return;
-
-
-
-    let arr = topbarButtons
-
-    let j = -1, l = arr.length;
-    for (let i = 0; i < l; i++) {
-      if (j > -1) {
-        arr[i - 1] = arr[i]
-      } else {
-        // j < 0
-
-        let s = arr[i]
-        if (s && s.buttonRenderer && s.buttonRenderer.icon && s.buttonRenderer.icon.iconType === DONATION_HANDS_D) {
-          j = i;
-          arr[i] = null
+    },
+    caHandler1(evt){
+      // html[tabview-unwrapjs="1"] ytd-masthead#masthead div#buttons.ytd-masthead path[swVq1="1"]
+      if (!evt || !evt.target) return;
+      const path = evt.target;
+      if (path.getAttribute('swVq1') !== '1') return;
+      path.setAttribute('swVq1', '2')
+      const br = closestYTDButton(path)
+      if (!br) return;
+      dsMgr.onButtonAppended(br);
+    },
+    caHandler2(evt) {
+      // html[tabview-unwrapjs="1"] ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty):not([swVq2="1"])
+      const target = (evt || 0).target || 0;
+      if (target.nodeType !== 1) return;
+      dsMgr._lastDSVideo = (((target || 0).data || 0).videoId || 0); // avoid double calling triggerDOMAppearWhenDataChanged
+      HTMLElement.prototype.setAttribute.call(target, 'swVq2', '1')
+      dsMgr.onDSAppended(target);
+      if (typeof target.dataChangedM !== 'function' && typeof target.dataChanged === 'function') {
+        target.dataChangedM = target.dataChanged
+        if (typeof target.updateStylesM !== 'function' && typeof target.updateStyles === 'function') {
+          target.updateStylesM = target.updateStyles
+          target.updateStyles = function (c) {
+            let data = null;
+            if (this.isAttached === true) {
+              data = this.data;
+              if (data) {
+                if ('--progress-bar-completion' in (c || 0) && typeof data.progress !== 'number') {
+                  return;
+                }
+              }
+            }
+            if (!data) dsMgr._lastDSVideo = null;
+            else { return this.updateStylesM.apply(this, arguments) }
+          }
+        }
+        target.dataChanged = function () {
+          dsMgr.triggerDOMAppearWhenDataChanged(this);
+          return this.dataChangedM();
         }
       }
     }
-    // console.log(j, l)
-    if (j > -1) {
-      arr.length = l - 1;
-      masthead.notifyPath("data.topbarButtons")
-    }
 
-    // console.log(552)
-  }, true)
+  }
+  
+  dsMgr._lastDSVideo = null
+  dsMgr._dsToggleButtonRenderer= {}
+  handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1)
+  handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2)
+  document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false)
+
+
+  globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
+    if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
+    if (detail && typeof detail === 'object') {
+      elmTarget.dispatchEvent(new CustomEvent(eventName, { detail: detail }))
+    } else {
+      elmTarget.dispatchEvent(new CustomEvent(eventName))
+    }
+  })
+
+
+  globalFunc(function tabviewSetMyDefaultTab(m) {
+    top.tabviewDispatchEvent(document, 'tabview-setMyDefaultTab', { myDefaultTab: m })
+  })
 
 
   document.documentElement.setAttribute('tabview-unwrapjs', '1')

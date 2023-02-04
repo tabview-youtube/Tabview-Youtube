@@ -13,6 +13,11 @@
 
   if (inIframe()) return;
 
+  if(document.documentElement && document.documentElement.hasAttribute('plugin-tabview-youtube')){
+    console.warn('Multiple instances of Tabview Youtube is attached. [0x7F01]')
+    return;
+  }
+
   //if (!$) return;
 
   /**
@@ -22,7 +27,8 @@
 
   const scriptVersionForExternal = '2022/12/04';
 
-  const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof ((((window || 0).chrome || 0).runtime || 0).getURL) === 'function'
+  const isMyScriptInChromeRuntime = () => typeof GM === 'undefined' && typeof ((((window || 0).chrome || 0).runtime || 0).getURL) === 'function';
+  const isGMAvailable = () => typeof GM !== 'undefined' && !isMyScriptInChromeRuntime();
 
   // https://yqnn.github.io/svg-path-editor/
 // https://vecta.io/nano
@@ -407,12 +413,14 @@
   let ytdFlexy = null; // WeakRef
 
   const Q = {}
+  const SETTING_DEFAULT_TAB_0 = "#tab-videos"
   const settings = {
-    defaultTab: "#tab-videos"
+    defaultTab: SETTING_DEFAULT_TAB_0
   };
 
   const STORE_VERSION = 1;
   const STORE_key = 'userscript-tabview-settings';
+  const key_default_tab = 'my-default-tab';
 
   let fetchCounts = {
     base: null,
@@ -1109,6 +1117,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return typeof s == 'string' && s.length > 0;
   }
 
+  function tabviewDispatchEvent(elmTarget, eventName, detail) {
+    if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
+    if (detail && typeof detail === 'object') {
+      elmTarget.dispatchEvent(new CustomEvent(eventName, { detail: detail }))
+    } else {
+      elmTarget.dispatchEvent(new CustomEvent(eventName))
+    }
+  }
 
   async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
     //console.log(1231)
@@ -1601,7 +1617,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         } else {
 
           if (new_isExpandedChat) ytBtnCollapseChat()
-          if (!new_isTabExpanded) { setToActiveTab(); }
+          if (!new_isTabExpanded) setToActiveTab();
 
         }
 
@@ -1931,8 +1947,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // resize => is-two-columns_
     if (column_mode_changed) {
 
-
       Promise.resolve(0).then(() => {
+
+        if (moreThanOneShown && (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+          
+          layoutStatusMutex.lockWith(unlock => {
+            if (new_isTabExpanded && lstTab.lastPanel === null) {
+              if (new_isExpandedChat) ytBtnCollapseChat();
+              if (new_isExpandedEPanel) ytBtnCloseEngagementPanels();
+              if (new_isExpandedDonationShelf) closeDonationShelf();
+            } else if (lstTab.lastPanel) {
+              let lastPanel = lstTab.lastPanel || '';
+              if (typeof lastPanel !== 'string') lastPanel = '';
+              if (new_isExpandedChat && lastPanel !== '#chatroom') ytBtnCollapseChat();
+              if (new_isExpandedEPanel && lastPanel.indexOf('#engagement-panel-') < 0) ytBtnCloseEngagementPanels();
+              if (new_isExpandedDonationShelf && lastPanel !== '#donation-shelf') closeDonationShelf();
+              switchTabActivity(null);
+            }
+            timeline.setTimeout(unlock, 40);
+          });
+        }
+
         pageCheck();
         if (global_columns_end_ito !== null) {
           //to trigger observation at the time layout being changed
@@ -5301,6 +5336,118 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let _navigateLoadDT = 0;
 
+  function setupTabBtns(){
+
+    const materialTab = document.querySelector("#material-tabs")
+    if (!materialTab) return;
+
+    if (tabsUiScript_setclick) return;
+    tabsUiScript_setclick = true;
+
+    let fontSizeBtnClick = null;
+
+    materialTab.addEventListener('click', function (evt) {
+
+      if (!evt.isTrusted) return; // prevent call from background
+      let dom = evt.target;
+      if ((dom || 0).nodeType !== 1) return;
+
+      const domInteraction = dom.getAttribute('tyt-di');
+      if (domInteraction === 'q9Kjc') {
+        handlerMaterialTabClick.call(dom, evt)
+      } else if (domInteraction === '8rdLQ') {
+        fontSizeBtnClick.call(dom, evt)
+      }
+
+
+    }, true)
+
+    function updateCSS_fontsize(store) {
+
+      if (!store) return;
+
+      const ytdFlexyElm = es.ytdFlexy;
+      if (ytdFlexyElm) {
+        if (store['font-size-#tab-info']) ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
+        if (store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
+        if (store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
+        if (store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
+      }
+
+    }
+
+    fontSizeBtnClick = function (evt) {
+
+      evt.preventDefault();
+      evt.stopPropagation();
+      evt.stopImmediatePropagation();
+
+      /** @type {HTMLElement | null} */
+      let dom = evt.target;
+      if (!dom) return;
+
+
+      let value = dom.classList.contains('font-size-plus') ? 1 : dom.classList.contains('font-size-minus') ? -1 : 0;
+
+      let active_tab_content = closestDOM.call(dom, '[tyt-tab-content]').getAttribute('tyt-tab-content');
+
+      let store = getStore();
+      let settingKey = `font-size-${active_tab_content}`
+      if (!store[settingKey]) store[settingKey] = 1.0;
+      if (value < 0) store[settingKey] -= 0.05;
+      else if (value > 0) store[settingKey] += 0.05;
+      if (store[settingKey] < 0.1) store[settingKey] = 0.1;
+      else if (store[settingKey] > 10) store[settingKey] = 10.0;
+      setStore(store);
+
+
+      store = getStore();
+      updateCSS_fontsize(store);
+
+    }
+
+    
+
+    function getDefaultTabBtnSetting(store){
+      
+      if (!store) return;
+      let myDefaultTab=  store[key_default_tab];
+      if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) return;
+      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]`)) settings.defaultTab = myDefaultTab;
+
+    }
+
+    let store = getStore();
+    updateCSS_fontsize(store);
+    getDefaultTabBtnSetting(store);
+
+  }
+
+  function setMyDefaultTab(myDefaultTab_tmp){
+
+    let myDefaultTab_final = null
+    if (!myDefaultTab_tmp || typeof myDefaultTab_tmp !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) return;
+    if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
+
+    let store = getStore();
+    if(myDefaultTab_final) {
+      store[key_default_tab] = myDefaultTab_final;
+      settings.defaultTab = myDefaultTab_final;
+    } else {
+      delete store[key_default_tab];
+      settings.defaultTab = SETTING_DEFAULT_TAB_0;
+    }
+    setStore(store);
+
+  }
+  document.addEventListener('tabview-setMyDefaultTab', function (evt) {
+
+    let myDefaultTab_tmp = ((evt || 0).detail || 0).myDefaultTab
+
+    setMyDefaultTab(myDefaultTab_tmp)
+
+  }, false)
+
   async function onNavigationEndAsync(isPageFirstLoaded) {
 
     if (pageType !== 'watch') return
@@ -5345,6 +5492,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           evt.stopPropagation();
           evt.stopImmediatePropagation();
         }, true);
+        setupTabBtns();
         console.log('[tyt] #right-tabs inserted')
       }
       docTmp.textContent = '';
@@ -5356,13 +5504,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // append the next videos 
     // it exists as "related" is already here
     fixTabs();
+    
+    let switchToDefaultTabNotAllowed = false;
 
-    if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+    if (document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')){
+      switchToDefaultTabNotAllowed = true;
+    } else if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+      switchToDefaultTabNotAllowed = true;
+    } else if (document.querySelector('ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)')) {
+      switchToDefaultTabNotAllowed = true;
+    }
+
+    if (switchToDefaultTabNotAllowed) {
       switchTabActivity(null);
     } else {
       setToActiveTab(); // just switch to the default tab
     }
-    prepareTabBtn();
+
 
     mtoFlexyAttr.clear(true)
     mtf_checkFlexy()
@@ -5372,8 +5530,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // isPageFirstLoaded && console.timeEnd("Tabview Youtube Render")
 
-    let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-    if(donationShelf) donationShelf.classList.remove('tyt-hidden')
+    // let ks = renderIdentifier;
+    // renderDeferred.debounce(() => {
+    //   if (ks !== renderIdentifier) return
+    //   if (_navigateLoadDT !== tdt) return;
+        
+    //   let donationShelf = document.querySelector('ytd-watch-flexy:not([tyt-donation-shelf]) ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+    //   if (donationShelf) {
+    //     // console.log(334)
+    //     // ignored if event handler for tabview-donation-shelf-set-visibility is not yet hooked.
+    //     setTimeout(()=>{
+    //       if (ks !== renderIdentifier) return
+    //       if (_navigateLoadDT !== tdt) return;
+    //       // console.log(554)
+          
+    //       let donationShelf = document.querySelector('ytd-watch-flexy:not([tyt-donation-shelf]) ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
+    //       if(!donationShelf) return;
+    //       document.dispatchEvent(new CustomEvent('tabview-donation-shelf-set-visibility', {
+    //         detail: {
+    //           visibility: true,
+    //           flushDOM: true
+    //         }
+    //       }));
+    //     },450)
+    //   }
+    //   donationShelf = null;
+
+    // })
 
     isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock')
 
@@ -5723,31 +5906,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  async function delayFlexyCheck(dcall) {
+  function immediateCheck() {
+
 
     if (!scriptEnable) return;
-    await new Promise(r => timeline.setTimeout(r, 240));
-    if (!scriptEnable) return;
 
-    let b = false
-    if (dcall & 1) { // !cssElm.hasAttribute('tyt-chat')
-      //delayed call => check with the "no active focus" condition with chatroom status
-      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN)
-      // b = !isAnyActiveTab() && !isChatExpand() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen()
-    }
-    if (dcall & 2) { // tyt-ep-visible removed
-      //delayed call => check with the "no active focus" condition with engagement panel status
-      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)
-      // b = !isAnyActiveTab() && !isEngagementPanelExpanded() && !isDonationShelfExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()
-    }
-    if (dcall & 4) { // without tyt-donation-shelf
-      b = b || fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)
-      // b = !isAnyActiveTab() && !isEngagementPanelExpanded() && !isDonationShelfExpanded() && !isTheater() && isWideScreenWithTwoColumns() && !isFullScreen() && !isChatExpand()
-    }
-    if (b) {
+    if(fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)){
       setToActiveTab();
     }
+
   }
+
 
   const mtf_attrFlexy = (mutations, observer) => {
 
@@ -5808,11 +5977,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else if (mutation.attributeName === 'tyt-donation-shelf') {
         // assume any other active component such as tab content and chatroom
 
+        // console.log(4545, cssElm.hasAttribute('tyt-donation-shelf'))
         if (!(cssElm.hasAttribute('tyt-donation-shelf'))) {
           dcall |= 4;
         } else {
           lstTab.lastPanel = '#donation-shelf'
           switchTabActivity(null);
+          // console.log(55)
         }
         if (mss === 0) mss = 2;
         else mss = -1;
@@ -5843,7 +6014,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    if (dcall > 0) delayFlexyCheck(dcall);
+    let timeout240 = new Promise(r => timeline.setTimeout(r, 240));
+    timeout240.then(immediateCheck);
 
   }
 
@@ -6027,11 +6199,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       wAttr(columns, 'userscript-scrollbar-render', true);
     }
 
+    immediateCheck()
+
     return false;
   }
 
+  document.addEventListener('tabview-fix-layout',()=>{
+    
+    immediateCheck()
+
+  },false)
+
 
   function switchTabActivity(activeLink) {
+
+    // console.log(445,activeLink)
+    if(activeLink){
+      debugger;
+    }
 
     //console.log(4545, activeLink)
     if (!scriptEnable) return;
@@ -6239,88 +6424,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     handlerMaterialTabClickInner(tabBtn);
 
-
-  }
-
-  function prepareTabBtn() {
-
-    const materialTab = document.querySelector("#material-tabs")
-    if (!materialTab) return;
-
-    let noActiveTab = !!document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')
-
-    const activeLink = querySelectorFromAnchor.call(materialTab, 'a[tyt-tab-content].active:not(.tab-btn-hidden)')
-    if (activeLink) switchTabActivity(noActiveTab ? null : activeLink)
-
-    if (!tabsUiScript_setclick) {
-      tabsUiScript_setclick = true;
-
-      let fontSizeBtnClick = null;
-
-      materialTab.addEventListener('click', function (evt) {
-
-        if (!evt.isTrusted) return; // prevent call from background
-        let dom = evt.target;
-        if ((dom || 0).nodeType !== 1) return;
-
-        const domInteraction = dom.getAttribute('tyt-di');
-        if (domInteraction === 'q9Kjc') {
-          handlerMaterialTabClick.call(dom, evt)
-        } else if (domInteraction === '8rdLQ') {
-          fontSizeBtnClick.call(dom, evt)
-        }
-
-
-      }, true)
-
-      function updateCSS_fontsize() {
-
-        let store = getStore();
-
-        const ytdFlexyElm = es.ytdFlexy;
-        if (ytdFlexyElm) {
-          if (store['font-size-#tab-info']) ytdFlexyElm.style.setProperty('--ut2257-info', store['font-size-#tab-info'])
-          if (store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
-          if (store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
-          if (store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
-        }
-
-      }
-
-      fontSizeBtnClick = function (evt) {
-
-        evt.preventDefault();
-        evt.stopPropagation();
-        evt.stopImmediatePropagation();
-
-        /** @type {HTMLElement | null} */
-        let dom = evt.target;
-        if (!dom) return;
-
-
-        let value = dom.classList.contains('font-size-plus') ? 1 : dom.classList.contains('font-size-minus') ? -1 : 0;
-
-        let active_tab_content = closestDOM.call(dom, '[tyt-tab-content]').getAttribute('tyt-tab-content');
-
-        let store = getStore();
-        let settingKey = `font-size-${active_tab_content}`
-        if (!store[settingKey]) store[settingKey] = 1.0;
-        if (value < 0) store[settingKey] -= 0.05;
-        else if (value > 0) store[settingKey] += 0.05;
-        if (store[settingKey] < 0.1) store[settingKey] = 0.1;
-        else if (store[settingKey] > 10) store[settingKey] = 10.0;
-        setStore(store);
-
-
-        updateCSS_fontsize();
-
-      }
-      //$(materialTab).on("click", ".font-size-btn", );
-
-      updateCSS_fontsize();
-
-
-    }
 
   }
 
@@ -7149,6 +7252,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
   }, false)
+
+  if (isGMAvailable() && typeof GM_registerMenuCommand === 'function') {
+    GM_registerMenuCommand("Default Tab: NULL", function () {
+      setMyDefaultTab(null);
+    });
+    GM_registerMenuCommand("Default Tab: Info", function () {
+      setMyDefaultTab("#tab-info");
+    });
+    GM_registerMenuCommand("Default Tab: Comments", function () {
+      setMyDefaultTab("#tab-comments");
+    });
+    GM_registerMenuCommand("Default Tab: Video", function () {
+      setMyDefaultTab("#tab-videos");
+    });
+  }
 
 
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
