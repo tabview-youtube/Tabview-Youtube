@@ -1563,6 +1563,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (isTheater() && isWideScreenWithTwoColumns()) return;
     const jElm = document.querySelector(`a[tyt-tab-content="${switchTabActivity_lastTab}"]:not(.tab-btn-hidden)`) ||
       document.querySelector(`a[tyt-tab-content="${(defaultTab || settings.defaultTab)}"]:not(.tab-btn-hidden)`) ||
+      document.querySelector(`a[tyt-tab-content="${(SETTING_DEFAULT_TAB_0)}"]:not(.tab-btn-hidden)`) ||
       document.querySelector("a[tyt-tab-content]:not(.tab-btn-hidden)") ||
       null;
 
@@ -6213,11 +6214,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   function switchTabActivity(activeLink) {
-
-    // console.log(445,activeLink)
-    if(activeLink){
-      debugger;
-    }
 
     //console.log(4545, activeLink)
     if (!scriptEnable) return;
