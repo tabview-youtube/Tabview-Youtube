@@ -5413,7 +5413,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!store) return;
       let myDefaultTab=  store[key_default_tab];
       if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) return;
-      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]`)) settings.defaultTab = myDefaultTab;
+      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) settings.defaultTab = myDefaultTab;
 
     }
 
@@ -5426,8 +5426,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function setMyDefaultTab(myDefaultTab_tmp){
 
     let myDefaultTab_final = null
-    if (!myDefaultTab_tmp || typeof myDefaultTab_tmp !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) return;
-    if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
+    if (myDefaultTab_tmp && typeof myDefaultTab_tmp !== 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)){
+      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
+    }
 
     let store = getStore();
     if(myDefaultTab_final) {
