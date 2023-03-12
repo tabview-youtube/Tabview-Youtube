@@ -7240,11 +7240,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   })
 
-  document.addEventListener("tabview-plugin-loaded",()=>{
+  
+
+  let doingSelectionChange = false;
+  document.addEventListener("keyup", (evt) => {
+    if (!evt || !evt.target || !evt.key) return;
+    if (doingSelectionChange) {
+      if (!evt.shiftKey || evt.key.indexOf("Shift") == 0) {
+        doingSelectionChange = false;
+      }
+    }
+  })
+
+  document.addEventListener("keydown", (evt) => {
+    if (!evt || !evt.target || !evt.key) return;
+    if (evt.shiftKey && evt.key.indexOf("Arrow") == 0) {
+      try {
+        if (doingSelectionChange || !window.getSelection().isCollapsed) {
+          evt.stopImmediatePropagation();
+          evt.stopPropagation();
+          doingSelectionChange = true;
+        }
+
+      } catch (e) {
+
+      }
+    }
+  }, true);
+
+  document.addEventListener("tabview-plugin-loaded", () => {
 
     scriptletDeferred.resolve();
 
-    if(MINIVIEW_BROWSER_ENABLE){
+    if (MINIVIEW_BROWSER_ENABLE) {
       document.dispatchEvent(new CustomEvent("tabview-miniview-browser-enable"));
     }
 
