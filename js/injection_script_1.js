@@ -2779,6 +2779,8 @@ function injection_script_1() {
     //     }
 
 
+
+
   }
 
   function textsMatch(runs1, runs2) {
@@ -4591,6 +4593,25 @@ rcb(b) => a = playlistId = undefinded
     top.tabviewDispatchEvent(document, 'tabview-setMyDefaultTab', { myDefaultTab: m })
   })
 
+  document.addEventListener("tabview-plugin-loaded", () => {
+    // ----------- avoid removeChild error {#below}.removeChild({#chat}) -----------
+    let below = document.querySelector('div#below.style-scope.ytd-watch-flexy');
+    if (below !== null) {
+      let below__shady_removeChild = below.__shady_removeChild;
+      if (typeof below__shady_removeChild == 'function' && !below.__shady_removeChild2) {
+        below.__shady_removeChild2 = below__shady_removeChild;
+        below.__shady_removeChild = function (a, b) {
+          if (a && typeof a.id == 'string') {
+            if (a.id == 'chat' && a.parentNode && '__shady_removeChild' in a.parentNode) {
+              return this.__shady_removeChild2.apply(a.parentNode, arguments);
+            }
+          }
+          return this.__shady_removeChild2.apply(this, arguments);
+        }
+      }
+    }
+    // -----------------------------------------------------------------------------
+  }, false);
 
   document.documentElement.setAttribute('tabview-unwrapjs', '1')
   if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {
