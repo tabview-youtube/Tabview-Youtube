@@ -5358,6 +5358,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let _navigateLoadDT = 0;
 
+  function delayedClickHandler(){
+
+    if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled){
+      restorePIPforStickyHead();
+    } else if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && typeof IntersectionObserver == 'function') {
+      enablePIPforStickyHead();
+    }
+
+  }
+
   function setupTabBtns(){
 
     const materialTab = document.querySelector("#material-tabs")
@@ -5373,7 +5383,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!evt.isTrusted) return; // prevent call from background
         
       if(isMiniviewForStickyHeadEnabled){
-        setTimeout(restorePIPforStickyHead, 80);
+        setTimeout(delayedClickHandler, 80);
+      } else if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && typeof IntersectionObserver == 'function') {
+        setTimeout(delayedClickHandler, 80);
       }
       let dom = evt.target;
       if ((dom || 0).nodeType !== 1) return;
@@ -6539,7 +6551,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       isStickyHeaderEnabled = true;
 
       if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
-        setTimeout(enablePIPforStickyHead,0);
+        setTimeout(enablePIPforStickyHead, 0);
       }
 
     } else if (bool === false) {
@@ -7377,7 +7389,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected) {
-      restorePIPforStickyHead();
+      setTimeout(delayedClickHandler, 80);
     }
 
     // if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation){
