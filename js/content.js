@@ -550,6 +550,7 @@
   let singleColumnScrolling_dt = 0;
 
   let isStickyHeaderEnabled = false;
+  let isMiniviewForStickyHeadEnabled = false;
 
   let theater_mode_changed_dt = 0;
   let detailsTriggerReset = false;
@@ -1169,14 +1170,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function enterPIP(video) {
-    if (video && typeof video.requestPictureInPicture === 'function' && isVideoPlaying(video)) {
-      if (document.pictureInPictureElement === null && typeof document.exitPictureInPicture === 'function') {
-        video.requestPictureInPicture().then(res => {
-
-        }).catch(console.warn)
+  function enterPIP(video, errorHandler) {
+    return new Promise(resolve => {
+      if (video && typeof video.requestPictureInPicture === 'function' && typeof document.exitPictureInPicture === 'function') {
+        if (isVideoPlaying(video) && document.pictureInPictureElement === null) {
+          video.requestPictureInPicture().then(res => {
+            resolve(true);
+          }).catch((e) => {
+            if(errorHandler === undefined) console.warn(e);
+            else if(typeof errorHandler == 'function') errorHandler(e);
+            resolve(false);
+          });
+        } else {
+          resolve(false);
+        }
+      } else {
+        resolve(null);
       }
-    }
+    })
   }
 
   function exitPIP() {
@@ -5333,6 +5344,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function restorePIPforStickyHead(){
+    // after a trusted user action, PIP can be cancelled.
+    // this is to ensure enterPIP can be re-excecuted
+
+    if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation){
+      userActivation = false;
+      exitPIP();
+    }
+  }
+
   let videosDeferred = new Deferred();
 
   let _navigateLoadDT = 0;
@@ -5350,6 +5371,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     materialTab.addEventListener('click', function (evt) {
 
       if (!evt.isTrusted) return; // prevent call from background
+        
+      if(isMiniviewForStickyHeadEnabled){
+        setTimeout(restorePIPforStickyHead, 80);
+      }
       let dom = evt.target;
       if ((dom || 0).nodeType !== 1) return;
 
@@ -6424,6 +6449,77 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function onVideoLeavePictureInPicuture() {
+    isMiniviewForStickyHeadEnabled = false;
+  }
+
+
+  let videoPlayerInsectObserver = null;
+  let videoInsected = false;
+  
+
+  function enablePIPforStickyHead() {
+    if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
+      let video = document.querySelector('#player video');
+      if (!video) return;
+
+      if (document.documentElement.clientWidth + 320 < screen.width && document.documentElement.clientWidth > 320) {
+        // desktop or notebook can use this feature
+
+        // --------------------------------------------------------
+        // ignore user activation error
+        enterPIP(video, null).then(r => {
+          if (r === true) {
+            
+            userActivation = false;
+            isMiniviewForStickyHeadEnabled = true;
+          }
+        });
+        // --------------------------------------------------------
+        video.removeEventListener('leavepictureinpicture', onVideoLeavePictureInPicuture, false);
+        video.addEventListener('leavepictureinpicture', onVideoLeavePictureInPicuture, false);
+
+        if(!video.hasAttribute('NOL4j')){
+          video.setAttribute('NOL4j',"");
+
+          let callback = (entries)=>{
+
+
+            let lastEntry = entries[entries.length-1];
+            if(lastEntry && lastEntry.isIntersecting === true){
+
+              videoInsected = true;
+              
+              if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected){
+                restorePIPforStickyHead();
+              }
+
+            }else {
+              videoInsected =false;
+            }
+            
+          };
+
+          if(!videoPlayerInsectObserver){
+            videoPlayerInsectObserver = new IntersectionObserver(callback, {
+              root: null,
+              rootMargin: "0px",
+              threshold: 0.25
+            });
+          }
+
+          videoPlayerInsectObserver.takeRecords();
+          videoPlayerInsectObserver.disconnect();
+
+          videoPlayerInsectObserver.observe(video);
+
+          
+        }
+
+      }
+    }
+  }
+
   function setStickyHeader(targetElm, bool, getWidthHeight, getLeftRight) {
 
     //if(isStickyHeaderEnabled===bool) return; // no update
@@ -6442,10 +6538,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       wAttr(targetElm, 'tyt-stickybar', true);
       isStickyHeaderEnabled = true;
 
+      if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
+        setTimeout(enablePIPforStickyHead,0);
+      }
+
     } else if (bool === false) {
 
       wAttr(targetElm, 'tyt-stickybar', false);
       isStickyHeaderEnabled = false;
+
+
     }
 
 
@@ -7267,6 +7369,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }
   }, true);
+
+  let userActivation = false;
+
+  document.addEventListener('click', function () {
+    userActivation = true;
+
+
+    if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected) {
+      restorePIPforStickyHead();
+    }
+
+    // if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation){
+    //   setTimeout(restorePIPforStickyHead, 80);
+    // }else if(!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function'){
+    //   setTimeout(enablePIPforStickyHead, 80);
+    // }
+  });
 
   document.addEventListener("tabview-plugin-loaded", () => {
 
