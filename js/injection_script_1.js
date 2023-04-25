@@ -178,11 +178,16 @@ function injection_script_1() {
       // this.ytLiveMOHandlerI = 0
       this.adsState = 0
 
+      this.keepOriginalPTCW = false;
+      this.ytInitialChecked = false;
+
     }
 
     clearVars(t) {
 
       /** @type {HTMLElement | null} */
+      this.ytInitialChecked = false;
+      this.keepOriginalPTCW = false; // reset
       this.ytLiveChatApp = null
       /** @type {HTMLElement | null} */
       this.ytLiveChatRenderer = null
@@ -338,6 +343,8 @@ function injection_script_1() {
 
       // console.log('initByChatRenderer')
       if (!cr) return;
+      this.ytInitialChecked = false;
+      this.keepOriginalPTCW = false; // reset
       this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
       if (!this.ytLiveChatApp) return;
 
@@ -1558,16 +1565,30 @@ function injection_script_1() {
 
 
           let boolz = false;
+          if(ytLivePU.ytLiveChatApp && !this.ytInitialChecked && !ytLivePU.keepOriginalPTCW){
+            // check on the first call.
+            ytLivePU.keepOriginalPTCW = !!ytLivePU.ytLiveChatApp.querySelector('#hyperchat');
+          }
+          if(ytLivePU.ytLiveChatApp && ytLivePU.loadStatus > 0 ){
+            // no longer check new element
+            this.ytInitialChecked = true;
+          }
 
-          // let pt = arguments[0]['yt-player-video-progress'];
-          if (isChatReplay === null) return;
-          else if (isChatReplay === false) {
-            // boolz = false; // only chat replay requires yt-player-video-progress
-            if (isVideoProgress === true) return;
-          } else if (isVideoProgress === true) {
-            // isChatReplay === true
-            if (ytLivePU.initialFetchReq !== 3) return;
-            boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
+          if(!ytLivePU.keepOriginalPTCW){
+            // if other script for chat such as hyperchat is used,
+            // the chat optimization provided by Tabview Youtube will be disabled
+
+            // let pt = arguments[0]['yt-player-video-progress'];
+            if (isChatReplay === null) return;
+            else if (isChatReplay === false) {
+              // boolz = false; // only chat replay requires yt-player-video-progress
+              if (isVideoProgress === true) return;
+            } else if (isVideoProgress === true) {
+              // isChatReplay === true
+              if (ytLivePU.initialFetchReq !== 3) return;
+              boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
+            }
+            
           }
 
 
@@ -1641,6 +1662,8 @@ function injection_script_1() {
       }
       return g_postToContentWindow;
     }
+
+    
 
 
   }
@@ -2491,13 +2514,15 @@ function injection_script_1() {
     let cid55 = 0;
 
     const func55 = () => {
+      // false = continue
       let frameCE_prototype = customElements.get('ytd-live-chat-frame').prototype;
       //p&&(p.configurable=!0,Object.defineProperty(a,m,p))}}
 
       if (frameCE_prototype && !frameCE_prototype.__$$postToContentWindow$$__ && typeof frameCE_prototype.postToContentWindow == 'function') {
+        // console.log(344, document.querySelector('#hyperchat'));
         const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-        frameCE_prototype.__$$postToContentWindow$$__ = frameCE_prototype.postToContentWindow
-        frameCE_prototype.postToContentWindow = g_postToContentWindow
+        frameCE_prototype.__$$postToContentWindow$$__ = frameCE_prototype.postToContentWindow;
+        frameCE_prototype.postToContentWindow = g_postToContentWindow;
         // true
       } else if (--trial55 === 0 && cid55 > 0) {
         // true
@@ -4592,7 +4617,7 @@ rcb(b) => a = playlistId = undefinded
   globalFunc(function tabviewSetMyDefaultTab(m) {
     top.tabviewDispatchEvent(document, 'tabview-setMyDefaultTab', { myDefaultTab: m })
   })
-
+  
   document.addEventListener("tabview-plugin-loaded", () => {
     // ----------- avoid removeChild error {#below}.removeChild({#chat}) -----------
     let below = document.querySelector('div#below.style-scope.ytd-watch-flexy');
