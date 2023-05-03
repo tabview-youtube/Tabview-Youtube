@@ -7411,246 +7411,199 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   if (isGMAvailable() && typeof GM_registerMenuCommand === 'function') {
 
-      let dialog = null;
-      function createDialog(){
+    let dialog = null;
+    function createDialog() {
 
-
-
-    const _themeProps_ = {
-      dialogBackgroundColor: '#f6f6f6',
-      dialogBackgroundColorDark: '#23252a',
-      backdropColor: '#b5b5b568',
-      textColor: '#111111',
-      textColorDark: '#f0f3f4',
-      zIndex: 60000,
-      fontSize: '10pt',
+      const _themeProps_ = {
+        dialogBackgroundColor: '#f6f6f6',
+        dialogBackgroundColorDark: '#23252a',
+        backdropColor: '#b5b5b568',
+        textColor: '#111111',
+        textColorDark: '#f0f3f4',
+        zIndex: 60000,
+        fontSize: '10pt',
         dialogMinWidth: '32px',
         dialogMinHeight: '24px',
+      };
 
+      class VJSD extends VanillaJSDialog {
 
-  };
-
-
-  class VJSD extends VanillaJSDialog {
-
-
-      get themeProps() {
+        get themeProps() {
           return _themeProps_
-      }
+        }
 
-      isDarkTheme() {
+        isDarkTheme() {
           return document.documentElement.hasAttribute('dark');
-      }
+        }
 
-      onBeforeShow(){
+        onBeforeShow() {
           const es = this.es;
-          if('checkboxSelectionDisplay' in es){
-              es.checkboxSelectionDisplay.textContent = '';
+          if ('checkboxSelectionDisplay' in es) {
+            es.checkboxSelectionDisplay.textContent = '';
           }
-
-          const setDefaultTabTick = (myDefaultTab)=>{
-              for(const checkbox of document.getElementsByName('tabview-tab-default')){
-                  checkbox.checked = checkbox.value === myDefaultTab;
-              }
-            //  this.es.checkbox1.value
-
+          const setDefaultTabTick = (myDefaultTab) => {
+            for (const checkbox of document.getElementsByName('tabview-tab-default')) {
+              checkbox.checked = checkbox.value === myDefaultTab;
+            }
           }
-
-          function getDefaultTabBtnSetting(store){
-
-              if (!store){}else{
-              let myDefaultTab=  store[key_default_tab];
-              if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)){
-              }else{
-                  if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) return setDefaultTabTick(myDefaultTab);
+          function getDefaultTabBtnSetting(store) {
+            if (!store) { } else {
+              let myDefaultTab = store[key_default_tab];
+              if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) {
+              } else {
+                if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) return setDefaultTabTick(myDefaultTab);
               }
-              }
-
-              setDefaultTabTick(null);
-
+            }
+            setDefaultTabTick(null);
           }
-
           let store = getStore();
           getDefaultTabBtnSetting(store);
-      }
+        }
 
-      onFirstCreation() {
+        onFirstCreation() {
 
           const S = this.S; /* this is the global method */
 
           /* on top of the setup function, override the icon widget on global method */
           S.widgets.icon = (iconTag) => {
-              return S.ce('i', { className: 'vjsd-icon fa-solid fa-' + iconTag });
+            return S.ce('i', { className: 'vjsd-icon fa-solid fa-' + iconTag });
           }
 
           /* you might also overide `S.importCSS` by the use of Userscript Manager's import */
           S.importCSS(
-              'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css#sha512=SgaqKKxJDQ/tAUAAXzvxZz33rmn7leYDYfBP+YoMRSENhf3zJyx3SBASt/OfeQwBHA1nxMis7mM3EV/oYT6Fdw==',
-              // 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css',
-              'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css#sha512=yDUXOUWwbHH4ggxueDnC5vJv4tmfySpVdIcN1LksGZi8W8EVZv4uKGrQc0pVf66zS7LDhFJM7Zdeow1sw1/8Jw=='
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/fontawesome.min.css#sha512=SgaqKKxJDQ/tAUAAXzvxZz33rmn7leYDYfBP+YoMRSENhf3zJyx3SBASt/OfeQwBHA1nxMis7mM3EV/oYT6Fdw==',
+            // 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/brands.min.css',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/solid.min.css#sha512=yDUXOUWwbHH4ggxueDnC5vJv4tmfySpVdIcN1LksGZi8W8EVZv4uKGrQc0pVf66zS7LDhFJM7Zdeow1sw1/8Jw=='
           );
 
           /* load CSS files, etc - You might overide the `getTheme()` in VanillaJSDialog */
           this.themeSetup();
-      }
+        }
 
-      /* init is called after setup function is called */
-      init() {
+        /* init is called after setup function is called */
+        init() {
           const S = this.S; /* this is the global method */
 
           const es = this.es; /* this is a store for HTMLElements binded to this dialog */
 
           es.dialog = S.ce('div', {
-              className: 'vjsd-dialog'
+            className: 'vjsd-dialog'
           }, {
-              '__vjsd__': ''
+            '__vjsd__': ''
           });
 
-
-
           es.dialog.append(
-              es.header = S.ce('div', {
-                  className: 'vjsd-dialog-header vjsd-hflex'
-              }),
-              es.body = S.ce('div', {
-                  className: 'vjsd-dialog-body vjsd-gap-2 vjsd-overscroll-none vjsd-vflex'
-              }),
-              es.footer = S.ce('div', {
-                  className: 'vjsd-dialog-footer vjsd-hflex'
-              }),
+            es.header = S.ce('div', {
+              className: 'vjsd-dialog-header vjsd-hflex'
+            }),
+            es.body = S.ce('div', {
+              className: 'vjsd-dialog-body vjsd-gap-2 vjsd-overscroll-none vjsd-vflex'
+            }),
+            es.footer = S.ce('div', {
+              className: 'vjsd-dialog-footer vjsd-hflex'
+            }),
 
           );
 
           es.header.append(
-              S.widgets.icon('circle-info', (a) => {
+            S.widgets.icon('circle-info', (a) => {
 
-              }),
-              S.widgets.title('Tabview Youtube - Change Default Tab', {
-                className :  'vjsd-flex-fill'
-              }),
-              S.widgets.buttonIcon('square-xmark', {
-                  'vjsd-clickable': '#dialogXmark'
-              })
+            }),
+            S.widgets.title('Tabview Youtube - Change Default Tab', {
+              className: 'vjsd-flex-fill'
+            }),
+            S.widgets.buttonIcon('square-xmark', {
+              'vjsd-clickable': '#dialogXmark'
+            })
           );
 
           const checkBoxChanged = () => {
-              let elmChoice1 = [...document.getElementsByName('tabview-tab-default')].filter(e => e.checked).map(e => e.value);
-              console.assert( elmChoice1.length <= 1);
-
-              es.checkboxSelectionDisplay.textContent = elmChoice1.length === 1 ? `The default tab will be set to ${elmChoice1[0]}` : `The default tab will be reset.`;
+            let elmChoice1 = [...document.getElementsByName('tabview-tab-default')].filter(e => e.checked).map(e => e.value);
+            console.assert(elmChoice1.length <= 1);
+            es.checkboxSelectionDisplay.textContent = elmChoice1.length === 1 ? `The default tab will be set to ${elmChoice1[0]}` : `The default tab will be reset.`;
           }
 
           es.body.append(
-              S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Info', (elmLabel, elmInput) => {
-                  elmInput.name = 'tabview-tab-default';
-                  elmInput.value = '#tab-info';
-                  es.checkbox1 = elmInput;
-                  elmInput.addEventListener('change', checkBoxChanged)
-                  elmLabel.style.fontSize='200%';
-              }),
-              S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Comment', (elmLabel, elmInput) => {
-                  elmInput.name = 'tabview-tab-default';
-                  elmInput.value = '#tab-comments';
-                  es.checkbox2 = elmInput;
-                  elmInput.addEventListener('change', checkBoxChanged)
-                  elmLabel.style.fontSize='200%';
-              }),
-              S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Video', (elmLabel, elmInput) => {
-                  elmInput.name = 'tabview-tab-default';
-                  elmInput.value = '#tab-videos';
-                  es.checkbox3 = elmInput;
-                  elmInput.addEventListener('change', checkBoxChanged)
-                  elmLabel.style.fontSize='200%';
-              }),
-              es.checkboxSelectionDisplay = S.ce('div', { className: 'vjsd-custom-widget' })
+            S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Info', (elmLabel, elmInput) => {
+              elmInput.name = 'tabview-tab-default';
+              elmInput.value = '#tab-info';
+              es.checkbox1 = elmInput;
+              elmInput.addEventListener('change', checkBoxChanged)
+              elmLabel.style.fontSize = '200%';
+            }),
+            S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Comment', (elmLabel, elmInput) => {
+              elmInput.name = 'tabview-tab-default';
+              elmInput.value = '#tab-comments';
+              es.checkbox2 = elmInput;
+              elmInput.addEventListener('change', checkBoxChanged)
+              elmLabel.style.fontSize = '200%';
+            }),
+            S.widgets.labeledRadio('vjsd-checkbox1 vjsd-checkbox-tick', 'Video', (elmLabel, elmInput) => {
+              elmInput.name = 'tabview-tab-default';
+              elmInput.value = '#tab-videos';
+              es.checkbox3 = elmInput;
+              elmInput.addEventListener('change', checkBoxChanged)
+              elmLabel.style.fontSize = '200%';
+            }),
+            es.checkboxSelectionDisplay = S.ce('div', { className: 'vjsd-custom-widget' })
           );
 
-
           const onXMarkClicked = () => {
-              this.dismiss();
+            this.dismiss();
           }
 
           const onClearClicked = () => {
-              es.checkbox1.checked = false;
-              es.checkbox2.checked = false;
-              es.checkbox3.checked = false;
-              checkBoxChanged();
+            es.checkbox1.checked = false;
+            es.checkbox2.checked = false;
+            es.checkbox3.checked = false;
+            checkBoxChanged();
           }
 
           const onConfirmClicked = () => {
-
-              //
-
-              let myDefaultTab = null;
-              for(const checkbox of document.getElementsByName('tabview-tab-default')){
-                  if(checkbox.checked) myDefaultTab = checkbox.value;
-              }
-              myDefaultTab = myDefaultTab || null;
-              console.log(myDefaultTab)
-              setMyDefaultTab(myDefaultTab);
-
-              this.dismiss();
+            let myDefaultTab = null;
+            for (const checkbox of document.getElementsByName('tabview-tab-default')) {
+              if (checkbox.checked) myDefaultTab = checkbox.value;
+            }
+            myDefaultTab = myDefaultTab || null;
+            console.log(myDefaultTab)
+            setMyDefaultTab(myDefaultTab);
+            this.dismiss();
           }
 
           const onCancelClicked = () => {
-
-
-              this.dismiss();
-
-
+            this.dismiss();
           }
 
-
           es.footer.append(
-              es.clearButton = S.widgets.button('Clear', {
-                  'vjsd-clickable': '#clear'
-              }),
-              S.widgets.space(),
-              S.widgets.button('Cancel', {
-                  'vjsd-clickable': '#cancel'
-              }),
-              S.widgets.button('Confirm', {
-                  'vjsd-clickable': '#confirm'
-              }),
+            es.clearButton = S.widgets.button('Clear', {
+              'vjsd-clickable': '#clear'
+            }),
+            S.widgets.space(),
+            S.widgets.button('Cancel', {
+              'vjsd-clickable': '#cancel'
+            }),
+            S.widgets.button('Confirm', {
+              'vjsd-clickable': '#confirm'
+            }),
           )
 
           this.clickable('#cancel', onCancelClicked)
           this.clickable('#clear', onClearClicked)
           this.clickable('#confirm', onConfirmClicked)
-
           this.clickable('#dialogXmark', onXMarkClicked);
 
-          /*
-            those components generated by S.widgets.XXX are without controllers
-            you need to define how they interactive with the UIs.
-          */
-          this.clickable('.xmark1', (evt) => {
-              /* find the related element instead of using the referenced element in this.es */
-              let input = S.query(evt.target, '.vjsd-custom-widget', '.vjsd-input');
-              input.value = '';
-              input.focus();
-          });
-
-
-
           this.backdrop = 'dismiss';
-
-
           document.body.appendChild(es.dialog)
-
-
-
+        }
       }
-
-  }
 
       VJSD.setup1();
+      return new VJSD();
+    }
 
-          return new VJSD();
-      }
     GM_registerMenuCommand("Change Default Tab", function () {
-        dialog = dialog || createDialog();
-        dialog.show();
+      dialog = dialog || createDialog();
+      dialog.show();
     });
 
       /*
