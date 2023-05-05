@@ -1190,7 +1190,7 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy.tyt-chat-popup #show-hide-button button span{
         color: var(--disabled-text-color) !important;
     }
-    
+
 
     
 }
@@ -2281,6 +2281,11 @@ body .ytp-autohide .ytp-unmute,
         box-sizing: border-box;
         border-bottom-color: var(--yt-spec-general-background-a);
         /* css fix to background loading */
+    }
+    
+    /* 2023/05/05 - fixed thin border when the iframe is pop out */
+    ytd-watch-flexy.tyt-chat-popup[theater] ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
+        border-bottom: 0;
     }
 
     /* double .ytd-watch-flexy is Youtube Coding Bug */
