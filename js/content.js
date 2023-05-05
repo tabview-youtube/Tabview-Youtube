@@ -366,6 +366,11 @@
     max-height: 60vh !important; /* override style */
   }
 
+  /* 2023/05/05 fixed darker-dark-theme thin border on the bottom of chatroom */
+  html yt-live-chat-renderer[darker-dark-theme] #panel-pages.yt-live-chat-renderer {
+    border: 0;
+  }
+
     `.trim();
   });
 
