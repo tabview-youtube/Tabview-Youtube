@@ -2558,8 +2558,18 @@ function injection_script_1() {
       configurable: false // if redefine by YouTube, error comes and change the coding
     });
 
+
     
-      // fallback to fetch comments count after a fixed delay of ytd-comments's dataChanged_()
+    /*
+let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of Object.keys(wp)){
+    try{
+    if (typeof  wp[s] == 'function') {
+        ww[s] = wp[s]; }
+    }catch(e){}
+} */
+
+
+      // dataChanged_ for cache update
     const ytdCommentsP = customElements.get('ytd-comments').prototype;
     if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
       ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
@@ -2568,6 +2578,17 @@ function injection_script_1() {
         this.dispatchEvent(new CustomEvent('ytd-comments-data-changed'));
       }
     }
+    
+      // headerChanged_ - new method to fetch comments count
+    if(typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)){
+      ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
+      ytdCommentsP.headerChanged_=function(){
+        this.tytHeaderChanged_();
+        this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+      }
+    }
+    
+
 
 
     document.addEventListener('tabview-fix-popup-refit', function () {

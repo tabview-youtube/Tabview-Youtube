@@ -3208,6 +3208,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  function checkAndMakeNewCommentFetch(){
+    if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+      fetchCounts.new.f();
+      fetchCounts.fetched = true;
+      fetchCommentsFinished();
+      _console.log(9972, 'fetched = true')
+    }
+  }
+  function onCommentsReady(){
+    if (mtf_forceCheckLiveVideo_disable !== 2) {
+      if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
+        // unavailable but not due to live chat
+        _disableComments();
+      } else if (Q.comments_section_loaded === 0) {
+        getFinalComments();
+      }
+    }
+  }
+
   const resultCommentsCountCaching = (res) => {
     // update fetchCounts by res
     // indepedent of previous state of fetchCounts
@@ -3841,14 +3860,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       resultCommentsCountCaching(ret);
 
       if (fetchCounts.new && !fetchCounts.fetched) {
-
-        _console.log(4512, 4, Q.comments_section_loaded, fetchCounts.new, !fetchCounts.fetched)
         if (fetchCounts.new.f()) {
           fetchCounts.fetched = true;
-          _console.log(9972, 'fetched = true')
           fetchCommentsFinished();
+          _console.log(9972, 'fetched = true')
         }
-
         return;
       }
 
@@ -3866,9 +3882,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           if (fetchCounts.base.f()) {
             fetchCounts.fetched = true;
-            _console.log(9972, 'fetched = true')
-            //return true;
             fetchCommentsFinished();
+            _console.log(9972, 'fetched = true')
           }
 
         }
@@ -4201,6 +4216,7 @@ async function checkDuplicatedInfoMay2023() {
     }
   }
 
+
   globalHook('yt-player-updated', (evt) => {
 
     const node = ((evt || 0).target) || 0
@@ -4226,13 +4242,7 @@ async function checkDuplicatedInfoMay2023() {
 
       if (!scriptEnable) return
 
-      if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-        fetchCounts.new.f();
-        fetchCounts.fetched = true;
-
-        fetchCommentsFinished();
-        _console.log(9972, 'fetched = true')
-      }
+      checkAndMakeNewCommentFetch();
 
       _console.log(2178, 4)
       pageCheck();
@@ -4461,13 +4471,7 @@ async function checkDuplicatedInfoMay2023() {
 
         if (!scriptEnable) return;
 
-        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-          fetchCounts.new.f();
-          fetchCounts.fetched = true;
-
-          fetchCommentsFinished();
-          _console.log(9972, 'fetched = true')
-        }
+        checkAndMakeNewCommentFetch();
 
 
         // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
@@ -4771,26 +4775,11 @@ async function checkDuplicatedInfoMay2023() {
         if (!tabsDeferredSess.isValid) return;
         tabsDeferredSess = null;
 
-        if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-          fetchCounts.new.f();
-          fetchCounts.fetched = true;
-
-          fetchCommentsFinished();
-          _console.log(9972, 'fetched = true')
-        }
+        checkAndMakeNewCommentFetch();
 
         if (nodeName === 'YTD-WATCH-FLEXY') {
           domInit_comments();
-          if (mtf_forceCheckLiveVideo_disable !== 2) {
-            _console.log(3713, Q.comments_section_loaded, fetchCounts.fetched, 'fetch comments')
-            if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
-              // unavailable apart from live chat
-              _disableComments();
-              _console.log(3713, 3, 'comments hidden')
-            } else if (Q.comments_section_loaded === 0) {
-              getFinalComments();
-            }
-          }
+          onCommentsReady();
         }
       });
 
@@ -6860,13 +6849,7 @@ async function checkDuplicatedInfoMay2023() {
       }
 
 
-      if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-        fetchCounts.new.f();
-        fetchCounts.fetched = true;
-        _console.log(9972, 'fetched = true')
-
-        fetchCommentsFinished();
-      }
+      checkAndMakeNewCommentFetch();
 
     }
 
@@ -7335,28 +7318,19 @@ async function checkDuplicatedInfoMay2023() {
     // }
   });
 
-  // fallback to fetch comments count after a fixed delay of ytd-comments's dataChanged_()
+  // new comment count fetch way
   document.addEventListener('ytd-comments-data-changed', function(){
-    if(pageType === 'watch' && !fetchCounts.fetched){}else{return;}
-    
+    // if(pageType === 'watch'){}else{return;}
     resultCommentsCountCaching(innerDOMCommentsCountLoader());
-    
-    if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
-      // renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader());
-      if (renderDeferred.resolved && !fetchCounts.new) {
-        window.dispatchEvent(new Event("scroll"));
-      }
-    }
-    setTimeout(()=>{
-      resultCommentsCountCaching(innerDOMCommentsCountLoader());
-      if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
-        fetchCounts.new.f();
-        fetchCounts.fetched = true;
-
-        fetchCommentsFinished();
-        _console.log(9972, 'fetched = true')
-      }
-    }, 400);
+    checkAndMakeNewCommentFetch();
+    // comments_loader = comments_loader | 2;
+  }, true);
+  document.addEventListener('ytd-comments-header-changed', function(){
+    // if(pageType === 'watch'){}else{return;}
+    resultCommentsCountCaching(innerDOMCommentsCountLoader());
+    checkAndMakeNewCommentFetch();
+    // comments_loader = comments_loader | 4;
+    // onCommentsReady(); // header change might just temporarily remove for page switching
   }, true);
 
   document.addEventListener("tabview-plugin-loaded", () => {
