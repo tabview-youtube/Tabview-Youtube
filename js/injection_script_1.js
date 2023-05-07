@@ -2431,6 +2431,16 @@ function injection_script_1() {
     if (typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
     // note: YouTube implements its on window.customElements when it detects the browser is old.
 
+    
+    const defineValuable = (proto, oriKey, newKey, attributes) => {
+      if(newKey in proto) return;
+      if(oriKey in proto){
+        let v = proto[oriKey];
+        proto[newKey] = v;
+      }
+      Object.defineProperty(proto, oriKey, attributes);
+    }
+
     let s1 = Symbol();
     //let s2 = Symbol();
 
@@ -2482,7 +2492,7 @@ function injection_script_1() {
         translateHanlder = getTranslate();
     })
 
-    Object.defineProperty(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', {
+    defineValuable(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
       get() {
         return this.__$$initialTranscriptsRenderer$$__
       },
@@ -2539,11 +2549,12 @@ function injection_script_1() {
     if (!func55()) cid55 = setInterval(func55, 150);
 
 
+
     let s32 = Symbol();
     let insObserverChipCloud = getInsObserverChipCloud();
     let mutObserverChipCloud = getMutObserverChipCloud();
     // yt-chip-cloud-renderer
-    Object.defineProperty(customElements.get('yt-chip-cloud-renderer').prototype, 'boundChipCloudChipScrollIntoView', {
+    defineValuable(customElements.get('yt-chip-cloud-renderer').prototype, 'boundChipCloudChipScrollIntoView', s32, {
       get() {
         return this[s32];
       },
@@ -2569,25 +2580,37 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 } */
 
 
-      // dataChanged_ for cache update
+      // dataChanged_ & headerChanged_ for comments counting update
     const ytdCommentsP = customElements.get('ytd-comments').prototype;
-    if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
-      ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
-      ytdCommentsP.dataChanged_=function(){
-        this.tytDataChanged_();
-        this.dispatchEvent(new CustomEvent('ytd-comments-data-changed'));
-      }
-    }
-    
-      // headerChanged_ - new method to fetch comments count
-    if(typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)){
-      ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
-      ytdCommentsP.headerChanged_=function(){
-        this.tytHeaderChanged_();
-        this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
-      }
-    }
-    
+    const dataChangedWrapper_ = function(){
+      this.tytDataChanged_();
+      this.dispatchEvent(new CustomEvent('ytd-comments-data-changed'));
+    };
+    defineValuable(ytdCommentsP, 'dataChanged_', 'tytDataChanged_' , {
+      get() {
+        return dataChangedWrapper_;
+      },
+      set(nv) {
+        this['tytDataChanged_'] = nv;
+      },
+      enumerable: false,
+      configurable: false // if redefine by YouTube, error comes and change the coding
+    });
+
+    const headerChangedWrapper_ = function(){
+      this.tytHeaderChanged_();
+      this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+    };
+    defineValuable(ytdCommentsP, 'headerChanged_', 'tytHeaderChanged_' , {
+      get() {
+        return headerChangedWrapper_;
+      },
+      set(nv) {
+        this['tytHeaderChanged_'] = nv;
+      },
+      enumerable: false,
+      configurable: false // if redefine by YouTube, error comes and change the coding
+    });
 
 
 

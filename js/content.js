@@ -2936,7 +2936,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (ytdWatchMetaDataElm) {
               ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover', '')
               let _h = 0;
-              console.log(23432)
               ytdWatchMetaDataElm.addEventListener('transitionend', function (evt) {
                 // no css selector rule required; no delay js function call required
 
