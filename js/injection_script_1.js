@@ -2422,15 +2422,11 @@ function injection_script_1() {
 
   let translateHanlder = null;
   let defineCommentsChangedMethodsTrialCount = 0;
-  const defineCommentsChangedMethods = ()=>{
-    // ceHack
-    const ytdCommentsP = customElements.get('ytd-comments').prototype;
 
-    if(!ytdCommentsP || !ytdCommentsP.dataChanged_ || !ytdCommentsP.headerChanged_){
-      if(++defineCommentsChangedMethodsTrialCount<4) setTimeout(defineCommentsChangedMethods, 30);
-    }
-    if(defineCommentsChangedMethodsTrialCount>8) return; 
-    defineCommentsChangedMethodsTrialCount = 9; // prevent called more than once 
+  
+  function makePropsForComments(){
+      
+    const ytdCommentsP = customElements.get('ytd-comments').prototype;
 
     // dataChanged_ for cache update
     // const ytdCommentsP = customElements.get('ytd-comments').prototype;
@@ -2449,6 +2445,28 @@ function injection_script_1() {
         this.tytHeaderChanged_();
         this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
       }
+    }
+    
+  }
+
+  const defineCommentsChangedMethods = ()=>{
+    // ceHack
+    const ytdCommentsP = customElements.get('ytd-comments').prototype;
+
+    if(!ytdCommentsP || !ytdCommentsP.dataChanged_ || !ytdCommentsP.headerChanged_){
+      if(++defineCommentsChangedMethodsTrialCount<4) setTimeout(defineCommentsChangedMethods, 30);
+    }
+    if(defineCommentsChangedMethodsTrialCount>8) return; 
+    defineCommentsChangedMethodsTrialCount = 9; // prevent called more than once 
+
+    if(typeof ytdCommentsP._initializeProperties == 'function' && !('_tytInitializeProperties' in ytdCommentsP)){
+
+      ytdCommentsP._tytInitializeProperties = ytdCommentsP._initializeProperties;
+      ytdCommentsP._initializeProperties=function(){
+        this._tytInitializeProperties();
+        makePropsForComments();
+      }
+      
     }
 
   }
@@ -2614,6 +2632,7 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
       // dataChanged_ & headerChanged_ for comments counting update
     const ytdCommentsP = customElements.get('ytd-comments').prototype;
     if(ytdCommentsP){
+      
       defineCommentsChangedMethods(); // just try
     }
 
@@ -3791,7 +3810,7 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 
   document.addEventListener('tabview-page-rendered', () => {
     // reserved
-    defineCommentsChangedMethods();
+    // defineCommentsChangedMethods();
   });
 
 
