@@ -3256,32 +3256,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  const domInit_teaserInfo = () => {
-    //obsolete?
-
-    let teaserInfo = document.querySelector('#description-and-actions.style-scope.ytd-watch-metadata > #description ytd-text-inline-expander:not([tabview-removed-duplicate])');
-
-    if (!teaserInfo) return;
-
-    // for Teaser UI
-    // once per {#description-and-actions.style-scope.ytd-watch-metadata > #description > ytd-text-inline-expander} detection
-
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!scriptEnable || !ytdFlexyElm) return;
-    let addedInfo = document.querySelector('#tab-info ytd-expander[tabview-info-expander]');
-
-    if (!addedInfo) return;
-
-    scriptletDeferred.debounce(() => {
-
-      teaserInfo.setAttribute('tabview-removed-duplicate', '')
-      teaserInfo.dispatchEvent(new CustomEvent('tabview-no-duplicate-info'))
-
-    })
-
-
-  }
-
 
   const FP = {
 
@@ -3495,8 +3469,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     mtoFlexyAttr.clear(true)
 
 
-    for (const elem of document.querySelectorAll('ytd-expander[tabview-info-expander]')) {
-      elem.removeAttribute('tabview-info-expander'); // buggy ??
+    for (const elem of document.querySelectorAll('ytd-expander[tabview-expander-checked]')) {
+      elem.removeAttribute('tabview-expander-checked');
     }
 
     mtf_chatBlockQ = null;
@@ -4490,13 +4464,13 @@ async function checkDuplicatedInfoMay2023() {
         pageCheck();
         setupChatFrameDOM(null);
 
-        let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-info-expander])');
+        let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-expander-checked])');
         if (expander) {
 
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
 
-          expander.setAttribute('tabview-info-expander', '');
+          expander.setAttribute('tabview-expander-checked', '');
           let tabInfo = document.querySelector("#tab-info");
           if (tabInfo) {
             tabInfo.appendChild(expander);
@@ -4631,7 +4605,7 @@ async function checkDuplicatedInfoMay2023() {
         let renderId = renderIdentifier
         renderDeferred.debounce(() => {
           if (renderId !== renderIdentifier) return
-          domInit_teaserInfo() // YouTube obsoleted feature? 
+          // domInit_teaserInfo() // YouTube obsoleted feature? 
 
 
           let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string')
