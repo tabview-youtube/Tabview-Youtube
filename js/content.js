@@ -3930,11 +3930,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!ytdFlexyElm) return
     let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
     let elm
-    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #plain-snippet-text')
+    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #plain-snippet-text')
     if (elm) {
       wAttr(elm, 'hidden', hiddenBool)
     }
-    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #formatted-snippet-text')
+    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #formatted-snippet-text')
     if (elm) {
       wAttr(elm, 'hidden', hiddenBool)
     }
@@ -3944,13 +3944,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return; //unlikely
 
-    let cssbool_c1 = false, cssbool_c2 = false, cssbool_c3 = false;
+    let cssbool_c1 = false, cssbool_c2 = false;
     if (isCheck === 5) {
 
       if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
         cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
         cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander ytd-rich-metadata-renderer.ytd-rich-metadata-row-renderer');
       }
 
       if (typeof checkDuplicateRes === 'boolean') {
@@ -3958,7 +3957,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }
 
-    ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
+    ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}`);
 
   }
 
@@ -4057,9 +4056,12 @@ async function checkDuplicatedInfoMay2023() {
 
       if (g_check_detail_A !== t) return;
 
+
+      let clicked = false;
       await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand')].map(button => {
         return new Promise(r => {
           button.click();
+          clicked = true;
           r();
         });
       }));
@@ -4067,6 +4069,18 @@ async function checkDuplicatedInfoMay2023() {
       await Promise.resolve(0);
 
       infoDuplicated = await checkDuplicatedInfoMay2023();
+
+      if(infoDuplicated === false && clicked){
+
+        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse')].map(button => {
+          return new Promise(r => {
+            button.click();
+            r();
+          });
+        }));
+        
+      }
+
     } catch (e) {
 
       ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
