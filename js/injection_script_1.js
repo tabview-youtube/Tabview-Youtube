@@ -2558,6 +2558,17 @@ function injection_script_1() {
       configurable: false // if redefine by YouTube, error comes and change the coding
     });
 
+    
+      // fallback to fetch comments count after a fixed delay of ytd-comments's dataChanged_()
+    const ytdCommentsP = customElements.get('ytd-comments').prototype;
+    if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
+      ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
+      ytdCommentsP.dataChanged_=function(){
+        this.tytDataChanged_();
+        this.dispatchEvent(new CustomEvent('ytd-comments-data-changed'));
+      }
+    }
+
 
     document.addEventListener('tabview-fix-popup-refit', function () {
 

@@ -7335,6 +7335,30 @@ async function checkDuplicatedInfoMay2023() {
     // }
   });
 
+  // fallback to fetch comments count after a fixed delay of ytd-comments's dataChanged_()
+  document.addEventListener('ytd-comments-data-changed', function(){
+    if(pageType === 'watch' && !fetchCounts.fetched){}else{return;}
+    
+    resultCommentsCountCaching(innerDOMCommentsCountLoader());
+    
+    if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
+      // renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader());
+      if (renderDeferred.resolved && !fetchCounts.new) {
+        window.dispatchEvent(new Event("scroll"));
+      }
+    }
+    setTimeout(()=>{
+      resultCommentsCountCaching(innerDOMCommentsCountLoader());
+      if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
+        fetchCounts.new.f();
+        fetchCounts.fetched = true;
+
+        fetchCommentsFinished();
+        _console.log(9972, 'fetched = true')
+      }
+    }, 400);
+  }, true);
+
   document.addEventListener("tabview-plugin-loaded", () => {
 
     scriptletDeferred.resolve();
