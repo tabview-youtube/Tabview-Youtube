@@ -3998,7 +3998,7 @@ async function checkDuplicatedInfoMay2023() {
   const secondElement = document.querySelector(secondElementSelector);
 
   if(!firstElement || !secondElement) return false;
-  if(firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return;
+  if(firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
 
   const asyncGetContent = async (n)=>{
     return n.textContent;
