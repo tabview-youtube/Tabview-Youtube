@@ -2421,7 +2421,6 @@ function injection_script_1() {
 
 
   let translateHanlder = null;
-  let defineCommentsChangedMethodsTrialCount = 0;
 
   
   function makePropsForComments(){
@@ -2452,12 +2451,6 @@ function injection_script_1() {
   const defineCommentsChangedMethods = ()=>{
     // ceHack
     const ytdCommentsP = customElements.get('ytd-comments').prototype;
-
-    if(!ytdCommentsP || !ytdCommentsP.dataChanged_ || !ytdCommentsP.headerChanged_){
-      if(++defineCommentsChangedMethodsTrialCount<4) setTimeout(defineCommentsChangedMethods, 30);
-    }
-    if(defineCommentsChangedMethodsTrialCount>8) return; 
-    defineCommentsChangedMethodsTrialCount = 9; // prevent called more than once 
 
     if(typeof ytdCommentsP._initializeProperties == 'function' && !('_tytInitializeProperties' in ytdCommentsP)){
 
