@@ -4004,7 +4004,7 @@ async function checkDuplicatedInfoMay2023() {
     return n.textContent;
   }
 
-  const getTextContent = async (element) => {
+  const getTextContentArr = async (element) => {
       let contentArray = [];
 
       for (let currentNode = element.firstChild; currentNode; currentNode = currentNode.nextSibling) {
@@ -4049,13 +4049,17 @@ async function checkDuplicatedInfoMay2023() {
 
       }
 
-      return contentArray.join("\n\n");
+      return contentArray;
   };
 
-  const firstElementText = getTextContent(firstElement);
-  const secondElementText = getTextContent(secondElement);
+  const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
 
-  return (await firstElementText) === (await secondElementText);
+  function isSubset(arr1, arr2) {
+    const set = new Set(arr2);
+    return arr1.every(item => set.has(item));
+  }
+
+  return isSubset(firstElementTextArr, secondElementTextArr);
 }
 
 
