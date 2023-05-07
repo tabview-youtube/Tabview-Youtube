@@ -753,7 +753,7 @@ Same for #secondary
             overflow: auto;
         }
 
-        :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata[modern-metapanel].ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata.ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
             overflow-x: hidden;
         }
 
@@ -1190,7 +1190,7 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy.tyt-chat-popup #show-hide-button button span{
         color: var(--disabled-text-color) !important;
     }
-
+    
 
     
 }
@@ -2282,11 +2282,6 @@ body .ytp-autohide .ytp-unmute,
         border-bottom-color: var(--yt-spec-general-background-a);
         /* css fix to background loading */
     }
-    
-    /* 2023/05/05 - fixed thin border when the iframe is pop out */
-    ytd-watch-flexy.tyt-chat-popup[theater] ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
-        border-bottom: 0;
-    }
 
     /* double .ytd-watch-flexy is Youtube Coding Bug */
     body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
@@ -3100,114 +3095,19 @@ body .ytp-autohide .ytp-unmute,
         
         /* :hover is done by native CSS; .tabview-uploader-hover is done by scripting; this is "two-factor checking" of DOM hover status to avoid false positive */
         
-        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order]:hover {
+        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover:hover {
             overflow-x: hidden;
         }
 
-        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover {
+        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover #owner.ytd-watch-metadata:hover {
             min-width: max-content;
             flex-basis: 50%;
         }
 
-        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover[modern-metapanel-order] #owner.ytd-watch-metadata:hover + #actions.ytd-watch-metadata {
+        body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover #owner.ytd-watch-metadata:hover + #actions.ytd-watch-metadata {
             flex-basis: 50%;
         }
         
-
-        /*
-            ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata{
-                flex-basis: 50% !important;
-            }
-            ytd-watch-metadata[modern-metapanel-order] #actions.ytd-watch-metadata{
-                flex-basis: 50% !important;
-            }*/
-
-            @media only screen and (max-width: 1360px) {
-                /* #upload-info */
-            
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_])
-                #top-row.style-scope.ytd-watch-metadata {
-                    /*flex-direction: column;*/
-                    /*
-                    flex-wrap: wrap;
-                    justify-content: end;
-                    */
-                }
-
-                /*
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] {
-                    overflow-x: hidden;
-                }
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata {
-                    min-width: max-content;
-                    flex-basis: 50%;
-                }
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata + #actions.ytd-watch-metadata {
-                    flex-basis: 0;
-                    min-width: min-content;
-                }
-
-                */
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata{
-                    /*
-                    flex-grow: 10000;
-                    align-self: auto;
-
-                    
-                    max-width: unset;
-                    min-width: unset;
-                    flex: 1 1 auto;
-                    */
-
-                }
-
-                
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata #upload-info{
-                   /*
-                    min-width: 80px;
-                   width:auto;
-                   */
-                   /*
-                   flex: 1 1 100%;
-                   */
-
-                }
-
-                ytd-watch-flexy[flexy][flexy-enable-small-window-sizing][flexy-small-window_][is-two-columns_]:not([is-extra-wide-video_]) 
-                #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order] #owner.ytd-watch-metadata + #actions.ytd-watch-metadata{
-                    /*
-                    max-width: calc(50% - 6px);
-                    align-self: auto;
-                    min-width: 0;
-                    flex: 1 1 auto;
-                    min-width: unset;
-                    width: min-content;
-                    max-width: unset;
-                    min-width: 300px;
-                    */
-                    /*
-                    min-width: unset;
-                    flex:0 1 1%
-                    */
-                }
-
-                /*
-                body ytd-menu-renderer[has-flexible-items]{
-                flex-wrap: nowrap;
-                }
-                */
-
-            }
 
     }
 
@@ -5075,7 +4975,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             max-height: 200vh;
         }
 
-        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy #primary-inner:not([style*="--tyt-desc-top-h"]) ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy #primary-inner:not([style*="--tyt-desc-top-h"]) ytd-watch-metadata:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
 
             /* might be not required */
             max-height: 50vh;
@@ -5084,7 +4984,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         }
 
-        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy [style*="--tyt-desc-top-h"] ytd-watch-metadata[modern-metapanel]:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
+        :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary.ytd-watch-flexy [style*="--tyt-desc-top-h"] ytd-watch-metadata:not([description-collapsed]) #description.item.style-scope.ytd-watch-metadata {
 
             max-height: calc(100vh - var(--ytd-toolbar-height) - var(--tyt-desc-top-h));
             overflow: auto;

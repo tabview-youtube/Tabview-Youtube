@@ -616,6 +616,10 @@
   //const elementRemove = HTMLElement.prototype.remove;
   //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
 
+  const closestDOMX = function (child, parentSelector) {
+    if (!(child instanceof HTMLElement)) return null;
+    return closestDOM.call(child, parentSelector) || null;
+  }
 
   /**
    * 
@@ -2922,16 +2926,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       new Promise(resolve => {
 
 
-        let subscribersCount = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #owner #owner-sub-count')
+        let subscribersCount = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #owner #owner-sub-count');
 
         if (subscribersCount) {
           if (!subscribersCount.hasAttribute('title')) {
             // assume YouTube native coding would not implement [title]
 
-            let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary.ytd-watch-flexy #below ytd-watch-metadata[modern-metapanel-order]:not([tabview-uploader-hover])');
+            let ytdWatchMetaDataElm = closestDOM.call(subscribersCount, 'body #primary.ytd-watch-flexy #below ytd-watch-metadata:not([tabview-uploader-hover])');
             if (ytdWatchMetaDataElm) {
               ytdWatchMetaDataElm.setAttribute('tabview-uploader-hover', '')
               let _h = 0;
+              console.log(23432)
               ytdWatchMetaDataElm.addEventListener('transitionend', function (evt) {
                 // no css selector rule required; no delay js function call required
 
@@ -4508,7 +4513,7 @@ async function checkDuplicatedInfoMay2023() {
 
             checkDuplicateRes = null;
             let descExpandState = null;
-            let descMetaExpander = document.querySelector('ytd-watch-metadata[modern-metapanel][clickable-description]');
+            let descMetaExpander =  closestDOMX(document.querySelector('ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
             let descToggleBtn = null;
             let descMetaLines = null;
             if (descMetaExpander) {
