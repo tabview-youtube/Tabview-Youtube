@@ -3496,7 +3496,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     for (const elem of document.querySelectorAll('ytd-expander[tabview-info-expander]')) {
-      elem.removeAttribute('tabview-info-expander');
+      elem.removeAttribute('tabview-info-expander'); // buggy ??
     }
 
     mtf_chatBlockQ = null;
@@ -3987,177 +3987,123 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}${cssbool_c3 ? 'C' : 'c'}`);
 
   }
-  function checkDuplicatedInfo(req) {
-    // console.log('checkDuplicatedInfo')
 
 
-    async function checkDuplicatedInfoContentEqual(desc1, desc2) {
-      // basically desc1 and desc2 are content identical
-      // however, class name order could be different
+  
+async function checkDuplicatedInfoMay2023() {
+  const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+  const secondElementSelector = "#tab-info ytd-expander #description";
 
-      let txt1 = new Promise(r => r(desc1.textContent))
+  const firstElement = document.querySelector(firstElementSelector);
+  const secondElement = document.querySelector(secondElementSelector);
 
-      let txt2 = new Promise(r => r(desc2.textContent))
+  if(!firstElement || !secondElement) return false;
+  if(firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return;
+
+  const asyncGetContent = async (n)=>{
+    return n.textContent;
+  }
+
+  const getTextContent = async (element) => {
+      let contentArray = [];
+
+      for (let currentNode = element.firstChild; currentNode; currentNode = currentNode.nextSibling) {
+
+          if (currentNode.nodeType === Node.ELEMENT_NODE) {
+              if (currentNode.hasAttribute("hidden")) {
+                  continue;
+              }
+              if (currentNode.id === "snippet") {
+                  let allHidden = true;
+                  for (let child = currentNode.firstChild; child; child = child.nextSibling) {
+                      if (child.hasAttribute("hidden")) {
+                          continue;
+                      }
+                      let trimmedTextContent = await asyncGetContent(child);
+                      trimmedTextContent = trimmedTextContent.trim();
+                      if (trimmedTextContent.length === 0) continue;
+                      allHidden = false;
+                      break;
+                  }
+                  if (allHidden) {
+                      continue;
+                  }
+              }
+
+              if (currentNode.matches("tp-yt-paper-button#collapse")) {
+                  // break;
+                  continue;
+              }
 
 
-      let [res1, res2] = await Promise.all([txt1, txt2]);
+          } else if (currentNode.nodeType === Node.TEXT_NODE) {
+          } else {
+              continue;
+          }
 
-      return { res: res1 === res2 }
-    }
+          let trimmedTextContent = await asyncGetContent(currentNode);
+          trimmedTextContent = trimmedTextContent.trim();
+          if (trimmedTextContent.length > 0) {
+              contentArray.push(trimmedTextContent);
+          }
 
-    async function checkDuplicatedInfoInner() {
+      }
 
-      const ytdFlexyElm = es.ytdFlexy;
-      if (!ytdFlexyElm) return; //unlikely
+      return contentArray.join("\n\n");
+  };
 
-      let t = Date.now();
-      g_check_detail_A = t;
+  const firstElementText = getTextContent(firstElement);
+  const secondElementText = getTextContent(secondElement);
 
-      ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
+  return (await firstElementText) === (await secondElementText);
+}
 
+
+
+
+
+  async function checkDuplicatedInfo() {
+
+    const ytdFlexyElm = es.ytdFlexy;
+    if (!ytdFlexyElm) return; //unlikely
+
+    let t = Date.now();
+    g_check_detail_A = t;
+
+    ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
+    let infoDuplicated = false;
+
+    try {
       await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
 
 
       if (g_check_detail_A !== t) return;
 
-      let elm
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #plain-snippet-text')
-      if (elm) {
-        wAttr(elm, 'hidden', false)
-      }
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] #description #formatted-snippet-text')
-      if (elm) {
-        wAttr(elm, 'hidden', false)
-      }
+      await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand')].map(button => {
+        return new Promise(r => {
+          button.click();
+          r();
+        });
+      }));
+
       await Promise.resolve(0);
 
-      // the class added before can be removed from the external coding
+      infoDuplicated = await checkDuplicatedInfoMay2023();
+    } catch (e) {
 
-      function mrcrf(mrcr) {
-        let tmp;
-        if (mrcr) {
-          if (tmp = querySelectorFromAnchor.call(mrcr, '#always-shown[hidden]:empty')) tmp.removeAttribute('hidden')
-          if (tmp = querySelectorFromAnchor.call(mrcr, '#collapsible[hidden]:empty')) tmp.removeAttribute('hidden')
-        }
-      }
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
+    }
 
-      let mrcr1 = document.querySelector('ytd-watch-metadata.ytd-watch-flexy[modern-metapanel] > ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata')
-      mrcrf(mrcr1);
-      await Promise.resolve(0);
-      let mrcr2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer ytd-metadata-row-container-renderer.style-scope.ytd-video-secondary-info-renderer')
-      mrcrf(mrcr2);
-      await Promise.resolve(0);
+    console.log('[tyt] modern-info-duplicate', (infoDuplicated ? 'Success' : 'Failed'));
 
-      let desc1 = null;
-      let desc2 = document.querySelector('ytd-expander.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer > yt-formatted-string.content.style-scope.ytd-video-secondary-info-renderer[split-lines]:not(:empty)');
-      await Promise.resolve(0);
+    if (g_check_detail_A !== t) return;
 
-      if (desc2 && desc2.firstElementChild === null) {
-        // plainText = true;
-        desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata #plain-snippet-text.ytd-text-inline-expander');
-      }
-      if (!desc1) desc1 = document.querySelector('ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string#formatted-snippet-text.style-scope.ytd-text-inline-expander:not(:empty)');
-      await Promise.resolve(0);
+    //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
+    checkDuplicateRes = infoDuplicated;
 
-      if (desc1) {
-        let parentContainer = req.descMetaLines;
-        // hidden
+    return 5; // other than 5, duplicated check = false
 
-        // example video
-        // https://www.youtube.com/watch?v=R65uouhSYJ0
-
-        if (parentContainer) {
-
-          let m = querySelectorFromAnchor.call(parentContainer, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata yt-formatted-string[split-lines].ytd-text-inline-expander');
-
-          if (m) {
-
-            if (m.hasAttribute('hidden')) {
-
-              let expandBtn = querySelectorFromAnchor.call(parentContainer, 'tp-yt-paper-button#expand.ytd-text-inline-expander:not([hidden])');
-
-              if (expandBtn) {
-
-                expandBtn.click();
-                await new Promise(r => setTimeout(r, 30));
-                if (!m.hasAttribute('hidden')) desc1 = m;
-              }
-
-            } else {
-
-              desc1 = m;
-
-            }
-
-          }
-
-        }
-      }
-
-      //console.log(desc1, desc2)
-
-      let infoDuplicated = true;
-
-      let mb1 = null, mb2 = null;
-
-      if (desc2 === null && desc1 !== null && desc1.textContent === '') {
-        // example: https://www.youtube.com/watch?v=l9m3OpH9pbI
-        desc1 = null
-      }
-
-      if ((desc1 === null) ^ (desc2 === null)) {
-        infoDuplicated = false;
-      } else if ((mrcr1 === null) ^ (mrcr2 === null)) {
-        infoDuplicated = false;
-      } else {
-
-        await Promise.all([
-
-          (mrcr1 !== mrcr2 && mrcr1 !== null && mrcr2 !== null) ?
-            checkDuplicatedInfoContentEqual(mrcr1, mrcr2).then((o) => {
-              //console.log('mrcr', o.res)
-              let { res, pNodeA, pNodeB } = o;
-              mb1 = res;
-
-              if (res !== true) infoDuplicated = false;
-            }) : null,
-
-          (desc1 !== desc2 && desc1 !== null && desc2 !== null) ?
-            checkDuplicatedInfoContentEqual(desc1, desc2).then((o) => {
-              //console.log('desc', o.res)
-              let { res, pNodeA, pNodeB } = o;
-              mb2 = res;
-
-              if (!mb2) {
-                // console.log('mb2', desc1, desc2, desc1.textContent, desc2.textContent)
-              }
-
-              if (res !== true) infoDuplicated = false;
-
-            }) : null
-
-        ]);
-
-      }
-      req = null;
-
-      console.log('[tyt] modern-info-duplicate', `(r, b1, b2) = (${infoDuplicated ? 1 : 0}, ${mb1 ? 1 : 0}, ${mb2 ? 1 : 0})`, `${infoDuplicated && mb1 && mb2 ? 'Success' : 'Failed'}`)
-
-      if (g_check_detail_A !== t) return;
-
-      //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
-      checkDuplicateRes = infoDuplicated;
-
-      return 5; // other than 5, duplicated check = false
-
-    };
-
-
-    return checkDuplicatedInfoInner();
-
-
-  }
-
+  };
 
   function setupChatFrameDOM(node) {
     // this function calls 3 times per each new video page
@@ -4593,12 +4539,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             try{
 
                 
-              let req = {
-                descExpandState,
-                descMetaExpander,
-                descToggleBtn,
-                descMetaLines
-              }
 
               do {
 
@@ -4607,7 +4547,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 if (checkDuplicateRes === true) break;
                 checkDuplicateRes = null;
 
-                let res = await checkDuplicatedInfo(req); //async
+                let res = await checkDuplicatedInfo(); //async
                 if (res === 5) {
 
                   const ytdFlexyElm = es.ytdFlexy;
@@ -4645,7 +4585,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               }
 
               
-              req = null;
 
 
             }catch(e){
