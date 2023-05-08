@@ -2338,39 +2338,6 @@ function injection_script_1() {
   let translateHanlder = null;
 
   
-  function makePropsForComments(){
-      
-    const ytdCommentsP = customElements.get('ytd-comments').prototype;
-
-    // dataChanged_ for cache update
-    // const ytdCommentsP = customElements.get('ytd-comments').prototype;
-    if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
-      ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
-      ytdCommentsP.dataChanged_=function(){
-        this.tytDataChanged_();
-        const hasData = (((this.__data||0).data||0).contents||0)!==0;
-        // console.log(this.__data.data, hasData)
-        if(hasData){
-          const sections = ((this.$||0).sections||0);
-          if(sections && 'triggerInitialContinuations' in sections){
-            sections.triggerInitialContinuations();
-            // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
-          }
-        }
-        this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', {detail: {hasData}}));
-      }
-    }
-    
-      // headerChanged_ - new method to fetch comments count
-    if(typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)){
-      ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
-      ytdCommentsP.headerChanged_=function(){
-        this.tytHeaderChanged_();
-        this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
-      }
-    }
-    
-  }
 
   /*
 
@@ -2430,7 +2397,7 @@ function injection_script_1() {
           let funcs = delayPropsSetupFuncMap.get(constructor);
           delayPropsSetupFuncMap.set(constructor || null, null);
           for (const func of funcs) {
-            func(this); // provide the first constructed element for reference only
+            func(this.constructor.prototype); // provide the first constructed element for reference only
           }
           funcs.length=0;
         } catch (e) {
@@ -2443,24 +2410,6 @@ function injection_script_1() {
     }
     if(!funcs) return console.warn('[tyt] delay prototype injection not allowed.')
     return funcs;
-  }
-
-
-
-  const defineCommentsChangedMethods = ()=>{
-    // ceHack
-    const ytdCommentsP = customElements.get('ytd-comments').prototype;
-
-    if(typeof ytdCommentsP._initializeProperties == 'function' && !('_tytInitializeProperties' in ytdCommentsP)){
-
-      ytdCommentsP._tytInitializeProperties = ytdCommentsP._initializeProperties;
-      ytdCommentsP._initializeProperties=function(){
-        this._tytInitializeProperties();
-        makePropsForComments();
-      }
-      
-    }
-
   }
 
   function ceHack(evt) {
@@ -2478,10 +2427,27 @@ function injection_script_1() {
       if(!proto) console.warn('[tyt] proto is invalid.');
       if(newKey in proto) return;
       if(oriKey in proto){
-        let v = proto[oriKey];
-        proto[newKey] = v;
+        let v = proto[oriKey]; // keep the value before property defined
+        Object.defineProperty(proto, oriKey, attributes);
+        proto[newKey] = v; // call setter in defined property
+      }else{
+        Object.defineProperty(proto, oriKey, attributes);
       }
-      Object.defineProperty(proto, oriKey, attributes);
+    }
+    
+
+    const postKeyAssignment = (ytElmTag, propKey, f)=>{
+      
+      const ceElmConstrcutor = customElements.get(ytElmTag);
+      const proto = ((ceElmConstrcutor||0).prototype||0);
+      if(proto && (propKey in proto)){
+        f(proto);
+      }else if(proto && ('_initializeProperties' in proto)){
+        delayPropsSetup(proto).push(f);
+      }else{
+        console.warn('[tyt] postKeyAssignment is not supported.');
+      }
+
     }
 
     let s1 = Symbol();
@@ -2513,26 +2479,54 @@ function injection_script_1() {
     
 
     ceElmConstrcutor = customElements.get('ytd-expander');
-    ceElmConstrcutor&&Object.defineProperty(ceElmConstrcutor.prototype, 'recomputeOnResize', {
-      get() {
-        if (this.calculateCanCollapse !== funcCanCollapse) {
-          this.calculateCanCollapse = funcCanCollapse
-          if (insObserver) insObserver.observe(this)
-        }
-        return this[s1];
-      },
-      set(nv) {
-        if (this.calculateCanCollapse !== funcCanCollapse) {
-          this.calculateCanCollapse = funcCanCollapse
-          if (insObserver) insObserver.observe(this)
-        }
-        if (nv === false) nv = true;
-        // console.log(591);
-        this[s1] = nv;
-      },
-      enumerable: false,
-      configurable: false // if redefine by YouTube, error comes and change the coding
-    });
+    // ceElmConstrcutor&&defineValuable(ceElmConstrcutor.prototype, 'recomputeOnResize', s1, {
+    //   get() {
+    //     if (this.calculateCanCollapse !== funcCanCollapse) {
+    //       this.calculateCanCollapse = funcCanCollapse
+    //       if (insObserver) insObserver.observe(this)
+    //     }
+    //     return this[s1];
+    //   },
+    //   set(nv) {
+    //     if (this.calculateCanCollapse !== funcCanCollapse) {
+    //       this.calculateCanCollapse = funcCanCollapse
+    //       if (insObserver) insObserver.observe(this)
+    //     }
+    //     if (nv === false) nv = true;
+    //     // console.log(591);
+    //     this[s1] = nv;
+    //   },
+    //   enumerable: false,
+    //   configurable: false // if redefine by YouTube, error comes and change the coding
+    // });
+
+
+    postKeyAssignment('ytd-expander', 'recomputeOnResize', (proto)=>{
+      // recomputeOnResize is just value assignment after "_initializeProperties()"
+
+      defineValuable(proto, 'recomputeOnResize', s1, {
+        get() {
+          if (this.calculateCanCollapse !== funcCanCollapse) {
+            this.calculateCanCollapse = funcCanCollapse
+            if (insObserver) insObserver.observe(this) // throw TypeError if get from prototype.
+          }
+          return this[s1];
+        },
+        set(nv) {
+          if (this.calculateCanCollapse !== funcCanCollapse) {
+            this.calculateCanCollapse = funcCanCollapse
+            if (insObserver) insObserver.observe(this)
+          }
+          if (nv === false) nv = true;
+          // console.log(591);
+          this[s1] = nv;
+        },
+        enumerable: false,
+        configurable: false // if redefine by YouTube, error comes and change the coding
+      });
+
+    })
+
     
     // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // error
 
@@ -2547,29 +2541,34 @@ function injection_script_1() {
     })
 
     ceElmConstrcutor = customElements.get('ytd-transcript-search-panel-renderer');
-    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
-      get() {
-        return this.__$$initialTranscriptsRenderer$$__
-      },
-      set(nv) {
-        try {
-
-          if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
-            nv[s6] = true;
-
-            if (translateHanlder !== null) {
-              nv.initialSegments = translateHanlder(nv.initialSegments)
+    
+    postKeyAssignment('ytd-transcript-search-panel-renderer', 'initialTranscriptsRenderer', (proto)=>{
+      // initialTranscriptsRenderer is just value assignment after "_initializeProperties()"
+      defineValuable(proto, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
+        get() {
+          return this.__$$initialTranscriptsRenderer$$__
+        },
+        set(nv) {
+          try {
+  
+            if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
+              nv[s6] = true;
+  
+              if (translateHanlder !== null) {
+                nv.initialSegments = translateHanlder(nv.initialSegments)
+              }
             }
+  
+          } catch (e) {
+            console.log('Tabview Error', e)
           }
-
-        } catch (e) {
-          console.log('Tabview Error', e)
-        }
-        this.__$$initialTranscriptsRenderer$$__ = nv;
-      },
-      enumerable: false,
-      configurable: false // if redefine by YouTube, error comes and change the coding
-    })
+          this.__$$initialTranscriptsRenderer$$__ = nv;
+        },
+        enumerable: false,
+        configurable: false // if redefine by YouTube, error comes and change the coding
+      })
+    });
+    
 
 
 
@@ -2607,28 +2606,12 @@ function injection_script_1() {
 
     */
 
-
-    ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
-    if (ceElmConstrcutor && 'postToContentWindow' in ceElmConstrcutor.prototype) {
-
+    postKeyAssignment('ytd-live-chat-frame', 'postToContentWindow', (proto)=>{
+      // postToContentWindow is property defined during "_initializeProperties()"
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-      const proto = ceElmConstrcutor.prototype;
       proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
       proto.postToContentWindow = g_postToContentWindow;
-
-    } else {
-
-      ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(() => {
-
-        const ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
-        const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-        const proto = ceElmConstrcutor.prototype;
-        proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
-        proto.postToContentWindow = g_postToContentWindow;
-
-      })
-
-    }
+    });
 
 
 
@@ -2638,19 +2621,23 @@ function injection_script_1() {
     let mutObserverChipCloud = getMutObserverChipCloud();
     // yt-chip-cloud-renderer
     ceElmConstrcutor = customElements.get('yt-chip-cloud-renderer');
-    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'boundChipCloudChipScrollIntoView', s32, {
-      get() {
-        return this[s32];
-      },
-      set(nv) {
-        if (insObserverChipCloud) insObserverChipCloud.observe(this);
-        if (mutObserverChipCloud) mutObserverChipCloud.observe(this, {
-          attributes: false, childList: true, subtree: true
-        });
-        this[s32] = nv;
-      },
-      enumerable: false,
-      configurable: false // if redefine by YouTube, error comes and change the coding
+    
+    postKeyAssignment('yt-chip-cloud-renderer', 'boundChipCloudChipScrollIntoView', (proto)=>{
+      // boundChipCloudChipScrollIntoView is just value assignment after "_initializeProperties()"
+      defineValuable(proto, 'boundChipCloudChipScrollIntoView', s32, {
+        get() {
+          return this[s32];
+        },
+        set(nv) {
+          if (insObserverChipCloud) insObserverChipCloud.observe(this);
+          if (mutObserverChipCloud) mutObserverChipCloud.observe(this, {
+            attributes: false, childList: true, subtree: true
+          });
+          this[s32] = nv;
+        },
+        enumerable: false,
+        configurable: false // if redefine by YouTube, error comes and change the coding
+      });
     });
 
 
@@ -2681,8 +2668,39 @@ function injection_script_1() {
 
     // dataChanged_ & headerChanged_ for comments counting update
     ceElmConstrcutor = customElements.get('ytd-comments'); 
-    ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(function () {
-      makePropsForComments();
+    
+    postKeyAssignment('ytd-comments', 'headerChanged_', (ytdCommentsP)=>{
+      // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
+
+      // dataChanged_ for cache update & clear cached count
+      // const ytdCommentsP = customElements.get('ytd-comments').prototype;
+      if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
+        ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
+        ytdCommentsP.dataChanged_=function(){
+          this.tytDataChanged_();
+          const hasData = (((this.__data||0).data||0).contents||0)!==0;
+          // console.log(this.__data.data, hasData)
+          if(hasData){
+            const sections = ((this.$||0).sections||0);
+            if(sections && 'triggerInitialContinuations' in sections){
+              sections.triggerInitialContinuations();
+              // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+            }
+          }
+          this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', {detail: {hasData}}));
+        }
+      }
+      
+        // headerChanged_ - new method to fetch comments count
+      if(typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)){
+        ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
+        ytdCommentsP.headerChanged_=function(){
+          this.tytHeaderChanged_();
+          this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+        }
+      }
+      
+  
     });
 
     document.addEventListener('tabview-fix-popup-refit', function () {
@@ -3584,7 +3602,6 @@ function injection_script_1() {
 
   document.addEventListener('tabview-page-rendered', () => {
     // reserved
-    // defineCommentsChangedMethods();
   });
 
 
