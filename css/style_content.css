@@ -3754,6 +3754,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     /* 2022/11/07 - playlist no round radius */
     body ytd-playlist-panel-renderer[modern-panels]:not([within-miniplayer]) #container.ytd-playlist-panel-renderer {
+        /* including both .ytd-miniplayer & .ytd-watch-flexy ? */
         border-radius: 0;
     }
 
@@ -4776,13 +4777,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         #description-and-actions.style-scope.ytd-watch-metadata>#description ytd-text-inline-expander:not([tabview-removed-duplicate]) {
             visibility: collapse;
         }
-
-        /*
-        .tabview-no-duplicate-info ytd-text-inline-expander #extra-content.style-scope.ytd-watch-metadata,
-        .tabview-no-duplicate-info ytd-text-inline-expander:not([is-expanded]) tp-yt-paper-button#collapse,
-        .tabview-no-duplicate-info ytd-text-inline-expander [slot="extra-content"].style-scope.ytd-watch-metadata {
-            display: none;
-        }*/
 
         /**  ==== for Teaser UI  ===  */
 

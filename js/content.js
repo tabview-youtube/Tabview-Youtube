@@ -4022,7 +4022,7 @@ async function checkDuplicatedInfoMay2023() {
                   }
               }
 
-              if (currentNode.matches("tp-yt-paper-button#collapse")) {
+              if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
                   // break;
                   continue;
               }
@@ -4048,7 +4048,9 @@ async function checkDuplicatedInfoMay2023() {
 
   function isSubset(arr1, arr2) {
     const set = new Set(arr2);
-    return arr1.every(item => set.has(item));
+    const r = arr1.every(item => set.has(item));
+    set.clear();
+    return r;
   }
 
   return isSubset(firstElementTextArr, secondElementTextArr);
@@ -4062,6 +4064,11 @@ async function checkDuplicatedInfoMay2023() {
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return; //unlikely
+
+    const targetDuplicatedInfoPanel = document.querySelector('ytd-text-inline-expander#description-inline-expander:not([hidden])');
+    if (targetDuplicatedInfoPanel && !targetDuplicatedInfoPanel.closest('[hidden]')) { } else {
+      return; // the layout is not required to have this checking.
+    }
 
     let t = Date.now();
     g_check_detail_A = t;
@@ -4077,7 +4084,7 @@ async function checkDuplicatedInfoMay2023() {
 
 
       let clicked = false;
-      await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand')].map(button => {
+      await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
         return new Promise(r => {
           button.click();
           clicked = true;
@@ -4091,7 +4098,7 @@ async function checkDuplicatedInfoMay2023() {
 
       if(infoDuplicated === false && clicked){
 
-        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse')].map(button => {
+        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
           return new Promise(r => {
             button.click();
             r();
@@ -4105,7 +4112,7 @@ async function checkDuplicatedInfoMay2023() {
       ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
     }
 
-    console.log('[tyt] modern-info-duplicate', (infoDuplicated ? 'Success' : 'Failed'));
+    console.log('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
 
     if (g_check_detail_A !== t) return;
 
@@ -4521,7 +4528,7 @@ async function checkDuplicatedInfoMay2023() {
               descMetaLines = querySelectorFromAnchor.call(descMetaExpander, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata')
               if (descMetaLines) {
 
-                descToggleBtn = querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+                descToggleBtn = querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
                 if (descToggleBtn) {
                   if (descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id === 'expand') {
                     descExpandState = false;
@@ -4570,7 +4577,7 @@ async function checkDuplicatedInfoMay2023() {
 
               await Promise.resolve(0)
 
-              descToggleBtn = descMetaLines ? querySelectorFromAnchor.call(descMetaLines, 'tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])') : null;
+              descToggleBtn = descMetaLines ? querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])') : null;
               if (descToggleBtn) {
 
                 let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
@@ -7323,10 +7330,18 @@ async function checkDuplicatedInfoMay2023() {
   });
 
   // new comment count fetch way
-  document.addEventListener('ytd-comments-data-changed', function(){
+  document.addEventListener('ytd-comments-data-changed', function (evt) {
     // if(pageType === 'watch'){}else{return;}
+    const hasData = (evt.detail || 0).hasData;
+    if (!hasData) {
+      // this is much effective to clear the counting text
+      emptyCommentSection();
+    }
     resultCommentsCountCaching(innerDOMCommentsCountLoader());
     checkAndMakeNewCommentFetch();
+    if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
+      window.dispatchEvent(new Event("scroll"));
+    }
     // comments_loader = comments_loader | 2;
   }, true);
   document.addEventListener('ytd-comments-header-changed', function(){

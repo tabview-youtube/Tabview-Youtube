@@ -3,13 +3,20 @@
 function injection_script_1() {
   "use strict";
 
-  if (!window || !window.IntersectionObserver || !window.Symbol) throw 'Your browser does not support Tabview userscript.';
+  if (!window || !window.IntersectionObserver || !window.Symbol) throw 'Please update your browser to use Tabview Youtube.';
 
+  try{
+    const test = async ()=>{};
+    test() instanceof Promise;
+  }catch(e){
+    throw 'Please update your browser to use Tabview Youtube.';
+  }
   
   if(document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')){
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
     return;
   }
+
 
   document.documentElement.setAttribute('tabview-unwrapjs', '')
 
@@ -31,7 +38,6 @@ function injection_script_1() {
   const DEBUG_e32 = false;
 
   let _ceHack_calledOnce = false;
-  let cid_teaserInfo = 0;
   let isLoadStartListened = false;
 
 
@@ -1778,97 +1784,6 @@ function injection_script_1() {
       }));
     }
 
-    /*
-    function translateV2(initialSegments){
-
-      let res = []
-      
-      let textCache = new Map();
-
-      for (const initialSegment of initialSegments) {
-        const transcript = (initialSegment || 0).transcriptSegmentRenderer;
-        if (!transcript) continue;
-
-        const runs = transcript.snippet.runs
-        if (!runs || runs.length === 0) {
-          continue;
-        }
-
-
-        let startMs = (+transcript.startMs || 0); //integer
-        let endMs = (+transcript.endMs || 0); //integer
-
-
-        let text = snippetText(transcript.snippet);
-
-        let tc = textCache.get(text);
-
-        if(!tc){
-
-          tc =  {
-            segment: initialSegment,
-            startMs: startMs,
-            endMs: endMs
-          }
-
-          textCache.set(text,tc);
-          res.push(tc);
-          
-        }else{
-
-          if(startMs - tc.endMs < 450){
-            tc.endMs =endMs;
-          }else{
-
-            tc = {
-              segment: initialSegment,
-              startMs: startMs,
-              endMs: endMs
-            }
-            res.push(tc);
-            textCache.set(text, tc);
-
-          }
-
-        }
-
-
-      }
-
-      let sType = null;
-      let fRes = [];
-      for(const entry of res) {
-
-        const transcript = entry.segment.transcriptSegmentRenderer;
-
-        let duration = entry.endMs - entry.startMs
-
-        if(duration>450){
-
-          if(!sType) sType = typeof transcript.startMs;
-          transcript.startMs =  sType=='string'?`${entry.startMs}`:entry.startMs;
-          transcript.endMs =  sType=='string'?`${entry.endMs}`:entry.endMs;
-  
-          const runs = transcript.snippet.runs
-  
-          
-          for (const s of runs) {
-            s.text = _snippetText(s.text);
-          }
-
-          fRes.push( entry.segment );
-        }
-
-
-      }
-
-
-      console.log(res)
-      return fRes;
-
-    }
-    */
-
     function translate(initialSegments) {
 
       if (!initialSegments) return initialSegments;
@@ -2433,7 +2348,16 @@ function injection_script_1() {
       ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
       ytdCommentsP.dataChanged_=function(){
         this.tytDataChanged_();
-        this.dispatchEvent(new CustomEvent('ytd-comments-data-changed'));
+        const hasData = (((this.__data||0).data||0).contents||0)!==0;
+        // console.log(this.__data.data, hasData)
+        if(hasData){
+          const sections = ((this.$||0).sections||0);
+          if(sections && 'triggerInitialContinuations' in sections){
+            sections.triggerInitialContinuations();
+            // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+          }
+        }
+        this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', {detail: {hasData}}));
       }
     }
     
@@ -2447,6 +2371,79 @@ function injection_script_1() {
     }
     
   }
+
+  /*
+
+  const initializePropertiesFuncMap = new WeakMap();
+  const initializePropertiesInjection = (proto) => {
+    if (!('_initializeProperties' in proto)) return console.warn('[tyt] no _initializeProperties is found in proto');
+    const _initializeProperties = proto._initializeProperties; // make a copy in this nested closure.
+    const constructor = proto.constructor||null;
+    if(!constructor) return console.warn('[tyt] no constructor is found in proto');
+    if (typeof _initializeProperties !== 'function') return console.warn('[tyt] proto._initializeProperties is not a function');
+    let funcs = initializePropertiesFuncMap.get(constructor);
+    if(!funcs){
+      const injector = function (...args) {
+        let res = _initializeProperties.call(this, ...args); // normally shall be undefined with no arguments
+        let execute = !('__tytPropsInitialized__' in this);
+        if(execute){
+          this.__tytPropsInitialized__ = true; // just in case it might be called more than one time.
+          try {
+            let funcs = initializePropertiesFuncMap.get(this.constructor || null);
+            for (const func of funcs) {
+              func(this);
+            }
+          } catch (e) {
+            console.warn(e);
+          }
+        }
+        return res;
+      }
+      initializePropertiesFuncMap.set(constructor, funcs = []);
+      proto._initializeProperties = injector;
+    }
+    return funcs;
+  }
+
+  */
+
+
+  const delayPropsSetupFuncMap = new WeakMap();
+  const delayPropsSetup = (proto) => { // delay prototype injection
+    if (!('_initializeProperties' in proto)) return console.warn('[tyt] no _initializeProperties is found in proto');
+    let _initializeProperties = proto._initializeProperties; // make a copy in this nested closure.
+    const constructor = proto.constructor||null;
+    if(!constructor) return console.warn('[tyt] no constructor is found in proto');
+    if (typeof _initializeProperties !== 'function') return console.warn('[tyt] proto._initializeProperties is not a function');
+    let funcs = delayPropsSetupFuncMap.get(constructor);
+    if(!delayPropsSetupFuncMap.has(constructor)){
+      const injector = function (...args) {
+        const f = _initializeProperties;
+        _initializeProperties = null;
+        if(!f) return console.warn('[tyt] _initializeProperties has already been reset.');
+        try {
+          const constructor = this.constructor || null;
+          constructor.prototype._initializeProperties = f;
+          let funcs = delayPropsSetupFuncMap.get(constructor);
+          delayPropsSetupFuncMap.set(constructor || null, null);
+          for (const func of funcs) {
+            func(this); // provide the first constructed element for reference only
+          }
+          funcs.length=0;
+        } catch (e) {
+          console.warn(e);
+        }
+        let res = f.call(this, ...args); // normally shall be undefined with no arguments
+        return res;
+      }
+      delayPropsSetupFuncMap.set(constructor, funcs = []);
+      proto._initializeProperties = injector;
+    }
+    if(!funcs) return console.warn('[tyt] delay prototype injection not allowed.')
+    return funcs;
+  }
+
+
 
   const defineCommentsChangedMethods = ()=>{
     // ceHack
@@ -2470,11 +2467,13 @@ function injection_script_1() {
     _ceHack_calledOnce = true;
     console.log('[tyt] ce-hack')
 
-    if (typeof customElements === 'undefined') throw 'Your browser does not support Tabview userscript.';
+    if (typeof customElements === 'undefined') throw '[tyt] Your browser does not support Tabview userscript.';
     // note: YouTube implements its on window.customElements when it detects the browser is old.
 
-    
+    let ceElmConstrcutor;
+
     const defineValuable = (proto, oriKey, newKey, attributes) => {
+      if(!proto) console.warn('[tyt] proto is invalid.');
       if(newKey in proto) return;
       if(oriKey in proto){
         let v = proto[oriKey];
@@ -2504,7 +2503,15 @@ function injection_script_1() {
 
     let insObserver = getInsObserver();
 
-    Object.defineProperty(customElements.get('ytd-expander').prototype, 'recomputeOnResize', {
+    // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // undefined
+
+    // delayPropsSetup(customElements.get('ytd-expander').prototype).push( ()=>{
+    //   console.log(592, customElements.get('ytd-expander').prototype.recomputeOnResize); // 592 -> 591 ...
+    // })
+    
+
+    ceElmConstrcutor = customElements.get('ytd-expander');
+    ceElmConstrcutor&&Object.defineProperty(ceElmConstrcutor.prototype, 'recomputeOnResize', {
       get() {
         if (this.calculateCanCollapse !== funcCanCollapse) {
           this.calculateCanCollapse = funcCanCollapse
@@ -2518,11 +2525,14 @@ function injection_script_1() {
           if (insObserver) insObserver.observe(this)
         }
         if (nv === false) nv = true;
+        // console.log(591);
         this[s1] = nv;
       },
       enumerable: false,
       configurable: false // if redefine by YouTube, error comes and change the coding
     });
+    
+    // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // error
 
 
     const s6 = Symbol();
@@ -2534,7 +2544,8 @@ function injection_script_1() {
         translateHanlder = getTranslate();
     })
 
-    defineValuable(customElements.get('ytd-transcript-search-panel-renderer').prototype, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
+    ceElmConstrcutor = customElements.get('ytd-transcript-search-panel-renderer');
+    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
       get() {
         return this.__$$initialTranscriptsRenderer$$__
       },
@@ -2544,12 +2555,9 @@ function injection_script_1() {
           if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
             nv[s6] = true;
 
-            //console.log(955, 'translate')
-            //console.log(343,JSON.parse(JSON.stringify(nv)), nv.initialSegments.length)
             if (translateHanlder !== null) {
               nv.initialSegments = translateHanlder(nv.initialSegments)
             }
-            //console.log(344,nv, nv.initialSegments.length)
           }
 
         } catch (e) {
@@ -2562,12 +2570,17 @@ function injection_script_1() {
     })
 
 
+
+
+    /*
+
     let trial55 = 20;
     let cid55 = 0;
 
     const func55 = () => {
       // false = continue
       let frameCE_prototype = customElements.get('ytd-live-chat-frame').prototype;
+      console.log(3434,frameCE_prototype,  frameCE_prototype.postToContentWindow )
       //p&&(p.configurable=!0,Object.defineProperty(a,m,p))}}
 
       if (frameCE_prototype && !frameCE_prototype.__$$postToContentWindow$$__ && typeof frameCE_prototype.postToContentWindow == 'function') {
@@ -2590,13 +2603,31 @@ function injection_script_1() {
 
     if (!func55()) cid55 = setInterval(func55, 150);
 
+    */
+
+
+    ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
+    let postToContentWindowModified = null;
+    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'postToContentWindow', '__$$postToContentWindow$$__', {
+      get() {
+        if(postToContentWindowModified === null) postToContentWindowModified = ytLivePU.getFunc_postToContentWindow();
+        return postToContentWindowModified;
+      },
+      set(nv) {
+        this.__$$postToContentWindow$$__ = nv;
+      },
+      enumerable: false,
+      configurable: false // if redefine by YouTube, error comes and change the coding
+    })
+
 
 
     let s32 = Symbol();
     let insObserverChipCloud = getInsObserverChipCloud();
     let mutObserverChipCloud = getMutObserverChipCloud();
     // yt-chip-cloud-renderer
-    defineValuable(customElements.get('yt-chip-cloud-renderer').prototype, 'boundChipCloudChipScrollIntoView', s32, {
+    ceElmConstrcutor = customElements.get('yt-chip-cloud-renderer');
+    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'boundChipCloudChipScrollIntoView', s32, {
       get() {
         return this[s32];
       },
@@ -2612,22 +2643,36 @@ function injection_script_1() {
     });
 
 
-    
-    /*
-let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of Object.keys(wp)){
-    try{
-    if (typeof  wp[s] == 'function') {
-        ww[s] = wp[s]; }
-    }catch(e){}
-} */
+    window.exposeCE = function (tag) {
 
+      let ww = {}, wp = customElements.get(tag).prototype;
+      for (const s of Object.keys(wp)) {
+        try {
+          if (typeof wp[s] == 'function') {
+            ww[s] = wp[s];
+          }
+        } catch (e) { }
+      }
 
-      // dataChanged_ & headerChanged_ for comments counting update
-    const ytdCommentsP = customElements.get('ytd-comments').prototype;
-    if(ytdCommentsP){
-      
-      defineCommentsChangedMethods(); // just try
+      return ww;
+
     }
+
+    /*
+      let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of Object.keys(wp)){
+          try{
+          if (typeof  wp[s] == 'function') {
+              ww[s] = wp[s]; }
+          }catch(e){}
+      } 
+      */
+
+
+    // dataChanged_ & headerChanged_ for comments counting update
+    ceElmConstrcutor = customElements.get('ytd-comments'); 
+    ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(function () {
+      makePropsForComments();
+    });
 
     document.addEventListener('tabview-fix-popup-refit', function () {
 
@@ -2662,217 +2707,8 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 
       }
 
-    }, false)
-
-    // ((P) => {
-
-    //   let _refit = P.refit;
-    //   let refitFunc = function () {
-    //     if (this.horizontalAlign || this.verticalAlign) {
-    //       if ((this.__restoreFocusNode || 0).matches) {
-    //         let node = this.__restoreFocusNode
-    //         let nodeName = node.nodeName.toUpperCase();
-    //         if (nodeName === 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') {
-    //           if (node.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')) {
-    //             if (this.horizontalAlign) this.horizontalAlign = false;
-    //             if (this.verticalAlign) this.verticalAlign = false;
-    //           }
-    //         }
-    //       }
-    //     }
-    //     if(this.__refit) return this.__refit();
-    //   };
-    //   if (_refit) {
-
-    //     // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
-    //     // reproduction: click watch later without login 
-    //     // without this, the layout coordinates and size (height) of container will become incorrect.
-
-    //     console.log(12355)
-    //     P.__refit = _refit;
-    //     P.refit = refitFunc;
-
-    //   }else{
-
-    //     //let s65 = Symbol();
-
-    //     console.log(12356)
-
-    //     Object.defineProperty(P, 'refit', {
-    //       get() {
-    //         return refitFunc;
-    //       },
-    //       set(nv) {
-    //         this.__refit = nv;
-    //       },
-    //       enumerable: false,
-    //       configurable: false // if redefine by YouTube, error comes and change the coding
-    //     })
-
-    //   }
-    // })(customElements.get('tp-yt-iron-dropdown').prototype);
-
-
-    //     customElements.get('tp-yt-iron-dropdown').prototype.refit=function(){
-
-    //       if(this && this.__restoreFocusNode && this.__restoreFocusNode.matches && this.__restoreFocusNode.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')){
-
-    //         var a = this.sizingTarget.scrollLeft
-    //         , b = this.sizingTarget.scrollTop;
-    //         this.resetFit();
-    //         if(this.horizontalAlign) this.horizontalAlign= false;
-    //         if(this.verticalAlign) this.verticalAlign= false;
-
-    //         /*
-
-
-    //         fit: function() {
-    //             this.position();
-    //             this.constrain();
-    //             this.center()
-    //         },
-
-    //         center: function() {
-    //             if (!this.__shouldPosition) {
-    //                 this._discoverInfo();
-    //                 var a = this._fitInfo.positionedBy;
-    //                 if (!a.vertically || !a.horizontally) {
-    //                     this.style.position = "fixed";
-    //                     a.vertically || (this.style.top = "0px");
-    //                     a.horizontally || (this.style.left = "0px");
-    //                     var b = this.getBoundingClientRect()
-    //                       , c = this.__getNormalizedRect(this.fitInto);
-    //                     a.vertically || (this.style.top = c.top - b.top + (c.height - b.height) / 2 + "px");
-    //                     a.horizontally || (this.style.left = c.left - b.left + (c.width - b.width) / 2 + "px")
-    //                 }
-    //             }
-    //         },
-    //         __getNormalizedRect: function(a) {
-    //             return a === document.documentElement || a === window ? {
-    //                 top: 0,
-    //                 left: 0,
-    //                 width: window.innerWidth,
-    //                 height: window.innerHeight,
-    //                 right: window.innerWidth,
-    //                 bottom: window.innerHeight
-    //             } : a.getBoundingClientRect()
-    //         },
-
-    //         */
-
-    // /*
-
-    //        position: function() {
-    //             if (this.__shouldPosition) {
-    //                 this._discoverInfo();
-    //                 window.ShadyDOM && window.ShadyDOM.flush();
-    //                 this.style.position = "fixed";
-    //                 this.sizingTarget.style.boxSizing = "border-box";
-    //                 this.style.left = "0px";
-    //                 this.style.top = "0px";
-    //                 var a = this.getBoundingClientRect()
-    //                   , b = this.__getNormalizedRect(this.positionTarget)
-    //                   , c = this.__getNormalizedRect(this.fitInto);
-    //                 if (this.expandSizingTargetForScrollbars) {
-    //                     var d = this.sizingTarget.offsetWidth;
-    //                     var f = this.sizingTarget.offsetHeight;
-    //                     var h = this.sizingTarget.clientWidth;
-    //                     var l = this.sizingTarget.clientHeight
-    //                 }
-    //                 var n = this._fitInfo.margin;
-    //                 b = this.__getPosition(this._localeHorizontalAlign, this.verticalAlign, {
-    //                     width: a.width + n.left + n.right,
-    //                     height: a.height + n.top + n.bottom
-    //                 }, a, b, c);
-    //                 var p = b.left + n.left
-    //                   , r = b.top + n.top
-    //                   , x = Math.min(c.right - n.right, p + a.width)
-    //                   , D = Math.min(c.bottom - n.bottom, r + a.height);
-    //                 p = Math.max(c.left + n.left, Math.min(p, x - this._fitInfo.sizedBy.minWidth));
-    //                 r = Math.max(c.top + n.top, Math.min(r, D - this._fitInfo.sizedBy.minHeight));
-    //                 x = Math.max(x - p, this._fitInfo.sizedBy.minWidth);
-    //                 D = Math.max(D - r, this._fitInfo.sizedBy.minHeight);
-    //                 this.sizingTarget.style.maxWidth = x + "px";
-    //                 this.sizingTarget.style.maxHeight = D + "px";
-    //                 p -= a.left;
-    //                 a = r - a.top;
-    //                 this.style.left = p + "px";
-    //                 this.style.top = a + "px";
-    //                 if (this.expandSizingTargetForScrollbars) {
-    //                     r = this.sizingTarget.offsetHeight;
-    //                     f = r - this.sizingTarget.clientHeight - (f - l);
-    //                     if (0 < f) {
-    //                         this.sizingTarget.style.maxHeight = Math.min(c.height - n.top - n.bottom, D + f) + "px";
-    //                         f = this.sizingTarget.offsetHeight;
-    //                         l = f - r;
-    //                         var H;
-    //                         "top" === b.verticalAlign ? H = a : "middle" === b.verticalAlign ? H = a - l / 2 : "bottom" === b.verticalAlign && (H = a - l);
-    //                         H = Math.max(c.top + n.top, Math.min(H, c.bottom - n.bottom - f));
-    //                         this.style.top = H + "px"
-    //                     }
-    //                     H = this.sizingTarget.offsetWidth;
-    //                     d = H - this.sizingTarget.clientWidth - (d - h);
-    //                     if (0 < d) {
-    //                         void 0 !== Bsb ? h = Bsb : (h = document.createElement("div"),
-    //                         Object.assign(h.style, {
-    //                             overflow: "auto",
-    //                             position: "fixed",
-    //                             left: "0px",
-    //                             top: "0px",
-    //                             maxWidth: "100px",
-    //                             maxHeight: "100px"
-    //                         }),
-    //                         f = document.createElement("div"),
-    //                         f.style.width = "200px",
-    //                         f.style.height = "200px",
-    //                         h.appendChild(f),
-    //                         document.body.appendChild(h),
-    //                         Bsb = 1 < Math.abs(h.offsetWidth - 100) ? h.offsetWidth - h.clientWidth : 0,
-    //                         document.body.removeChild(h),
-    //                         h = Bsb);
-    //                         this.sizingTarget.style.maxWidth = Math.min(c.width - n.left - n.right, x + d - h) + "px";
-    //                         x = this.sizingTarget.offsetWidth + h;
-    //                         d = x - H;
-    //                         var L;
-    //                         "left" === b.horizontalAlign ? L = p : "center" === b.horizontalAlign ? L = p - d / 2 : "right" === b.horizontalAlign && (L = p - d);
-    //                         L = Math.max(c.left + n.left, Math.min(L, c.right - n.right - x));
-    //                         this.style.left = L + "px"
-    //                     }
-    //                 }
-    //             }
-    //         },
-    //         constrain: function() {
-    //             if (!this.__shouldPosition) {
-    //                 this._discoverInfo();
-    //                 var a = this._fitInfo;
-    //                 a.positionedBy.vertically || (this.style.position = "fixed",
-    //                 this.style.top = "0px");
-    //                 a.positionedBy.horizontally || (this.style.position = "fixed",
-    //                 this.style.left = "0px");
-    //                 this.sizingTarget.style.boxSizing = "border-box";
-    //                 var b = this.getBoundingClientRect();
-    //                 a.sizedBy.height || this.__sizeDimension(b, a.positionedBy.vertically, "top", "bottom", "Height");
-    //                 a.sizedBy.width || this.__sizeDimension(b, a.positionedBy.horizontally, "left", "right", "Width")
-    //             }
-    //         },
-
-    //         */
-
-    //         this.fit();
-    //         this.sizingTarget.scrollLeft = a;
-    //         this.sizingTarget.scrollTop = b
-
-    //         return;
-    //       }
-
-    //       var a = this.sizingTarget.scrollLeft
-    //       , b = this.sizingTarget.scrollTop;
-    //       this.resetFit();
-    //       this.fit();
-    //       this.sizingTarget.scrollLeft = a;
-    //       this.sizingTarget.scrollTop = b
-    //     }
-
+    }, false);
+    
 
 
 
@@ -3247,44 +3083,6 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 
   }, true);
 
-
-  document.addEventListener('tabview-no-duplicate-info', function (evt) {
-    DEBUG_e32 && console.log(9442, evt.type);
-
-    if (cid_teaserInfo) {
-      clearInterval(cid_teaserInfo)
-      cid_teaserInfo = 0;
-    }
-    let mid = '';
-
-    cid_teaserInfo = setInterval(() => {
-
-      let lineExpander = document.querySelector('ytd-watch-metadata ytd-text-inline-expander');
-      let [watch_metadata, full, detail, content] = teaserInfoMatchCondition(lineExpander)
-
-      let tid = `${content.length},${full.length},${detail.length}`
-      if (mid === tid) return null;
-      mid = tid;
-
-      let b1 = content.length === full.length && full.length > detail.length && content.length > full.length - detail.length
-
-      if (b1 && textsMatch(full, detail)) {
-
-        let newLen = full.length - detail.length
-
-        if (newLen > 1 && /^\s*[\u2022\u2023\u25E6\u2043\u2219\.\,]?\s*$/.test(content[newLen - 1].text || '0')) newLen--;
-        content.length = newLen
-
-        lineExpander.alwaysShowExpandButton = false;
-
-        lineExpander.resize(true);
-      }
-
-    }, 150);
-
-
-  }, true);
-
   function scGet() {
     let t = this;
     let sc = t._sc.deref();
@@ -3372,7 +3170,7 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
     let dom = evt.target;
     let description = dom.closest('#description')
     if (!description) return;
-    let button = description.querySelector('tp-yt-paper-button#collapse[role="button"]:not([hidden]), tp-yt-paper-button#expand[role="button"]:not([hidden])');
+    let button = description.querySelector('#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
     if (!button) return;
     setTimeout(() => { //setTimeout / raf required - js event issue
       button.click();
@@ -3484,37 +3282,11 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 
             let waiter = new Promise(window.requestAnimationFrame); // avoid frequently update
 
-            /*
-            let lastData = _lastData
-            let cParticipants  = this.participantsManager.participants
-          
-            _lastData = JSON.parse(JSON.stringify(cParticipants))
- 
-
-
-            
-            if(lastData){
-              top.q33 = JSON.parse(JSON.stringify(lastData))
-              top.q34 = JSON.parse(JSON.stringify(cParticipants))
-              // top.p33 = JSON.stringify(lastData)
-              // top.p34 = JSON.stringify(cParticipants)
-
-              console.log(top.p33, top.p34)
-              
-            }
-            */
-
             this.onParticipantsChanged322()
 
             this.showPending322 = false; // refreshed
 
-            // console.log('onParticipantsChanged322')
-
-
             await waiter;
-
-
-
 
           } catch (e) {
             console.warn(e)
@@ -3542,8 +3314,6 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
       // when btn clicked
 
       btn = mWeakRef(btn)
-
-
 
       let cr = kRef(chatroomRenderer)
       if (!cr) return;
@@ -4074,7 +3844,7 @@ let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of 
 
         if (typeof object !== 'object') object = null;
 
-        const once = { once: true };
+        const once = { once: true }; // browsers supporting async function can also use once option.
 
         if (object !== null && !('playlistId' in object)) {
 
@@ -4107,8 +3877,8 @@ rcb(b) => a = playlistId = undefinded
               return '*';
             },
             set(value) {
-              delete this.playlistId;
-              this.playlistId = value;
+              delete this.playlistId; // remove property definition
+              this.playlistId = value; // assign as normal property
             },
             enumerable: false,
             configurable: true
@@ -4148,12 +3918,8 @@ rcb(b) => a = playlistId = undefinded
 
         if (!isLoadStartListened) {
           isLoadStartListened = true;
-
-
           document.addEventListener('loadstart', loadStartFx, true)
-
         }
-
 
         handleNavigate.apply($this, $arguments);
 
