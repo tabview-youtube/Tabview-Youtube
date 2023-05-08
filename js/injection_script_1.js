@@ -2421,6 +2421,9 @@ function injection_script_1() {
         const f = _initializeProperties;
         _initializeProperties = null;
         if(!f) return console.warn('[tyt] _initializeProperties has already been reset.');
+        // prototype have not yet been "Object.defineProperties()"
+        let res = f.call(this, ...args); // normally shall be undefined with no arguments
+        // prototype have been "Object.defineProperties()"
         try {
           const constructor = this.constructor || null;
           constructor.prototype._initializeProperties = f;
@@ -2433,7 +2436,6 @@ function injection_script_1() {
         } catch (e) {
           console.warn(e);
         }
-        let res = f.call(this, ...args); // normally shall be undefined with no arguments
         return res;
       }
       delayPropsSetupFuncMap.set(constructor, funcs = []);
