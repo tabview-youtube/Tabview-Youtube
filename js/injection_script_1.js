@@ -2611,16 +2611,18 @@ function injection_script_1() {
     if (ceElmConstrcutor && 'postToContentWindow' in ceElmConstrcutor.prototype) {
 
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-      ceElmConstrcutor.__$$postToContentWindow$$__ = ceElmConstrcutor.postToContentWindow;
-      ceElmConstrcutor.postToContentWindow = g_postToContentWindow;
+      const proto = ceElmConstrcutor.prototype;
+      proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
+      proto.postToContentWindow = g_postToContentWindow;
 
     } else {
 
       ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(() => {
 
         const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-        ceElmConstrcutor.__$$postToContentWindow$$__ = ceElmConstrcutor.postToContentWindow;
-        ceElmConstrcutor.postToContentWindow = g_postToContentWindow;
+        const proto = ceElmConstrcutor.prototype;
+        proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
+        proto.postToContentWindow = g_postToContentWindow;
 
       })
 
