@@ -2608,17 +2608,24 @@ function injection_script_1() {
 
     ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
     let postToContentWindowModified = null;
-    ceElmConstrcutor && defineValuable(ceElmConstrcutor.prototype, 'postToContentWindow', '__$$postToContentWindow$$__', {
-      get() {
-        if(postToContentWindowModified === null) postToContentWindowModified = ytLivePU.getFunc_postToContentWindow();
-        return postToContentWindowModified;
-      },
-      set(nv) {
-        this.__$$postToContentWindow$$__ = nv;
-      },
-      enumerable: false,
-      configurable: false // if redefine by YouTube, error comes and change the coding
-    })
+    if (ceElmConstrcutor && 'postToContentWindow' in ceElmConstrcutor.prototype) {
+
+      const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
+      ceElmConstrcutor.__$$postToContentWindow$$__ = ceElmConstrcutor.postToContentWindow;
+      ceElmConstrcutor.postToContentWindow = g_postToContentWindow;
+
+    } else {
+
+      ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(() => {
+
+        const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
+        ceElmConstrcutor.__$$postToContentWindow$$__ = ceElmConstrcutor.postToContentWindow;
+        ceElmConstrcutor.postToContentWindow = g_postToContentWindow;
+
+      })
+
+    }
+
 
 
 
