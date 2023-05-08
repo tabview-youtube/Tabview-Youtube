@@ -2607,7 +2607,6 @@ function injection_script_1() {
 
 
     ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
-    let postToContentWindowModified = null;
     if (ceElmConstrcutor && 'postToContentWindow' in ceElmConstrcutor.prototype) {
 
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
@@ -2619,6 +2618,7 @@ function injection_script_1() {
 
       ceElmConstrcutor && delayPropsSetup(ceElmConstrcutor.prototype).push(() => {
 
+        const ceElmConstrcutor = customElements.get('ytd-live-chat-frame');
         const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
         const proto = ceElmConstrcutor.prototype;
         proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
