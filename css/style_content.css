@@ -659,10 +659,47 @@ Same for #secondary
         /* margin-top:30px; */
     }
     ytd-watch-flexy[is-two-columns_][theater] #actions-inner tp-yt-paper-tooltip {
-        inset: initial !important; /* allow go beyond right edge of container */
+        inset: initial !important;  /* allow go beyond right edge of container */
+        transform: translateY(-6px); /* avoid hidden by bottom edge of page */
+        /* transform: translateY(-100%); */
+        /* inset: initial !important; */
+    }
+    
+    ytd-watch-flexy #actions-inner.ytd-watch-metadata tp-yt-paper-tooltip{
+        pointer-events: none !important; /* avoid offset due to cursor */
     }
 }
 
+@supports (color: var(--tabview-fix-menu-icons-sizing)){
+
+    ytd-watch-metadata #actions.item.style-scope.ytd-watch-metadata{
+        justify-content: end !important;
+        display:flex;
+    }
+    html ytd-watch-metadata[flex-menu-enabled] #actions-inner.ytd-watch-metadata {
+        /*width: auto !important;*/ /* override 100% */
+        flex-grow:1;
+    }
+    #sponsor-button.style-scope.ytd-video-owner-renderer {
+        max-width: calc( ( 100% - 40px ) / 2 );
+
+    }
+
+    #sponsor-button.style-scope.ytd-video-owner-renderer  [button-next] {
+        max-width: 100%;
+        
+    }
+
+    #subscribe-button.ytd-watch-metadata {
+        max-width: calc( ( 100% - 40px ) /3 );
+    }
+
+    #subscribe-button.ytd-watch-metadata > ytd-subscribe-button-renderer {
+        max-width: 100%;
+    }
+
+
+}
 
 
 @supports (color: var(--tabview-tab-panel-scrollbar-spacing)){
