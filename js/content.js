@@ -4496,6 +4496,29 @@ async function checkDuplicatedInfoMay2023() {
 
     });
 
+    async function triggerMenuItemResizing(){
+      /*
+      const menus = document.querySelectorAll('ytd-menu-renderer[has-flexible-items]');
+      for(const menu of menus){
+        
+      }
+      let promises;
+      promises = menus.map(menu=>{
+        return new Promise(r=>{
+          r(menu.offsetHeight);
+        });
+      });
+      let heights = await Promise.all(promises);
+      
+      promises = menus.map((menu,idx)=>{
+        return new Promise(r=>{
+          menu.setAttribute
+          r(menu.offsetHeight);
+        });
+      });
+     */ 
+    }
+
 
     globalHook('yt-page-data-updated', (evt) => {
 
@@ -4669,6 +4692,7 @@ async function checkDuplicatedInfoMay2023() {
           if (renderId !== renderIdentifier) return
           // domInit_teaserInfo() // YouTube obsoleted feature? 
 
+          triggerMenuItemResizing();
 
           let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string')
           if (h1) {
