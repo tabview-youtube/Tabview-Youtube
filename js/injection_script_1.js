@@ -1,5 +1,28 @@
-"use strict";
+/*
 
+MIT License
+
+Copyright (c) 2021-2023 cyfung1031
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 function injection_script_1() {
   "use strict";
 
@@ -2339,78 +2362,273 @@ function injection_script_1() {
 
   
 
-  /*
-
-  const initializePropertiesFuncMap = new WeakMap();
-  const initializePropertiesInjection = (proto) => {
-    if (!('_initializeProperties' in proto)) return console.warn('[tyt] no _initializeProperties is found in proto');
-    const _initializeProperties = proto._initializeProperties; // make a copy in this nested closure.
-    const constructor = proto.constructor||null;
-    if(!constructor) return console.warn('[tyt] no constructor is found in proto');
-    if (typeof _initializeProperties !== 'function') return console.warn('[tyt] proto._initializeProperties is not a function');
-    let funcs = initializePropertiesFuncMap.get(constructor);
-    if(!funcs){
-      const injector = function (...args) {
-        let res = _initializeProperties.call(this, ...args); // normally shall be undefined with no arguments
-        let execute = !('__tytPropsInitialized__' in this);
-        if(execute){
-          this.__tytPropsInitialized__ = true; // just in case it might be called more than one time.
-          try {
-            let funcs = initializePropertiesFuncMap.get(this.constructor || null);
-            for (const func of funcs) {
-              func(this);
-            }
-          } catch (e) {
-            console.warn(e);
-          }
-        }
-        return res;
-      }
-      initializePropertiesFuncMap.set(constructor, funcs = []);
-      proto._initializeProperties = injector;
+  const defineValuable = (proto, oriKey, newKey, attributes) => {
+    if(!proto) console.warn('[tyt] proto is invalid.');
+    if(newKey in proto) return;
+    if(oriKey in proto){
+      let v = proto[oriKey]; // keep the value before property defined
+      Object.defineProperty(proto, oriKey, attributes);
+      proto[newKey] = v; // call setter in defined property
+    }else{
+      Object.defineProperty(proto, oriKey, attributes);
     }
-    return funcs;
   }
 
+/*
+  const postPropDefined = (ytElmTag, propKey, f)=>{
+
+    const ceElmConstrcutor = customElements.get(ytElmTag);
+    const proto = ((ceElmConstrcutor||0).prototype||0);
+    if(proto && (propKey in proto)){
+      f(proto);
+    }else if(proto && ('_initializeProperties' in proto)){
+      delayPropsSetup(proto).push(f);
+    }else{
+      console.warn('[tyt] postPropDefined is not supported.');
+    }
+
+  }
+  */
+ 
+  /*
+  const postPropDefined = (ytElmTag, propKey, f)=>{
+
+    const ceElmConstrcutor = customElements.get(ytElmTag);
+    const proto = ((ceElmConstrcutor||0).prototype||0);
+    if(proto && (propKey in proto)){
+      f(proto, true);
+    }else if(proto){
+      postRegistered(ytElmTag, (proto)=>{
+        f(proto, propKey in proto);
+      });
+    }else{
+      console.warn('[tyt] postPropDefined is not supported.');
+    }
+
+  } 
   */
 
-
-  const delayPropsSetupFuncMap = new WeakMap();
-  const delayPropsSetup = (proto) => { // delay prototype injection
-    if (!('_initializeProperties' in proto)) return console.warn('[tyt] no _initializeProperties is found in proto');
-    let _initializeProperties = proto._initializeProperties; // make a copy in this nested closure.
-    const constructor = proto.constructor||null;
-    if(!constructor) return console.warn('[tyt] no constructor is found in proto');
-    if (typeof _initializeProperties !== 'function') return console.warn('[tyt] proto._initializeProperties is not a function');
-    let funcs = delayPropsSetupFuncMap.get(constructor);
-    if(!delayPropsSetupFuncMap.has(constructor)){
-      const injector = function (...args) {
-        const f = _initializeProperties;
-        _initializeProperties = null;
-        if(!f) return console.warn('[tyt] _initializeProperties has already been reset.');
-        // prototype have not yet been "Object.defineProperties()"
-        let res = f.call(this, ...args); // normally shall be undefined with no arguments
-        // prototype have been "Object.defineProperties()"
-        try {
-          const constructor = this.constructor || null;
-          constructor.prototype._initializeProperties = f;
-          let funcs = delayPropsSetupFuncMap.get(constructor);
-          delayPropsSetupFuncMap.set(constructor || null, null);
-          for (const func of funcs) {
-            func(this.constructor.prototype); // provide the first constructed element for reference only
-          }
-          funcs.length=0;
-        } catch (e) {
-          console.warn(e);
-        }
-        return res;
-      }
-      delayPropsSetupFuncMap.set(constructor, funcs = []);
-      proto._initializeProperties = injector;
+  const postRegistered = (ytElmTag, f)=>{
+  
+    const ceElmConstrcutor = customElements.get(ytElmTag);
+    const proto = ((ceElmConstrcutor||0).prototype||0);
+    if(proto && ('__hasRegisterFinished' in proto)){
+      f(proto);
+    }else if(proto && ('_registered' in proto)){
+      postRegistered_(proto).push(f);
+    }else{
+      console.warn('[tyt] postRegistered is not supported.');
     }
-    if(!funcs) return console.warn('[tyt] delay prototype injection not allowed.')
-    return funcs;
   }
+  
+
+/*
+const injectorCreationForInitializeProperties = ((mMapOfFuncs, _initializeProperties) => {
+  if (!(mMapOfFuncs instanceof WeakMap) || (typeof _initializeProperties !== 'function')) return console.error('[ytI] Incorrect parameters');
+  const $callee = function (...args) {
+    const map = mMapOfFuncs;
+    const f = _initializeProperties;
+    if (!f) return console.error('[ytI] the injector is already destroyed.');
+    // CE prototype have not yet been "Object.defineProperties()"
+    let res = f.call(this, ...args); // normally shall be undefined with no arguments
+    // CE prototype have been "Object.defineProperties()"
+    let funcs = null;
+    try {
+      const constructor = this.constructor || null;
+      if (!constructor || !constructor.prototype) throw '[ytI] CE constructor is not found or invalid.';
+      // constructor.prototype._initializeProperties = f; // restore to original
+      delete constructor.prototype._initializeProperties;
+      if(constructor.prototype._initializeProperties!==f){
+        constructor.prototype._initializeProperties = f;
+      }
+      funcs = map.get(constructor) || 0;
+      if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
+      console.debug(`[ytI] ${constructor.prototype.is}'s _initializeProperties have been called.`);
+      map.set(constructor, null); // invalidate
+      for (const func of funcs) {
+        func(constructor.prototype); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
+      }
+    } catch (e) {
+      console.warn(e);
+    } finally {
+      if (funcs) funcs.length = 0;
+    }
+    return res;
+  }
+  $callee.getMap = () => mMapOfFuncs; // for external
+  $callee.getOriginalFunction = () => _initializeProperties; // for external
+  $callee.destroyObject = function () {
+    // in addition to GC
+    mMapOfFuncs = null; // WeakMap does not require clear()
+    _initializeProperties = null;
+    this.__injector__ = null;
+    this.getMap = null;
+    this.getOriginalFunction = null;
+    this.destroyObject = null;
+  }
+  // after all injected _initializeProperties are called,
+  // customElements.get('ytd-watch-flexy').prototype._initializeProperties.__injector__.deref() will become undefined.
+  const wrapped = typeof WeakRef === 'function' ? new WeakRef($callee) : $callee;
+  $callee.__injector__ = wrapped; // for _initializeProperties.__injector__
+  return $callee;
+});
+*/
+
+
+
+
+const injectorCreationForRegistered = ((mMapOfFuncs, _registered) => {
+  if (!(mMapOfFuncs instanceof WeakMap) || (typeof _registered !== 'function')) return console.error('[ytI] Incorrect parameters');
+  const $callee = function (...args) {
+    const map = mMapOfFuncs;
+    const f = _registered;
+    if (!f) return console.error('[ytI] the injector is already destroyed.');
+    // CE prototype have not yet been "Object.defineProperties()"
+    let res = f.call(this, ...args); // normally shall be undefined with no arguments
+    // CE prototype have been "Object.defineProperties()"
+    let funcs = null;
+    try {
+      const constructor = this.constructor || null;
+      if (!constructor || !constructor.prototype) throw '[ytI] CE constructor is not found or invalid.';
+      // constructor.prototype._registered = f; // restore to original
+      delete constructor.prototype._registered;
+      if(constructor.prototype._registered!==f){
+        constructor.prototype._registered = f;
+      }
+      funcs = map.get(constructor) || 0;
+      if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
+      console.debug(`[ytI] ${constructor.prototype.is}'s _registered have been called.`);
+      map.set(constructor, null); // invalidate
+      for (const func of funcs) {
+        func(constructor.prototype); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
+      }
+    } catch (e) {
+      console.warn(e);
+    } finally {
+      if (funcs) funcs.length = 0;
+    }
+    return res;
+  }
+  $callee.getMap = () => mMapOfFuncs; // for external
+  $callee.getOriginalFunction = () => _registered; // for external
+  $callee.destroyObject = function () {
+    // in addition to GC
+    mMapOfFuncs = null; // WeakMap does not require clear()
+    _registered = null;
+    this.__injector__ = null;
+    this.getMap = null;
+    this.getOriginalFunction = null;
+    this.destroyObject = null;
+  }
+  // after all injected _registered are called,
+  // customElements.get('ytd-watch-flexy').prototype._registered.__injector__.deref() will become undefined.
+  const wrapped = typeof WeakRef === 'function' ? new WeakRef($callee) : $callee;
+  $callee.__injector__ = wrapped; // for _registered.__injector__
+  return $callee;
+});
+
+const customYtElements = {
+  whenRegistered(ytElmTag, immediateCallback){
+    return new Promise(resolve=>{
+        
+      if(typeof customElements !== 'object' || typeof customElements.whenDefined !=='function' || typeof customElements.get !=='function') console.error('[ytI] customElements (native or polyfill) is not available.')
+
+      const ceReady = ()=>{ // ignore async result; the result in whenDefined is not the same as customElements.get
+        
+        postRegistered(ytElmTag, (proto)=>{
+          if(immediateCallback) immediateCallback(proto);
+          resolve(proto);
+        });
+
+      }
+      customElements.get(ytElmTag)? ceReady():customElements.whenDefined(ytElmTag).then(ceReady);
+
+    });
+  }/*,
+  async whenPropertyReady(ytElmTag, propKey, immediateCallback){
+    if(typeof customElements !== 'object' || typeof customElements.get !=='function') console.error('[ytI] customElements (native or polyfill) is not available.')
+
+      const ceElmConstrcutor = customElements.get(ytElmTag);
+      const proto = ((ceElmConstrcutor||0).prototype||0);
+    if(!proto) console.error(`YtElement ${ytElmTag} does not exist. Please ensure its existence by using whenRegistered().`);
+
+    if(proto.__hasRegisterFinished !== true) console.warn('This element is not yet registered. _initializeProperties() will not be called.')
+    let res = null;
+    await new Promise(resolve=>{
+      postPropDefined(ytElmTag, propKey,  (proto)=>{
+        res = proto;
+        if(immediateCallback) immediateCallback(proto);
+        resolve();
+      });
+    })
+    return res;
+  }*/
+}
+
+const postRegistered_ =  (ceProto) => { // delay prototype injection
+  if (!('_registered' in ceProto)) return console.warn('[ytI] no _registered is found in proto');
+  const _registered = ceProto._registered; // make a copy in this nested closure.
+  if (typeof _registered !== 'function') return console.warn('[ytI] proto._registered is not a function');
+
+  let injector = null;
+  if (injector = _registered.__injector__) {
+    if (injector.deref) injector = injector.deref(); // null if _registered of all CEs are restored.
+  }
+  if (!injector) {
+    injector = injectorCreationForRegistered(new WeakMap(), _registered);
+    _registered.__injector__ = injector.__injector__;
+  }
+
+  if (typeof (injector || 0).getMap !== 'function') return console.warn('[ytI] the injector function is invalid.')
+  /** @type {WeakMap} */ const mapOfFuncs = injector.getMap();
+
+  const ceConstructor = ceProto.constructor || null;
+  if (!ceConstructor) return console.warn('[ytI] no constructor is found in proto');
+  let funcs;
+
+  if (!mapOfFuncs.has(ceConstructor)) {
+    mapOfFuncs.set(ceConstructor, funcs = []);
+    ceProto._registered = injector;
+  } else {
+    funcs = mapOfFuncs.get(ceConstructor);
+  }
+  if (!funcs) return console.warn('[ytI] _registered has already called. You can just override the properties.')
+  return funcs;
+}
+
+/*
+
+const postInitializeProperties = (ceProto) => { // delay prototype injection
+  if (!('_initializeProperties' in ceProto)) return console.warn('[ytI] no _initializeProperties is found in proto');
+  const _initializeProperties = ceProto._initializeProperties; // make a copy in this nested closure.
+  if (typeof _initializeProperties !== 'function') return console.warn('[ytI] proto._initializeProperties is not a function');
+
+  let injector = null;
+  if (injector = _initializeProperties.__injector__) {
+    if (injector.deref) injector = injector.deref(); // null if _initializeProperties of all CEs are restored.
+  }
+  if (!injector) {
+    injector = injectorCreationForInitializeProperties(new WeakMap(), _initializeProperties);
+    _initializeProperties.__injector__ = injector.__injector__;
+  }
+
+  if (typeof (injector || 0).getMap !== 'function') return console.warn('[ytI] the injector function is invalid.')
+  /-** @type {WeakMap} *-/ const mapOfFuncs = injector.getMap();
+
+  const ceConstructor = ceProto.constructor || null;
+  if (!ceConstructor) return console.warn('[ytI] no constructor is found in proto');
+  let funcs;
+
+  if (!mapOfFuncs.has(ceConstructor)) {
+    mapOfFuncs.set(ceConstructor, funcs = []);
+    ceProto._initializeProperties = injector;
+  } else {
+    funcs = mapOfFuncs.get(ceConstructor);
+  }
+  if (!funcs) return console.warn('[ytI] _initializeProperties has already called. You can just override the properties.')
+  return funcs;
+}
+*/
 
   function ceHack(evt) {
 
@@ -2423,32 +2641,6 @@ function injection_script_1() {
 
     let ceElmConstrcutor;
 
-    const defineValuable = (proto, oriKey, newKey, attributes) => {
-      if(!proto) console.warn('[tyt] proto is invalid.');
-      if(newKey in proto) return;
-      if(oriKey in proto){
-        let v = proto[oriKey]; // keep the value before property defined
-        Object.defineProperty(proto, oriKey, attributes);
-        proto[newKey] = v; // call setter in defined property
-      }else{
-        Object.defineProperty(proto, oriKey, attributes);
-      }
-    }
-    
-
-    const postKeyAssignment = (ytElmTag, propKey, f)=>{
-      
-      const ceElmConstrcutor = customElements.get(ytElmTag);
-      const proto = ((ceElmConstrcutor||0).prototype||0);
-      if(proto && (propKey in proto)){
-        f(proto);
-      }else if(proto && ('_initializeProperties' in proto)){
-        delayPropsSetup(proto).push(f);
-      }else{
-        console.warn('[tyt] postKeyAssignment is not supported.');
-      }
-
-    }
 
     let s1 = Symbol();
     //let s2 = Symbol();
@@ -2479,30 +2671,27 @@ function injection_script_1() {
     
 
     ceElmConstrcutor = customElements.get('ytd-expander');
-    // ceElmConstrcutor&&defineValuable(ceElmConstrcutor.prototype, 'recomputeOnResize', s1, {
-    //   get() {
-    //     if (this.calculateCanCollapse !== funcCanCollapse) {
-    //       this.calculateCanCollapse = funcCanCollapse
-    //       if (insObserver) insObserver.observe(this)
-    //     }
-    //     return this[s1];
-    //   },
-    //   set(nv) {
-    //     if (this.calculateCanCollapse !== funcCanCollapse) {
-    //       this.calculateCanCollapse = funcCanCollapse
-    //       if (insObserver) insObserver.observe(this)
-    //     }
-    //     if (nv === false) nv = true;
-    //     // console.log(591);
-    //     this[s1] = nv;
-    //   },
-    //   enumerable: false,
-    //   configurable: false // if redefine by YouTube, error comes and change the coding
-    // });
+    
+    customYtElements.whenRegistered('ytd-watch-flexy').then((proto)=>{
+      console.log(550, proto.is)
+    })
+
+    customYtElements.whenRegistered('ytd-expander').then((proto)=>{
+      console.log(551, proto.is)
+    })
+    
+    customYtElements.whenRegistered('ytd-rich-grid-renderer', (proto)=>{
+
+      console.log(601, proto.is)
+
+    })
 
 
-    postKeyAssignment('ytd-expander', 'recomputeOnResize', (proto)=>{
+    customYtElements.whenRegistered('ytd-expander', (proto)=>{
+
+      let keyDefined = 'recomputeOnResize' in proto;
       // recomputeOnResize is just value assignment after "_initializeProperties()"
+      if(keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
 
       defineValuable(proto, 'recomputeOnResize', s1, {
         get() {
@@ -2525,7 +2714,8 @@ function injection_script_1() {
         configurable: false // if redefine by YouTube, error comes and change the coding
       });
 
-    })
+
+    });
 
     
     // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // error
@@ -2541,9 +2731,10 @@ function injection_script_1() {
     })
 
     ceElmConstrcutor = customElements.get('ytd-transcript-search-panel-renderer');
-    
-    postKeyAssignment('ytd-transcript-search-panel-renderer', 'initialTranscriptsRenderer', (proto)=>{
+
+    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto, keyDefined)=>{
       // initialTranscriptsRenderer is just value assignment after "_initializeProperties()"
+      if(keyDefined) console.warn('initialTranscriptsRenderer is defined in ytd-transcript-search-panel-renderer.');
       defineValuable(proto, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
         get() {
           return this.__$$initialTranscriptsRenderer$$__
@@ -2606,8 +2797,10 @@ function injection_script_1() {
 
     */
 
-    postKeyAssignment('ytd-live-chat-frame', 'postToContentWindow', (proto)=>{
+    customYtElements.whenRegistered('ytd-live-chat-frame', (proto)=>{
+      let keyDefined = 'postToContentWindow' in proto;
       // postToContentWindow is property defined during "_initializeProperties()"
+      if(!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
       proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
       proto.postToContentWindow = g_postToContentWindow;
@@ -2622,8 +2815,10 @@ function injection_script_1() {
     // yt-chip-cloud-renderer
     ceElmConstrcutor = customElements.get('yt-chip-cloud-renderer');
     
-    postKeyAssignment('yt-chip-cloud-renderer', 'boundChipCloudChipScrollIntoView', (proto)=>{
+    customYtElements.whenRegistered('yt-chip-cloud-renderer', (proto)=>{
+      let keyDefined = 'boundChipCloudChipScrollIntoView' in proto;
       // boundChipCloudChipScrollIntoView is just value assignment after "_initializeProperties()"
+      if(keyDefined) console.warn('boundChipCloudChipScrollIntoView is defined in yt-chip-cloud-renderer.');
       defineValuable(proto, 'boundChipCloudChipScrollIntoView', s32, {
         get() {
           return this[s32];
@@ -2669,8 +2864,12 @@ function injection_script_1() {
     // dataChanged_ & headerChanged_ for comments counting update
     ceElmConstrcutor = customElements.get('ytd-comments'); 
     
-    postKeyAssignment('ytd-comments', 'headerChanged_', (ytdCommentsP)=>{
+    customYtElements.whenRegistered('ytd-comments',(proto)=>{
+      let keyDefined = 'headerChanged_' in proto && 'headerChanged_' in proto;
+      const ytdCommentsP = proto;
+      
       // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
+      if(!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
 
       // dataChanged_ for cache update & clear cached count
       // const ytdCommentsP = customElements.get('ytd-comments').prototype;

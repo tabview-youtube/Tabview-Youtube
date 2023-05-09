@@ -1,5 +1,28 @@
-"use strict";
-// console.time("Tabview Youtube Init Script")
+/*
+
+MIT License
+
+Copyright (c) 2021-2023 cyfung1031
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+*/
 -(function mainBody() {
   'use strict';
 
@@ -2939,7 +2962,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               ytdWatchMetaDataElm.addEventListener('transitionend', function (evt) {
                 // no css selector rule required; no delay js function call required
 
-                if (evt.propertyName === 'background-position-y') { // string comparision only
+                let selection = evt.propertyName === 'background-position-y' ? 1 : evt.propertyName === 'background-position-x' ? 2 : 0;
+                
+                if(selection && evt.target){
+                  let cssRoot = this; // no querySelector is required
+                  if(cssRoot.classList.contains('tabview-uploader-hover')){
+                    if(evt.target.id!=='owner') return;
+                    cssRoot.classList.toggle('tabview-uploader-hover', false);
+                  }
+                }
+
+                if (selection === 1) { // string comparision only
 
                   // If the cursor initially stayed at the owner info area, 
                   // the mechanism will be broken
@@ -2958,7 +2991,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                     _h = 0; // in case
                   }
 
-                } else if (evt.propertyName === 'background-position-x') { // string comparision only
+                } else if (selection === 2) { // string comparision only
 
                   //from one element to another element; hover effect of 2nd element transition end first.
                   // _h: 0 -> 1 -> 2 -> 1
