@@ -4145,7 +4145,7 @@ async function checkDuplicatedInfoMay2023() {
       ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
     }
 
-    console.log('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
+    console.debug('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
 
     if (g_check_detail_A !== t) return;
 
@@ -4347,7 +4347,7 @@ async function checkDuplicatedInfoMay2023() {
     handleDOMAppear('pageLoaderAnimation', (evt) => {
       pageRendered = 2;
       renderDeferred.resolve();
-      console.log('[tyt] pageRendered')
+      console.debug('[tyt] pageRendered')
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'))
@@ -5313,7 +5313,7 @@ async function checkDuplicatedInfoMay2023() {
 
   }
 
-  function restorePIPforStickyHead(){
+  async function restorePIPforStickyHead(){
     // after a trusted user action, PIP can be cancelled.
     // this is to ensure enterPIP can be re-excecuted
 
@@ -5501,7 +5501,7 @@ async function checkDuplicatedInfoMay2023() {
           evt.stopImmediatePropagation();
         }, true);
         setupTabBtns();
-        console.log('[tyt] #right-tabs inserted')
+        console.debug('[tyt] #right-tabs inserted')
       }
       docTmp.textContent = '';
       docTmp = null;
@@ -6439,12 +6439,19 @@ async function checkDuplicatedInfoMay2023() {
   let videoInsected = false;
   
 
-  function enablePIPforStickyHead() {
+  async function enablePIPforStickyHead() {
+    // use async & await to avoid handler took 60ms
+    
     if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
       let video = document.querySelector('#player video');
       if (!video) return;
 
-      if (document.documentElement.clientWidth + 320 < screen.width && document.documentElement.clientWidth > 320) {
+      await Promise.resolve(0)
+      const pageClientWidth = document.documentElement.clientWidth;
+      if (pageClientWidth + 320 < screen.width && pageClientWidth > 320) {
+        
+
+        await Promise.resolve(0)
         // desktop or notebook can use this feature
 
         // --------------------------------------------------------
@@ -6462,6 +6469,9 @@ async function checkDuplicatedInfoMay2023() {
 
         if(!video.hasAttribute('NOL4j')){
           video.setAttribute('NOL4j',"");
+          
+
+          await Promise.resolve(0)
 
           let callback = (entries)=>{
 
@@ -6784,7 +6794,7 @@ async function checkDuplicatedInfoMay2023() {
 
     //toggleBtnDC = 1;
 
-    console.log('[tyt] newVideoPage')
+    console.debug('[tyt] newVideoPage')
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;

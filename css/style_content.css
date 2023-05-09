@@ -608,6 +608,22 @@ Same for #secondary
 
 }
 
+@supports (color: var(--wider-playlist-button-for-japanese)){
+    /*
+    @media screen and (min-width: 1294px) and (max-width: 1294px) {
+        flex-grow: 1.25;
+    }*/
+    html:lang(ja) .tab-btn[tyt-tab-content="#tab-list"]{
+        /*「再生リスト」ボタンは「情報」「動画」ボタンよりも幅が広く、狭い画面では見栄えが悪くなる可能性があります。*/        
+        /* min-width: 9em;*/
+        --tyt-tab-btn-flex-basis: 6%;
+    }
+    html:lang(ja) .tab-btn[tyt-tab-content="#tab-comments"]{
+        /* force comments count button wider */
+        /* --tyt-tab-btn-flex-grow: 1.15; */
+    }
+}
+
 @supports (color: var(--hide-menu-icon-text-by-default)) {
 
     ytd-menu-renderer.ytd-watch-metadata[has-flexible-items] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon,
@@ -636,7 +652,7 @@ Same for #secondary
         /* min-width:initial !important; */
         /* max-width: initial !important; */
         /* width: auto !important; */
-        white-space: nowrap !important; /* no multline for super chat donation button */
+        white-space: nowrap; /* no multline for super chat donation button */
         
         /* inline-size: 150px;writing-mode: horizontal-tb;  */
         /* transform:translateX(-50%); */
@@ -2158,15 +2174,25 @@ body .ytp-autohide .ytp-unmute,
             background: var(--yt-spec-general-background-a);
         }
 
+        html {
+            --tyt-tab-btn-flex-grow: 1;
+            --tyt-tab-btn-flex-basis: 0%;
+        }
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content] {
-            flex: 1;
+
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 0%;
+            
+            flex-grow: var(--tyt-tab-btn-flex-grow);
+            flex-basis: var(--tyt-tab-btn-flex-basis);
             position: relative;
             display: inline-block;
             text-decoration: none;
             text-transform: uppercase;
             color: var(--yt-spec-text-secondary);
             text-align: center;
-            padding: 14px 2px 10px 2px;
+            padding: 14px 8px 10px;
             border: 0;
             border-bottom: 4px solid transparent;
             font-weight: 500;

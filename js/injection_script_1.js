@@ -186,8 +186,6 @@ function injection_script_1() {
   class YTLiveProcessUnit {
 
     constructor() {
-      /** @type {Window | null} */
-      // this.ytLivePopupWindow = null
       /** @type {HTMLElement | null} */
       this.elmChat = null
       /** @type {HTMLIFrameElement | null} */
@@ -204,7 +202,6 @@ function injection_script_1() {
       this.handlerPageDataFetched = null
 
       this.ytLiveMO = null
-      // this.ytLiveMOHandlerI = 0
       this.adsState = 0
 
       this.keepOriginalPTCW = false;
@@ -222,7 +219,6 @@ function injection_script_1() {
       this.ytLiveChatRenderer = null
 
       this.initialFetchReq = 0
-      // console.log(99)
 
       this.renderBusyS = 0
       this.renderBusyR = 0
@@ -239,8 +235,6 @@ function injection_script_1() {
       }
 
 
-      /** @type {HTMLElement | null} */
-      // this.__playerSeekCont__ = null
     }
 
     initByIframe(iframe) {
@@ -261,20 +255,14 @@ function injection_script_1() {
       // this is triggered when collapsed / expanded / initial state
       // console.log('initByChat')
 
-
-
       if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
-
         this.elmChat.classList.remove('tyt-chat-frame-ready')
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
-        // console.log(922,5)
       }
       if (chat === null) {
-        // console.log(2241)
         if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true) {
           this.elmChat.disconnectedCallback()
           // console.log('aa', this.elmChat.isAttached)
-          // console.log(3341)
         }
         this.elmChat = null
         this.elmChatFrame = null
@@ -304,8 +292,6 @@ function injection_script_1() {
         if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
           this.elmChat.connectedCallback()
-          // console.log('ab', this.elmChat.isAttached)
-          // console.log(3342)
           this.initialFetchReq = 21;
         }
 
@@ -327,8 +313,6 @@ function injection_script_1() {
 
         chat.classList.remove('tyt-chat-frame-ready')
         // chat.removeAttribute('tyt-iframe-loaded')
-
-        // console.log(922,6)
         this.init();
       }
     }
@@ -336,35 +320,22 @@ function injection_script_1() {
 
 
     setAdPlaying(b) {
-
       if (typeof b !== 'boolean') return;
-
       if (b === true) {
         this.adsState |= 2; // played once [2]
         if (this.adsState & 1) this.adsState -= 1; // reset pause [1]
-
         // 2|0 = 2
-
         if (this.ytLiveChatRenderer) {
           this.ytLiveChatRenderer._setIsAdPlaying(true);
         }
-
         if (this.elmChat) {
           this.elmChat.classList.add('tyt-chat-ads-playing')
         }
-
       } else {
         if (this.adsState & 2) {
           this.adsState |= 1  // 2|1 = 3; played once & paused
         }
       }
-
-      /*
-      if(changeToFalse){
-        this.init()
-      }
-      */
-
     }
 
     initByChatRenderer(cr) {
@@ -406,16 +377,8 @@ function injection_script_1() {
       // livestream: control popup
 
       this.setUpPlayerSeekCont();
-
       this.isChatReplay = this.isReplay()
-
-
-
       this.setupChatRenderer()
-
-
-
-
       this.loadStatus |= 4 // 00000100
       this.init();
     }
@@ -434,7 +397,6 @@ function injection_script_1() {
       if (ti !== ytLivePU.ytLiveMOHandlerI) return;
 
       */
-      // console.log(333)
 
       let chat = null
 
@@ -447,22 +409,16 @@ function injection_script_1() {
       if (attr) {
         chat = document.querySelector('ytd-live-chat-frame#chat');
       }
-      // console.log('m - attr', attr)
       // note: there is multiple triggering of this (with same final attr value);
       //       not sure whether the bug of tabview layout itself or the element is truly removed and reinserted.
       // the same attr would happen twice
       ytLivePU.initByChat(chat)
-
-
     }
 
     setupYtLiveMO() {
-
       if (this.ytLiveMO) return;
       this.ytLiveMO = new MutationObserver(this.ytLiveMOHandler);
-
       this.ytLiveMOHandler();
-
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
       if (ytdFlexyElm) {
         this.ytLiveMO.observe(ytdFlexyElm, {
@@ -477,87 +433,56 @@ function injection_script_1() {
       } else {
         console.warn('error F031')
       }
-
     }
-
 
     createCMWaiter() {
       // render (seek/reload) start/sucess/fail when yt-action is triggered
-
       const ytLivePU = this
       return new Promise(resolve => {
-
         if (ytLivePU.renderBusyS === 1 && ytLivePU.renderBusyR === 0) {
           this.seekWaiterResolves.push(resolve)
         } else if (ytLivePU.renderBusyR === 1 && ytLivePU.renderBusyS === 0) {
           this.reloadWaiterResolves.push(resolve)
         } else {
-
           if (ytLivePU.renderBusyR + ytLivePU.renderBusyS !== 0) {
             console.log(ytLivePU.renderBusyR, ytLivePU.renderBusyS)
           }
           resolve()
         }
-
-
       })
     }
 
     createLoadingWaiter() {
       // loading finished when yt-action is triggered
       const ytLivePU = this
-
       return new Promise(resolve => {
-
         if (ytLivePU.ytLiveChatRenderer.hasAttribute('loading')) {
           this.loadingWaiterResolves.push(resolve)
         } else {
-
           resolve()
         }
-
-
       })
-
     }
 
     async chatUrlChanged() {
       // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
-
       // first call not effect; only take effect in second call.
-
-      // console.log('chatUrlChanged - 1')
-      // console.log(301)
       await Promise.resolve(0)
       let chat = this.elmChat
-
-      // console.log(302)
       if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
-
-        // console.log(305)
         let cr = this.ytLiveChatRenderer
-        // console.log(306)
         if (cr) {
           this.initialFetchReq = 1
           this.initByChatRenderer(cr);
-          // console.log('chatUrlChanged - 2a')
           return false
         } else {
-
-          // console.log(5661, chat.isAttached)
-          // console.log(307)
           // this.initialFetchReq = 1
           chat.urlChanged(); // neccessary
-          // console.log('chatUrlChanged - 2b')
           return true
         }
       }
       this.initialFetchReq = 0
-
-      // console.log('chatUrlChanged - 2c')
       return null
-
-
     }
 
     setUpPlayerSeekCont(shadow) {
@@ -567,16 +492,7 @@ function injection_script_1() {
       // player seek cont will be replaced frenquently when list content is updated
       // re-hook by each yt-action if replaced
 
-      // if(this.__playerSeekCont__ && (this.__playerSeekCont__.isAttached === false ? false : this.ytLiveChatApp.contains(this.__playerSeekCont__))) return;
-
-      // console.log(22,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
-
       let playerSeekCont = this.queryCR("yt-player-seek-continuation")
-
-      // this.__playerSeekCont__ = playerSeekCont
-      // console.log(33,this.__playerSeekCont__? this.__playerSeekCont__.isAttached: 2)
-
-
 
       if (!playerSeekCont) return;
 
@@ -630,32 +546,6 @@ function injection_script_1() {
         this.ytLiveChatRenderer._gIxmf = 1
         this.renderBusyS = 0
         this.renderBusyR = 0
-        /*
-        const fixer = (f,ek)=>{
-          return function () {
-            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-            console.log(arguments)
-            let t = f.apply(this, arguments)
-            if (this.previousProgressSec === 0) this.previousProgressSec = 1e-99
-            return t
-          }
-        }
-        this.ytLiveChatRenderer._setPlayerProgressSec = ((f)=>{
-
-          return function (x) {
-            if (x === 0) x = 1e-99
-            let t = f.apply(this, arguments)
-            return t
-          }
-
-        })(this.ytLiveChatRenderer._setPlayerProgressSec);
-
-        console.log(this.ytLiveChatRenderer)
-        this.ytLiveChatRenderer.maybeFireSeekContinuation = fixer(this.ytLiveChatRenderer.maybeFireSeekContinuation,1)
-        this.ytLiveChatRenderer.playerProgressSecChanged_ = fixer(this.ytLiveChatRenderer.playerProgressSecChanged_)
-        this.ytLiveChatRenderer.fireSeekContinuation_ = fixer(this.ytLiveChatRenderer.fireSeekContinuation_)
-        */
-
 
         this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
 
@@ -785,9 +675,6 @@ function injection_script_1() {
 
           }
 
-          if (m3) {
-            // ytLivePU.setUpPlayerSeekCont();
-          }
 
 
         })
@@ -810,61 +697,6 @@ function injection_script_1() {
       }
 
     }
-
-
-    // playerProgressChanged2_(a,b,c){
-
-
-    //   return
-    //   if ((this.data.isReplay || c) && !this.isAdPlaying) {
-    //     // Iy(this, "yt-live-chat-replay-progress", [a]);
-    //     this.currentPlayerState_ = {};
-    //     b && (this.currentPlayerState_.videoId = b);
-    //     c && (this.currentPlayerState_.watchPartyId = c);
-    //     b = 1E3 * a;
-    //     this.currentPlayerState_.playerOffsetMs = Math.floor(b).toString();
-    //     c = this.$$("yt-live-chat-replay-continuation");
-    //     var d = this.$$("yt-player-seek-continuation");
-    //     this._setPlayerProgressSec(a);
-    //     d && d.maybeFireSeekContinuation(a, this.replayBuffer_.lastVideoOffsetTimeMsec) ? (this._setIsSeeking(!0),
-    //       this.replayBuffer_.clear(),
-    //       this.setAttribute("loading", "")) : this.isSeeking_ || (c && this.replayBuffer_.lastVideoOffsetTimeMsec && (c.timeRemainingMsecs = this.replayBuffer_.lastVideoOffsetTimeMsec - b),
-    //         this.immediatelyApplyLiveChatActions([]))
-    //   }
-
-
-    // }
-
-    // statusSeek(pt) {
-    //   if (pt < 1) pt = 1; // <0, 0.0 ~ 0.999 not accepted
-
-    //   let cr = ytLivePU.ytLiveChatRenderer
-
-    //   let q1 = cr.onLoadReplayContinuation_
-    //   let q2 = null
-
-    //   let playerSeekCont = null
-    //   try {
-    //     playerSeekCont = ytLivePU.queryCR('yt-player-seek-continuation')
-    //     q2 = playerSeekCont ? playerSeekCont.fireSeekContinuation_ : null
-    //   } catch (e) { }
-
-    //   if (!playerSeekCont) q2 = null
-
-    //   try {
-    //     if (q1) cr.onLoadReplayContinuation_ = function () { }
-    //     if (q2) playerSeekCont.fireSeekContinuation_ = function (a) {
-    //       this.previousProgressSec = a;
-    //     }
-
-    //     // cr.playerProgressChanged_(pt)
-    //     this.playerProgressChanged2_.call(cr,pt)
-
-    //   } catch (e) { }
-    //   if (q2) playerSeekCont.fireSeekContinuation_ = q2
-    //   if (q1) cr.onLoadReplayContinuation_ = q1
-
-    // }
 
 
 
@@ -958,37 +790,6 @@ function injection_script_1() {
       }
 
     }
-
-    // async awaitDetach(elemChecker) {
-    //   if (!elemChecker) {
-    //     console.warn('wrong parameter')
-    //     return
-    //   }
-    //   try {
-    //     while (elemChecker.isAttached === true) {
-    //       await new Promise(r => setTimeout(r, 100));
-    //     }
-    //     return true
-    //   } catch (e) {
-    //     console.warn(e)
-    //   }
-    // }
-
-    // async awaitLoading() {
-
-    //   let cr = this.ytLiveChatRenderer;
-    //   if (!cr) {
-    //     console.warn('wrong parameter')
-    //     return
-    //   }
-    //   try {
-    //     while (cr.hasAttribute('loading')) {
-    //       await Promise.race([new Promise(r => window.requestAnimationFrame(r)), new Promise(r => setTimeout(r, 400))])
-    //     }
-    //   } catch (e) {
-    //     console.warn(e)
-    //   }
-    // }
 
     queryCR(query, inCR) {
       let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
@@ -2374,272 +2175,162 @@ function injection_script_1() {
     }
   }
 
-/*
-  const postPropDefined = (ytElmTag, propKey, f)=>{
-
-    const ceElmConstrcutor = customElements.get(ytElmTag);
-    const proto = ((ceElmConstrcutor||0).prototype||0);
-    if(proto && (propKey in proto)){
-      f(proto);
-    }else if(proto && ('_initializeProperties' in proto)){
-      delayPropsSetup(proto).push(f);
-    }else{
-      console.warn('[tyt] postPropDefined is not supported.');
-    }
-
-  }
-  */
- 
-  /*
-  const postPropDefined = (ytElmTag, propKey, f)=>{
-
-    const ceElmConstrcutor = customElements.get(ytElmTag);
-    const proto = ((ceElmConstrcutor||0).prototype||0);
-    if(proto && (propKey in proto)){
-      f(proto, true);
-    }else if(proto){
-      postRegistered(ytElmTag, (proto)=>{
-        f(proto, propKey in proto);
-      });
-    }else{
-      console.warn('[tyt] postPropDefined is not supported.');
-    }
-
-  } 
-  */
-
-  const postRegistered = (ytElmTag, f)=>{
-  
-    const ceElmConstrcutor = customElements.get(ytElmTag);
-    const proto = ((ceElmConstrcutor||0).prototype||0);
-    if(proto && ('__hasRegisterFinished' in proto)){
-      f(proto);
-    }else if(proto && ('_registered' in proto)){
-      postRegistered_(proto).push(f);
-    }else{
-      console.warn('[tyt] postRegistered is not supported.');
-    }
-  }
-  
-
-/*
-const injectorCreationForInitializeProperties = ((mMapOfFuncs, _initializeProperties) => {
-  if (!(mMapOfFuncs instanceof WeakMap) || (typeof _initializeProperties !== 'function')) return console.error('[ytI] Incorrect parameters');
-  const $callee = function (...args) {
-    const map = mMapOfFuncs;
-    const f = _initializeProperties;
-    if (!f) return console.error('[ytI] the injector is already destroyed.');
-    // CE prototype have not yet been "Object.defineProperties()"
-    let res = f.call(this, ...args); // normally shall be undefined with no arguments
-    // CE prototype have been "Object.defineProperties()"
-    let funcs = null;
-    try {
-      const constructor = this.constructor || null;
-      if (!constructor || !constructor.prototype) throw '[ytI] CE constructor is not found or invalid.';
-      // constructor.prototype._initializeProperties = f; // restore to original
-      delete constructor.prototype._initializeProperties;
-      if(constructor.prototype._initializeProperties!==f){
-        constructor.prototype._initializeProperties = f;
+  // https://greasyfork.org/en/scripts/465819-api-for-customelements-in-youtube/
+  const customYtElements = (function () {
+    'use strict';
+   
+    const injectorCreationForRegistered = ((mMapOfFuncs, _registered) => {
+      if (!(mMapOfFuncs instanceof WeakMap) || (typeof _registered !== 'function')) return console.error('[ytI] Incorrect parameters');
+      const $callee = function (...args) {
+        const map = mMapOfFuncs;
+        const f = _registered;
+        if (!f) return console.error('[ytI] the injector is already destroyed.');
+        // CE prototype has not yet been "Object.defineProperties()"
+        let res = f.call(this, ...args); // normally shall be undefined with no arguments
+        // CE prototype has been "Object.defineProperties()"
+        let funcs = null;
+        try {
+          const constructor = this.constructor || null;
+          if (!constructor || !constructor.prototype) throw '[ytI] CE constructor is not found or invalid.';
+          // constructor.prototype._registered = f; // restore to original
+          delete constructor.prototype._registered;
+          if (constructor.prototype._registered !== f) {
+            constructor.prototype._registered = f;
+          }
+          funcs = map.get(constructor) || 0;
+          if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
+          console.debug(`[ytI] ${constructor.prototype.is}'s _registered has been called.`);
+          map.set(constructor, null); // invalidate
+          for (const func of funcs) {
+            func(constructor.prototype); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
+          }
+        } catch (e) {
+          console.warn(e);
+        } finally {
+          if (funcs) funcs.length = 0;
+        }
+        return res;
       }
-      funcs = map.get(constructor) || 0;
-      if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
-      console.debug(`[ytI] ${constructor.prototype.is}'s _initializeProperties have been called.`);
-      map.set(constructor, null); // invalidate
-      for (const func of funcs) {
-        func(constructor.prototype); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
+      $callee.getMap = () => mMapOfFuncs; // for external
+      $callee.getOriginalFunction = () => _registered; // for external
+      $callee.destroyObject = function () {
+        // in addition to GC
+        mMapOfFuncs = null; // WeakMap does not require clear()
+        _registered = null;
+        this.__injector__ = null;
+        this.getMap = null;
+        this.getOriginalFunction = null;
+        this.destroyObject = null;
       }
-    } catch (e) {
-      console.warn(e);
-    } finally {
-      if (funcs) funcs.length = 0;
-    }
-    return res;
-  }
-  $callee.getMap = () => mMapOfFuncs; // for external
-  $callee.getOriginalFunction = () => _initializeProperties; // for external
-  $callee.destroyObject = function () {
-    // in addition to GC
-    mMapOfFuncs = null; // WeakMap does not require clear()
-    _initializeProperties = null;
-    this.__injector__ = null;
-    this.getMap = null;
-    this.getOriginalFunction = null;
-    this.destroyObject = null;
-  }
-  // after all injected _initializeProperties are called,
-  // customElements.get('ytd-watch-flexy').prototype._initializeProperties.__injector__.deref() will become undefined.
-  const wrapped = typeof WeakRef === 'function' ? new WeakRef($callee) : $callee;
-  $callee.__injector__ = wrapped; // for _initializeProperties.__injector__
-  return $callee;
-});
-*/
-
-
-
-
-const injectorCreationForRegistered = ((mMapOfFuncs, _registered) => {
-  if (!(mMapOfFuncs instanceof WeakMap) || (typeof _registered !== 'function')) return console.error('[ytI] Incorrect parameters');
-  const $callee = function (...args) {
-    const map = mMapOfFuncs;
-    const f = _registered;
-    if (!f) return console.error('[ytI] the injector is already destroyed.');
-    // CE prototype have not yet been "Object.defineProperties()"
-    let res = f.call(this, ...args); // normally shall be undefined with no arguments
-    // CE prototype have been "Object.defineProperties()"
-    let funcs = null;
-    try {
-      const constructor = this.constructor || null;
-      if (!constructor || !constructor.prototype) throw '[ytI] CE constructor is not found or invalid.';
-      // constructor.prototype._registered = f; // restore to original
-      delete constructor.prototype._registered;
-      if(constructor.prototype._registered!==f){
-        constructor.prototype._registered = f;
-      }
-      funcs = map.get(constructor) || 0;
-      if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
-      console.debug(`[ytI] ${constructor.prototype.is}'s _registered have been called.`);
-      map.set(constructor, null); // invalidate
-      for (const func of funcs) {
-        func(constructor.prototype); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
-      }
-    } catch (e) {
-      console.warn(e);
-    } finally {
-      if (funcs) funcs.length = 0;
-    }
-    return res;
-  }
-  $callee.getMap = () => mMapOfFuncs; // for external
-  $callee.getOriginalFunction = () => _registered; // for external
-  $callee.destroyObject = function () {
-    // in addition to GC
-    mMapOfFuncs = null; // WeakMap does not require clear()
-    _registered = null;
-    this.__injector__ = null;
-    this.getMap = null;
-    this.getOriginalFunction = null;
-    this.destroyObject = null;
-  }
-  // after all injected _registered are called,
-  // customElements.get('ytd-watch-flexy').prototype._registered.__injector__.deref() will become undefined.
-  const wrapped = typeof WeakRef === 'function' ? new WeakRef($callee) : $callee;
-  $callee.__injector__ = wrapped; // for _registered.__injector__
-  return $callee;
-});
-
-const customYtElements = {
-  whenRegistered(ytElmTag, immediateCallback){
-    return new Promise(resolve=>{
-        
-      if(typeof customElements !== 'object' || typeof customElements.whenDefined !=='function' || typeof customElements.get !=='function') console.error('[ytI] customElements (native or polyfill) is not available.')
-
-      const ceReady = ()=>{ // ignore async result; the result in whenDefined is not the same as customElements.get
-        
-        postRegistered(ytElmTag, (proto)=>{
-          if(immediateCallback) immediateCallback(proto);
-          resolve(proto);
-        });
-
-      }
-      customElements.get(ytElmTag)? ceReady():customElements.whenDefined(ytElmTag).then(ceReady);
-
+      // after all injected _registered are called,
+      // customElements.get('ytd-watch-flexy').prototype._registered.__injector__.deref() will become undefined.
+      const wrapped = typeof WeakRef === 'function' ? new WeakRef($callee) : $callee;
+      $callee.__injector__ = wrapped; // for _registered.__injector__
+      return $callee;
     });
-  }/*,
-  async whenPropertyReady(ytElmTag, propKey, immediateCallback){
-    if(typeof customElements !== 'object' || typeof customElements.get !=='function') console.error('[ytI] customElements (native or polyfill) is not available.')
-
+   
+    const postRegistered_ = (ceProto) => { // delay prototype injection
+      if (!('_registered' in ceProto)) return console.warn('[ytI] no _registered is found in proto');
+      const _registered = ceProto._registered; // make a copy in this nested closure.
+      if (typeof _registered !== 'function') return console.warn('[ytI] proto._registered is not a function');
+      let injector = null;
+      if (injector = _registered.__injector__) {
+        if (injector.deref) injector = injector.deref(); // null if _registered of all CEs are restored.
+      }
+      if (!injector) {
+        injector = injectorCreationForRegistered(new WeakMap(), _registered);
+        _registered.__injector__ = injector.__injector__;
+      }
+      if (typeof (injector || 0).getMap !== 'function') return console.warn('[ytI] the injector function is invalid.');
+      const mapOfFuncs = injector.getMap();
+      const ceConstructor = ceProto.constructor || null;
+      if (!ceConstructor) return console.warn('[ytI] no constructor is found in proto');
+      let funcs;
+      if (!mapOfFuncs.has(ceConstructor)) {
+        mapOfFuncs.set(ceConstructor, funcs = []);
+        ceProto._registered = injector;
+      } else {
+        funcs = mapOfFuncs.get(ceConstructor);
+      }
+      if (!funcs) return console.warn('[ytI] _registered has already called. You can just override the properties.');
+      return funcs;
+    }
+   
+    const postRegistered = (ytElmTag, f) => {
       const ceElmConstrcutor = customElements.get(ytElmTag);
-      const proto = ((ceElmConstrcutor||0).prototype||0);
-    if(!proto) console.error(`YtElement ${ytElmTag} does not exist. Please ensure its existence by using whenRegistered().`);
+      const proto = ((ceElmConstrcutor || 0).prototype || 0);
+      if (proto && ('__hasRegisterFinished' in proto)) {
+        f(proto);
+      } else if (proto && ('_registered' in proto)) {
+        postRegistered_(proto).push(f);
+      } else {
+        console.warn('[tyt] postRegistered is not supported.');
+      }
+    }
+   
+    const EVENT_KEY_ON_REGISTRY_READY = "ytI-ce-registry-created";
+   
+    const customYtElements = {
+      whenRegistered(ytElmTag, immediateCallback) {
+        return new Promise(resolve => {
+          if (typeof customElements !== 'object' || typeof customElements.whenDefined !== 'function' || typeof customElements.get !== 'function') console.error('[ytI] customElements (native or polyfill) is not available.');
+          const ceReady = () => { // ignore async result; the result in whenDefined is not the same as customElements.get
+            postRegistered(ytElmTag, (proto) => {
+              if (immediateCallback) immediateCallback(proto);
+              resolve(proto);
+            });
+          }
+          customElements.get(ytElmTag) ? ceReady() : customElements.whenDefined(ytElmTag).then(ceReady);
+        });
+      },
+      onRegistryReady(callback) {
+        if (typeof customElements === 'undefined') {
+          if (!('__CE_registry' in document)) {
+            // https://github.com/webcomponents/polyfills/
+            Object.defineProperty(document, '__CE_registry', {
+              get() {
+                // return undefined
+              },
+              set(nv) {
+                if (typeof nv == 'object') {
+                  delete this.__CE_registry;
+                  this.__CE_registry = nv;
+                  this.dispatchEvent(new CustomEvent(EVENT_KEY_ON_REGISTRY_READY));
+                }
+                return true;
+              },
+              enumerable: false,
+              configurable: true
+            })
+          }
+          let eventHandler = (evt) => {
+            this.removeEventListener(EVENT_KEY_ON_REGISTRY_READY, eventHandler, false);
+            const f = callback;
+            callback = null;
+            eventHandler = null;
+            f();
+          };
+          document.addEventListener(EVENT_KEY_ON_REGISTRY_READY, eventHandler, false);
+        } else {
+          callback();
+        }
+      }
+    }
+   
+    // Export to external environment
+    // try { window.customYtElements = customYtElements; } catch (error) { /* for Greasemonkey */ }
+    // try { module.customYtElements = customYtElements; } catch (error) { /* for CommonJS */ }
+   
+    return customYtElements;
+   
+  })();
 
-    if(proto.__hasRegisterFinished !== true) console.warn('This element is not yet registered. _initializeProperties() will not be called.')
-    let res = null;
-    await new Promise(resolve=>{
-      postPropDefined(ytElmTag, propKey,  (proto)=>{
-        res = proto;
-        if(immediateCallback) immediateCallback(proto);
-        resolve();
-      });
-    })
-    return res;
-  }*/
-}
+  function ceHackExecution(){
 
-const postRegistered_ =  (ceProto) => { // delay prototype injection
-  if (!('_registered' in ceProto)) return console.warn('[ytI] no _registered is found in proto');
-  const _registered = ceProto._registered; // make a copy in this nested closure.
-  if (typeof _registered !== 'function') return console.warn('[ytI] proto._registered is not a function');
+    // handled by customYtElements
+    console.debug('[tyt] ce-hack')
 
-  let injector = null;
-  if (injector = _registered.__injector__) {
-    if (injector.deref) injector = injector.deref(); // null if _registered of all CEs are restored.
-  }
-  if (!injector) {
-    injector = injectorCreationForRegistered(new WeakMap(), _registered);
-    _registered.__injector__ = injector.__injector__;
-  }
-
-  if (typeof (injector || 0).getMap !== 'function') return console.warn('[ytI] the injector function is invalid.')
-  /** @type {WeakMap} */ const mapOfFuncs = injector.getMap();
-
-  const ceConstructor = ceProto.constructor || null;
-  if (!ceConstructor) return console.warn('[ytI] no constructor is found in proto');
-  let funcs;
-
-  if (!mapOfFuncs.has(ceConstructor)) {
-    mapOfFuncs.set(ceConstructor, funcs = []);
-    ceProto._registered = injector;
-  } else {
-    funcs = mapOfFuncs.get(ceConstructor);
-  }
-  if (!funcs) return console.warn('[ytI] _registered has already called. You can just override the properties.')
-  return funcs;
-}
-
-/*
-
-const postInitializeProperties = (ceProto) => { // delay prototype injection
-  if (!('_initializeProperties' in ceProto)) return console.warn('[ytI] no _initializeProperties is found in proto');
-  const _initializeProperties = ceProto._initializeProperties; // make a copy in this nested closure.
-  if (typeof _initializeProperties !== 'function') return console.warn('[ytI] proto._initializeProperties is not a function');
-
-  let injector = null;
-  if (injector = _initializeProperties.__injector__) {
-    if (injector.deref) injector = injector.deref(); // null if _initializeProperties of all CEs are restored.
-  }
-  if (!injector) {
-    injector = injectorCreationForInitializeProperties(new WeakMap(), _initializeProperties);
-    _initializeProperties.__injector__ = injector.__injector__;
-  }
-
-  if (typeof (injector || 0).getMap !== 'function') return console.warn('[ytI] the injector function is invalid.')
-  /-** @type {WeakMap} *-/ const mapOfFuncs = injector.getMap();
-
-  const ceConstructor = ceProto.constructor || null;
-  if (!ceConstructor) return console.warn('[ytI] no constructor is found in proto');
-  let funcs;
-
-  if (!mapOfFuncs.has(ceConstructor)) {
-    mapOfFuncs.set(ceConstructor, funcs = []);
-    ceProto._initializeProperties = injector;
-  } else {
-    funcs = mapOfFuncs.get(ceConstructor);
-  }
-  if (!funcs) return console.warn('[ytI] _initializeProperties has already called. You can just override the properties.')
-  return funcs;
-}
-*/
-
-  function ceHack(evt) {
-
-    if (_ceHack_calledOnce) return;
-    _ceHack_calledOnce = true;
-    console.log('[tyt] ce-hack')
-
-    if (typeof customElements === 'undefined') throw '[tyt] Your browser does not support Tabview userscript.';
-    // note: YouTube implements its on window.customElements when it detects the browser is old.
-
-    let ceElmConstrcutor;
+     
 
 
     let s1 = Symbol();
@@ -2670,21 +2361,7 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
     // })
     
 
-    ceElmConstrcutor = customElements.get('ytd-expander');
     
-    customYtElements.whenRegistered('ytd-watch-flexy').then((proto)=>{
-      console.log(550, proto.is)
-    })
-
-    customYtElements.whenRegistered('ytd-expander').then((proto)=>{
-      console.log(551, proto.is)
-    })
-    
-    customYtElements.whenRegistered('ytd-rich-grid-renderer', (proto)=>{
-
-      console.log(601, proto.is)
-
-    })
 
 
     customYtElements.whenRegistered('ytd-expander', (proto)=>{
@@ -2693,7 +2370,7 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
       // recomputeOnResize is just value assignment after "_initializeProperties()"
       if(keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
 
-      defineValuable(proto, 'recomputeOnResize', s1, {
+      Object.defineProperty(proto, 'recomputeOnResize', {
         get() {
           if (this.calculateCanCollapse !== funcCanCollapse) {
             this.calculateCanCollapse = funcCanCollapse
@@ -2717,9 +2394,6 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
 
     });
 
-    
-    // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // error
-
 
     const s6 = Symbol();
 
@@ -2730,12 +2404,12 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
         translateHanlder = getTranslate();
     })
 
-    ceElmConstrcutor = customElements.get('ytd-transcript-search-panel-renderer');
 
-    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto, keyDefined)=>{
+    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto)=>{
+      let keyDefined = 'initialTranscriptsRenderer' in proto;
       // initialTranscriptsRenderer is just value assignment after "_initializeProperties()"
       if(keyDefined) console.warn('initialTranscriptsRenderer is defined in ytd-transcript-search-panel-renderer.');
-      defineValuable(proto, 'initialTranscriptsRenderer', '__$$initialTranscriptsRenderer$$__', {
+      Object.defineProperty(proto, 'initialTranscriptsRenderer', {
         get() {
           return this.__$$initialTranscriptsRenderer$$__
         },
@@ -2759,43 +2433,6 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
         configurable: false // if redefine by YouTube, error comes and change the coding
       })
     });
-    
-
-
-
-
-    /*
-
-    let trial55 = 20;
-    let cid55 = 0;
-
-    const func55 = () => {
-      // false = continue
-      let frameCE_prototype = customElements.get('ytd-live-chat-frame').prototype;
-      console.log(3434,frameCE_prototype,  frameCE_prototype.postToContentWindow )
-      //p&&(p.configurable=!0,Object.defineProperty(a,m,p))}}
-
-      if (frameCE_prototype && !frameCE_prototype.__$$postToContentWindow$$__ && typeof frameCE_prototype.postToContentWindow == 'function') {
-        // console.log(344, document.querySelector('#hyperchat'));
-        const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-        frameCE_prototype.__$$postToContentWindow$$__ = frameCE_prototype.postToContentWindow;
-        frameCE_prototype.postToContentWindow = g_postToContentWindow;
-        // true
-      } else if (--trial55 === 0 && cid55 > 0) {
-        // true
-      } else {
-        return false;
-      }
-      if (cid55 > 0) {
-        clearInterval(cid55)
-        cid55 = 0;
-      }
-      return true;
-    };
-
-    if (!func55()) cid55 = setInterval(func55, 150);
-
-    */
 
     customYtElements.whenRegistered('ytd-live-chat-frame', (proto)=>{
       let keyDefined = 'postToContentWindow' in proto;
@@ -2812,14 +2449,13 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
     let s32 = Symbol();
     let insObserverChipCloud = getInsObserverChipCloud();
     let mutObserverChipCloud = getMutObserverChipCloud();
-    // yt-chip-cloud-renderer
-    ceElmConstrcutor = customElements.get('yt-chip-cloud-renderer');
+    // yt-chip-cloud-renderer 
     
     customYtElements.whenRegistered('yt-chip-cloud-renderer', (proto)=>{
       let keyDefined = 'boundChipCloudChipScrollIntoView' in proto;
       // boundChipCloudChipScrollIntoView is just value assignment after "_initializeProperties()"
       if(keyDefined) console.warn('boundChipCloudChipScrollIntoView is defined in yt-chip-cloud-renderer.');
-      defineValuable(proto, 'boundChipCloudChipScrollIntoView', s32, {
+      Object.defineProperty(proto, 'boundChipCloudChipScrollIntoView', {
         get() {
           return this[s32];
         },
@@ -2836,33 +2472,9 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
     });
 
 
-    window.exposeCE = function (tag) {
-
-      let ww = {}, wp = customElements.get(tag).prototype;
-      for (const s of Object.keys(wp)) {
-        try {
-          if (typeof wp[s] == 'function') {
-            ww[s] = wp[s];
-          }
-        } catch (e) { }
-      }
-
-      return ww;
-
-    }
-
-    /*
-      let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of Object.keys(wp)){
-          try{
-          if (typeof  wp[s] == 'function') {
-              ww[s] = wp[s]; }
-          }catch(e){}
-      } 
-      */
 
 
     // dataChanged_ & headerChanged_ for comments counting update
-    ceElmConstrcutor = customElements.get('ytd-comments'); 
     
     customYtElements.whenRegistered('ytd-comments',(proto)=>{
       let keyDefined = 'headerChanged_' in proto && 'headerChanged_' in proto;
@@ -2938,7 +2550,40 @@ const postInitializeProperties = (ceProto) => { // delay prototype injection
     }, false);
     
 
+  }
 
+  function ceHack(evt) {
+
+    if (_ceHack_calledOnce) return;
+    _ceHack_calledOnce = true;
+
+    customYtElements.onRegistryReady(ceHackExecution);
+
+    // if (typeof customElements === 'undefined') throw '[tyt] Your browser does not support Tabview userscript.';
+    // note: YouTube implements its on window.customElements when it detects the browser is old.
+
+
+    // for DEBUG
+    window.exposeCE = function (tag) {
+      let ww = {}, wp = customElements.get(tag).prototype;
+      for (const s of Object.keys(wp)) {
+        try {
+          if (typeof wp[s] == 'function') {
+            ww[s] = wp[s];
+          }
+        } catch (e) { }
+      }
+      return ww;
+    }
+
+    /*
+      let ww = {}, wp = customElements.get('ytd-comments').prototype; for (const s of Object.keys(wp)){
+          try{
+          if (typeof  wp[s] == 'function') {
+              ww[s] = wp[s]; }
+          }catch(e){}
+      } 
+      */
 
   }
 
