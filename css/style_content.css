@@ -715,6 +715,7 @@ Same for #secondary
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata {
         contain: size; /* follow flex layouting */
         /* the height will depends on #owner; the width will fill up for flex layout of #top-row */
+        min-width: initial !important;
     }
     
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner {
