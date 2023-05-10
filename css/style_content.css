@@ -702,6 +702,7 @@ Same for #secondary
 
 
 @supports (color: var(--fix-youtube-bugs-menu-options-hidden-after-page-updated)) and (contain: size){
+    /* added in 2023.05.10 due to new css rule added by YouTube due to the change in darker dark theme implementation stage */
     
     /* against YouTube css bug - "max-height: 36px" casue buttons disappear after page changing */
     html ytd-menu-renderer[has-flexible-items] {
@@ -720,6 +721,12 @@ Same for #secondary
         max-height: 100%; /* the y-overflowed items will be shifted such that the first line will be always positiioned at the top */
         overflow: hidden; /* for visual only */ /* cannot do "contain: paint" due to tooltips */
     }
+
+    ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner ytd-menu-renderer.style-scope.ytd-watch-metadata,
+    ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner .top-level-buttons.ytd-menu-renderer {
+        row-gap: 12px; /* for visual only */ /* second line will be far below the first line such that it is invisible */
+    }
+    
 
 }
 
