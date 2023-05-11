@@ -541,6 +541,19 @@ SOFTWARE.
     return ret.join(' ')
   }
 
+  /* durationLocaleEN by ChatGPT @ 2023.05.11 */
+  function durationLocaleJP(durationInfo) {
+
+    const { hrs, mins, seconds } = durationInfoTS(durationInfo);
+    let ret = [];
+    ret.push(`再生時間：`);
+    if (hrs > 0) ret.push(`${hrs}時間`);
+    if (mins > 0) ret.push(`${mins}分`);
+    if (seconds !== null) ret.push(`${seconds}秒`);
+    return ret.join('');
+  
+  }
+
   function formatDateResultEN(type, req) {
 
     const { bd1, bd2, durationInfo, formatDates } = formatDateReqTS(req)
@@ -548,16 +561,16 @@ SOFTWARE.
     switch (type) {
       case 0x200:
         return [
-          `The livestream was in ${bd1.lokStringDate()} from ${bd1.lokStringTime()} to ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
+          `The livestream was in ${bd1.lokStringDateEN()} from ${bd1.lokStringTime()} to ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
           durationLocaleEN(durationInfo)
         ].join('\n');
       case 0x210:
         return [
-          `The livestream was from ${bd1.lokStringDate()} ${bd1.lokStringTime()} to ${bd2.lokStringDate()} ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
+          `The livestream was from ${bd1.lokStringDateEN()} ${bd1.lokStringTime()} to ${bd2.lokStringDateEN()} ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
           durationLocaleEN(durationInfo)
         ].join('\n');
       case 0x300:
-        return `The livestream started at ${bd1.lokStringTime()} [GMT${getGMT()}] in ${bd1.lokStringDate()}.`;
+        return `The livestream started at ${bd1.lokStringTime()} [GMT${getGMT()}] in ${bd1.lokStringDateEN()}.`;
       case 0x600:
         return `The video was uploaded in ${formatDates.uploadDate} and published in ${formatDates.publishDate}.`;
       case 0x610:
@@ -568,6 +581,47 @@ SOFTWARE.
     return '';
 
   }
+
+  /* formatDateResultJP by ChatGPT @ 2023.05.11 */
+
+  function formatDateResultJP(type, req) {
+
+    const { bd1, bd2, durationInfo, formatDates } = formatDateReqTS(req);
+  
+    switch (type) {
+      case 0x200:
+        return [
+          `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始し、${bd2.lokStringTime()}まで続きました。[GMT${getGMT()}]`,
+          durationLocaleJP(durationInfo)
+        ].join('\n');
+      case 0x210:
+        return [
+          `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から${bd2.lokStringDateJP()}の${bd2.lokStringTime()}まで行われました。[GMT${getGMT()}]`,
+          durationLocaleJP(durationInfo)
+        ].join('\n');
+      case 0x300:
+        return `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始しました。[GMT${getGMT()}]`;
+      case 0x600:
+        return `この動画は${formatDates.uploadDate}にアップロードされ、${formatDates.publishDate}に公開されました。`;
+      case 0x610:
+        return `この動画は${formatDates.uploadDate}にアップロードされました。`;
+      case 0x700:
+        return `この動画は${formatDates.publishDate}に公開されました。`;
+    }
+    return '';
+  
+  }
+
+  function getFormatDateResultFunc(){
+    switch(getLang()){
+      case 'jp':
+        return formatDateResultJP;
+      case 'en':
+      default:
+        return formatDateResultEN;
+    }
+  }
+
 
   const S_GENERAL_RENDERERS = ['YTD-TOGGLE-BUTTON-RENDERER', 'YTD-MENU-RENDERER']
 
@@ -893,7 +947,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-
   class KDate extends Date {
 
     constructor(...args) {
@@ -906,7 +959,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-    lokStringDate() {
+    lokStringDateEN() {
       const d = this
 
       let y = d.getFullYear()
@@ -919,6 +972,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let sd = date < 10 ? '0' + date : '' + date
 
       return `${sy}.${sm}.${sd}`
+
+    }
+
+    
+    lokStringDateJP() {
+      const d = this
+
+      let y = d.getFullYear()
+      let m = d.getMonth() + 1
+      let date = d.getDate()
+
+      let sy = y < 1000 ? (`0000${y}`).slice(-4) : '' + y
+
+      let sm = m < 10 ? '0' + m : '' + m
+      let sd = date < 10 ? '0' + date : '' + date
+
+      return `${sy}/${sm}/${sd}`
 
     }
 
@@ -3596,6 +3666,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  
   function getLang() {
 
     let lang = 'en';
@@ -3638,6 +3709,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       default:
         lang = 'en';
     }
+    
+    return lang;
+
+  }
+
+  function getLangForPage() {
+
+    let lang = getLang();
 
     if (langWords[lang]) pageLang = lang; else pageLang = 'en';
 
@@ -4699,84 +4778,89 @@ async function checkDuplicatedInfoMay2023() {
 
 
             let s = '';
-            if (formatDates && Object.keys(formatDates).length > 0) {
 
-              function getDurationInfo(bd1, bd2) {
+            try {
+              if (formatDates && Object.keys(formatDates).length > 0) {
 
-                let bdd = bd2 - bd1
-                let hrs = Math.floor(bdd / 3600000)
-                bdd = bdd - hrs * 3600000
-                let mins = Math.round(bdd / 60000)
-                let seconds = null
-                if (mins < 10 && hrs === 0) {
-                  mins = Math.floor(bdd / 60000)
-                  bdd = bdd - mins * 60000
-                  seconds = Math.round(bdd / 1000)
-                  if (seconds === 0) seconds = null
-                }
+                function getDurationInfo(bd1, bd2) {
 
-                return { hrs, mins, seconds }
-
-              }
-
-              const formatDateResult = formatDateResultEN
-
-              if (formatDates.broadcastBeginAt && formatDates.isLiveNow === false) {
-
-                let bd1 = new KDate(formatDates.broadcastBeginAt)
-                let bd2 = formatDates.broadcastEndAt ? new KDate(formatDates.broadcastEndAt) : null
-
-                let isSameDay = 0
-                if (bd2 && bd1.toLocaleDateString() === bd2.toLocaleDateString()) {
-                  isSameDay = 1
-
-                } else if (bd2 && +bd2 > +bd1 && bd2 - bd1 < 86400000) {
-
-                  if (bd1.getHours() >= 6 && bd2.getHours() < 6) {
-                    isSameDay = 2
+                  let bdd = bd2 - bd1
+                  let hrs = Math.floor(bdd / 3600000)
+                  bdd = bdd - hrs * 3600000
+                  let mins = Math.round(bdd / 60000)
+                  let seconds = null
+                  if (mins < 10 && hrs === 0) {
+                    mins = Math.floor(bdd / 60000)
+                    bdd = bdd - mins * 60000
+                    seconds = Math.round(bdd / 1000)
+                    if (seconds === 0) seconds = null
                   }
 
-                }
-
-                let durationInfo = getDurationInfo(bd1, bd2)
-                if (isSameDay > 0) {
-
-                  bd2.dayBack = (isSameDay === 2)
-
-                  s = formatDateResult(0x200, { bd1, bd2, isSameDay, durationInfo, formatDates })
-
-                } else if (bd2 && isSameDay === 0) {
-
-                  s = formatDateResult(0x210, { bd1, bd2, isSameDay, durationInfo, formatDates })
+                  return { hrs, mins, seconds }
 
                 }
 
+                const formatDateResult = getFormatDateResultFunc();
 
-              } else if (formatDates.broadcastBeginAt && formatDates.isLiveNow === true) {
+                if (formatDates.broadcastBeginAt && formatDates.isLiveNow === false) {
 
-                let bd1 = new KDate(formatDates.broadcastBeginAt)
+                  let bd1 = new KDate(formatDates.broadcastBeginAt)
+                  let bd2 = formatDates.broadcastEndAt ? new KDate(formatDates.broadcastEndAt) : null
 
-                s = formatDateResult(0x300, { bd1, formatDates })
+                  let isSameDay = 0
+                  if (bd2 && bd1.toLocaleDateString() === bd2.toLocaleDateString()) {
+                    isSameDay = 1
 
-              } else {
-                if (formatDates.uploadDate) {
+                  } else if (bd2 && +bd2 > +bd1 && bd2 - bd1 < 86400000) {
 
-                  if (formatDates.publishDate && formatDates.publishDate !== formatDates.uploadDate) {
-
-                    s = formatDateResult(0x600, { formatDates })
-                  } else {
-                    s = formatDateResult(0x610, { formatDates })
+                    if (bd1.getHours() >= 6 && bd2.getHours() < 6) {
+                      isSameDay = 2
+                    }
 
                   }
-                } else if (!formatDates.uploadDate && formatDates.publishDate) {
 
-                  s = formatDateResult(0x700, { formatDates })
+                  let durationInfo = getDurationInfo(bd1, bd2)
+                  if (isSameDay > 0) {
+
+                    bd2.dayBack = (isSameDay === 2)
+
+                    s = formatDateResult(0x200, { bd1, bd2, isSameDay, durationInfo, formatDates })
+
+                  } else if (bd2 && isSameDay === 0) {
+
+                    s = formatDateResult(0x210, { bd1, bd2, isSameDay, durationInfo, formatDates })
+
+                  }
 
 
+                } else if (formatDates.broadcastBeginAt && formatDates.isLiveNow === true) {
+
+                  let bd1 = new KDate(formatDates.broadcastBeginAt)
+
+                  s = formatDateResult(0x300, { bd1, formatDates })
+
+                } else {
+                  if (formatDates.uploadDate) {
+
+                    if (formatDates.publishDate && formatDates.publishDate !== formatDates.uploadDate) {
+
+                      s = formatDateResult(0x600, { formatDates })
+                    } else {
+                      s = formatDateResult(0x610, { formatDates })
+
+                    }
+                  } else if (!formatDates.uploadDate && formatDates.publishDate) {
+
+                    s = formatDateResult(0x700, { formatDates })
+
+
+                  }
                 }
+
+
               }
-
-
+            } catch (e) {
+              s = '';
             }
 
             if (s) {
@@ -5513,7 +5597,7 @@ async function checkDuplicatedInfoMay2023() {
     // isPageFirstLoaded && console.time("Tabview Youtube Render")
 
     if (!document.querySelector("#right-tabs")) {
-      getLang();
+      getLangForPage();
       let docTmp = document.createElement('template');
       docTmp.innerHTML = getTabsHTML();
       let newElm = docTmp.content.firstElementChild;
