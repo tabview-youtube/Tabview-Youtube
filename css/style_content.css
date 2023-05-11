@@ -626,15 +626,13 @@ Same for #secondary
 
 @supports (color: var(--hide-menu-icon-text-by-default)) {
 
-    ytd-menu-renderer.ytd-watch-metadata[has-flexible-items] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon,
-    ytd-menu-renderer.ytd-watch-metadata[has-flexible-items] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon {
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon {
         margin-right: 0;
         margin-left: 0;
         contain: layout style;
     }
 
-    ytd-menu-renderer.ytd-watch-metadata[has-flexible-items] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon+.yt-spec-button-shape-next--button-text-content,
-    ytd-menu-renderer.ytd-watch-metadata[has-flexible-items] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon+.yt-spec-button-shape-next--button-text-content {
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon+.yt-spec-button-shape-next--button-text-content {
         display: none !important;
         width: 0 !important;
         contain: strict !important;
@@ -659,8 +657,25 @@ Same for #secondary
         /* margin-top:30px; */
     }
     ytd-watch-flexy[is-two-columns_][theater] #actions-inner tp-yt-paper-tooltip {
-        inset: initial !important;  /* allow go beyond right edge of container */
-        transform: translateY(-6px); /* avoid hidden by bottom edge of page */
+        /* inset: initial !important; */ /* allow go beyond right edge of container */
+        /*
+        inset-block-start	top	Specifies the offset for the starting edge in the direction which is perpendicular to the writing direction.
+inset-block-end	bottom	Specifies the offset for the ending edge in the direction which is perpendicular to the writing direction.
+inset-inline-start	left	Specifies the offset for the starting edge in the writing direction, which maps to a physical offset depending on the element’s writing mode, direction and text orientation.
+inset-inline-end right	Specifies the offset for the ending edge in the writing direction.
+
+*/
+
+        inset-block-start: auto !important;
+        inset-block-end: 0px !important; 
+
+        
+        /* inset-block-start: calc(100vh - 84px) !important;
+        inset-block-end: auto !important; 
+        scroll-margin-block-end: 40px;*/
+
+        /* transform: translateY(-8em); */ /* avoid hidden by bottom edge of page */
+        /* z-index: 999;  */
         /* transform: translateY(-100%); */
         /* inset: initial !important; */
     }
@@ -701,7 +716,7 @@ Same for #secondary
 }
 
 
-@supports (color: var(--fix-youtube-bugs-menu-options-hidden-after-page-updated)) and (contain: size){
+@supports (color: var(--fix-youtube-bugs-menu-options-hidden-after-page-updated)) and (contain: var(--size)){
     /* added in 2023.05.10 due to new css rule added by YouTube due to the change in darker dark theme implementation stage */
     
     /* against YouTube css bug - "max-height: 36px" casue buttons disappear after page changing */
@@ -712,8 +727,18 @@ Same for #secondary
         /* overflow-y: hidden; */
     }
 
+     ytd-watch-metadata {
+        --tyt-action-menu-contain: size;
+     }
+
+    ytd-watch-metadata[actions-on-separate-line] {
+        /* actions-on-separate-line is a new attribute introduced in May 2023 Darker Dark Theme. */
+        --tyt-action-menu-contain: none;
+
+    }
+
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata {
-        contain: size; /* follow flex layouting */
+        contain: var(--tyt-action-menu-contain); /* follow flex layouting instead of content. content can have larger size */
         /* the height will depends on #owner; the width will fill up for flex layout of #top-row */
         min-width: initial !important;
     }
@@ -728,7 +753,25 @@ Same for #secondary
         row-gap: 12px; /* for visual only */ /* second line will be far below the first line such that it is invisible */
     }
     
+}
 
+@supports (color: var(--fix-single-column-menu-bar-position)){
+    html ytd-watch-metadata[actions-on-separate-line] #actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata {
+        justify-content: flex-end; /* override justify-content: flex-start; */
+    }
+    ytd-watch-metadata[actions-on-separate-line] .item.ytd-watch-metadata {
+        /* override margin-bottom: 12px */
+        margin-top: 6px;
+        margin-bottom: 6px;
+    }
+    html .item.ytd-watch-metadata {
+        /* override margin-right: 12px */
+        /* this is a wrong design to make every .item.ytd-watch-metadata with margin-right. this makes description line becomes not fullwidth */
+        margin-right: 0px; /* fix description line */
+    }
+    #top-row.ytd-watch-metadata {
+        column-gap: 12px; /* this is the correct way to set gap in flex layout */
+    }
 }
 
 
@@ -1414,7 +1457,7 @@ body .ytp-autohide .ytp-unmute,
 
 @media screen and (max-width: 1294px) {
 
-
+    /*
     #actions.ytd-watch-metadata #top-level-buttons-computed.top-level-buttons.style-scope.ytd-menu-renderer 
     ytd-segmented-like-dislike-button-renderer ~ ytd-button-renderer.ytd-menu-renderer 
     .yt-spec-button-shape-next__icon {
@@ -1427,7 +1470,9 @@ body .ytp-autohide .ytp-unmute,
     .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
         display: none;
     }
+    */
 
+    /*
     @supports (color: var(--compatibile-with-translation-button)) {
 
         div[name="top_level_translate_btn"] img {
@@ -1438,8 +1483,10 @@ body .ytp-autohide .ytp-unmute,
             display: none;
         }
     }
+    */
 
  
+    /*
     #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
     ytd-button-renderer.ytd-download-button-renderer 
     .yt-spec-button-shape-next__icon {
@@ -1465,6 +1512,7 @@ body .ytp-autohide .ytp-unmute,
     .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
         display: none;
     }
+    */
 
     
 }
