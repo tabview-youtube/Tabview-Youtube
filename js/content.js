@@ -692,6 +692,7 @@ SOFTWARE.
   const closestDOM = HTMLElement.prototype.closest;
   //const elementRemove = HTMLElement.prototype.remove;
   //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
+  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements
 
   const closestDOMX = function (child, parentSelector) {
     if (!(child instanceof HTMLElement)) return null;
@@ -1447,7 +1448,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
       //console.log(entries, enableHoverSliderDetection, t)
     })
-    columns.appendChild(elmA); // append to dom first before observe
+    elementAppend.call(columns, elmA); // append to dom first before observe
     if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
       //to trigger observation at the time layout being changed
       itoA.observe(elmA);
@@ -2532,9 +2533,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         _console.log(3202, 4)
 
         let target_container = document.querySelector('ytd-watch-flexy:not([is-two-columns_]) #primary-inner.ytd-watch-flexy, ytd-watch-flexy[is-two-columns_] #secondary-inner.ytd-watch-flexy')
-        if (target_container) target_container.appendChild(right_tabs) // last-child
+        if (target_container) elementAppend.call(target_container, right_tabs) // last-child
 
-        tab_videos.appendChild(relatedElm);
+        elementAppend.call(tab_videos, relatedElm);
         // no any other element set these attr. only init / relocation
         relatedElm.setAttribute('placeholder-for-youtube-play-next-queue', '')
         relatedElm.setAttribute('placeholder-videos', '')
@@ -2898,9 +2899,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let w = getWrapper("tabview-playlist-wrapper");
       let docFrag = new DocumentFragment();
       // avoid immediate reflow for append playlist before append to tab_list
-      docFrag.appendChild(w);
-      w.appendChild(playlist);
-      tab_list.appendChild(docFrag);
+      elementAppend.call(docFrag, w);
+      elementAppend.call(w, playlist);
+      elementAppend.call(tab_list, docFrag);
       docFrag = null;
       w = null;
 
@@ -3740,7 +3741,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (comments) {
       let tabComments = document.querySelector('#tab-comments');
       if (tabComments) {
-        tabComments.appendChild(comments);
+        elementAppend.call(tabComments, comments);
       }
     }
 
@@ -4426,6 +4427,7 @@ async function checkDuplicatedInfoMay2023() {
     handleDOMAppear('pageLoaderAnimation', (evt) => {
       pageRendered = 2;
       renderDeferred.resolve();
+      console
       console.debug('[tyt] pageRendered')
 
       scriptletDeferred.debounce(() => {
@@ -4637,7 +4639,7 @@ async function checkDuplicatedInfoMay2023() {
           expander.setAttribute('tabview-expander-checked', '');
           let tabInfo = document.querySelector("#tab-info");
           if (tabInfo) {
-            tabInfo.appendChild(expander);
+            elementAppend.call(tabInfo, expander);
           }
 
         }
@@ -5277,7 +5279,7 @@ async function checkDuplicatedInfoMay2023() {
       if (btn) btn.remove();
 
       btn = document.createElement('tyt-iframe-popup-btn')
-      showHideBtn.appendChild(btn)
+      elementAppend.call(showHideBtn, btn)
       // console.log(334,2)
       btn.dispatchEvent(new CustomEvent('tyt-iframe-popup-btn-setup'))
     }
@@ -7186,7 +7188,8 @@ async function checkDuplicatedInfoMay2023() {
 
           let elmPL = document.createElement('tabview-view-ploader');
           pageRendered = 1;
-          ytdFlexyElm.appendChild(elmPL);
+          // ytdFlexyElm.appendChild(elmPL);
+          elementAppend.call(ytdFlexyElm, elmPL);
           // pageRendered keeps at 1 if the video is continuously playing at the background
           // pageRendered would not be resolve but will reset for each change of video
 
@@ -7495,12 +7498,17 @@ async function checkDuplicatedInfoMay2023() {
     }
     // comments_loader = comments_loader | 2;
   }, true);
+
   document.addEventListener('ytd-comments-header-changed', function(){
     // if(pageType === 'watch'){}else{return;}
     resultCommentsCountCaching(innerDOMCommentsCountLoader());
     checkAndMakeNewCommentFetch();
     // comments_loader = comments_loader | 4;
     // onCommentsReady(); // header change might just temporarily remove for page switching
+  //  setTimeout(()=>{
+  //   resultCommentsCountCaching(innerDOMCommentsCountLoader());
+  //   checkAndMakeNewCommentFetch();
+  //  }, 40);
   }, true);
 
   document.addEventListener("tabview-plugin-loaded", () => {

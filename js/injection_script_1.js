@@ -47,6 +47,7 @@ function injection_script_1() {
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
+  const elementAppend = HTMLElement.prototype.appendChild;
 
   const $requestAnimationFrame = window.requestAnimationFrame.bind(window);
   const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
@@ -345,7 +346,7 @@ function injection_script_1() {
       if (!cr) return;
       this.ytInitialChecked = false;
       this.keepOriginalPTCW = false; // reset
-      this.ytLiveChatApp = HTMLElement.prototype.closest.call(cr, 'yt-live-chat-app')
+      this.ytLiveChatApp = closestFromAnchor.call(cr, 'yt-live-chat-app')
       if (!this.ytLiveChatApp) return;
 
 
@@ -692,8 +693,10 @@ function injection_script_1() {
             display: block;
           }
           
-          `
-        ytLivePU.ytLiveChatApp.appendChild(style)
+          `;
+
+
+        elementAppend.call(ytLivePU.ytLiveChatApp, style);
       }
 
     }
@@ -1006,16 +1009,6 @@ function injection_script_1() {
 
           // ytReloadCont.trigger();
           ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
-
-          /*
-          let chatRenderer = HTMLElement.prototype.closest.call(ytReloadCont, 'yt-live-chat-renderer')
-          try{
-            chatRenderer.onLoadReloadContinuation_(new CustomEvent('yt-load-reload-continuation', { detail: getContinuationUrl }), getContinuationUrl)
-          }catch(e){
-            // known as buggy for single column view
-            console.log(e)
-          }
-          */
 
 
         }
@@ -1947,11 +1940,11 @@ function injection_script_1() {
         for (const entry of entries) {
           /// entry.target -> ytd-expander
           if (entry.isIntersecting) {
-            let pElm = entry.target.closest('ytd-comment-thread-renderer');
+            let pElm = closestFromAnchor.call(entry.target, 'ytd-comment-thread-renderer');
             if (pElm && !cmtWM.has(pElm)) {
               let flag = -1;
 
-              let cmRendererBGOFFSETED = entry.target.closest('ytd-comment-renderer#comment.ytd-comment-thread-renderer[style*="--ytd-decorated-comment-background-offset-"]');
+              let cmRendererBGOFFSETED = closestFromAnchor.call(entry.target, 'ytd-comment-renderer#comment.ytd-comment-thread-renderer[style*="--ytd-decorated-comment-background-offset-"]');
               if (cmRendererBGOFFSETED) {
                 // colored comment - https://www.youtube.com/watch?v=Ewnt9o7c1vo
                 flag = -2;
@@ -2709,11 +2702,11 @@ function injection_script_1() {
       "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
       "loggingDirectives": {
       }
-    }
+    };
 
-    newPanel.classList.add('style-scope', 'ytd-watch-flexy')
+    newPanel.classList.add('style-scope', 'ytd-watch-flexy');
 
-    querySelectorFromAnchor.call(ytdFlexyElm, '#panels').appendChild(newPanel)
+    elementAppend.call(querySelectorFromAnchor.call(ytdFlexyElm, '#panels'), newPanel);
 
     return newPanel;
 
@@ -2742,11 +2735,11 @@ function injection_script_1() {
         if (epc) {
           isLyricsLoading = false
           lyricsiframe.classList.add('tyt-tmp-hide-lyricsiframe');
-          let panel = epc.closest('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
+          let panel = closestFromAnchor.call(epc, 'ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]')
           if (panel) {
             panel.classList.toggle('epanel-lyrics-loading', true);
           }
-          epc.appendChild(lyricsiframe)
+          elementAppend.call(epc, lyricsiframe);
           await Promise.resolve(0)
           setTimeout(() => {
             document.dispatchEvent(new CustomEvent('genius-lyrics-actor', { detail: { action: 'reloadCurrentLyrics' } }))
@@ -2806,7 +2799,7 @@ function injection_script_1() {
         if (epc) {
           epc.innerHTML = '';
           elm.classList.add('tyt-tmp-hide-lyricsiframe');
-          epc.appendChild(elm)
+          elementAppend.call(epc, elm);
 
           document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
             detail: {
@@ -2938,8 +2931,8 @@ function injection_script_1() {
       const selector = '#tab-comments #contents.style-scope.ytd-item-section-renderer > ytd-comment-thread-renderer.style-scope.ytd-item-section-renderer ytd-expander#expander[max-number-of-lines]';
       if (elm.matches(selector)) {
         //setTimeout(()=>{
-        let cmRender = elm.closest('ytd-comment-renderer')
-        let tabComments = cmRender.closest('#tab-comments')
+        let cmRender = closestFromAnchor.call(elm, 'ytd-comment-renderer')
+        let tabComments = closestFromAnchor.call(cmRender, '#tab-comments')
         let cmRenderRect = cmRender.getBoundingClientRect()
         let tabCommentsRect = tabComments.getBoundingClientRect()
         let eTop = cmRenderRect.top
@@ -3041,7 +3034,7 @@ function injection_script_1() {
   function tabviewInfoTogglerOnClick(evt) {
     let isTrusted = evt.isTrusted === true;
     let dom = evt.target;
-    let description = dom.closest('#description')
+    let description = closestFromAnchor.call(dom, '#description')
     if (!description) return;
     let button = description.querySelector('#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
     if (!button) return;
