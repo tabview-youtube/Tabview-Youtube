@@ -2321,10 +2321,7 @@ function injection_script_1() {
   function ceHackExecution(){
 
     // handled by customYtElements
-    console.debug('[tyt] ce-hack')
-
-     
-
+    console.debug('[tyt] ce-hack');
 
     let s1 = Symbol();
     //let s2 = Symbol();

@@ -666,8 +666,8 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
 
 */
 
-        inset-block-start: auto !important;
-        inset-block-end: 0px !important; 
+        /*inset-block-start: auto !important;
+        inset-block-end: 0px !important; */
 
         
         /* inset-block-start: calc(100vh - 84px) !important;
@@ -682,6 +682,22 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     
     ytd-watch-flexy #actions-inner.ytd-watch-metadata tp-yt-paper-tooltip{
         pointer-events: none !important; /* avoid offset due to cursor */
+    }
+}
+
+@supports (color: var(--fix-shitty-tooltip-layouting)){
+    
+    @keyframes shittyTooltipAppear {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+    
+    #actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds] {
+        animation: shittyTooltipAppear 1ms linear 0s 1 normal forwards;
     }
 }
 

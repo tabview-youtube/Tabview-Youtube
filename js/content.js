@@ -5198,6 +5198,14 @@ async function checkDuplicatedInfoMay2023() {
 
     })
 
+    handleDOMAppear('shittyTooltipAppear', (evt)=>{
+      let s = evt.target;
+        s.removeAttribute('fit-to-visible-bounds')
+        s.setAttribute('offset', '0')
+        s.style.marginTop='-82px'
+      
+    })
+
 
   }
 
