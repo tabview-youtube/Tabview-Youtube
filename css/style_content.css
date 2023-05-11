@@ -535,7 +535,7 @@ Same for #secondary
     }
 }
 
-@supports (not-color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){
+@supports (not-color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){ /* removed in May 2023 */
 
 /* <<< pre-fix for japanese layout native bug */
 /* remove if YouTube fixed this bug */
@@ -608,7 +608,7 @@ Same for #secondary
 
 }
 
-@supports (color: var(--wider-playlist-button-for-japanese)){
+@supports (color: var(--wider-playlist-button-for-japanese)){ /* May 2023 */
     /*
     @media screen and (min-width: 1294px) and (max-width: 1294px) {
         flex-grow: 1.25;
@@ -624,7 +624,7 @@ Same for #secondary
     }
 }
 
-@supports (color: var(--hide-menu-icon-text-by-default)) {
+@supports (color: var(--hide-menu-icon-text-by-default)) { /* May 2023 */
 
     ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon {
         margin-right: 0;
@@ -640,7 +640,7 @@ Same for #secondary
 
 }
 
-@supports (color: var(--fix-tooltips-display)) {
+@supports (color: var(--fix-tooltips-display)) { /* May 2023 */
     #actions-inner.ytd-watch-metadata {
         /* position: relative; */
     }
@@ -685,7 +685,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     }
 }
 
-@supports (color: var(--tabview-fix-menu-icons-sizing)){
+@supports (color: var(--tabview-fix-menu-icons-sizing)){ /* May 2023 */
 
     ytd-watch-metadata #actions.item.style-scope.ytd-watch-metadata{
         justify-content: end !important;
@@ -716,7 +716,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
 }
 
 
-@supports (color: var(--fix-youtube-bugs-menu-options-hidden-after-page-updated)) and (contain: var(--size)){
+@supports (color: var(--fix-youtube-bugs-menu-options-hidden-after-page-updated)) and (contain: var(--size)){ /* May 2023 */
     /* added in 2023.05.10 due to new css rule added by YouTube due to the change in darker dark theme implementation stage */
     
     /* against YouTube css bug - "max-height: 36px" casue buttons disappear after page changing */
@@ -755,7 +755,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     
 }
 
-@supports (color: var(--fix-single-column-menu-bar-position)){
+@supports (color: var(--fix-single-column-menu-bar-position)){ /* May 2023 */
     html ytd-watch-metadata[actions-on-separate-line] #actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata {
         justify-content: flex-end; /* override justify-content: flex-start; */
     }
@@ -771,6 +771,17 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     }
     #top-row.ytd-watch-metadata {
         column-gap: 12px; /* this is the correct way to set gap in flex layout */
+    }
+}
+
+@supports (color: var(--tabview-adjust-margin-for-watch-metadata)){ /* May 2023 */
+    html .item.ytd-watch-metadata {
+        /* May 2023 theme - no second line in song title */
+        margin-top: 8px;
+    }
+    html #description.ytd-watch-metadata {
+        font-size: 1.2rem;      /* override font-size: 1.4rem; */
+        line-height: 1.8rem;    /* override line-height: 2rem; */
     }
 }
 
@@ -4291,7 +4302,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         /* IE and Edge */
         scrollbar-width: none;
         /* Firefox */
-        margin-top: 6px;
+        /* margin-top: 6px; */
+        margin-top: 4px; /* May 2023 */
     }
 
     #primary-inner.ytd-watch-flexy #player ~ #below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
