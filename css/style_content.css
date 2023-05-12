@@ -743,6 +743,20 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         max-width: 100%;
     }
 
+    
+    #subscribe-button.ytd-watch-metadata > yt-button-renderer, 
+    #subscribe-button.ytd-watch-metadata > ytd-button-renderer, 
+    #subscribe-button.ytd-watch-metadata > ytd-toggle-button-renderer {
+        max-width: 100%; /* for Firefox */
+    }
+
+    
+    #sponsor-button.style-scope.ytd-video-owner-renderer > yt-button-renderer, 
+    #sponsor-button.style-scope.ytd-video-owner-renderer > ytd-button-renderer, 
+    #sponsor-button.style-scope.ytd-video-owner-renderer > ytd-toggle-button-renderer {
+        max-width: 100%; /* for Firefox */
+    }
+
 }
 
 
