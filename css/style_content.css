@@ -638,6 +638,20 @@ Same for #secondary
         contain: strict !important;
     }
 
+    /* https://greasyfork.org/en/scripts/456108 */
+    
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] div[name="top_level_translate_btn"] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading > img:first-child+span:last-child {
+        display: none !important;
+        width: 0 !important;
+        contain: strict !important;
+    }
+    
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] div[name="top_level_translate_btn"] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading > img:first-child:nth-last-child(2) {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        contain: layout style;
+    }
+
 }
 
 @supports (color: var(--fix-tooltips-display)) { /* May 2023 */

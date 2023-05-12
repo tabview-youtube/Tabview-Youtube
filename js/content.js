@@ -692,7 +692,7 @@ SOFTWARE.
   const closestDOM = HTMLElement.prototype.closest;
   //const elementRemove = HTMLElement.prototype.remove;
   //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
-  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements
+  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements; due to Waterfox classic and https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/174437
 
   const closestDOMX = function (child, parentSelector) {
     if (!(child instanceof HTMLElement)) return null;
@@ -3150,7 +3150,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   let innerDOMCommentsCountTextCache = null;
-  function innerDOMCommentsCountLoader() {
+  /**
+   * 
+   * @param {boolean} [requireResultCaching]
+   * @returns 
+   */
+  function innerDOMCommentsCountLoader(requireResultCaching) {
     // independent of tabs initialization
     // f() is executed after tabs being ready
 
@@ -3274,6 +3279,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       isLatest: e.isLatest
 
     })))
+
+    if(requireResultCaching) {
+      resultCommentsCountCaching(res);
+    }
 
     return res;
 
@@ -3424,7 +3433,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // *** consider this can happen immediately after pop state. timeout / interval might clear out.
 
-      renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader());
+      renderDeferred.resolved && innerDOMCommentsCountLoader(true);
       // this is triggered by mutationobserver, the comment count update might have ouccred
 
       if (pageType !== 'watch') return;
@@ -3921,7 +3930,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       comments_loader = 1;
       tabsDeferred.reset();
       if ((firstLoadStatus & 8) === 0) {
-        innerDOMCommentsCountLoader(); //ensure the previous record is saved
+        innerDOMCommentsCountLoader(false); //ensure the previous record is saved
         // no need to cache to the rendering state
         _pageBeingInit();
       } else if ((firstLoadStatus & 2) === 2) {
@@ -3948,7 +3957,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const advanceFetch = async function () {
     if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
-      renderDeferred.resolved && resultCommentsCountCaching(innerDOMCommentsCountLoader());
+      renderDeferred.resolved && innerDOMCommentsCountLoader(true);
       if (renderDeferred.resolved && !fetchCounts.new) {
         window.dispatchEvent(new Event("scroll"));
       }
@@ -3973,8 +3982,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (fetchCounts.fetched) return;
 
 
-      let ret = innerDOMCommentsCountLoader();
-      resultCommentsCountCaching(ret);
+      let ret = innerDOMCommentsCountLoader(true);
 
       if (fetchCounts.new && !fetchCounts.fetched) {
         if (fetchCounts.new.f()) {
@@ -7493,30 +7501,18 @@ async function checkDuplicatedInfoMay2023() {
 
   // new comment count fetch way
   document.addEventListener('ytd-comments-data-changed', function (evt) {
-    // if(pageType === 'watch'){}else{return;}
     const hasData = (evt.detail || 0).hasData;
-    if (!hasData) {
+    if (hasData === false) {
       // this is much effective to clear the counting text
       emptyCommentSection();
     }
-    resultCommentsCountCaching(innerDOMCommentsCountLoader());
+    innerDOMCommentsCountLoader(true);
     checkAndMakeNewCommentFetch();
-    if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
-      window.dispatchEvent(new Event("scroll"));
-    }
-    // comments_loader = comments_loader | 2;
   }, true);
 
   document.addEventListener('ytd-comments-header-changed', function(){
-    // if(pageType === 'watch'){}else{return;}
-    resultCommentsCountCaching(innerDOMCommentsCountLoader());
+    innerDOMCommentsCountLoader(true);
     checkAndMakeNewCommentFetch();
-    // comments_loader = comments_loader | 4;
-    // onCommentsReady(); // header change might just temporarily remove for page switching
-  //  setTimeout(()=>{
-  //   resultCommentsCountCaching(innerDOMCommentsCountLoader());
-  //   checkAndMakeNewCommentFetch();
-  //  }, 40);
   }, true);
 
   document.addEventListener("tabview-plugin-loaded", () => {

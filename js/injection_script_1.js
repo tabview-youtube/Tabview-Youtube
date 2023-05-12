@@ -47,7 +47,7 @@ function injection_script_1() {
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
   const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
-  const elementAppend = HTMLElement.prototype.appendChild;
+  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements; due to Waterfox classic and https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/174437
 
   const $requestAnimationFrame = window.requestAnimationFrame.bind(window);
   const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
@@ -2465,6 +2465,14 @@ function injection_script_1() {
 
 
     // dataChanged_ & headerChanged_ for comments counting update
+
+    async function asyncTriggerInitialContinuations(sections){
+      try{
+        sections.triggerInitialContinuations();
+      }catch(e){
+
+      }
+    }
     
     customYtElements.whenRegistered('ytd-comments',(proto)=>{
       let keyDefined = 'headerChanged_' in proto && 'headerChanged_' in proto;
@@ -2484,7 +2492,7 @@ function injection_script_1() {
           if(hasData){
             const sections = ((this.$||0).sections||0);
             if(sections && 'triggerInitialContinuations' in sections){
-              sections.triggerInitialContinuations();
+              asyncTriggerInitialContinuations(sections);
               // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
             }
           }
