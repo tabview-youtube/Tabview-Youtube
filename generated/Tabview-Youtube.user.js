@@ -178,9 +178,9 @@ SOFTWARE.
 // @description:am        አስተያየቶችን እና ዝርዝሮችን YouTube ቪዲዮዎች ለትርጓሜዎች ውስጥ ያስተካክሉ
 // @description:km        បង្កើតមតិយោបល់និងបញ្ជីទៅជាផ្ទាំងសម្រាប់វីដេអូ YouTube
 
-// @version               4.9.2
-// @resource              contentCSS    https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/a27d5aaa4e80801e9f385f378414e0520a4dffcf/css/style_content.css
-// @resource              injectionJS1  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/a27d5aaa4e80801e9f385f378414e0520a4dffcf/js/injection_script_1.js
+// @version               4.9.3
+// @resource              contentCSS    https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/216d6a83135508dfdc70ca92267a52e97f6a48d9/css/style_content.css
+// @resource              injectionJS1  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/216d6a83135508dfdc70ca92267a52e97f6a48d9/js/injection_script_1.js
 // @require               https://greasyfork.org/scripts/465421-vanilla-js-dialog/code/Vanilla%20JS%20Dialog.js?version=1188332
 
 // @namespace             http://tampermonkey.net/
