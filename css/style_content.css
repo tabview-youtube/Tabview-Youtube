@@ -699,9 +699,9 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     }
 }
 
-@supports (color: var(--fix-shitty-tooltip-layouting)){
+@supports (color: var(--fix-primary-info-menu-tooltip-layouting)){
     
-    @keyframes shittyTooltipAppear {
+    @keyframes primaryInfoMenuTooltipAppear {
         from {
             background-position-x: 3px;
         }
@@ -710,8 +710,9 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         }
     }
     
-    #actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds] {
-        animation: shittyTooltipAppear 1ms linear 0s 1 normal forwards;
+    #actions.ytd-watch-metadata+tp-yt-paper-tooltip[fit-to-visible-bounds] {
+        animation: primaryInfoMenuTooltipAppear 1ms linear 0s 1 normal forwards;
+        visibility: collapse; /* hide before fix */
     }
 }
 

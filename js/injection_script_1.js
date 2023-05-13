@@ -2585,6 +2585,7 @@ function injection_script_1() {
 
   }
 
+  /*
   function textsMatch(runs1, runs2) {
 
     let i = runs1.length - runs2.length;
@@ -2616,6 +2617,8 @@ function injection_script_1() {
 
 
   }
+
+  */
 
   function showLyricsWhenReady(data) {
     
@@ -4311,6 +4314,85 @@ rcb(b) => a = playlistId = undefinded
   handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1)
   handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2)
   document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false)
+
+
+  const buttonTooltipPositionProp = {
+    get(){
+      return 'top';
+    },
+    set(){
+
+    },
+    enumerable:true,
+    configurable:true
+  };
+
+  function fixTooltipsK1(s){
+
+    s.removeAttribute('fit-to-visible-bounds'); // related to the button position only; ignore page layout
+    s.setAttribute('offset', '0')
+    // s.style.marginTop='-82px'
+    let p = s;
+    while ((p = p.parentNode) instanceof HTMLElement) {
+      // console.log(p)
+      if ('buttonTooltipPosition' in p) {
+        // console.log(p.nodeName)
+        p.buttonTooltipPosition = 'top';
+        // p.__data.buttonTooltipPosition = 'top';
+        if ('__data' in p) {
+          Object.defineProperty(p.__data, 'buttonTooltipPosition', buttonTooltipPositionProp);
+        }
+        break;
+      }
+    }
+
+  }
+
+  // function k2(s){
+    
+  //   s.removeAttribute('fit-to-visible-bounds')
+  //   // s.setAttribute('offset', '0')
+  //   // s.style.marginTop='-82px'
+  //   let p = s;
+  //   if ((p) instanceof HTMLElement) {
+  //     // console.log(p)
+  //     if ('buttonTooltipPosition' in p) {
+  //       console.log(p.nodeName)
+  //       p.buttonTooltipPosition = 'top';
+  //       // p.__data.buttonTooltipPosition = 'top';
+  //       Object.defineProperty(p.__data,'buttonTooltipPosition',{
+  //         get(){
+  //           return 'top';
+  //         },
+  //         set(){
+
+  //         },
+  //         enumerable:true,
+  //         configurable:true
+  //       });
+  //       // break;
+  //     }
+  //   }
+  // }
+
+  async function asyncFixPrimaryInfoMenuTooltipAppeared(){
+
+    for(const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]')){
+      // earlier than `html[tabview-unwrapjs="1"] #actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]`
+      fixTooltipsK1(s);
+    }
+  }
+  asyncFixPrimaryInfoMenuTooltipAppeared();
+  
+  // for(const s of document.querySelectorAll('#actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata')){
+  //   k2(s);
+  // }
+  
+  // for subsequent `#actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]`
+  handleDOMAppear('primaryInfoMenuTooltipAppear', (evt) => {
+    let s = evt.target;
+    fixTooltipsK1(s);
+  });
 
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
