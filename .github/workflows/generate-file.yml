@@ -3,7 +3,7 @@ name: Generate File
 on:
   push:
     branches:
-      - branch-test-01
+      - main
 
 jobs:
   generate:
