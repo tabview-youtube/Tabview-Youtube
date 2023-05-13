@@ -3664,10 +3664,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 </div>
             </header>
             <div class="tab-content">
-                <div id="tab-info" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
-                <div id="tab-comments" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
-                <div id="tab-videos" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
-                <div id="tab-list" class="tab-content-cld tab-content-hidden" userscript-scrollbar-render></div>
+                <div id="tab-info" class="tab-content-cld tab-content-hidden" tyt-hidden userscript-scrollbar-render></div>
+                <div id="tab-comments" class="tab-content-cld tab-content-hidden" tyt-hidden userscript-scrollbar-render></div>
+                <div id="tab-videos" class="tab-content-cld tab-content-hidden" tyt-hidden userscript-scrollbar-render></div>
+                <div id="tab-list" class="tab-content-cld tab-content-hidden" tyt-hidden userscript-scrollbar-render></div>
             </div>
         </div>
         `;
@@ -6383,10 +6383,15 @@ async function checkDuplicatedInfoMay2023() {
         if (link !== activeLink) {
           link.classList.remove("active");
           content.classList.add("tab-content-hidden");
+          if (!content.hasAttribute("tyt-hidden")) {
+            content.setAttribute("tyt-hidden", ""); // for https://greasyfork.org/en/scripts/456108
+          }
         } else {
           link.classList.add("active");
+          if (content.hasAttribute("tyt-hidden")) {
+            content.removeAttribute("tyt-hidden"); // for https://greasyfork.org/en/scripts/456108
+          }
           content.classList.remove("tab-content-hidden");
-
         }
       }
     }
