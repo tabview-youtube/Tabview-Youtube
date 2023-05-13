@@ -179,8 +179,8 @@ SOFTWARE.
 // @description:km        បង្កើតមតិយោបល់និងបញ្ជីទៅជាផ្ទាំងសម្រាប់វីដេអូ YouTube
 
 // @version               {{VERSION}}
-// @resource              contentCSS    https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/5c2c7947aa53ac09328bb6d43b817c764723e57d/css/style_content.css
-// @resource              injectionJS1  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/5c2c7947aa53ac09328bb6d43b817c764723e57d/js/injection_script_1.js
+// @resource              contentCSS    https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_content.css
+// @resource              injectionJS1  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/js/injection_script_1.js
 // @require               https://greasyfork.org/scripts/465421-vanilla-js-dialog/code/Vanilla%20JS%20Dialog.js?version=1188332
 
 // @namespace             http://tampermonkey.net/
