@@ -3110,9 +3110,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let r = '0';
       let txt = elm.textContent
       if (typeof txt == 'string') {
-        let m = txt.match(/[\d\,\s]+/)
+        let m = txt.match(/[\d\,\.\s]+/)
+        console.log(m)
         if (m) {
-          r = m[0].trim()
+          let d = +m[0].replace(/\D+/g,'');
+          let ds = d.toLocaleString(document.documentElement.lang);
+          let rtxt = txt.replace(ds, '')
+          if(rtxt !== txt && !/\d/.test(rtxt)){
+            r = ds;
+          }
         }
       }
 
