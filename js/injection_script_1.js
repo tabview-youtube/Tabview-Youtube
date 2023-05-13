@@ -4328,6 +4328,7 @@ rcb(b) => a = playlistId = undefinded
   };
 
   function fixTooltipsK1(s){
+    s.setAttribute('tyt-placed-to-top','');
 
     s.removeAttribute('fit-to-visible-bounds'); // related to the button position only; ignore page layout
     s.setAttribute('offset', '0')
@@ -4377,8 +4378,8 @@ rcb(b) => a = playlistId = undefinded
 
   async function asyncFixPrimaryInfoMenuTooltipAppeared(){
 
-    for(const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]')){
-      // earlier than `html[tabview-unwrapjs="1"] #actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]`
+    for(const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top])')){
+      // earlier than `html[tabview-unwrapjs="1"] #actions.ytd-watch-metadata tp-yt-paper-tooltip`
       fixTooltipsK1(s);
     }
   }
@@ -4388,7 +4389,7 @@ rcb(b) => a = playlistId = undefinded
   //   k2(s);
   // }
   
-  // for subsequent `#actions.ytd-watch-metadata tp-yt-paper-tooltip[fit-to-visible-bounds]`
+  // for subsequent `#actions.ytd-watch-metadata tp-yt-paper-tooltip`
   handleDOMAppear('primaryInfoMenuTooltipAppear', (evt) => {
     let s = evt.target;
     fixTooltipsK1(s);

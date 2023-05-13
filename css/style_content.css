@@ -710,7 +710,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         }
     }
     
-    #actions.ytd-watch-metadata+tp-yt-paper-tooltip[fit-to-visible-bounds] {
+    #actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top]) {
         animation: primaryInfoMenuTooltipAppear 1ms linear 0s 1 normal forwards;
         visibility: collapse; /* hide before fix */
     }
