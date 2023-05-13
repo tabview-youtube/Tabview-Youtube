@@ -1,0 +1,55 @@
+name: Generate File
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Cache version
+        uses: actions/cache@v2
+        with:
+          path: ./version.ini
+          key: version-${{ hashFiles('**/version.ini') }}
+
+      - name: Read version
+        id: read-version
+        run: echo "::set-output name=version::$(cat version.ini)"
+
+      - name: Check if version has changed
+        id: version-check
+        run: |
+          git diff --exit-code --quiet HEAD..HEAD^ version.ini || echo "::set-output name=has_changed::true"
+
+      - name: Create directory
+        run: mkdir -p generated
+
+      - name: Remove comment and Generate file
+        if: steps.version-check.outputs.has_changed == 'true'
+        run: |
+          version="${{ steps.read-version.outputs.version }}"
+          content_r=$(perl -0777 -pe 's|\s*\/\*[^\*]*(?:(?!\*\/)\*[^\*]*)*\*\/\s*||' js/content.js)
+          echo "$content_r" > temp_content.js
+          cp userscript/template.js temp_template.js
+          sed -i "s/{{VERSION}}/$version/g" temp_template.js
+          sed -i '/{{CONTENT}}/r temp_content.js' temp_template.js
+          mv temp_template.js generated/Tabview-Youtube.user.js
+
+      - name: Commit and push changes
+        if: steps.version-check.outputs.has_changed == 'true'
+        run: |
+          version=${{ steps.read-version.outputs.version }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git push origin --delete generated-files
+          git checkout -B generated-files
+          git add generated/Tabview-Youtube.user.js
+          git commit -m "Userscript Generation (v$version)"
+          git push -u origin generated-files
