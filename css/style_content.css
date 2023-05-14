@@ -3325,7 +3325,34 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
+
     }
+    
+    @supports (color: var(--tab-info-extra-videos-arrows-stylish-may2023)) {
+        
+        /* 2023.05.14 */ /* fix stretched height of the arrow button */
+        /* sample link: https://www.youtube.com/watch?v=UY5bp5CNhak */
+        
+        #tab-info #video-lockups #left-arrow-button.arrow, #tab-info #video-lockups #right-arrow-button.arrow {
+            display: flex;
+            flex-direction: column;
+            contain: content;
+        }
+
+    }
+
+    
+    @supports (color: var(--tab-comments-tooltips-word-break)) {
+        
+        /* 2023.05.14 */ /* fix tooltip word break (Japanese Layout) */
+        
+        #tab-comments #sort-menu.ytd-comments-header-renderer tp-yt-paper-tooltip {
+            white-space: nowrap;
+        }
+
+    }
+
+    
 
     @supports (color: var(--make-channel-name-full-display)) and (overflow-x: hidden) and (min-width: max-content) {
 
