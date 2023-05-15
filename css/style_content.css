@@ -797,6 +797,11 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner .top-level-buttons.ytd-menu-renderer {
         row-gap: 12px; /* for visual only */ /* second line will be far below the first line such that it is invisible */
     }
+
+    /* 2023.05.15 */ /* margin-bottom for `.top-level-buttons.ytd-menu-renderer` is not required. */
+    html ytd-menu-renderer[has-flexible-items][safe-area] .top-level-buttons.ytd-menu-renderer {
+        margin-bottom: 0; /* override margin-bottom: 4px; */
+    }
     
 }
 
