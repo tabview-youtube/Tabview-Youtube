@@ -113,7 +113,13 @@
 
 @supports (color: var(--non-clickable-endpoint)){
 
-    ytd-watch-metadata[has-metamove][description-collapsed] #info.ytd-watch-metadata a.yt-simple-endpoint{
+    /* to be removed since YouTube layout css updated */
+    ytd-watch-metadata[has-metamove][description-collapsed] #info.ytd-watch-metadata a.yt-simple-endpoint {
+        pointer-events: none;
+    }
+
+    /* May 2023 @ 2023.05.15 */
+    ytd-watch-metadata[description-collapsed] #description.ytd-watch-metadata #info.ytd-watch-metadata a[href] {
         pointer-events: none;
     }
     
