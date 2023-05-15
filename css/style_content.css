@@ -724,20 +724,25 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     }
     html ytd-watch-metadata[flex-menu-enabled] #actions-inner.ytd-watch-metadata {
         /*width: auto !important;*/ /* override 100% */
-        flex-grow:1;
+        flex-grow: 1;
     }
     #sponsor-button.style-scope.ytd-video-owner-renderer {
         max-width: calc( ( 100% - 40px ) / 2 );
 
     }
+    #owner:hover #sponsor-button.style-scope.ytd-video-owner-renderer {
+        max-width: initial;
+    }
 
-    #sponsor-button.style-scope.ytd-video-owner-renderer  [button-next] {
+    #sponsor-button.style-scope.ytd-video-owner-renderer [button-next] {
         max-width: 100%;
-        
     }
 
     #subscribe-button.ytd-watch-metadata {
         max-width: calc( ( 100% - 40px ) /3 );
+    }
+    #owner:hover #subscribe-button.ytd-watch-metadata {
+        max-width: initial;
     }
 
     #subscribe-button.ytd-watch-metadata > ytd-subscribe-button-renderer {
@@ -3377,7 +3382,6 @@ body .ytp-autohide .ytp-unmute,
         body #primary.ytd-watch-flexy #below ytd-watch-metadata.tabview-uploader-hover #owner.ytd-watch-metadata:hover + #actions.ytd-watch-metadata {
             flex-basis: 50%;
         }
-        
 
     }
 

@@ -3111,7 +3111,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let txt = elm.textContent
       if (typeof txt == 'string') {
         let m = txt.match(/[\d\,\.\s]+/)
-        console.log(m)
         if (m) {
           let d = +m[0].replace(/\D+/g,'');
           let ds = d.toLocaleString(document.documentElement.lang);
