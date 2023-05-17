@@ -981,6 +981,13 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
             pointer-events: none;
         }
 
+        /* May 2023 */ /* 2023.05.18 */
+        html ytd-watch-flexy.tabview-info-duplicated #description-inner.ytd-watch-metadata {
+            /* override margin: 12px; */
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+
     }
 
     @media all and (display-mode: fullscreen) {
