@@ -4782,6 +4782,19 @@ async function checkDuplicatedInfoMay2023() {
 
         }
 
+        function contentExtractor(elm) {
+          if (!(elm instanceof HTMLElement)) {
+            return null;
+          }
+          let m = elm.textContent;
+          let isEmpty = m.trim().length === 0;
+          if (isEmpty) return null;
+          let s = elm.nodeName;
+          let id = elm.id;
+          if (id) s += '#' + id;
+          return s + '\n' + m;
+        }
+
         if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
 
           async function checkDuplicatedMetaRecommendation() {
@@ -4790,14 +4803,14 @@ async function checkDuplicatedInfoMay2023() {
             if (mainContent0 && mainContent1) {
               const hashedContents = new Set();
               for (let s1 = mainContent1.nextElementSibling; s1 instanceof HTMLElement; s1 = s1.nextElementSibling) {
-                let m = s1.textContent;
-                if (m.trim().length === 0) continue;
+                let m = contentExtractor(s1);
+                if(m === null) continue;
                 hashedContents.add(m);
               }
 
               for (let s0 = mainContent0.nextElementSibling; s0 instanceof HTMLElement; s0 = s0.nextElementSibling) {
-                let m = s0.textContent;
-                if (hashedContents.has(m)) {
+                let m = contentExtractor(s0);
+                if (m !== null && hashedContents.has(m)) {
                   s0.classList.add('tyt-hidden-duplicated-meta');
                 } else {
                   s0.classList.remove('tyt-hidden-duplicated-meta');
