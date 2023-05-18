@@ -722,6 +722,23 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     }
 }
 
+@supports (color: var(--fix-primary-info-desc-tooltip-layouting)){
+    
+    @keyframes primaryInfoDescTooltipAppear {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+    
+    #description.ytd-watch-metadata tp-yt-paper-tooltip[for="info"]:not([fit-to-visible-bounds]) {
+        animation: primaryInfoDescTooltipAppear 1ms linear 0s 1 normal forwards;
+        visibility: collapse; /* hide before fix */
+    }
+}
+
 @supports (color: var(--tabview-fix-menu-icons-sizing)){ /* May 2023 */
 
     ytd-watch-metadata #actions.item.style-scope.ytd-watch-metadata{
@@ -4603,6 +4620,23 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         ytd-watch-flexy .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents {
             contain: layout style;
             /* 2022/11/11 colored comments background padding */
+        }
+
+        /*ytd-pinned-comment-badge-renderer { */
+            /* May 2023 */ /* fix yt-icon fill color before #label.ytd-pinned-comment-badge-render */
+            /* https://www.youtube.com/watch?v=oZfX0O6ZjyQ */
+        /*    color: var(--yt-spec-text-secondary);
+        }*/
+
+        yt-icon.ytd-pinned-comment-badge-renderer {
+            /* --iron-icon-height: 12px;
+            --iron-icon-width: 12px;
+            margin-right: 4px;
+            margin-bottom: 1px;*/
+
+            /* May 2023 */ /* fix yt-icon fill color before #label.ytd-pinned-comment-badge-render */
+            fill: var(--yt-spec-icon-active-other);
+            color: var(--yt-spec-icon-active-other);
         }
 
         ytd-watch-flexy:not([is-two-columns_]) .tab-content-cld#tab-comments>ytd-comments#comments>ytd-item-section-renderer#sections>#contents,

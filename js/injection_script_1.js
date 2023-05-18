@@ -4331,7 +4331,7 @@ rcb(b) => a = playlistId = undefinded
     s.setAttribute('tyt-placed-to-top','');
 
     s.removeAttribute('fit-to-visible-bounds'); // related to the button position only; ignore page layout
-    s.setAttribute('offset', '0')
+    s.setAttribute('offset', '0'); // offset is for bottom tooltip only
     // s.style.marginTop='-82px'
     let p = s;
     while ((p = p.parentNode) instanceof HTMLElement) {
@@ -4349,41 +4349,25 @@ rcb(b) => a = playlistId = undefinded
 
   }
 
-  // function k2(s){
-    
-  //   s.removeAttribute('fit-to-visible-bounds')
-  //   // s.setAttribute('offset', '0')
-  //   // s.style.marginTop='-82px'
-  //   let p = s;
-  //   if ((p) instanceof HTMLElement) {
-  //     // console.log(p)
-  //     if ('buttonTooltipPosition' in p) {
-  //       console.log(p.nodeName)
-  //       p.buttonTooltipPosition = 'top';
-  //       // p.__data.buttonTooltipPosition = 'top';
-  //       Object.defineProperty(p.__data,'buttonTooltipPosition',{
-  //         get(){
-  //           return 'top';
-  //         },
-  //         set(){
+  function fixTooltipsK2(s){
 
-  //         },
-  //         enumerable:true,
-  //         configurable:true
-  //       });
-  //       // break;
-  //     }
-  //   }
-  // }
+    s.setAttribute('fit-to-visible-bounds',''); // fix native tooltip bug due to YouTube Layout change since 2023.05.18
 
-  async function asyncFixPrimaryInfoMenuTooltipAppeared(){
+  }
+
+
+  async function asyncFixPrimaryInfoTooltipAppeared(){
 
     for(const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top])')){
       // earlier than `html[tabview-unwrapjs="1"] #actions.ytd-watch-metadata tp-yt-paper-tooltip`
       fixTooltipsK1(s);
     }
+    for(const s of document.querySelectorAll('#description.ytd-watch-metadata tp-yt-paper-tooltip[for="info"]:not([fit-to-visible-bounds])')){
+      // earlier than `html[tabview-unwrapjs="1"] #description.ytd-watch-metadata tp-yt-paper-tooltip`
+      fixTooltipsK2(s);
+    }
   }
-  asyncFixPrimaryInfoMenuTooltipAppeared();
+  asyncFixPrimaryInfoTooltipAppeared();
   
   // for(const s of document.querySelectorAll('#actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata')){
   //   k2(s);
@@ -4393,6 +4377,12 @@ rcb(b) => a = playlistId = undefinded
   handleDOMAppear('primaryInfoMenuTooltipAppear', (evt) => {
     let s = evt.target;
     fixTooltipsK1(s);
+  });
+
+  // for subsequent `#description.ytd-watch-metadata tp-yt-paper-tooltip`
+  handleDOMAppear('primaryInfoDescTooltipAppear', (evt) => {
+    let s = evt.target;
+    fixTooltipsK2(s);
   });
 
 
