@@ -534,7 +534,7 @@ SOFTWARE.
 
     const { hrs, mins, seconds } = durationInfoTS(durationInfo)
     let ret = []
-    ret.push(`Length of Livestream:`)
+    ret.push(`Length:`)
     if (hrs > 0) ret.push(`${hrs} ${hrs === 1 ? 'hour' : 'hours'}`)
     if (mins > 0) ret.push(`${mins} ${mins === 1 ? 'minute' : 'minutes'}`)
     if (seconds !== null) ret.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`)
@@ -546,7 +546,7 @@ SOFTWARE.
 
     const { hrs, mins, seconds } = durationInfoTS(durationInfo);
     let ret = [];
-    ret.push(`ライブ配信の長さ：`);
+    ret.push(`長さ：`);
     if (hrs > 0) ret.push(`${hrs}時間`);
     if (mins > 0) ret.push(`${mins}分`);
     if (seconds !== null) ret.push(`${seconds}秒`);
@@ -591,16 +591,16 @@ SOFTWARE.
     switch (type) {
       case 0x200:
         return [
-          `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始し、${bd2.lokStringTime()}まで続きました。[GMT${getGMT()}]`,
+          `ライブ配信は${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始し、${bd2.lokStringTime()}まで続きました。[GMT${getGMT()}]`,
           liveDurationLocaleJP(durationInfo)
         ].join('\n');
       case 0x210:
         return [
-          `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から${bd2.lokStringDateJP()}の${bd2.lokStringTime()}まで行われました。[GMT${getGMT()}]`,
+          `ライブ配信は${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から${bd2.lokStringDateJP()}の${bd2.lokStringTime()}まで行われました。[GMT${getGMT()}]`,
           liveDurationLocaleJP(durationInfo)
         ].join('\n');
       case 0x300:
-        return `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始しました。[GMT${getGMT()}]`;
+        return `ライブ配信は${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始しました。[GMT${getGMT()}]`;
       case 0x600:
         return `この動画は${formatDates.uploadDate}にアップロードされ、${formatDates.publishDate}に公開されました。`;
       case 0x610:
