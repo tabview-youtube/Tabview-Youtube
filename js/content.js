@@ -530,23 +530,23 @@ SOFTWARE.
     return _req
   }
 
-  function durationLocaleEN(durationInfo) {
+  function liveDurationLocaleEN(durationInfo) {
 
     const { hrs, mins, seconds } = durationInfoTS(durationInfo)
     let ret = []
-    ret.push(`Duration:`)
+    ret.push(`Length of Livestream:`)
     if (hrs > 0) ret.push(`${hrs} ${hrs === 1 ? 'hour' : 'hours'}`)
     if (mins > 0) ret.push(`${mins} ${mins === 1 ? 'minute' : 'minutes'}`)
     if (seconds !== null) ret.push(`${seconds} ${seconds === 1 ? 'second' : 'seconds'}`)
     return ret.join(' ')
   }
 
-  /* durationLocaleEN by ChatGPT @ 2023.05.11 */
-  function durationLocaleJP(durationInfo) {
+  /* liveDurationLocaleEN by ChatGPT @ 2023.05.11 */
+  function liveDurationLocaleJP(durationInfo) {
 
     const { hrs, mins, seconds } = durationInfoTS(durationInfo);
     let ret = [];
-    ret.push(`再生時間：`);
+    ret.push(`ライブ配信の長さ：`);
     if (hrs > 0) ret.push(`${hrs}時間`);
     if (mins > 0) ret.push(`${mins}分`);
     if (seconds !== null) ret.push(`${seconds}秒`);
@@ -562,12 +562,12 @@ SOFTWARE.
       case 0x200:
         return [
           `The livestream was in ${bd1.lokStringDateEN()} from ${bd1.lokStringTime()} to ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
-          durationLocaleEN(durationInfo)
+          liveDurationLocaleEN(durationInfo)
         ].join('\n');
       case 0x210:
         return [
           `The livestream was from ${bd1.lokStringDateEN()} ${bd1.lokStringTime()} to ${bd2.lokStringDateEN()} ${bd2.lokStringTime()}. [GMT${getGMT()}]`,
-          durationLocaleEN(durationInfo)
+          liveDurationLocaleEN(durationInfo)
         ].join('\n');
       case 0x300:
         return `The livestream started at ${bd1.lokStringTime()} [GMT${getGMT()}] in ${bd1.lokStringDateEN()}.`;
@@ -592,12 +592,12 @@ SOFTWARE.
       case 0x200:
         return [
           `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始し、${bd2.lokStringTime()}まで続きました。[GMT${getGMT()}]`,
-          durationLocaleJP(durationInfo)
+          liveDurationLocaleJP(durationInfo)
         ].join('\n');
       case 0x210:
         return [
           `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から${bd2.lokStringDateJP()}の${bd2.lokStringTime()}まで行われました。[GMT${getGMT()}]`,
-          durationLocaleJP(durationInfo)
+          liveDurationLocaleJP(durationInfo)
         ].join('\n');
       case 0x300:
         return `ライブストリームは${bd1.lokStringDateJP()}の${bd1.lokStringTime()}から開始しました。[GMT${getGMT()}]`;
