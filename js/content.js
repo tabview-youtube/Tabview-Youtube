@@ -78,6 +78,7 @@ SOFTWARE.
   const svgDiag2 = `<svg stroke="currentColor" fill="none"><path d="M7 3v2h2M7 5l3-3M5 9V7H3m-1 3l3-3"/></svg>`;
 
   const REMOVE_DUPLICATE_INFO = true;
+  const REMOVE_DUPLICATE_META_RECOMMENDATION = true; /* https://www.youtube.com/watch?v=kGihxscQCPE */
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
 
@@ -4780,6 +4781,40 @@ async function checkDuplicatedInfoMay2023() {
           checkDuplicatedInfo_then(0, null);
 
         }
+
+        if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
+
+          async function checkDuplicatedMetaRecommendation() {
+            let mainContent0 = document.querySelector('#primary.ytd-watch-flexy #above-the-fold.ytd-watch-metadata');
+            let mainContent1 = document.querySelector('#tab-info ytd-expander > #content');
+            if (mainContent0 && mainContent1) {
+              const hashedContents = new Set();
+              for (let s1 = mainContent1.nextElementSibling; s1 instanceof HTMLElement; s1 = s1.nextElementSibling) {
+                let m = s1.textContent;
+                if (m.trim().length === 0) continue;
+                hashedContents.add(m);
+              }
+
+              for (let s0 = mainContent0.nextElementSibling; s0 instanceof HTMLElement; s0 = s0.nextElementSibling) {
+                let m = s0.textContent;
+                if (hashedContents.has(m)) {
+                  s0.classList.add('tyt-hidden-duplicated-meta');
+                } else {
+                  s0.classList.remove('tyt-hidden-duplicated-meta');
+                }
+              }
+              hashedContents.clear();
+            }
+          }
+
+          let ks = renderIdentifier;
+          renderDeferred.debounce(() => {
+            if (ks !== renderIdentifier) return
+            checkDuplicatedMetaRecommendation();
+          })
+
+        }
+        
 
         let renderId = renderIdentifier
         renderDeferred.debounce(() => {

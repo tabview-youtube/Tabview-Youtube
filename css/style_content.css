@@ -1005,6 +1005,11 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
             margin-bottom: 4px;
         }
 
+        /* May 2023 */ /* Duplicated Meta Recommendation */
+        .tyt-hidden-duplicated-meta {
+            display: none;
+        }
+
     }
 
     @media all and (display-mode: fullscreen) {
