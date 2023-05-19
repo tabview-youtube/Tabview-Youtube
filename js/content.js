@@ -81,6 +81,7 @@ SOFTWARE.
   const REMOVE_DUPLICATE_META_RECOMMENDATION = true; /* https://www.youtube.com/watch?v=kGihxscQCPE */
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
+  const REPLACE_PIN_ICON = true; /* Some browsers still using the old yt-icon for pin */
 
   
   let _isPageFirstLoaded = true
@@ -4549,6 +4550,26 @@ async function checkDuplicatedInfoMay2023() {
       })
     })
 
+    handleDOMAppear('oldYtIconPinAppeared', (evt) => {
+      /* added in May 2023 - 2023.05.19 */
+      
+      /*
+      from 
+      <svg style="pointer-events: none; display: block; width: 100%; height: 100%;" focusable="false" width="24" viewBox="0 0 24 24" height="24"><path d="M16 11V3h1V2H7v1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm1 3H7v-.59l1.71-1.71.29-.29V3h6v8.41l.29.29L17 13.41V14z"></path></svg> 
+
+      to 
+<svg viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M8,2V1H3v1h1v3.8L3,7h2v2.5L5.5,10L6,9.5V7h2L7,5.8V2H8z M6,6H5V2h1V6z" class="style-scope yt-icon"></path></g></svg>
+
+*/
+
+      let svg = evt.target;
+      let p = document.createElement('template');
+      p.innerHTML = '<svg viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M8,2V1H3v1h1v3.8L3,7h2v2.5L5.5,10L6,9.5V7h2L7,5.8V2H8z M6,6H5V2h1V6z" class="style-scope yt-icon"></path></g></svg>';
+      svg.replaceWith(p.content.firstChild);
+
+
+    })
+
     const renderStamperFunc = {
       'YTD-PLAYLIST-PANEL-RENDERER': (node) => {
         mtf_append_playlist(node); // the true playlist is appended to the #tab-list
@@ -4827,6 +4848,14 @@ async function checkDuplicatedInfoMay2023() {
           })
 
         }
+
+        /*
+        if (REPLACE_PIN_ICON) {
+
+
+
+        }
+        */
         
 
         let renderId = renderIdentifier

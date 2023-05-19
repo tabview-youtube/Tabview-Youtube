@@ -306,6 +306,38 @@ Same for #secondary
 
  */
 
+ @supports (color: var(--fix-old-pin-icon)){
+
+    
+    @keyframes oldYtIconPinAppeared {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+    
+    html[tabview-loaded] yt-icon.ytd-pinned-comment-badge-renderer[size="12"] svg[width="24"] {
+        /* May 2023 - 2020.05.19 */
+        /* old yt-icon in some browsers e.g. Chrome */
+        animation: oldYtIconPinAppeared 1ms linear 0s 1 normal forwards;
+        /* visibility: collapse;*/ /* hide before fix */
+    }
+
+    yt-icon.ytd-pinned-comment-badge-renderer {
+        /* May 2023 - 2020.05.19 */
+        /* flex-shrink was wrongly set to make the icon become smaller */
+        flex-shrink: 0;
+    }
+
+    #reply-button-end.ytd-comment-action-buttons-renderer {
+        /* May 2023 - 2020.05.19 */
+        display: inline-flex; /* override the original display which induced a taller element height */
+    }
+
+ }
+
 @supports (not-color: var(--performance-fix-v2)){
 
     #primary-inner > ytd-playlist-panel-renderer#playlist #items > .ytd-playlist-panel-renderer,
