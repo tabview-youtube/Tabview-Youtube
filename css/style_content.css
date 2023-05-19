@@ -1474,24 +1474,23 @@ body .ytp-autohide .ytp-unmute,
     }
 
     ytd-watch-flexy.tyt-chat-popup[theater] #secondary-inner,
-    ytd-watch-flexy[tyt-chat^="+"][theater] #secondary-inner{
+    ytd-watch-flexy[tyt-chat^="+"][theater] #secondary-inner {
         display:block !important;
         height:auto !important;
         min-height: unset !important;
     }
 
-    ytd-watch-flexy.tyt-chat-popup #show-hide-button button{
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button button {
         pointer-events: none;
     }
     
-
-
-
-    ytd-watch-flexy.tyt-chat-popup #show-hide-button button span{
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button button span {
         color: var(--disabled-text-color) !important;
     }
     
-
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button {
+        border: 0 !important;
+    }
     
 }
 
