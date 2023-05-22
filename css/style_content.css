@@ -3286,13 +3286,18 @@ body .ytp-autohide .ytp-unmute,
             scrollbar-width: none;
             /* Firefox */
         }
+        
+        html body {
+            overflow-y: auto; /* added in 2023.05.22 */
+            /* override body { overflow-y: scroll; } in global_styles */
+        }
 
         /*
         html.tabview-normal-player body::-webkit-scrollbar {
             display: none; /.* Blink and Webkit *./
         }*/
         html.tabview-normal-player body {
-            overflow-y: auto;
+            /* overflow-y: auto; */ /* removed in 2023.05.22 */
             /* override body { overflow-y: scroll } */
         }
 
