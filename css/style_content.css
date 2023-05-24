@@ -4757,6 +4757,39 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 632 */
 
+
+        /* added in 2023.05.24 */
+        /* further optimize layouting for comment entries */
+        ytd-comment-thread-renderer.ytd-item-section-renderer,
+        ytd-comment-renderer.ytd-comment-thread-renderer, 
+        #body.ytd-comment-renderer,
+        #author-thumbnail.ytd-comment-renderer,
+        #main.ytd-comment-renderer,
+        #header.ytd-comment-renderer,
+        #comment-content.ytd-comment-renderer,
+        ytd-comment-action-buttons-renderer#action-buttons.ytd-comment-renderer,
+        #toolbar.ytd-comment-action-buttons-renderer,
+        #reply-dialog.ytd-comment-action-buttons-renderer {
+            contain: layout;
+        }
+
+
+        /* added in 2023.05.24 */
+        /* further optimize layouting for comment entries */
+        ytd-compact-video-renderer.ytd-item-section-renderer,
+        #dismissible.ytd-compact-video-renderer,
+        ytd-thumbnail.ytd-compact-video-renderer,
+        .details.ytd-compact-video-renderer {
+            contain: layout;
+        }
+
+        
+        #thumbnail-container.ytd-playlist-panel-video-renderer {
+            content-visibility: auto;
+            contain: layout size; 
+        }
+
+
     }
 
     ytd-watch-flexy:not([fullscreen]):not([is-two-columns_]) #right-tabs .tab-content>.tab-content-cld:not(.tab-content-hidden) {
