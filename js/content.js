@@ -6653,7 +6653,7 @@ async function checkDuplicatedInfoMay2023() {
 
       await Promise.resolve(0)
       const pageClientWidth = document.documentElement.clientWidth;
-      if (pageClientWidth + 320 < screen.width && pageClientWidth > 320) {
+      if (pageClientWidth + 320 < screen.width && pageClientWidth > 320 && !document.querySelector('#rCbM3')) {
         
 
         await Promise.resolve(0)
