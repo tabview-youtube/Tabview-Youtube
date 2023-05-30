@@ -2961,7 +2961,8 @@ body .ytp-autohide .ytp-unmute,
 
         /* --- zoom --- */
 
-        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer yt-formatted-string
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer yt-formatted-string,
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #header.ytd-comment-renderer span.ytd-comment-renderer
         {
             zoom: var(--tyt-x-zoom-comments);
             /*
