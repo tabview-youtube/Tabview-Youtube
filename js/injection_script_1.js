@@ -4385,6 +4385,9 @@ rcb(b) => a = playlistId = undefinded
     fixTooltipsK2(s);
   });
 
+  document.addEventListener('tabview-zoom-updated', ()=>{
+    for(const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
+  }, false);
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;

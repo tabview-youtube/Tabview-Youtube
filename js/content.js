@@ -5579,6 +5579,7 @@ async function checkDuplicatedInfoMay2023() {
         if (store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
         if (store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
         if (store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
+        document.dispatchEvent(new CustomEvent("tabview-zoom-updated"));
       }
 
     }
