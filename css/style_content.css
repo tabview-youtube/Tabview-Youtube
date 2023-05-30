@@ -268,10 +268,12 @@ ytd-watch-flexy {
     --tyt-x-h2: calc(var(--tyt-x-h1) - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x));
     --tyt-x-base-height: calc(var(--tyt-x-h2) - var(--ytd-margin-6x));
 
+    
     --tyt-x-zoom-info: var(--ut2257-info, 1.00);
     --tyt-x-zoom-comments: var(--ut2257-comments, 1.00);
     --tyt-x-zoom-videos: var(--ut2257-videos, 1.00);
     --tyt-x-zoom-list: var(--ut2257-list, 1.00);
+    
 
     --tyt-native-ui-autohide-visibility: collapse;
     
@@ -2959,7 +2961,10 @@ body .ytp-autohide .ytp-unmute,
 
         /* --- zoom --- */
 
-        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer {
+        /* ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer, */
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #header,  /* added in 2023.05.31 to fix tooltip bug for positioning */
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #comment-content  /* added in 2023.05.31 to fix tooltip bug for positioning */
+        {
             zoom: var(--tyt-x-zoom-comments);
             /*
             transform: scale(var(--tyt-x-zoom-comments, 1.0));
@@ -2981,6 +2986,13 @@ body .ytp-autohide .ytp-unmute,
         }
 
         /* --- zoom --- */
+
+        /* added in 2023.05.31 to fix tooltip bug for positioning */
+
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #action-buttons{ 
+            /* zoom: calc( 1.0 / var(--tyt-x-zoom-comments) ); */
+            position: relative;
+        }
 
     }
 
@@ -4217,6 +4229,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         /* --- 2023/05/05 - general update show-hide-button style (darker-dark-theme) --- */
         
 
+        /* --- 2023/05/31 - remove padding for show button --- */
+        html ytd-live-chat-frame #show-hide-button.ytd-live-chat-frame>ytd-toggle-button-renderer.ytd-live-chat-frame {
+            padding: 0px;
+        }
+
+
     }
 
     @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock)) and (selector(:has(style#id))) {
@@ -4511,7 +4529,8 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     */
 
-    @supports (color: var(--rendering-contain)){
+
+    @supports (color: var(--rendering-contain-part-a)){
 
         /* contain 321 */
 
@@ -4575,6 +4594,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         }
 
         /* contain 352 */
+
+    }
+
+    @supports (color: var(--rendering-contain-part-b)){
+
 
         /* contain 791 - be careful */
 
@@ -4699,6 +4723,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 522 */
 
+    }
+    @supports (color: var(--rendering-contain-part-c)){
+
         /* contain 631 */
 
         /* experimental for drag & drop re-order */
@@ -4757,9 +4784,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 632 */
 
+    }
+    
+    @supports (color: var(--rendering-contain-part-d-v1)){
 
-        /* added in 2023.05.24 */
+        /* added in 2023.05.24 */ /* removed in 2023.05.31 */
         /* further optimize layouting for comment entries */
+        /*
         ytd-comment-thread-renderer.ytd-item-section-renderer,
         ytd-comment-renderer.ytd-comment-thread-renderer, 
         #body.ytd-comment-renderer,
@@ -4772,6 +4803,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         #reply-dialog.ytd-comment-action-buttons-renderer {
             contain: layout;
         }
+        */
 
 
         /* added in 2023.05.24 */
