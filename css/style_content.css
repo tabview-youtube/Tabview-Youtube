@@ -2961,9 +2961,7 @@ body .ytp-autohide .ytp-unmute,
 
         /* --- zoom --- */
 
-        /* ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer, */
-        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #header,  /* added in 2023.05.31 to fix tooltip bug for positioning */
-        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #comment-content  /* added in 2023.05.31 to fix tooltip bug for positioning */
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer yt-formatted-string
         {
             zoom: var(--tyt-x-zoom-comments);
             /*
@@ -2989,10 +2987,14 @@ body .ytp-autohide .ytp-unmute,
 
         /* added in 2023.05.31 to fix tooltip bug for positioning */
 
+        /* 
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer ,
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > *,
         ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-renderer > #action-buttons{ 
-            /* zoom: calc( 1.0 / var(--tyt-x-zoom-comments) ); */
-            position: relative;
+             // zoom: calc( 1.0 / var(--tyt-x-zoom-comments) ); 
+            position: relative !important;
         }
+        */
 
     }
 
