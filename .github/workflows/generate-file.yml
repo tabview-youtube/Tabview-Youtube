@@ -58,6 +58,7 @@ jobs:
           if git diff --exit-code --quiet --cached; then
             echo "No changes to commit"
           else
-            git commit -m "v$version ([Userscript Generation](https://github.com/cyfung1031/Tabview-Youtube/commit/$commit_sha))" -m "**v$version**"$'\n\n'" "$'\n\n'"$commit_desc"
+            commit_c2 = "[v$version commit](https://github.com/cyfung1031/Tabview-Youtube/commit/$commit_sha)"
+            git commit -m "v$version: Userscript Generation" -m "$(echo "$commit_c2" | sed -e 's/^/> /')"$'\n\n'"$(echo "$commit_desc" | sed -e 's/^/> /')"
             git push -f origin generated-files
           fi
