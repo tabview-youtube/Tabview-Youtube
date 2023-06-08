@@ -38,7 +38,7 @@ jobs:
         run: |
           version="${{ steps.read-version.outputs.version }}"
           commit_sha=$(git rev-parse HEAD)
-          commit_desc=$(git log -1 --pretty=%B)
+          commit_desc="$(git log -1 --pretty=%B)"
           content_r=$(perl -0777 -pe 's|\s*\/\*[^\*]*(?:(?!\*\/)\*[^\*]*)*\*\/\s*||' js/content.js)
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -58,6 +58,6 @@ jobs:
           if git diff --exit-code --quiet --cached; then
             echo "No changes to commit"
           else
-          git commit -m "v$version: Userscript Generation"$'\n\n'"$commit_desc"$'\n\n'"Commit $commit_sha"
+          git commit -m "v$version: Userscript Generation" -m "" -m "Commit $commit_sha" -m "" -m "$commit_desc"
             git push -f origin generated-files
           fi
