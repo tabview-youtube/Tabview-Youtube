@@ -2623,7 +2623,7 @@ function injection_script_1() {
             }
             */
             
-            if(this.hidden !== true) {
+            if(this.hidden !== true && this.isAttached === true && this.isConnected === true) {
 
               this[keyB](); 
             }
