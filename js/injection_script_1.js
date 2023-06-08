@@ -2546,6 +2546,115 @@ function injection_script_1() {
       }
 
     }, false);
+
+    /* added in 2023.06.09 */
+    const regRFn = (proto, keyA, keyB)=>{
+
+        if(proto[keyB]|| !proto[keyA]) return;
+        /*
+        proto.__renderIdom__ = proto.renderIdom;
+        proto.renderIdo2m = function(){
+          if(this.templatingFn_delayId) return;
+          this.templatingFn_delayId = requestAnimationFrame(()=>{
+            this.templatingFn_delayId = 0;
+  
+            if(this.classList.contains('ytd-video-secondary-info-renderer')){
+              this.__data.data.styleRuns = [{
+                  "startIndex": 0,
+                  "length": 30,
+                  "fontColor": 4282296063
+              }];
+            }
+  
+            this.__renderIdom__();
+          });
+        }
+        */
+  
+        
+        proto[keyB] = proto[keyA];
+  
+        let renderStore = new WeakMap();
+        
+        proto[keyA] = function(){
+  
+          if( renderStore.get(this)>= 1) return;
+          renderStore.set(this, requestAnimationFrame(()=>{
+            renderStore.set(this, 0);
+  
+            /*
+            let data = ((this.__data||0).data||0);
+            if(data){
+  
+              if(this.classList.contains('ytd-video-secondary-info-renderer')){
+                let content = data.content;
+                let lines = content.split('\n');
+                let pIdx = 0;
+                let styleRuns = [];
+                for(const line of lines){
+                  if(line.length > 8 && content.indexOf(line)!==content.lastIndexOf(line) && content.indexOf('@')<0){
+                    
+                    let q = line.replace(/(([\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E])\2{3,})/g,'@$1@').replace(/\x40+/g,'@');
+                    let w = q.split('@')
+                    if(w.length>=2){
+                      let cIdx = 0;
+                      for(const b of w){
+                        if(!b) continue;
+                        styleRuns.push({
+                          "startIndex": pIdx+cIdx,
+                          "length": b.length,
+                          "baselineOffset": "BASELINE_OFFSET_UNKNOWN",
+                          /-* "fontColor": 4282296063 *-/
+                        })
+                        cIdx+=b.length;
+                      }
+                    }
+                  }
+                  pIdx += line.length + 1
+                }
+  
+                if(styleRuns.length){
+  
+                  data.styleRuns =  styleRuns;
+                }
+                
+              }
+  
+            }
+            */
+            
+            if(this.hidden !== true) {
+
+              this[keyB](); 
+            }
+   
+          }));
+  
+        };
+  
+      
+
+    }
+
+    
+    /* added in 2023.06.09 */
+    customYtElements.whenRegistered('yt-attributed-string', (proto)=>{
+      // since DFa cannot be hacked
+
+      regRFn(proto, 'templatingFn', '__templatingFn__');
+      regRFn(proto, 'doIdomRender', '__doIdomRender__');
+
+    });
+
+    
+    /* added in 2023.06.09 */
+    customYtElements.whenRegistered('yt-button-shape', (proto)=>{
+      // since DFa cannot be hacked
+
+      regRFn(proto, 'templatingFn', '__templatingFn__');
+      regRFn(proto, 'doIdomRender', '__doIdomRender__');
+
+    });
     
 
   }
