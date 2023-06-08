@@ -4389,6 +4389,15 @@ rcb(b) => a = playlistId = undefinded
     for(const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
   }, false);
 
+  document.addEventListener('tabview-playlist-data-re-assign', (evt) => {
+    let target = evt.target;
+    if (!target) return;
+    let data = target.data;
+    if (data) {
+      target.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
+    }
+  }, true);
+
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
     if (detail && typeof detail === 'object') {
@@ -4396,12 +4405,12 @@ rcb(b) => a = playlistId = undefinded
     } else {
       elmTarget.dispatchEvent(new CustomEvent(eventName))
     }
-  })
+  });
 
 
   globalFunc(function tabviewSetMyDefaultTab(m) {
     top.tabviewDispatchEvent(document, 'tabview-setMyDefaultTab', { myDefaultTab: m })
-  })
+  });
   
   document.addEventListener("tabview-plugin-loaded", () => {
     // ----------- avoid removeChild error {#below}.removeChild({#chat}) -----------

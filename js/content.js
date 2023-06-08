@@ -3879,6 +3879,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (mtoVisibility_Playlist.bindElement(m_playlist)) {
         mtoVisibility_Playlist.observer.check(9); //delay check required for browser bug - hidden changed not triggered 
       }
+      let playlist_wr = mWeakRef(m_playlist);
+      scriptletDeferred.debounce(() => {
+        let m_playlist = kRef(playlist_wr);
+        playlist_wr = null;
+        if (m_playlist) {
+          m_playlist.dispatchEvent(new CustomEvent("tabview-playlist-data-re-assign"));
+        }
+        m_playlist = null;
+      })
       m_playlist = null;
 
     }
