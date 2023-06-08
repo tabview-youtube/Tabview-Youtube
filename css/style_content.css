@@ -5459,3 +5459,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         animation: playlistRowDOMSelected 1ms linear 0s 1 normal forwards;
     }
 }
+
+@supports (color: var(--experimental-playlist-grid-render-boost)) and (grid-template-columns: 100%) and (row-gap: 2px) {
+
+    ytd-watch-next-secondary-results-renderer #contents.style-scope.ytd-item-section-renderer {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: auto;
+        column-gap: 0px;
+        row-gap: 2px;
+    }
+}
