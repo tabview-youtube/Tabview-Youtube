@@ -5443,3 +5443,19 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     
 
 }
+
+@supports (color: var(--fix-native-bug-playlist-wrong-row-highlight-after-reorder)){
+
+    
+    @keyframes playlistRowDOMSelected {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] #items > ytd-playlist-panel-video-renderer[selected=""] {
+        animation: playlistRowDOMSelected 1ms linear 0s 1 normal forwards;
+    }
+}

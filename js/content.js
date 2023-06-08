@@ -4536,6 +4536,22 @@ async function checkDuplicatedInfoMay2023() {
       } catch (e) { }
 
     })
+    
+    handleDOMAppear('playlistRowDOMSelected', (evt) => {
+      let target = evt.target;
+      let items = target.parentNode;
+      if (items.id !== 'items') return;
+      let m = /\/watch\?v=[^\&]+\&/.exec(location.href)
+      if (!m) return;
+      let s = m[0] + "";
+      if (!s || s.length <= 10) return;
+      let correctAnchor = items.querySelector(`ytd-playlist-panel-video-renderer a[href*="${s}"]`);
+      if (target.contains(correctAnchor)) return;
+      let correctRow = correctAnchor.closest('ytd-playlist-panel-video-renderer');
+      if (!correctRow) return;
+      target.removeAttribute('selected');
+      correctRow.setAttribute('selected', '');
+    });
 
     let _tabviewSiderAnimated = false;
 
