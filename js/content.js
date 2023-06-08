@@ -4173,6 +4173,9 @@ async function checkDuplicatedInfoMay2023() {
           let trimmedTextContent = await asyncGetContent(currentNode);
           trimmedTextContent = trimmedTextContent.trim();
           if (trimmedTextContent.length > 0) {
+            trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g,'\n\n');
+            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
+            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
               contentArray.push(trimmedTextContent);
           }
 
