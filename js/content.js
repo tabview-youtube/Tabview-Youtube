@@ -4536,17 +4536,19 @@ async function checkDuplicatedInfoMay2023() {
       } catch (e) { }
 
     })
-    
+
     handleDOMAppear('playlistRowDOMSelected', (evt) => {
+      if (!evt) return;
       let target = evt.target;
+      if (!target) return;
       let items = target.parentNode;
-      if (items.id !== 'items') return;
-      let m = /\/watch\?v=[^\&]+\&/.exec(location.href)
+      if (!items || items.id !== 'items') return;
+      let m = /\/watch\?v=[^\&]+\&/.exec(location.href || '')
       if (!m) return;
       let s = m[0] + "";
       if (!s || s.length <= 10) return;
       let correctAnchor = items.querySelector(`ytd-playlist-panel-video-renderer a[href*="${s}"]`);
-      if (target.contains(correctAnchor)) return;
+      if (!correctAnchor || target.contains(correctAnchor)) return;
       let correctRow = correctAnchor.closest('ytd-playlist-panel-video-renderer');
       if (!correctRow) return;
       target.removeAttribute('selected');
