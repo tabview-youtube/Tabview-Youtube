@@ -5469,4 +5469,16 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         column-gap: 0px;
         row-gap: 2px;
     }
+
+    ytd-playlist-panel-renderer#playlist #items.playlist-items.style-scope.ytd-playlist-panel-renderer {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: auto;
+        column-gap: 0px;
+        row-gap: 2px;
+        height: 100%;
+        width: 100%;
+        contain: strict;
+    }
+    
 }
