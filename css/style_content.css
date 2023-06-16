@@ -5482,3 +5482,19 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     
 }
+
+@supports (color: var(--smaller-shorts-viewer-in-tab-for-arrow-display)){
+    #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer {
+        margin: 0px 20px 0px 20px;
+    }
+    #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer ytd-button-renderer.arrow {
+        align-items: stretch;
+    }
+    #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer ytd-button-renderer.arrow > yt-button-shape {
+        align-items: stretch;
+    }
+    #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer ytd-button-renderer.arrow > yt-button-shape > button:only-child[class] {
+        height: 100%;
+        width: 100%;
+    }
+}

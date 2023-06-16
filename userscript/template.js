@@ -192,10 +192,10 @@ SOFTWARE.
 // @exclude               /^https?://\S+\.(txt|png|jpg|jpeg|gif|xml|svg|manifest|log|ini)[^\/]*$/
 // @icon                  https://github.com/cyfung1031/Tabview-Youtube/raw/main/images/icon128p.png
 
-// @compatible            edge Edge [Blink] >= 79;                      Tampermonkey (Beta) / Violetmonkey
-// @compatible            chrome Chrome >= 54;                          Tampermonkey (Beta) / Violetmonkey
-// @compatible            firefox FireFox / Waterfox (Classic) >= 55;   Tampermonkey / Violetmonkey
-// @compatible            opera Opera >= 41;                            Tampermonkey (Beta) / Violetmonkey
+// @compatible            edge Edge [Blink] >= 79;                      Tampermonkey (Beta) / Violentmonkey
+// @compatible            chrome Chrome >= 54;                          Tampermonkey (Beta) / Violentmonkey
+// @compatible            firefox FireFox / Waterfox (Classic) >= 55;   Tampermonkey / Violentmonkey
+// @compatible            opera Opera >= 41;                            Tampermonkey (Beta) / Violentmonkey
 // @compatible            safari Safari >= 12.1
 
 // @grant                 GM_getResourceText
