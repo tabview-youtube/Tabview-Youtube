@@ -259,6 +259,8 @@ SOFTWARE.
       white-space: nowrap;
   }
   
+  /*
+  // removed in 2023.06.17
   #items.style-scope.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer {
       --tabview-chat-message-display: block;
       --tabview-chat-message-mt: 2px;
@@ -276,6 +278,8 @@ SOFTWARE.
       --tabview-chat-message-mt: 'VOID';
       --tabview-chat-message-mb: 'VOID';
   }
+  // removed in 2023.06.17
+  */
   
   
   @supports (contain: layout paint style) {
