@@ -1240,7 +1240,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   // removed in 2023.06.17
-  // FireFox ViolentMonkey: Uncaught Error: Permission denied to access property "length" (event.detail as Object)
+  // FireFox (Some UserScript Managers): Uncaught Error: Permission denied to access property "length" (event.detail as Object)
   // async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
   //   //console.log(1231)
   //   dom.dispatchEvent(new CustomEvent("userscript-call-dom", { detail: detail }))
