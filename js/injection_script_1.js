@@ -69,7 +69,33 @@ function injection_script_1() {
 
   let chatroomRenderer = null
 
+  document.addEventListener("tabview-expander-config", (evt) => {
 
+    if (!evt || !evt.target) return;
+    let dom = evt.target;
+
+    /*
+    nativeCall(expander, [
+      { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
+      { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
+      { 'property': 'recomputeOnResize', 'value': false }, // no need to check toggleable
+      { 'property': 'isToggled', 'value': true }, // show full content
+      { 'property': 'canToggle', 'value': false }, // hide show more or less btn
+      { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
+    ])
+    */
+
+    dom.canToggleJobId = 1;
+    dom.alwaysToggleable = false;
+    dom.recomputeOnResize = false;
+    dom.isToggled = true;
+    dom.canToggle = false;
+    dom.collapsedHeight = 999999;
+
+  }, true);
+
+
+  /*
   document.addEventListener('userscript-call-dom', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
@@ -119,24 +145,25 @@ function injection_script_1() {
     }
 
   }, true)
+  */
 
 
-  document.addEventListener('userscript-call-dom-func', function (evt) {
+  // document.addEventListener('userscript-call-dom-func', function (evt) {
 
-    DEBUG_e32 && console.log(9442, evt.type);
+  //   DEBUG_e32 && console.log(9442, evt.type);
 
-    if (!evt || !evt.target || !evt.detail) return;
-    let dom = evt.target;
+  //   if (!evt || !evt.target || !evt.detail) return;
+  //   let dom = evt.target;
 
-    let { property, args } = evt.detail;
-    if (!property) return;
-    let f = dom[property];
-    if (typeof f != 'function') return;
+  //   let { property, args } = evt.detail;
+  //   if (!property) return;
+  //   let f = dom[property];
+  //   if (typeof f != 'function') return;
 
-    if (args && args.length > 0) f.apply(dom, args);
-    else f.call(dom);
+  //   if (args && args.length > 0) f.apply(dom, args);
+  //   else f.call(dom);
 
-  }, true)
+  // }, true)
 
   /*
   document.addEventListener('userscript-call-dom-func-stacked', function (evt) {

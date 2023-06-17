@@ -1239,15 +1239,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
-    //console.log(1231)
-    dom.dispatchEvent(new CustomEvent("userscript-call-dom", { detail: detail }))
-    //console.log(1232)
-  }
+  // removed in 2023.06.17
+  // FireFox ViolentMonkey: Uncaught Error: Permission denied to access property "length" (event.detail as Object)
+  // async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
+  //   //console.log(1231)
+  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom", { detail: detail }))
+  //   //console.log(1232)
+  // }
 
-  async function nativeFunc(/** @type {EventTarget} */ dom, /** @type {string} */ property, /** @type {any} */ args) {
-    dom.dispatchEvent(new CustomEvent("userscript-call-dom-func", { detail: { property, args } }))
-  }
+  // removed in 2023.06.17
+  // async function nativeFunc(/** @type {EventTarget} */ dom, /** @type {string} */ property, /** @type {any} */ args) {
+  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom-func", { detail: { property, args } }))
+  // }
 
   // async function nativeValue(dom, property, args) {
   //   dom.dispatchEvent(new CustomEvent("userscript-call-dom-value", { detail: { property, args } }))
@@ -2947,6 +2950,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (expander.style.getPropertyValue('--ytd-expander-collapsed-height')) {
               expander.style.setProperty('--ytd-expander-collapsed-height', '')
             }
+            /*
             nativeCall(expander, [
               { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
               { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
@@ -2955,6 +2959,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               { 'property': 'canToggle', 'value': false }, // hide show more or less btn
               { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
             ])
+            */
+           scriptletDeferred.debounce(()=>{
+            expander.dispatchEvent(new CustomEvent("tabview-expander-config"));
+           })
+          //  console.log(23131)
 
           })();
         }
@@ -5368,21 +5377,24 @@ async function checkDuplicatedInfoMay2023() {
   }
 
 
-  function forceDisplayChatReplay() {
-    let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
-    if (items && items.childElementCount !== 0) return;
+  
 
-    let videoElm = document.querySelector('ytd-player#ytd-player video');
+  // function forceDisplayChatReplay() {
+  //   let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
+  //   if (items && items.childElementCount !== 0) return;
 
-    let ct = videoElm.currentTime;
-    if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
-      let chat = document.querySelector('ytd-live-chat-frame#chat');
-      if (chat) {
-        nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": ct }])
-      }
-    }
+  //   let videoElm = document.querySelector('ytd-player#ytd-player video');
 
-  }
+  //   let ct = videoElm.currentTime;
+  //   if (ct >= 0 && !videoElm.ended && videoElm.readyState > videoElm.HAVE_CURRENT_DATA) {
+  //     let chat = document.querySelector('ytd-live-chat-frame#chat');
+  //     if (chat) {
+  //         chat.dispatchEvent(new CustomEvent("postToContentWindow-video-progress", { detail: ct }))
+  //       // nativeFunc(chat, "postToContentWindow", [{ "yt-player-video-progress": ct }])
+  //     }
+  //   }
+
+  // }
 
   function checkIframeDblClick() {
     setTimeout(() => {
@@ -5451,7 +5463,10 @@ async function checkDuplicatedInfoMay2023() {
 
 
           // console.log(702, 10)
-          forceDisplayChatReplay();
+          // forceDisplayChatReplay is no longer required due to advancement of coding implemented in other parts of this script.
+          // forceDisplayChatReplay is removed in 2023.06.17
+          // forceDisplayChatReplay();
+          // chatFrame.dispatchEvent(new CustomEvent("tabview-force-display-chat-replay"));
           checkIframeDblClick(); // user request for compatible with https://greasyfork.org/en/scripts/452335
           iframe.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
           // console.log(334,1)
