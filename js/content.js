@@ -290,26 +290,29 @@ SOFTWARE.
     */
 
     body yt-live-chat-app {
-        contain: size layout paint style;
+        /* contain: size layout paint style; */ /* removed in 2023.06.17 */
         /* content-visibility: auto; */
-        transform: translate3d(0, 0, 0);
-        overflow: hidden;
+        /* transform: translate3d(0, 0, 0);
+        overflow: hidden; */  /* removed in 2023.06.17 */
     }
 
     #items.style-scope.yt-live-chat-item-list-renderer{
-        contain: layout paint style;
+        /* contain: layout paint style; */  /* removed in 2023.06.17 */
     }
 
     #item-offset.style-scope.yt-live-chat-item-list-renderer {
-        contain: style;
+        /* contain: style; */ /* removed in 2023.06.17 */
     }
 
     #item-scroller.style-scope.yt-live-chat-item-list-renderer {
-        contain: size style;
+        /* contain: size style; */ /* removed in 2023.06.17 */
     }
 
     #contents.style-scope.yt-live-chat-item-list-renderer,
-    #chat.style-scope.yt-live-chat-renderer,
+    #chat.style-scope.yt-live-chat-renderer {
+        /* contain: size layout paint style; */ /* removed in 2023.06.17 */
+    }
+    
     img.style-scope.yt-img-shadow[width][height] {
         contain: size layout paint style;
     }
