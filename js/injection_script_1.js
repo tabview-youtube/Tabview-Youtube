@@ -3302,8 +3302,10 @@ function injection_script_1() {
             console.warn(e)
           }
 
+          
+
           this.onParticipantsChangedBusy322 = false;
-          this.participantsChangeIfPending();
+          if(typeof this.participantsChangeIfPending === 'function') this.participantsChangeIfPending(); // unknown bug found in 2023.06.18 (FireFox)
 
 
 
