@@ -23,8 +23,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
--(function mainBody() {
+-(function () {
   'use strict';
+
+  let __Promise__;
+  try {
+    __Promise__ = (async () => { })().constructor; // due to YouTube's Promise Hack
+    const test = async () => { };
+    test() instanceof __Promise__;
+  } catch (e) {
+    throw 'Please update your browser to use Tabview Youtube.';
+  }
+
+  /** @type {PromiseConstructor} */
+  const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
   function inIframe() {
     try {

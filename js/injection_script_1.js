@@ -28,13 +28,18 @@ function injection_script_1() {
 
   if (!window || !window.IntersectionObserver || !window.Symbol) throw 'Please update your browser to use Tabview Youtube.';
 
-  try{
-    const test = async ()=>{};
-    test() instanceof Promise;
-  }catch(e){
+  let __Promise__;
+  try {
+    __Promise__ = (async () => { })().constructor; // due to YouTube's Promise Hack
+    const test = async () => { };
+    test() instanceof __Promise__;
+  } catch (e) {
     throw 'Please update your browser to use Tabview Youtube.';
   }
-  
+  /** @type {PromiseConstructor} */
+  const Promise = __Promise__;
+
+
   if(document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')){
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
     return;
@@ -495,7 +500,7 @@ function injection_script_1() {
     async chatUrlChanged() {
       // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
       // first call not effect; only take effect in second call.
-      await Promise.resolve(0)
+      if() await Promise.resolve(0)
       let chat = this.elmChat
       if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
         let cr = this.ytLiveChatRenderer
