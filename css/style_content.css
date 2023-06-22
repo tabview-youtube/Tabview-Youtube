@@ -1790,6 +1790,15 @@ body .ytp-autohide .ytp-unmute,
             transform: translateZ(1px);
         }
 
+        @supports not (contain: layout size style) {
+            /* Waterfox Classic */
+
+            html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] {
+                display: none;
+            }
+
+        }
+
     }
     
 
