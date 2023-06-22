@@ -500,7 +500,7 @@ function injection_script_1() {
     async chatUrlChanged() {
       // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
       // first call not effect; only take effect in second call.
-      if() await Promise.resolve(0)
+      await Promise.resolve(0)
       let chat = this.elmChat
       if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
         let cr = this.ytLiveChatRenderer
