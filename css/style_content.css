@@ -5492,7 +5492,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     
 }
 
-@supports (color: var(--smaller-shorts-viewer-in-tab-for-arrow-display)){
+@supports (color: var(--smaller-shorts-viewer-in-tab-for-arrow-display)) {
     #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer {
         margin: 0px 20px 0px 20px;
     }
@@ -5505,5 +5505,13 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer ytd-button-renderer.arrow > yt-button-shape > button:only-child[class] {
         height: 100%;
         width: 100%;
+    }
+}
+
+@supports (color: var(--fix-color-of-badge-inside-ytd-author-comment-badge-renderer)) {
+    /* Example: https://www.youtube.com/watch?v=IKKar5SS29E; "Rekken and Yu" followed by a tick in black color in Dark Theme (native YouTube bug) */
+    ytd-author-comment-badge-renderer
+    {
+        color: var(--ytd-author-comment-badge-name-color);
     }
 }
