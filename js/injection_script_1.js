@@ -275,6 +275,7 @@ function injection_script_1() {
 
       this.renderBusyS = 0
       this.renderBusyR = 0
+      
       if (t === 0) {
 
         this.seekWaiterResolves = []
@@ -589,6 +590,112 @@ function injection_script_1() {
 
     }
 
+    actionEventHandler(evt) {
+      // console.log(evt)
+
+      let target = (evt || 0).target;
+      if (!target || target.isConnected === false) {
+        return;
+      }
+
+      const d = (evt || 0).detail || 0;
+      // console.log('yt-action', d.actionName)
+      // console.log(d)
+
+      let m3 = 0
+      if (d.actionName === 'yt-live-chat-actions') {
+        m3 = 1
+        // console.log(d)
+      } else if (d.actionName === 'yt-live-chat-replay-progress') {
+        m3 = 1;
+      }
+
+      let m1 = 0;
+      let m2 = 0;
+
+      let notLoading = !ytLivePU.seekWaiterResolves.length && !ytLivePU.reloadWaiterResolves.length && !ytLivePU.loadingWaiterResolves.length;
+
+      if (d.actionName === 'yt-live-chat-seek-success') {
+        if (!notLoading) {
+          m1 = 1
+          m2 = 1
+          ytLivePU.renderBusyS--
+        }
+      } else if (d.actionName === 'yt-live-chat-seek-start') {
+        ytLivePU.renderBusyS++
+      } else if (d.actionName === 'yt-live-chat-reload-start') {
+        ytLivePU.renderBusyR++
+      } else if (d.actionName === 'yt-live-chat-reload-success') {
+        if (!notLoading) {
+
+          m1 = 2
+          m2 = 1
+          ytLivePU.renderBusyR--
+        }
+      } else if (d.actionName === 'yt-live-chat-seek-fail') {
+        if (!notLoading) {
+          m1 = 1
+          m2 = 1
+          ytLivePU.renderBusyS--
+        }
+      } else if (d.actionName === 'yt-live-chat-reload-fail') {
+        if (!notLoading) {
+          m1 = 2
+          ytLivePU.renderBusyR--
+        }
+      } else if (d.actionName === 'yt-live-chat-continuation-behavior-reload-success') {
+        if (!notLoading) {
+          m2 = 1
+        }
+      }
+
+      if (m1) {
+
+        m3 = 1;
+
+
+        if (ytLivePU.renderBusyR < 0 || ytLivePU.renderBusyS < 0) {
+          console.warn('render count error: ', ytLivePU.renderBusyR, ytLivePU.renderBusyS)
+        }
+
+
+        let u = 0;
+        const resolves = m1 === 1 ? ytLivePU.seekWaiterResolves : ytLivePU.reloadWaiterResolves
+        for (const resolve of resolves) {
+
+          if (!u) resolves.length = 0;
+          u++
+
+
+          resolve();
+
+        }
+
+      }
+
+
+      if (m2) {
+
+
+
+        let u = 0;
+        const resolves = ytLivePU.loadingWaiterResolves;
+        for (const resolve of resolves) {
+
+          if (!u) resolves.length = 0;
+          u++
+
+
+          resolve();
+
+        }
+
+      }
+
+
+
+    }
+
     setupChatRenderer() {
       // only triggered in init
 
@@ -596,9 +703,9 @@ function injection_script_1() {
 
 
       if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
-        this.ytLiveChatRenderer._gIxmf = 1
-        this.renderBusyS = 0
-        this.renderBusyR = 0
+        this.ytLiveChatRenderer._gIxmf = 1;
+        this.renderBusyS = 0;
+        this.renderBusyR = 0;
 
         this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
 
@@ -623,114 +730,9 @@ function injection_script_1() {
         })(this.ytLiveChatRenderer.onLoadSeekContinuation_);
         */
 
-        this.ytLiveChatRenderer.addEventListener('yt-action', function (evt) {
-          // console.log(evt)
 
-
-
-
-
-          /*
-          ytLivePU.ytLiveChatRenderer.dispatchEvent(new CustomEvent('yt-action', {
-            detail:{
-              actionName: 'yt-live-chat-reload-success',
-              optionalAction: true,
-              args: null,
-              returnValue: []
-            }
-          })) 
-          */
-
-
-
-
-          const d = (evt || 0).detail || 0
-          // console.log('yt-action', d.actionName)
-          // console.log(d)
-
-          let m3 = 0
-          if (d.actionName === 'yt-live-chat-actions') {
-            m3 = 1
-            // console.log(d)
-          } else if (d.actionName === 'yt-live-chat-replay-progress') {
-            m3 = 1;
-          }
-
-          let m1 = 0
-          let m2 = 0
-
-
-          if (d.actionName === 'yt-live-chat-seek-success') {
-            m1 = 1
-            m2 = 1
-            ytLivePU.renderBusyS--
-          } else if (d.actionName === 'yt-live-chat-seek-start') {
-            ytLivePU.renderBusyS++
-          } else if (d.actionName === 'yt-live-chat-reload-start') {
-            ytLivePU.renderBusyR++
-          } else if (d.actionName === 'yt-live-chat-reload-success') {
-            m1 = 2
-            m2 = 1
-            ytLivePU.renderBusyR--
-          } else if (d.actionName === 'yt-live-chat-seek-fail') {
-            m1 = 1
-            m2 = 1
-            ytLivePU.renderBusyS--
-          } else if (d.actionName === 'yt-live-chat-reload-fail') {
-            m1 = 2
-            ytLivePU.renderBusyR--
-          } else if (d.actionName === 'yt-live-chat-continuation-behavior-reload-success') {
-            m2 = 1
-          }
-
-          if (m1) {
-
-
-
-            m3 = 1;
-
-
-            if (ytLivePU.renderBusyR < 0 || ytLivePU.renderBusyS < 0) {
-              console.warn('render count error: ', ytLivePU.renderBusyR, ytLivePU.renderBusyS)
-            }
-
-
-            let u = 0;
-            const resolves = m1 === 1 ? ytLivePU.seekWaiterResolves : ytLivePU.reloadWaiterResolves
-            for (const resolve of resolves) {
-
-              if (!u) resolves.length = 0;
-              u++
-
-
-              resolve();
-
-            }
-
-          }
-
-
-          if (m2) {
-
-
-
-            let u = 0;
-            const resolves = ytLivePU.loadingWaiterResolves;
-            for (const resolve of resolves) {
-
-              if (!u) resolves.length = 0;
-              u++
-
-
-              resolve();
-
-            }
-
-          }
-
-
-
-        })
+        this.ytLiveChatRenderer.removeEventListener('yt-action', ytLivePU.actionEventHandler, false);
+        this.ytLiveChatRenderer.addEventListener('yt-action', ytLivePU.actionEventHandler, false);
 
 
 
@@ -3811,7 +3813,7 @@ function injection_script_1() {
 
     let iframe = evt.target
     if (!iframe) return
-    ytLivePU.initByChatRenderer(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'))
+    ytLivePU.initByChatRenderer(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'));
 
 
     if (ytLivePU.isChatMessageCanDisplay === true) {
