@@ -276,7 +276,7 @@ function injection_script_1() {
       this.renderBusyS = 0;
       this.renderBusyR = 0;
       this.renderStarted = 0;
-      
+
       if (t === 0) {
 
         this.seekWaiterResolves = []
@@ -532,6 +532,7 @@ function injection_script_1() {
           return false
         } else {
           // this.initialFetchReq = 1
+
           chat.urlChanged(); // neccessary
           return true
         }
@@ -614,7 +615,7 @@ function injection_script_1() {
       let m1 = 0;
       let m2 = 0;
 
-      let isRenderStarted = ytLivePU.renderStarted >=1;
+      let isRenderStarted = ytLivePU.renderStarted >= 1;
 
       if (d.actionName === 'yt-live-chat-seek-success') {
         if (isRenderStarted) {
@@ -765,6 +766,7 @@ function injection_script_1() {
      * @return {undefined}
      */
     playerProgressChangedForStatusSeek(a) {
+      // console.log('playerProgressChangedForStatusSeek')
       // just update the variables according to the native method; no specific use. 
       // just play safe
 
@@ -793,6 +795,7 @@ function injection_script_1() {
     }
 
     statusSeek(pt) {
+      // console.log('statusSeek')
       const ytLivePU = this
       // see playerProgressChangedForStatusSeek
 
@@ -818,6 +821,7 @@ function injection_script_1() {
     async sReload(endPointClicker) {
       // this is to perform the reload cont with simplified mechanism to make the process faster
 
+      // console.log('sReload')
       const ytLivePU = this
       try {
 
@@ -1006,6 +1010,8 @@ function injection_script_1() {
 
         let progress = ytLivePU.videoCurrentTime();
         // if (progress < 1) progress = 1;
+
+        // console.log('initReload')
 
         ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
 
@@ -1325,6 +1331,7 @@ function injection_script_1() {
             // ytLivePU.elmChat.classList.remove('tyt-chat-frame-ready')
           }
 
+          // console.log('timelineBackward')
 
           ytLivePU.ytLiveChatRenderer.setAttribute('loading2', '')
 
@@ -1494,7 +1501,12 @@ function injection_script_1() {
 
 
             if (ytLivePU.requestedVideoProgress < ytLivePU.renderedVideoProgress && ytLivePU.requestedVideoProgress >= 0 && ytLivePU.renderedVideoProgress >= 0 && ytLivePU.renderedVideoProgress !== null) {
-              ytLivePU.timelineBackward();
+
+              if (Math.abs(ytLivePU.requestedVideoProgress - ytLivePU.renderedVideoProgress) < 0.001) {
+                // js Bug?  ytLivePU.requestedVideoProgress = 5122.329545  & ytLivePU.renderedVideoProgress = 5122.329545454545
+              } else {
+                ytLivePU.timelineBackward();
+              }
               return;
             }
 
@@ -4734,8 +4746,8 @@ rcb(b) => a = playlistId = undefinded
     fixLiveChatToggleButton();
   })
 
-  document.addEventListener('tabview-force-chat-render', ()=>{
-    
+  document.addEventListener('tabview-force-chat-render', () => {
+
     let elm;
     elm = elm || document.querySelector('ytd-live-chat-frame');
     elm && elm.__forceChatRender__ && elm.__forceChatRender__();
