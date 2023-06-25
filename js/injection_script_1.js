@@ -2372,7 +2372,7 @@ function injection_script_1() {
 
   /* added in 2023.06.25 */
   async function fixLiveChatToggleButton() {
-    
+
     let elm = document.querySelector('ytd-live-chat-frame');
     let initialDisplayState = null;
     try {
@@ -2388,6 +2388,9 @@ function injection_script_1() {
     let collapsed = elm.collapsed;
     if (typeof collapsed !== 'boolean') return;
 
+    if (elm.data.ujiKt && btnData.ujiKt) return;
+    elm.data.ujiKt = btnData.ujiKt = Date.now();
+
     let b = false;
     if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_EXPANDED' && collapsed === true && isToggled === false) {
       b = true;
@@ -2401,6 +2404,7 @@ function injection_script_1() {
     if (b) {
       btn.data = Object.assign({}, btn.data, { isToggled: !isToggled });
     }
+
   }
 
   function ceHackExecution() {
@@ -2884,8 +2888,6 @@ function injection_script_1() {
 
       })(proto.onShowHideChat);
 
-
-      fixLiveChatToggleButton();
       g();
 
 
