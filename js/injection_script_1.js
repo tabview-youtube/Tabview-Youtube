@@ -273,8 +273,9 @@ function injection_script_1() {
 
       this.initialFetchReq = 0
 
-      this.renderBusyS = 0
-      this.renderBusyR = 0
+      this.renderBusyS = 0;
+      this.renderBusyR = 0;
+      this.renderStarted = 0;
       
       if (t === 0) {
 
@@ -613,38 +614,39 @@ function injection_script_1() {
       let m1 = 0;
       let m2 = 0;
 
-      let notLoading = !ytLivePU.seekWaiterResolves.length && !ytLivePU.reloadWaiterResolves.length && !ytLivePU.loadingWaiterResolves.length;
+      let isRenderStarted = ytLivePU.renderStarted >=1;
 
       if (d.actionName === 'yt-live-chat-seek-success') {
-        if (!notLoading) {
+        if (isRenderStarted) {
           m1 = 1
           m2 = 1
           ytLivePU.renderBusyS--
         }
       } else if (d.actionName === 'yt-live-chat-seek-start') {
-        ytLivePU.renderBusyS++
+        ytLivePU.renderBusyS++;
+        ytLivePU.renderStarted = 1;
       } else if (d.actionName === 'yt-live-chat-reload-start') {
-        ytLivePU.renderBusyR++
+        ytLivePU.renderBusyR++;
+        ytLivePU.renderStarted = 1;
       } else if (d.actionName === 'yt-live-chat-reload-success') {
-        if (!notLoading) {
-
+        if (isRenderStarted) {
           m1 = 2
           m2 = 1
           ytLivePU.renderBusyR--
         }
       } else if (d.actionName === 'yt-live-chat-seek-fail') {
-        if (!notLoading) {
+        if (isRenderStarted) {
           m1 = 1
           m2 = 1
           ytLivePU.renderBusyS--
         }
       } else if (d.actionName === 'yt-live-chat-reload-fail') {
-        if (!notLoading) {
+        if (isRenderStarted) {
           m1 = 2
           ytLivePU.renderBusyR--
         }
       } else if (d.actionName === 'yt-live-chat-continuation-behavior-reload-success') {
-        if (!notLoading) {
+        if (isRenderStarted) {
           m2 = 1
         }
       }
@@ -706,6 +708,7 @@ function injection_script_1() {
         this.ytLiveChatRenderer._gIxmf = 1;
         this.renderBusyS = 0;
         this.renderBusyR = 0;
+        this.renderStarted = 0;
 
         this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
 
