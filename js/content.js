@@ -3447,6 +3447,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
+  let fixLiveChatToggleButtonDispatchEventRid = 0;
+  const fixLiveChatToggleButtonDispatchEvent = () => {
+
+    let tid = ++fixLiveChatToggleButtonDispatchEventRid;
+    scriptletDeferred.debounce(() => {
+      if (tid === fixLiveChatToggleButtonDispatchEventRid) {
+        document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
+      }
+    });
+  }
+
 
   const FP = {
 
@@ -3589,9 +3600,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (btn) btn.remove();
         }
 
-        scriptletDeferred.debounce(() => {
-          document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
-        });
+        fixLiveChatToggleButtonDispatchEvent();
 
       })
 
@@ -5747,9 +5756,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function loadFrameHandler(evt) {
     let target = (evt || 0).target;
     if (target instanceof HTMLIFrameElement && target.id === 'chatframe') {
-      scriptletDeferred.debounce(() => {
-        document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
-      });
+      fixLiveChatToggleButtonDispatchEvent();
     }
   }
 
@@ -5776,9 +5783,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return;
     }
 
-    scriptletDeferred.debounce(() => {
-      document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
-    });
+    fixLiveChatToggleButtonDispatchEvent();
     document.removeEventListener('load', loadFrameHandler, true);
     document.addEventListener('load', loadFrameHandler, true);
 
