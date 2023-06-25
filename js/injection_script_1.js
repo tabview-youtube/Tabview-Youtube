@@ -299,9 +299,9 @@ function injection_script_1() {
       // just to catch the iframe element; content loading determined by initByChatRenderer
       // if the iframe is changed, the initByChatRenderer must also be triggered and iframe load event will be also triggered before that.
       // if the iframe not changed, just content changed, initByChatRenderer will come out while iframe element remains the same
-      this.elmChatFrame = iframe
+      this.elmChatFrame = iframe;
       // if(this.loadStatus)
-      this.loadStatus |= 2 // 00000010
+      this.loadStatus |= 2; // 00000010
       this.init();
     }
 
@@ -311,27 +311,27 @@ function injection_script_1() {
       // console.log('initByChat')
 
       if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
-        this.elmChat.classList.remove('tyt-chat-frame-ready')
+        this.elmChat.classList.remove('tyt-chat-frame-ready');
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
       if (chat === null) {
         if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true) {
-          this.elmChat.disconnectedCallback()
+          this.elmChat.disconnectedCallback();
           // console.log('aa', this.elmChat.isAttached)
         }
-        this.elmChat = null
-        this.elmChatFrame = null
+        this.elmChat = null;
+        this.elmChatFrame = null;
         if (this.loadStatus & 1) this.loadStatus -= 1;
         if (this.loadStatus & 2) this.loadStatus -= 2;
 
         if (this.loadStatus & 16) this.loadStatus -= 16
         if (this.loadStatus & 32) this.loadStatus -= 32
 
-        this.renderedVideoProgress = null
+        this.renderedVideoProgress = null;
 
 
         this.clearVars();
-        if (this.loadStatus & 4) this.loadStatus -= 4
+        if (this.loadStatus & 4) this.loadStatus -= 4;
 
       } else {
 
@@ -343,10 +343,10 @@ function injection_script_1() {
         // console.log(this.initialFetchReq)
 
 
-        this.elmChat = chat
+        this.elmChat = chat;
         if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
-          this.elmChat.connectedCallback()
+          this.elmChat.connectedCallback();
           this.initialFetchReq = 21;
         }
 
@@ -366,7 +366,7 @@ function injection_script_1() {
           this.chatUrlChanged();
         }
 
-        chat.classList.remove('tyt-chat-frame-ready')
+        // chat.classList.remove('tyt-chat-frame-ready')
         // chat.removeAttribute('tyt-iframe-loaded')
         this.init();
       }

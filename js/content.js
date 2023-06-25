@@ -3459,8 +3459,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   let forceChatRenderDispatchEventRid = 0;
-  const forceChatRenderDispatchEvent = ()=>{
-    
+  const forceChatRenderDispatchEvent = () => {
+
     let tid = ++forceChatRenderDispatchEventRid;
     scriptletDeferred.debounce(() => {
       if (tid === forceChatRenderDispatchEventRid) {
@@ -3614,7 +3614,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         fixLiveChatToggleButtonDispatchEvent();
         forceChatRenderDispatchEvent();
-        
+
 
       })
 
@@ -5502,7 +5502,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       clearInterval(cid);
 
       // console.log(702, 5)
-      if (!scriptEnable || !isChatExpand()) return;
+      if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
 
       // console.log(702, 6)
       let iframe = document.querySelector('body ytd-watch-flexy ytd-live-chat-frame iframe#chatframe');
@@ -5785,25 +5785,52 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // avoid blocking the page when youtube is initializing the page
     const promiseDelay = new Promise(requestAnimationFrame);
     const promiseVideoRendered = videosDeferred.d();
+
+    const verifyPageState = () => {
+      if (_navigateLoadDT !== tdt) {
+        return -400;
+      }
+      if (ytEventSequence !== 3) {
+        return -200;
+      }
+
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+
+      if (!ytdFlexyElm) {
+        ytdFlexy = null;
+        return -100;
+      } else {
+        ytdFlexy = mWeakRef(ytdFlexyElm);
+        return 0;
+      }
+
+
+    }
+
+    let pgState = verifyPageState();
+    if (pgState < 0) return;
+
+    let scriptEnableTemp = scriptEnable;
+    scriptEnable = true; // avoid locking the other parts of script (see v4.13.19)
     await Promise.all([promiseVideoRendered, promiseDelay]);
-
-    if (_navigateLoadDT !== tdt) return;
-    if (ytEventSequence !== 3) return;
-
-    const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+    pgState = verifyPageState();
+    if (pgState < 0) {
+      scriptEnable = scriptEnableTemp;
+      if (!ytdFlexy) scriptEnable = false;
+      return;
+    }
+    pgState = null;
+    const ytdFlexyElm = kRef(ytdFlexy);
 
     if (!ytdFlexyElm) {
-      ytdFlexy = null
+      ytdFlexy = null;
+      scriptEnable = false;
       return;
     }
 
     fixLiveChatToggleButtonDispatchEvent();
     document.removeEventListener('load', loadFrameHandler, true);
     document.addEventListener('load', loadFrameHandler, true);
-
-    scriptEnable = true;
-
-    ytdFlexy = mWeakRef(ytdFlexyElm)
 
     const related = querySelectorFromAnchor.call(ytdFlexyElm, "#related.ytd-watch-flexy");
     if (!related) return;
