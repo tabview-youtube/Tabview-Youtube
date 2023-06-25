@@ -5744,6 +5744,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }, false)
 
+  function loadFrameHandler(evt) {
+    let target = (evt || 0).target;
+    if (target instanceof HTMLIFrameElement && target.id === 'chatframe') {
+      scriptletDeferred.debounce(() => {
+        document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
+      });
+    }
+  }
+
   async function onNavigationEndAsync(isPageFirstLoaded) {
 
     if (pageType !== 'watch') return
@@ -5770,6 +5779,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     scriptletDeferred.debounce(() => {
       document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
     });
+    document.removeEventListener('load', loadFrameHandler, true);
+    document.addEventListener('load', loadFrameHandler, true);
 
     scriptEnable = true;
 
