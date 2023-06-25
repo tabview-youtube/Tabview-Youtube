@@ -5767,7 +5767,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return;
     }
 
-    scriptletDeferred.debounce(()=>{
+    scriptletDeferred.debounce(() => {
       document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
     });
 

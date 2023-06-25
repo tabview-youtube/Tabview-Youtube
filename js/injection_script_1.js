@@ -2373,23 +2373,21 @@ function injection_script_1() {
   /* added in 2023.06.25 */
   async function fixLiveChatToggleButton() {
 
+
     let elm = document.querySelector('ytd-live-chat-frame');
     let initialDisplayState = null;
     try {
       initialDisplayState = elm.data.liveChatRenderer.initialDisplayState
     } catch (e) { }
-    if (typeof initialDisplayState !== 'string') return;
+    if (typeof initialDisplayState !== 'string') return null;
 
     let btn = HTMLElement.prototype.querySelector.call(elm, 'ytd-toggle-button-renderer');
     let btnData = (btn || 0).data;
-    if (!btnData) return;
+    if (!btnData) return null;
     let isToggled = btnData.isToggled === true;
 
     let collapsed = elm.collapsed;
-    if (typeof collapsed !== 'boolean') return;
-
-    if (elm.data.ujiKt && btnData.ujiKt) return;
-    elm.data.ujiKt = btnData.ujiKt = Date.now();
+    if (typeof collapsed !== 'boolean') return null;
 
     let b = false;
     if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_EXPANDED' && collapsed === true && isToggled === false) {
@@ -2398,7 +2396,7 @@ function injection_script_1() {
       b = true;
     } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' && collapsed === false && isToggled === false) {
       b = true;
-    } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' && collapsed === false && isToggled === true) {
+    } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' && collapsed === true && isToggled === true) {
       b = true;
     }
     if (b) {
