@@ -3458,6 +3458,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
   }
 
+  let forceChatRenderDispatchEventRid = 0;
+  const forceChatRenderDispatchEvent = ()=>{
+    
+    let tid = ++forceChatRenderDispatchEventRid;
+    scriptletDeferred.debounce(() => {
+      if (tid === forceChatRenderDispatchEventRid) {
+        document.dispatchEvent(new CustomEvent("tabview-force-chat-render"));
+      }
+    });
+
+  }
+
 
   const FP = {
 
@@ -3601,6 +3613,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         fixLiveChatToggleButtonDispatchEvent();
+        forceChatRenderDispatchEvent();
+        
 
       })
 

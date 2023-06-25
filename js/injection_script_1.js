@@ -2879,14 +2879,14 @@ function injection_script_1() {
         elm = null;
       }
 
-      proto.onShowHideChat = ((onShowHideChat) => {
+      // proto.onShowHideChat = ((onShowHideChat) => {
 
-        return function () {
-          g();
-          return onShowHideChat.apply(this, arguments);
-        }
+      //   return function () {
+      //     // g();
+      //     return onShowHideChat.apply(this, arguments);
+      //   }
 
-      })(proto.onShowHideChat);
+      // })(proto.onShowHideChat);
 
       g();
 
@@ -4729,6 +4729,14 @@ rcb(b) => a = playlistId = undefinded
 
   document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
     fixLiveChatToggleButton();
+  })
+
+  document.addEventListener('tabview-force-chat-render', ()=>{
+    
+    let elm;
+    elm = elm || document.querySelector('ytd-live-chat-frame');
+    elm && elm.__forceChatRender__ && elm.__forceChatRender__();
+    elm = null;
   })
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
