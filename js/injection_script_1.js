@@ -2370,11 +2370,9 @@ function injection_script_1() {
 
   })();
 
-  let busy_fixLiveChatToggleButton = false;
   /* added in 2023.06.25 */
   async function fixLiveChatToggleButton() {
-    if (busy_fixLiveChatToggleButton) return;
-
+    
     let elm = document.querySelector('ytd-live-chat-frame');
     let initialDisplayState = null;
     try {
@@ -2383,11 +2381,9 @@ function injection_script_1() {
     if (typeof initialDisplayState !== 'string') return;
 
     let btn = HTMLElement.prototype.querySelector.call(elm, 'ytd-toggle-button-renderer');
-    let isToggled = null;
-    try {
-      isToggled = btn.data.isToggled;
-    } catch (e) { }
-    if (typeof isToggled !== 'boolean') return;
+    let btnData = (btn || 0).data;
+    if (!btnData) return;
+    let isToggled = btnData.isToggled === true;
 
     let collapsed = elm.collapsed;
     if (typeof collapsed !== 'boolean') return;
@@ -2882,11 +2878,6 @@ function injection_script_1() {
       proto.onShowHideChat = ((onShowHideChat) => {
 
         return function () {
-          busy_fixLiveChatToggleButton = true;
-          requestAnimationFrame(() => {
-            busy_fixLiveChatToggleButton = false;
-            fixLiveChatToggleButton();
-          });
           g();
           return onShowHideChat.apply(this, arguments);
         }
