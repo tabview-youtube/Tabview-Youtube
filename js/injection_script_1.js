@@ -54,13 +54,13 @@ function injection_script_1() {
 
   // const elementQS = fxAPI(Element.prototype, 'querySelector');
   // const elementQSA = fxAPI(Element.prototype, 'querySelectorAll');
-  
+
 
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
 
-  if(document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')){
+  if (document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')) {
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
     return;
   }
@@ -216,7 +216,7 @@ function injection_script_1() {
   // top.tabviewSwitchVideoPage
   // top.tabviewDispatchEvent
 
-  function globalFunc(f){
+  function globalFunc(f) {
     if (typeof f !== 'function') return null;
     let p = f.name || '';
     if (p.length >= 2) { } else return null;
@@ -231,7 +231,7 @@ function injection_script_1() {
 
 
 
-  
+
 
 
   const pm1 = (progress) => (progress > 1e-9 ? progress - 1e-99 : Math.max(progress || 0, 0));
@@ -1131,9 +1131,9 @@ function injection_script_1() {
 
       if (playerStateChange) {
 
-        if ((this.adsState & 3) === 3 && (this.loadStatus & 19) === 3){
+        if ((this.adsState & 3) === 3 && (this.loadStatus & 19) === 3) {
           this.adsState = 0;
-          
+
           if (this.ytLiveChatRenderer) {
             this.ytLiveChatRenderer._setIsAdPlaying(false);
           }
@@ -1143,7 +1143,7 @@ function injection_script_1() {
           }
 
           this.init()
-        } 
+        }
 
       } else if (((!!startID) ^ (!!endBool)) === 1) {
 
@@ -1343,7 +1343,7 @@ function injection_script_1() {
           await Promise.resolve(0);
           progress = ytLivePU.requestedVideoProgress;
           progressM1 = pm1(progress)
-          
+
           ytLivePU.prepareReload()
           ytLivePU.clearList();
           ytLivePU.clearTickerList();
@@ -1440,16 +1440,16 @@ function injection_script_1() {
 
 
           let boolz = false;
-          if(ytLivePU.ytLiveChatApp && !this.ytInitialChecked && !ytLivePU.keepOriginalPTCW){
+          if (ytLivePU.ytLiveChatApp && !this.ytInitialChecked && !ytLivePU.keepOriginalPTCW) {
             // check on the first call.
             ytLivePU.keepOriginalPTCW = !!ytLivePU.ytLiveChatApp.querySelector('#hyperchat');
           }
-          if(ytLivePU.ytLiveChatApp && ytLivePU.loadStatus > 0 ){
+          if (ytLivePU.ytLiveChatApp && ytLivePU.loadStatus > 0) {
             // no longer check new element
             this.ytInitialChecked = true;
           }
 
-          if(!ytLivePU.keepOriginalPTCW){
+          if (!ytLivePU.keepOriginalPTCW) {
             // if other script for chat such as hyperchat is used,
             // the chat optimization provided by Tabview Youtube will be disabled
 
@@ -1463,7 +1463,7 @@ function injection_script_1() {
               if (ytLivePU.initialFetchReq !== 3) return;
               boolz = ytLivePU.checkChatNativeReady(this) && pt >= 0;
             }
-            
+
           }
 
 
@@ -1538,7 +1538,7 @@ function injection_script_1() {
       return g_postToContentWindow;
     }
 
-    
+
 
 
   }
@@ -2206,16 +2206,16 @@ function injection_script_1() {
 
   let translateHanlder = null;
 
-  
+
 
   const defineValuable = (proto, oriKey, newKey, attributes) => {
-    if(!proto) console.warn('[tyt] proto is invalid.');
-    if(newKey in proto) return;
-    if(oriKey in proto){
+    if (!proto) console.warn('[tyt] proto is invalid.');
+    if (newKey in proto) return;
+    if (oriKey in proto) {
       let v = proto[oriKey]; // keep the value before property defined
       Object.defineProperty(proto, oriKey, attributes);
       proto[newKey] = v; // call setter in defined property
-    }else{
+    } else {
       Object.defineProperty(proto, oriKey, attributes);
     }
   }
@@ -2223,7 +2223,7 @@ function injection_script_1() {
   // https://greasyfork.org/en/scripts/465819-api-for-customelements-in-youtube/
   const customYtElements = (function () {
     'use strict';
-   
+
     const injectorCreationForRegistered = ((mMapOfFuncs, _registered) => {
       if (!(mMapOfFuncs instanceof WeakMap) || (typeof _registered !== 'function')) return console.error('[ytI] Incorrect parameters');
       const $callee = function (...args) {
@@ -2273,7 +2273,7 @@ function injection_script_1() {
       $callee.__injector__ = wrapped; // for _registered.__injector__
       return $callee;
     });
-   
+
     const postRegistered_ = (ceProto) => { // delay prototype injection
       if (!('_registered' in ceProto)) return console.warn('[ytI] no _registered is found in proto');
       const _registered = ceProto._registered; // make a copy in this nested closure.
@@ -2300,7 +2300,7 @@ function injection_script_1() {
       if (!funcs) return console.warn('[ytI] _registered has already called. You can just override the properties.');
       return funcs;
     }
-   
+
     const postRegistered = (ytElmTag, f) => {
       const ceElmConstrcutor = customElements.get(ytElmTag);
       const proto = ((ceElmConstrcutor || 0).prototype || 0);
@@ -2312,9 +2312,9 @@ function injection_script_1() {
         console.warn('[tyt] postRegistered is not supported.');
       }
     }
-   
+
     const EVENT_KEY_ON_REGISTRY_READY = "ytI-ce-registry-created";
-   
+
     const customYtElements = {
       whenRegistered(ytElmTag, immediateCallback) {
         return new Promise(resolve => {
@@ -2361,16 +2361,16 @@ function injection_script_1() {
         }
       }
     }
-   
+
     // Export to external environment
     // try { window.customYtElements = customYtElements; } catch (error) { /* for Greasemonkey */ }
     // try { module.customYtElements = customYtElements; } catch (error) { /* for CommonJS */ }
-   
+
     return customYtElements;
-   
+
   })();
 
-  function ceHackExecution(){
+  function ceHackExecution() {
 
     // handled by customYtElements
     console.debug('[tyt] ce-hack');
@@ -2401,16 +2401,16 @@ function injection_script_1() {
     // delayPropsSetup(customElements.get('ytd-expander').prototype).push( ()=>{
     //   console.log(592, customElements.get('ytd-expander').prototype.recomputeOnResize); // 592 -> 591 ...
     // })
-    
-
-    
 
 
-    customYtElements.whenRegistered('ytd-expander', (proto)=>{
+
+
+
+    customYtElements.whenRegistered('ytd-expander', (proto) => {
 
       let keyDefined = 'recomputeOnResize' in proto;
       // recomputeOnResize is just value assignment after "_initializeProperties()"
-      if(keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
+      if (keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
 
       Object.defineProperty(proto, 'recomputeOnResize', {
         get() {
@@ -2447,25 +2447,25 @@ function injection_script_1() {
     })
 
 
-    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto)=>{
+    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto) => {
       let keyDefined = 'initialTranscriptsRenderer' in proto;
       // initialTranscriptsRenderer is just value assignment after "_initializeProperties()"
-      if(keyDefined) console.warn('initialTranscriptsRenderer is defined in ytd-transcript-search-panel-renderer.');
+      if (keyDefined) console.warn('initialTranscriptsRenderer is defined in ytd-transcript-search-panel-renderer.');
       Object.defineProperty(proto, 'initialTranscriptsRenderer', {
         get() {
           return this.__$$initialTranscriptsRenderer$$__
         },
         set(nv) {
           try {
-  
+
             if (nv && nv.initialSegments && !nv.initialSegments[s6]) {
               nv[s6] = true;
-  
+
               if (translateHanlder !== null) {
                 nv.initialSegments = translateHanlder(nv.initialSegments)
               }
             }
-  
+
           } catch (e) {
             console.log('Tabview Error', e)
           }
@@ -2476,10 +2476,10 @@ function injection_script_1() {
       })
     });
 
-    customYtElements.whenRegistered('ytd-live-chat-frame', (proto)=>{
+    customYtElements.whenRegistered('ytd-live-chat-frame', (proto) => {
       let keyDefined = 'postToContentWindow' in proto;
       // postToContentWindow is property defined during "_initializeProperties()"
-      if(!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
+      if (!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
       proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
       proto.postToContentWindow = g_postToContentWindow;
@@ -2492,11 +2492,11 @@ function injection_script_1() {
     let insObserverChipCloud = getInsObserverChipCloud();
     let mutObserverChipCloud = getMutObserverChipCloud();
     // yt-chip-cloud-renderer 
-    
-    customYtElements.whenRegistered('yt-chip-cloud-renderer', (proto)=>{
+
+    customYtElements.whenRegistered('yt-chip-cloud-renderer', (proto) => {
       let keyDefined = 'boundChipCloudChipScrollIntoView' in proto;
       // boundChipCloudChipScrollIntoView is just value assignment after "_initializeProperties()"
-      if(keyDefined) console.warn('boundChipCloudChipScrollIntoView is defined in yt-chip-cloud-renderer.');
+      if (keyDefined) console.warn('boundChipCloudChipScrollIntoView is defined in yt-chip-cloud-renderer.');
       Object.defineProperty(proto, 'boundChipCloudChipScrollIntoView', {
         get() {
           return this[s32];
@@ -2518,50 +2518,50 @@ function injection_script_1() {
 
     // dataChanged_ & headerChanged_ for comments counting update
 
-    async function asyncTriggerInitialContinuations(sections){
-      try{
+    async function asyncTriggerInitialContinuations(sections) {
+      try {
         sections.triggerInitialContinuations();
-      }catch(e){
+      } catch (e) {
 
       }
     }
-    
-    customYtElements.whenRegistered('ytd-comments',(proto)=>{
+
+    customYtElements.whenRegistered('ytd-comments', (proto) => {
       let keyDefined = 'headerChanged_' in proto && 'headerChanged_' in proto;
       const ytdCommentsP = proto;
-      
+
       // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
-      if(!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
+      if (!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
 
       // dataChanged_ for cache update & clear cached count
       // const ytdCommentsP = customElements.get('ytd-comments').prototype;
-      if(typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)){
+      if (typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)) {
         ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
-        ytdCommentsP.dataChanged_=function(){
+        ytdCommentsP.dataChanged_ = function () {
           this.tytDataChanged_();
-          const hasData = (((this.__data||0).data||0).contents||0)!==0;
+          const hasData = (((this.__data || 0).data || 0).contents || 0) !== 0;
           // console.log(this.__data.data, hasData)
-          if(hasData){
-            const sections = ((this.$||0).sections||0);
-            if(sections && 'triggerInitialContinuations' in sections){
+          if (hasData) {
+            const sections = ((this.$ || 0).sections || 0);
+            if (sections && 'triggerInitialContinuations' in sections) {
               asyncTriggerInitialContinuations(sections);
               // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
             }
           }
-          this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', {detail: {hasData}}));
+          this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', { detail: { hasData } }));
         }
       }
-      
-        // headerChanged_ - new method to fetch comments count
-      if(typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)){
+
+      // headerChanged_ - new method to fetch comments count
+      if (typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)) {
         ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
-        ytdCommentsP.headerChanged_=function(){
+        ytdCommentsP.headerChanged_ = function () {
           this.tytHeaderChanged_();
           this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
         }
       }
-      
-  
+
+
     });
 
     document.addEventListener('tabview-fix-popup-refit', function () {
@@ -2600,97 +2600,97 @@ function injection_script_1() {
     }, false);
 
     /* added in 2023.06.09 */
-    const regRFn = (proto, keyA, keyB)=>{
+    const regRFn = (proto, keyA, keyB) => {
 
-        if(proto[keyB]|| !proto[keyA]) return;
-        /*
-        proto.__renderIdom__ = proto.renderIdom;
-        proto.renderIdo2m = function(){
-          if(this.templatingFn_delayId) return;
-          this.templatingFn_delayId = requestAnimationFrame(()=>{
-            this.templatingFn_delayId = 0;
-  
+      if (proto[keyB] || !proto[keyA]) return;
+      /*
+      proto.__renderIdom__ = proto.renderIdom;
+      proto.renderIdo2m = function(){
+        if(this.templatingFn_delayId) return;
+        this.templatingFn_delayId = requestAnimationFrame(()=>{
+          this.templatingFn_delayId = 0;
+ 
+          if(this.classList.contains('ytd-video-secondary-info-renderer')){
+            this.__data.data.styleRuns = [{
+                "startIndex": 0,
+                "length": 30,
+                "fontColor": 4282296063
+            }];
+          }
+ 
+          this.__renderIdom__();
+        });
+      }
+      */
+
+
+      proto[keyB] = proto[keyA];
+
+      let renderStore = new WeakMap();
+
+      proto[keyA] = function () {
+
+        if (renderStore.get(this) >= 1) return;
+        renderStore.set(this, requestAnimationFrame(() => {
+          renderStore.set(this, 0);
+
+          /*
+          let data = ((this.__data||0).data||0);
+          if(data){
+ 
             if(this.classList.contains('ytd-video-secondary-info-renderer')){
-              this.__data.data.styleRuns = [{
-                  "startIndex": 0,
-                  "length": 30,
-                  "fontColor": 4282296063
-              }];
-            }
-  
-            this.__renderIdom__();
-          });
-        }
-        */
-  
-        
-        proto[keyB] = proto[keyA];
-  
-        let renderStore = new WeakMap();
-        
-        proto[keyA] = function(){
-  
-          if( renderStore.get(this)>= 1) return;
-          renderStore.set(this, requestAnimationFrame(()=>{
-            renderStore.set(this, 0);
-  
-            /*
-            let data = ((this.__data||0).data||0);
-            if(data){
-  
-              if(this.classList.contains('ytd-video-secondary-info-renderer')){
-                let content = data.content;
-                let lines = content.split('\n');
-                let pIdx = 0;
-                let styleRuns = [];
-                for(const line of lines){
-                  if(line.length > 8 && content.indexOf(line)!==content.lastIndexOf(line) && content.indexOf('@')<0){
-                    
-                    let q = line.replace(/(([\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E])\2{3,})/g,'@$1@').replace(/\x40+/g,'@');
-                    let w = q.split('@')
-                    if(w.length>=2){
-                      let cIdx = 0;
-                      for(const b of w){
-                        if(!b) continue;
-                        styleRuns.push({
-                          "startIndex": pIdx+cIdx,
-                          "length": b.length,
-                          "baselineOffset": "BASELINE_OFFSET_UNKNOWN",
-                          /-* "fontColor": 4282296063 *-/
-                        })
-                        cIdx+=b.length;
-                      }
+              let content = data.content;
+              let lines = content.split('\n');
+              let pIdx = 0;
+              let styleRuns = [];
+              for(const line of lines){
+                if(line.length > 8 && content.indexOf(line)!==content.lastIndexOf(line) && content.indexOf('@')<0){
+                  
+                  let q = line.replace(/(([\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E])\2{3,})/g,'@$1@').replace(/\x40+/g,'@');
+                  let w = q.split('@')
+                  if(w.length>=2){
+                    let cIdx = 0;
+                    for(const b of w){
+                      if(!b) continue;
+                      styleRuns.push({
+                        "startIndex": pIdx+cIdx,
+                        "length": b.length,
+                        "baselineOffset": "BASELINE_OFFSET_UNKNOWN",
+                        /-* "fontColor": 4282296063 *-/
+                      })
+                      cIdx+=b.length;
                     }
                   }
-                  pIdx += line.length + 1
                 }
-  
-                if(styleRuns.length){
-  
-                  data.styleRuns =  styleRuns;
-                }
-                
+                pIdx += line.length + 1
               }
-  
+ 
+              if(styleRuns.length){
+ 
+                data.styleRuns =  styleRuns;
+              }
+              
             }
-            */
-            
-            if(this.hidden !== true && this.isAttached === true && this.isConnected === true) {
+ 
+          }
+          */
 
-              this[keyB](); 
-            }
-   
-          }));
-  
-        };
-  
-      
+          if (this.hidden !== true && this.isAttached === true && this.isConnected === true) {
+
+            this[keyB]();
+          }
+
+        }));
+
+      };
+
+
 
     }
 
-    
+
     /* added in 2023.06.09 */
-    customYtElements.whenRegistered('yt-attributed-string', (proto)=>{
+    customYtElements.whenRegistered('yt-attributed-string', (proto) => {
       // since DFa cannot be hacked
 
       regRFn(proto, 'templatingFn', '__templatingFn__');
@@ -2698,16 +2698,164 @@ function injection_script_1() {
 
     });
 
-    
+
     /* added in 2023.06.09 */
-    customYtElements.whenRegistered('yt-button-shape', (proto)=>{
+    customYtElements.whenRegistered('yt-button-shape', (proto) => {
       // since DFa cannot be hacked
 
       regRFn(proto, 'templatingFn', '__templatingFn__');
       regRFn(proto, 'doIdomRender', '__doIdomRender__');
 
     });
-    
+
+
+    /* added in 2023.06.25 */
+    customYtElements.whenRegistered('ytd-live-chat-frame', (proto) => {
+
+      let crid = 0;
+
+      proto.__forceChatRender2__ = async function () {
+
+        const isYtChatLiveAppLoaded = () => {
+
+          let ytChatLiveApp = null;
+          try {
+            ytChatLiveApp = this.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
+          } catch (e) { }
+
+          return ytChatLiveApp !== null;
+        }
+
+        if (isYtChatLiveAppLoaded()) return;
+
+        let trid = ++crid;
+        const f = () => {
+          if (trid === crid && this.isConnected === true && this.collapsed === false) {
+            if (isYtChatLiveAppLoaded()) return;
+
+            this.visibilityObserverForChild_ = null; this.localVisibilityObserver_ = null;
+            this.visibilityOptionVisible_ = null; this.visibilityOptionHidden_ = null; this.visibilityOptionPrescan_ = null;
+            this.childCache_ = new Set;
+            this.playerListeners_ = new Map;
+            this.openPopupConfig = null; this.hostElement = this; this.polymerController = this;
+            // this.detached();this.attached();
+            // this.created();
+
+
+
+            this.detached(); /* this.created(); */ this.attached();
+            Promise.resolve().then(() => {
+
+              if (this.isChatReplay() === false && (this.$ || 0).chatframe && this.isConnected === true && this.collapsed === false && this.$.chatframe.isConnected === true) {
+                const chatframe = this.$.chatframe;
+                let src = chatframe.getAttribute('src');
+                let m = /live_chat\?continuation=[^&\/\=]+([&\/\=].*|)$/.exec(src || '')
+                if (m) {
+                  let k = m[1];
+                  if (k === '&z' || k === '') {
+                    chatframe.setAttribute('src', src.replace(/&z$/, '') + '&');
+                  } else if (k === '&') {
+                    chatframe.setAttribute('src', src + 'z');
+                  }
+                }
+              }
+
+            });
+            /*
+            if(this.isChatReplay() === false){
+              // specific method
+              // this.created();
+
+              
+
+            } else if ( true) {
+              this.detached(); this.attached();
+            } else {
+              this.detached(); this.attached();
+              // this.detached();  this.created(); this.attached();
+              if ((this.$ || 0).chatframe) {
+                let src = this.$.chatframe.getAttribute('src');
+                if (/live_chat.+[^&]$/.test(src || '')) {
+                  this.$.chatframe.setAttribute('src', src + '&');
+                }
+              }
+            }
+            */
+
+            return true;
+          }
+          return false;
+        }
+
+        // let executed = f() === true;
+        let executed = false;
+        if (!executed) {
+          requestAnimationFrame(f);
+        }
+
+      };
+
+      // proto.__forceChatRender__ = async function () {
+
+      //   let ytChatLiveApp = null;
+      //   try {
+      //     ytChatLiveApp = this.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
+      //   } catch (e) { }
+
+      //   if (ytChatLiveApp !== null) return;
+
+      //   let trid = ++crid;
+      //   const f = () => {
+      //     if (trid === crid && this.isConnected === true && !this.hasAttribute('collapsed')) {
+      //       this.visibilityObserverForChild_ = null; this.localVisibilityObserver_ = null;
+      //       this.visibilityOptionVisible_ = null; this.visibilityOptionHidden_ = null; this.visibilityOptionPrescan_ = null;
+      //       this.childCache_ = new Set;
+      //       this.playerListeners_ = new Map;
+      //       this.openPopupConfig = null; this.hostElement = this; this.polymerController = this;
+      //       // this.detached();this.attached();
+      //       // this.created();
+      //       //this.detached(); /* this.created(); */ this.attached();
+      //       /*
+      //       if ((this.$ || 0).chatframe) {
+      //         let src = this.$.chatframe.getAttribute('src');
+      //         if (/live_chat.+[^&]$/.test(src || '')) {
+      //           this.$.chatframe.setAttribute('src', src + '&');
+      //         }
+      //       }*/
+      //       return true;
+      //     }
+      //     return false;
+      //   }
+
+      //   let executed = f() === true;
+      //   if (!executed) {
+      //     requestAnimationFrame(f);
+      //   }
+
+      // };
+
+      proto.__forceChatRender__ = proto.__forceChatRender2__;
+
+      const g = (elm) => {
+        elm = elm || document.querySelector('ytd-live-chat-frame');
+        elm && elm.__forceChatRender__ && elm.__forceChatRender__();
+        elm = null;
+      }
+
+      proto.onShowHideChat = ((onShowHideChat) => {
+
+        return function () {
+          g();
+          return onShowHideChat.apply(this, arguments);
+        }
+
+      })(proto.onShowHideChat);
+
+
+      g();
+
+
+    }, true);
 
   }
 
@@ -2782,7 +2930,7 @@ function injection_script_1() {
   */
 
   function showLyricsWhenReady(data) {
-    
+
     console.assert(!!data, 'parameter "data" is not defined.')
 
     let lyricsIframe = document.querySelector('#lyricsiframe');
@@ -3082,7 +3230,7 @@ function injection_script_1() {
   if (document.documentElement.hasAttribute('tabview-loaded')) ceHack(); else
     document.addEventListener('tabview-ce-hack', ceHack, true);
 
-    
+
 
 
   document.addEventListener('yt-expander-less-tapped', function (evt) {
@@ -3327,10 +3475,10 @@ function injection_script_1() {
             console.warn(e)
           }
 
-          
+
 
           this.onParticipantsChangedBusy322 = false;
-          if(typeof this.participantsChangeIfPending === 'function') this.participantsChangeIfPending(); // unknown bug found in 2023.06.18 (FireFox)
+          if (typeof this.participantsChangeIfPending === 'function') this.participantsChangeIfPending(); // unknown bug found in 2023.06.18 (FireFox)
 
 
 
@@ -3965,7 +4113,7 @@ rcb(b) => a = playlistId = undefinded
 
   })
 
-  
+
   const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
   // https://caniuse.com/?search=addEventListener%20passive
@@ -4009,7 +4157,7 @@ rcb(b) => a = playlistId = undefinded
 
   }
 
-  
+
   function closestYTDButton(elm) {
     let pelm = elm;
     while (pelm) {
@@ -4024,8 +4172,8 @@ rcb(b) => a = playlistId = undefinded
 
   const DONATION_HANDS_D = "DONATION_HANDS";
   const DONATION_HANDS_id = "donation_hands";
-  const DONATION_PATH = 
-  `M11.6 22.4c-.6-.1-1-.4-1.4-1.2-.2-.4-.4-.6-.7-.7-.6-.2-1-.6-1.3-1.2-.2-.5-.4-.7-.6-.8-.7-.2-1.1-.6-1.4-1.2-.2-.5-.3-.6-.8-.9-.7-.3-3.8-3.3-4.3-4.3a8 
+  const DONATION_PATH =
+    `M11.6 22.4c-.6-.1-1-.4-1.4-1.2-.2-.4-.4-.6-.7-.7-.6-.2-1-.6-1.3-1.2-.2-.5-.4-.7-.6-.8-.7-.2-1.1-.6-1.4-1.2-.2-.5-.3-.6-.8-.9-.7-.3-3.8-3.3-4.3-4.3a8 
   8 0 0 1-.7-5.3A7.7 7.7 0 0 1 5 1.9c2.1-.7 4.4-.5 6.2.7l.8.4.9-.4a7.5 7.5 0 0 1 7.1-.3c1.2.6 2.5 1.9 3.1 3.1a6 6 0 0 1 .7 
   3.2c0 2.1-.5 3.4-2.3 5.2-.7.8-1.2 1.2-1.6 1.4-.5.2-.6.3-.9.9-.3.5-.4.7-1 1-.5.2-.7.4-.9.9-.3.6-.7 1-1.3 1.2-.3 0-.4.2-.6.6-.3.5-1.8 2.2-2.3 
   2.4-.4.2-.9.3-1.3.2zm1.6-1.8c1-1 1.1-1.3.7-1.8-.4-.6-.8-.4-1.9.6-.9.9-1.1 1.3-.6 1.7.5.5.9.3 1.8-.5zm-1.9-2c.6-.7.8-1 .8-1.3 0-.4-.4-.9-.8-.9a6 6 0 0 
@@ -4052,8 +4200,8 @@ rcb(b) => a = playlistId = undefinded
         if (currentVisibile) {
           if (shelf.isCollapsed === true) shelf.isCollapsed = false // for shelf content
         }
-        if((currentVisibile === true) ^ (tytAttr === true)){
-          if(currentVisibile) ytdFlexyElm.setAttribute('tyt-donation-shelf', '');
+        if ((currentVisibile === true) ^ (tytAttr === true)) {
+          if (currentVisibile) ytdFlexyElm.setAttribute('tyt-donation-shelf', '');
           else ytdFlexyElm.removeAttribute('tyt-donation-shelf');
           // updateIcon = true;
         }
@@ -4109,7 +4257,7 @@ rcb(b) => a = playlistId = undefinded
       dsMgr.toggleVisibility(br);
       dsMgr.onVisibilityChanged();
     },
-    checkS(s){
+    checkS(s) {
 
       if (!s) return false;
       let br = s.buttonRenderer;
@@ -4118,35 +4266,35 @@ rcb(b) => a = playlistId = undefinded
       return false;
 
     },
-    regenTopButtons(){
- 
-        let masthead = document.querySelector('ytd-masthead#masthead')
-        if (!masthead) return;
-    
-        let mastheadData = masthead.data
-        if (!mastheadData) return;
-    
-        let topbarButtons = mastheadData.topbarButtons
-        if (!topbarButtons) return;
+    regenTopButtons() {
 
-        mastheadData.topbarButtons = null;
-        masthead.notifyPath('data.topbarButtons')
-        
-        mastheadData.topbarButtons = topbarButtons;
-        masthead.notifyPath('data.topbarButtons')
-        
- 
+      let masthead = document.querySelector('ytd-masthead#masthead')
+      if (!masthead) return;
+
+      let mastheadData = masthead.data
+      if (!mastheadData) return;
+
+      let topbarButtons = mastheadData.topbarButtons
+      if (!topbarButtons) return;
+
+      mastheadData.topbarButtons = null;
+      masthead.notifyPath('data.topbarButtons')
+
+      mastheadData.topbarButtons = topbarButtons;
+      masthead.notifyPath('data.topbarButtons')
+
+
 
     },
-    createToggleBtn(evt){ 
+    createToggleBtn(evt) {
       let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelf) return;
-  
+
       if ((donationShelf.detacheds || 0).swVq2 !== 1) {
         detachedFunc(donationShelf, (s) => {
           Promise.resolve(s).then((s) => {
-            if(s.isAttached === true) return;
-            dsMgr._dsToggleButtonRenderer.i8KBd= 1;
+            if (s.isAttached === true) return;
+            dsMgr._dsToggleButtonRenderer.i8KBd = 1;
             dsMgr._lastDSVideo = null;
             // if (s && typeof s.removeAttribute === 'function') s.removeAttribute('swVq2');
             dsMgr.removeToggleBtn();
@@ -4155,41 +4303,41 @@ rcb(b) => a = playlistId = undefinded
         });
         (donationShelf.detacheds || 0).swVq2 = 1;
       }
-  
+
       /** @type {object[]} */
       let masthead = document.querySelector('ytd-masthead#masthead')
       if (!masthead) return;
-  
+
       let mastheadData = masthead.data
       if (!mastheadData) return;
-  
+
       let topbarButtons = mastheadData.topbarButtons
       if (!topbarButtons) return;
-  
-  
+
+
       function addIcon(g, k) {
-  
+
         let svgSet = document.querySelector(`iron-iconset-svg[name="${k}"]`)
         let defs = document.querySelector(`iron-iconset-svg[name="${k}"] defs`)
         let g1 = g.cloneNode(true);
         defs.appendChild(g1)
         svgSet._icons = null;
-  
+
       }
-  
-      function createDonationHandsIcon(){
+
+      function createDonationHandsIcon() {
         let g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         g.appendChild(path);
-  
+
         g.setAttribute('id', `${DONATION_HANDS_id}`);
         const d = DONATION_PATH
         path.setAttribute('d', d);
         path.setAttribute('swVq1', '1');
-  
+
         return g;
       }
-  
+
       let arr = topbarButtons
       let dBtn = false
       for (const s of arr) {
@@ -4198,9 +4346,9 @@ rcb(b) => a = playlistId = undefinded
           break;
         }
       }
-  
+
       const toggleActive = donationShelf.classList.contains('tyt-hidden') === false
-  
+
       dsMgr._dsToggleButtonRenderer = {
         "icon": {
           "iconType": DONATION_HANDS_D,
@@ -4216,14 +4364,14 @@ rcb(b) => a = playlistId = undefinded
       }
 
       if (dBtn === false) {
-          
+
         if (!document.querySelector(`iron-iconset-svg[name="yt-icons"] [id="${DONATION_HANDS_id}"]`)) {
           let g = createDonationHandsIcon();
           addIcon(g, "yt-icons");
         }
-  
+
         arr.unshift({
-          get buttonRenderer(){
+          get buttonRenderer() {
             // console.log(4545, dsMgr._dsToggleButtonRenderer.i8KBd)
             if (dsMgr._dsToggleButtonRenderer.i8KBd === 1) {
               // regenerate after re-attachment
@@ -4234,13 +4382,13 @@ rcb(b) => a = playlistId = undefinded
             return dsMgr._dsToggleButtonRenderer
           }
         });
-  
+
         // if(masthead.__dataHasAccessor && masthead.__dataHasAccessor.buttonOverrides === true) masthead.__dataHasAccessor.buttonOverrides = false;
         masthead.notifyPath("data.topbarButtons");
       } else {
         let br = document.querySelector('#tyt-donation-shelf-toggle-btn');
         if (br) {
-          if(!br.overrides || br.overrides.style) br.overrides = {};
+          if (!br.overrides || br.overrides.style) br.overrides = {};
           let data = br.data;
           data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
           br.notifyPath('data.style');
@@ -4248,46 +4396,46 @@ rcb(b) => a = playlistId = undefinded
           dsMgr._dsToggleButtonRenderer.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
           masthead.notifyPath("data.topbarButtons");
         }
-        
+
       }
-  
+
       dBtn = null
-  
+
       dsMgr.onVisibilityChanged();
-    
+
     },
-    removeToggleBtn(evt){
+    removeToggleBtn(evt) {
 
       let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (donationShelf && donationShelf.isAttached === true) return;
-  
-  
+
+
       // console.log(4455)
       // if(!document.querySelector('#tyt-donation-shelf-toggle-btn')) return;
-  
+
       /** @type {object[]} */
       let masthead = document.querySelector('ytd-masthead#masthead')
       if (!masthead) return;
-  
+
       let mastheadData = masthead.data
       if (!mastheadData) return;
-  
+
       let topbarButtons = mastheadData.topbarButtons
       if (!topbarButtons) return;
-  
-  
-  
+
+
+
       let arr = topbarButtons
-  
+
       let j = -1, l = arr.length;
       for (let i = 0; i < l; i++) {
         if (j > -1) {
           arr[i - 1] = arr[i]
         } else {
           // j < 0
-  
+
           let s = arr[i]
-          
+
           if (dsMgr.checkS(s)) {
             j = i;
             arr[i] = null
@@ -4299,28 +4447,28 @@ rcb(b) => a = playlistId = undefinded
         arr.length = l - 1;
         masthead.notifyPath("data.topbarButtons")
       }
-  
+
       // console.log(552)
-    
+
     },
-    setVisibility(evt){
+    setVisibility(evt) {
       let detail = (evt || 0).detail || 0
-      if(typeof detail.visibility !== 'boolean') return;
+      if (typeof detail.visibility !== 'boolean') return;
 
       let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelf) return;
-  
+
       if ((donationShelf.detacheds || 0).swVq2 !== 1) {
         return;
       }
-  
+
       /** @type {object[]} */
       let masthead = document.querySelector('ytd-masthead#masthead')
       if (!masthead) return;
-  
+
       let mastheadData = masthead.data
       if (!mastheadData) return;
-  
+
       let topbarButtons = mastheadData.topbarButtons
       if (!topbarButtons) return;
 
@@ -4337,22 +4485,22 @@ rcb(b) => a = playlistId = undefinded
         }
       }
 
-      if(dBtn === false){
+      if (dBtn === false) {
         // if the page is switched; the topbarButtons will be updated before the donation shelf is removed.
         // if(donationShelf.isAttached === false) donationShelf.classList.remove('tyt-hidden');
         // dsMgr._dsToggleButtonRenderer = {};
         // dsMgr.onVisibilityChanged();
-        return; 
-      } 
+        return;
+      }
 
-      if(!dsMgr._dsToggleButtonRenderer || !dsMgr._dsToggleButtonRenderer.icon) return;
+      if (!dsMgr._dsToggleButtonRenderer || !dsMgr._dsToggleButtonRenderer.icon) return;
 
-  
+
       const toggleActive = detail.visibility === true
       const currentHidden = donationShelf.classList.contains('tyt-hidden')
-      if(currentHidden === true && toggleActive === true){
+      if (currentHidden === true && toggleActive === true) {
         donationShelf.classList.remove('tyt-hidden');
-      }else if(currentHidden === false && toggleActive === false){
+      } else if (currentHidden === false && toggleActive === false) {
         donationShelf.classList.add('tyt-hidden');
       }
 
@@ -4375,12 +4523,12 @@ rcb(b) => a = playlistId = undefinded
       // console.log(33435, dsMgr._dsToggleButtonRenderer.style)
 
       dBtn = null
-  
+
       dsMgr.onVisibilityChanged();
 
     },
-    async triggerDOMAppearWhenDataChanged(ds){
-        
+    async triggerDOMAppearWhenDataChanged(ds) {
+
       await Promise.resolve(0);
       let videoId = ((ds || 0).data || 0).videoId || 0;
       if (!videoId) return;
@@ -4398,17 +4546,19 @@ rcb(b) => a = playlistId = undefinded
         await Promise.resolve(0);
         ds.connectedCallback();
 
-        Promise.resolve(ds).then((ds)=>{
-          dsMgr.setVisibility({detail: {
-            visibility: !ds.classList.has('tyt-hidden'),
-            flushDOM: true
-          }})
+        Promise.resolve(ds).then((ds) => {
+          dsMgr.setVisibility({
+            detail: {
+              visibility: !ds.classList.has('tyt-hidden'),
+              flushDOM: true
+            }
+          })
         })
-          
+
       }
 
     },
-    caHandler1(evt){
+    caHandler1(evt) {
       // html[tabview-unwrapjs="1"] ytd-masthead#masthead div#buttons.ytd-masthead path[swVq1="1"]
       if (!evt || !evt.target) return;
       const path = evt.target;
@@ -4451,27 +4601,27 @@ rcb(b) => a = playlistId = undefinded
     }
 
   }
-  
+
   dsMgr._lastDSVideo = null
-  dsMgr._dsToggleButtonRenderer= {}
+  dsMgr._dsToggleButtonRenderer = {}
   handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1)
   handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2)
   document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false)
 
 
   const buttonTooltipPositionProp = {
-    get(){
+    get() {
       return 'top';
     },
-    set(){
+    set() {
 
     },
-    enumerable:true,
-    configurable:true
+    enumerable: true,
+    configurable: true
   };
 
-  function fixTooltipsK1(s){
-    s.setAttribute('tyt-placed-to-top','');
+  function fixTooltipsK1(s) {
+    s.setAttribute('tyt-placed-to-top', '');
 
     s.removeAttribute('fit-to-visible-bounds'); // related to the button position only; ignore page layout
     s.setAttribute('offset', '0'); // offset is for bottom tooltip only
@@ -4492,30 +4642,30 @@ rcb(b) => a = playlistId = undefinded
 
   }
 
-  function fixTooltipsK2(s){
+  function fixTooltipsK2(s) {
 
-    s.setAttribute('fit-to-visible-bounds',''); // fix native tooltip bug due to YouTube Layout change since 2023.05.18
+    s.setAttribute('fit-to-visible-bounds', ''); // fix native tooltip bug due to YouTube Layout change since 2023.05.18
 
   }
 
 
-  async function asyncFixPrimaryInfoTooltipAppeared(){
+  async function asyncFixPrimaryInfoTooltipAppeared() {
 
-    for(const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top])')){
+    for (const s of document.querySelectorAll('#actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top])')) {
       // earlier than `html[tabview-unwrapjs="1"] #actions.ytd-watch-metadata tp-yt-paper-tooltip`
       fixTooltipsK1(s);
     }
-    for(const s of document.querySelectorAll('#description.ytd-watch-metadata tp-yt-paper-tooltip[for="info"]:not([fit-to-visible-bounds])')){
+    for (const s of document.querySelectorAll('#description.ytd-watch-metadata tp-yt-paper-tooltip[for="info"]:not([fit-to-visible-bounds])')) {
       // earlier than `html[tabview-unwrapjs="1"] #description.ytd-watch-metadata tp-yt-paper-tooltip`
       fixTooltipsK2(s);
     }
   }
   asyncFixPrimaryInfoTooltipAppeared();
-  
+
   // for(const s of document.querySelectorAll('#actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata')){
   //   k2(s);
   // }
-  
+
   // for subsequent `#actions.ytd-watch-metadata tp-yt-paper-tooltip`
   handleDOMAppear('primaryInfoMenuTooltipAppear', (evt) => {
     let s = evt.target;
@@ -4528,8 +4678,8 @@ rcb(b) => a = playlistId = undefinded
     fixTooltipsK2(s);
   });
 
-  document.addEventListener('tabview-zoom-updated', ()=>{
-    for(const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
+  document.addEventListener('tabview-zoom-updated', () => {
+    for (const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
   }, false);
 
   document.addEventListener('tabview-playlist-data-re-assign', (evt) => {
@@ -4554,7 +4704,7 @@ rcb(b) => a = playlistId = undefinded
   globalFunc(function tabviewSetMyDefaultTab(m) {
     top.tabviewDispatchEvent(document, 'tabview-setMyDefaultTab', { myDefaultTab: m })
   });
-  
+
   document.addEventListener("tabview-plugin-loaded", () => {
     // ----------- avoid removeChild error {#below}.removeChild({#chat}) -----------
     let below = document.querySelector('div#below.style-scope.ytd-watch-flexy');
