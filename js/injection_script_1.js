@@ -31,13 +31,33 @@ function injection_script_1() {
   let __Promise__;
   try {
     __Promise__ = (async () => { })().constructor; // due to YouTube's Promise Hack
-    const test = async () => { };
-    test() instanceof __Promise__;
   } catch (e) {
     throw 'Please update your browser to use Tabview Youtube.';
   }
+
+  const fxOperator = (proto, propertyName) => {
+    let propertyDescriptorGetter = null;
+    try {
+      propertyDescriptorGetter = Object.getOwnPropertyDescriptor(proto, propertyName).get;
+    } catch (e) { }
+    return typeof propertyDescriptorGetter === 'function' ? (e) => propertyDescriptorGetter.call(e) : (e) => e[propertyName];
+  };
+
+  const fxAPI = (proto, propertyName) => {
+    const methodFunc = proto[propertyName];
+    return typeof methodFunc === 'function' ? (e, ...args) => methodFunc.apply(e, args) : (e, ...args) => e[propertyName](...args);
+  };
+
+  const nodeParent = fxOperator(Node.prototype, 'parentNode');
+  // const nodeFirstChild = fxOperator(Node.prototype, 'firstChild');
+  // const nodeNextSibling = fxOperator(Node.prototype, 'nextSibling');
+
+  // const elementQS = fxAPI(Element.prototype, 'querySelector');
+  // const elementQSA = fxAPI(Element.prototype, 'querySelectorAll');
+  
+
   /** @type {PromiseConstructor} */
-  const Promise = __Promise__;
+  const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
 
   if(document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')){
@@ -3107,7 +3127,7 @@ function injection_script_1() {
       let x = new Comment();
       document.body.appendChild(x);
       setTimeout(() => {
-        if (x.parentNode) x.remove();
+        if (nodeParent(x)) x.remove();
         x = null;
       });
       return x;
@@ -3945,26 +3965,6 @@ rcb(b) => a = playlistId = undefinded
 
   })
 
-
-  
-  // const prependTo = HTMLElement.prototype.prepend ? (elm, target) => {
-  //   if (!target || !elm) return null;
-  //   // using prepend
-  //   HTMLElement.prototype.prepend.call(target, elm);
-  //   return true;
-  // } : (elm, target) => {
-  //   if (!target || !elm) return null;
-  //   // using insertBefore
-  //   try {
-  //     HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
-  //     return true;
-  //   } catch (e) {
-  //     console.log('element insert failed in old browser CE')
-  //   }
-  //   return false;
-  // }
-
-
   
   const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
@@ -4017,7 +4017,7 @@ rcb(b) => a = playlistId = undefinded
         let nodeName = pelm.nodeName.toUpperCase()
         if (nodeName === 'YTD-BUTTON-RENDERER' || nodeName === 'YT-BUTTON-RENDERER') break;
       }
-      pelm = pelm.parentNode;
+      pelm = nodeParent(pelm);
     }
     return pelm ? pelm : null;
   }
@@ -4477,7 +4477,7 @@ rcb(b) => a = playlistId = undefinded
     s.setAttribute('offset', '0'); // offset is for bottom tooltip only
     // s.style.marginTop='-82px'
     let p = s;
-    while ((p = p.parentNode) instanceof HTMLElement) {
+    while ((p = nodeParent(p)) instanceof HTMLElement) {
       // console.log(p)
       if ('buttonTooltipPosition' in p) {
         // console.log(p.nodeName)
@@ -4563,9 +4563,10 @@ rcb(b) => a = playlistId = undefinded
       if (typeof below__shady_removeChild == 'function' && !below.__shady_removeChild2) {
         below.__shady_removeChild2 = below__shady_removeChild;
         below.__shady_removeChild = function (a, b) {
-          if (a && typeof a.id == 'string') {
-            if (a.id == 'chat' && a.parentNode && '__shady_removeChild' in a.parentNode) {
-              return this.__shady_removeChild2.apply(a.parentNode, arguments);
+          if (a && a.id === 'chat') {
+            const aParent = nodeParent(a);
+            if (aParent && '__shady_removeChild' in aParent) {
+              return this.__shady_removeChild2.apply(aParent, arguments);
             }
           }
           return this.__shady_removeChild2.apply(this, arguments);

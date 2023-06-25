@@ -29,11 +29,32 @@ SOFTWARE.
   let __Promise__;
   try {
     __Promise__ = (async () => { })().constructor; // due to YouTube's Promise Hack
-    const test = async () => { };
-    test() instanceof __Promise__;
   } catch (e) {
     throw 'Please update your browser to use Tabview Youtube.';
   }
+
+
+  const fxOperator = (proto, propertyName) => {
+    let propertyDescriptorGetter = null;
+    try {
+      propertyDescriptorGetter = Object.getOwnPropertyDescriptor(proto, propertyName).get;
+    } catch (e) { }
+    return typeof propertyDescriptorGetter === 'function' ? (e) => propertyDescriptorGetter.call(e) : (e) => e[propertyName];
+  };
+
+  const fxAPI = (proto, propertyName) => {
+    const methodFunc = proto[propertyName];
+    return typeof methodFunc === 'function' ? (e, ...args) => methodFunc.apply(e, args) : (e, ...args) => e[propertyName](...args);
+  };
+
+  const nodeParent = fxOperator(Node.prototype, 'parentNode');
+  const nodeFirstChild = fxOperator(Node.prototype, 'firstChild');
+  const nodeNextSibling = fxOperator(Node.prototype, 'nextSibling');
+
+  // const elementQS = fxAPI(Element.prototype, 'querySelector');
+  // const elementQSA = fxAPI(Element.prototype, 'querySelectorAll');
+  const elementNextSibling = fxOperator(Element.prototype, 'nextElementSibling');
+
 
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
@@ -48,7 +69,7 @@ SOFTWARE.
 
   if (inIframe()) return;
 
-  if(document.documentElement && document.documentElement.hasAttribute('plugin-tabview-youtube')){
+  if (document.documentElement && document.documentElement.hasAttribute('plugin-tabview-youtube')) {
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F01]')
     return;
   }
@@ -66,7 +87,7 @@ SOFTWARE.
   const isGMAvailable = () => typeof GM !== 'undefined' && !isMyScriptInChromeRuntime();
 
   // https://yqnn.github.io/svg-path-editor/
-// https://vecta.io/nano
+  // https://vecta.io/nano
 
   const svgComments = `<path d="M80 27H12A12 12 90 0 0 0 39v42a12 12 90 0 0 12 12h12v20a2 2 90 0 0 3.4 2L47 93h33a12 
   12 90 0 0 12-12V39a12 12 90 0 0-12-12zM20 47h26a2 2 90 1 1 0 4H20a2 2 90 1 1 0-4zm52 28H20a2 2 90 1 1 0-4h52a2 2 90 
@@ -95,13 +116,13 @@ SOFTWARE.
   const DEBUG_LOG = false;
   const REPLACE_PIN_ICON = true; /* Some browsers still using the old yt-icon for pin */
 
-  
+
   let _isPageFirstLoaded = true
 
   async function makeTytLock() {
     let c = 8;
     while (!document.documentElement) {
-      if(--c === 0) return
+      if (--c === 0) return
       await new Promise(window.requestAnimationFrame)
     }
     if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
@@ -226,7 +247,7 @@ SOFTWARE.
 
 
   const iframeCSS = (() => {
-    
+
     return `
   body {
       --tabview-msg-cursor: default;
@@ -572,7 +593,7 @@ SOFTWARE.
     if (mins > 0) ret.push(`${mins}分`);
     if (seconds !== null) ret.push(`${seconds}秒`);
     return ret.join('');
-  
+
   }
 
   function formatDateResultEN(type, req) {
@@ -608,7 +629,7 @@ SOFTWARE.
   function formatDateResultJP(type, req) {
 
     const { bd1, bd2, durationInfo, formatDates } = formatDateReqTS(req);
-  
+
     switch (type) {
       case 0x200:
         return [
@@ -630,11 +651,11 @@ SOFTWARE.
         return `この動画は${formatDates.publishDate}に公開されました。`;
     }
     return '';
-  
+
   }
 
-  function getFormatDateResultFunc(){
-    switch(getLang()){
+  function getFormatDateResultFunc() {
+    switch (getLang()) {
       case 'jp':
         return formatDateResultJP;
       case 'en':
@@ -997,7 +1018,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    
+
     lokStringDateJP() {
       const d = this
 
@@ -1304,8 +1325,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           video.requestPictureInPicture().then(res => {
             resolve(true);
           }).catch((e) => {
-            if(errorHandler === undefined) console.warn(e);
-            else if(typeof errorHandler == 'function') errorHandler(e);
+            if (errorHandler === undefined) console.warn(e);
+            else if (typeof errorHandler == 'function') errorHandler(e);
             resolve(false);
           });
         } else {
@@ -1615,7 +1636,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     await new Promise(r => setTimeout(r, 30)); // time allowed for dom changes and value change of enableHoverSliderDetection    
 
-    let secondary = secondaryInner.parentNode;
+    let secondary = nodeParent(secondaryInner);
     if (!secondary) return;
 
     if (secondary.classList.contains('tabview-hover-slider-enable')) {
@@ -1672,7 +1693,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!secondaryInner) return;
 
-    let secondary = secondaryInner.parentNode;
+    let secondary = nodeParent(secondaryInner);
     if (!secondary) return;
 
     if (secondary.classList.contains('tabview-hover-slider-enable')) {
@@ -1817,7 +1838,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_01a = base_twoCol_NoTheather_chatExpand_a | LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
     const IF_01b = base_twoCol_NoTheather_chatExpand_b | 0 | LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
 
-    
+
     // two column; not theater; tab collapse; chat expand; ep expand
     const IF_07a = base_twoCol_NoTheather_chatExpand_a | LAYOUT_TAB_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED;
     const IF_07b = base_twoCol_NoTheather_chatExpand_b | 0 | LAYOUT_DONATION_SHELF_EXPANDED;
@@ -1846,8 +1867,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const IF_05b = 0 | LAYOUT_TWO_COLUMNS | 0 | 0 | 0 | 0 | 0;
 
     let _isChatPopupedF = null
-    let isChatPopupedF = ()=>{
-      return _isChatPopupedF===null ? ( _isChatPopupedF = cssElm.classList.contains('tyt-chat-popup') ) : _isChatPopupedF
+    let isChatPopupedF = () => {
+      return _isChatPopupedF === null ? (_isChatPopupedF = cssElm.classList.contains('tyt-chat-popup')) : _isChatPopupedF
     }
 
     if (new_isFullScreen) {
@@ -1904,16 +1925,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // new_isFullScreen: false
       // fullscreen_mode_changed: true
-      
+
 
       if (!new_isFullScreen && statusCollapsedTrue && isWideScreenWithTwoColumns() && !isTheater()) {
-       
+
         showTabOrChat();
       } else if (!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()) {
-       
 
-        if(cisChatPopupedF()){
-        }else{
+
+        if (cisChatPopupedF()) {
+        } else {
 
           ytBtnCancelTheater();
 
@@ -2089,7 +2110,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       Promise.resolve(0).then(() => {
 
         if (moreThanOneShown && (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
-          
+
           layoutStatusMutex.lockWith(unlock => {
             if (new_isTabExpanded && lstTab.lastPanel === null) {
               if (new_isExpandedChat) ytBtnCollapseChat();
@@ -2240,7 +2261,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return (cssElm && cssElm.hasAttribute('is-two-columns_'))
   }
 
-  
+
   function isAnyActiveTab() {
     return document.querySelector('#right-tabs .tab-btn.active') !== null
   }
@@ -2381,9 +2402,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function openDonationShelf() {
-    if (!isDonationShelfExpanded()){
+    if (!isDonationShelfExpanded()) {
       let btn = document.querySelector('#tyt-donation-shelf-toggle-btn')
-      if(btn){
+      if (btn) {
         btn.click();
         return true;
       }
@@ -2391,9 +2412,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return false;
   }
   function closeDonationShelf() {
-    if (isDonationShelfExpanded()){
+    if (isDonationShelfExpanded()) {
       let btn = document.querySelector('#tyt-donation-shelf-toggle-btn')
-      if(btn){
+      if (btn) {
         btn.click();
         return true;
       }
@@ -2601,7 +2622,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  
+
   async function isDocumentInFullScreenMode() {
     return document.fullscreenElement !== null;
   }
@@ -2634,11 +2655,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function autoCompletePosCreate(){
-    
+  function autoCompletePosCreate() {
+
     let positioner = document.createElement("tabview-view-autocomplete-pos");
     let oldPositioner = document.querySelector("tabview-view-autocomplete-pos");
-    if(oldPositioner) oldPositioner.remove();
+    if (oldPositioner) oldPositioner.remove();
     return positioner
   }
 
@@ -2655,7 +2676,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!domId || !searchBox) return;
 
-    let positioner = searchBox.nextSibling;
+    let positioner = nodeNextSibling(searchBox);
     if (positioner) {
       if (positioner.nodeName.toLowerCase() !== "tabview-view-autocomplete-pos") {
         positioner = autoCompletePosCreate();
@@ -2663,7 +2684,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     } else {
       positioner = autoCompletePosCreate();
-      prependTo(positioner, searchBox.parentNode);
+      prependTo(positioner, nodeParent(searchBox));
     }
     prependTo(autoComplete, positioner);
 
@@ -2710,7 +2731,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           return (searchbox.value || '').length > 0 && (autocomplete.textContent || '').length > 0;
         }
 
-        autocomplete.parentNode.setAttribute('position-fixed-by-tabview-youtube', '');
+        nodeParent(autocomplete).setAttribute('position-fixed-by-tabview-youtube', '');
         autocomplete.setAttribute('position-fixed-by-tabview-youtube', '');
         autocomplete.setAttribute('userscript-scrollbar-render', '')
 
@@ -2816,7 +2837,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!target || !elm) return null;
     // using insertBefore
     try {
-      HTMLElement.prototype.insertBefore.call(target.parentNode, elm, target);
+      HTMLElement.prototype.insertBefore.call(nodeParent(target), elm, target);
       return true;
     } catch (e) {
       console.log('element insert failed in old browser CE')
@@ -2833,7 +2854,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!target || !elm) return null;
     // using insertBefore
     try {
-      HTMLElement.prototype.insertBefore.call(target.parentNode, elm, target.nextSibling);
+      HTMLElement.prototype.insertBefore.call(nodeParent(target), elm, nodeNextSibling(target));
       return true;
     } catch (e) {
       console.log('element insert failed in old browser CE')
@@ -2850,7 +2871,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!target || !elm) return null;
     // using insertBefore
     try {
-      HTMLElement.prototype.insertBefore.call(target, elm, target.firstChild);
+      HTMLElement.prototype.insertBefore.call(target, elm, nodeFirstChild(target));
       return true;
     } catch (e) {
       console.log('element insert failed in old browser CE')
@@ -2881,7 +2902,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let button = node;
 
     if (button) {
-      prependTo(button, button.parentNode);
+      prependTo(button, nodeParent(button));
     }
 
 
@@ -2972,10 +2993,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
             ])
             */
-           scriptletDeferred.debounce(()=>{
-            expander.dispatchEvent(new CustomEvent("tabview-expander-config"));
-           })
-          //  console.log(23131)
+            scriptletDeferred.debounce(() => {
+              expander.dispatchEvent(new CustomEvent("tabview-expander-config"));
+            })
+            //  console.log(23131)
 
           })();
         }
@@ -3004,9 +3025,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               if (!e) return;
               let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
               if (s.length === 1) {
-                let sp = s[0].parentNode
+                let sp = nodeParent(s[0]);
                 if (sp.nodeName.toUpperCase() === 'TP-YT-PAPER-BUTTON') {
-
                   sp.click();
                 }
               }
@@ -3064,11 +3084,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 // no css selector rule required; no delay js function call required
 
                 let selection = evt.propertyName === 'background-position-y' ? 1 : evt.propertyName === 'background-position-x' ? 2 : 0;
-                
-                if(selection && evt.target){
+
+                if (selection && evt.target) {
                   let cssRoot = this; // no querySelector is required
-                  if(cssRoot.classList.contains('tabview-uploader-hover')){
-                    if(evt.target.id!=='owner') return;
+                  if (cssRoot.classList.contains('tabview-uploader-hover')) {
+                    if (evt.target.id !== 'owner') return;
                     cssRoot.classList.toggle('tabview-uploader-hover', false);
                   }
                 }
@@ -3142,10 +3162,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (typeof txt == 'string') {
         let m = txt.match(/[\d\,\.\s]+/)
         if (m) {
-          let d = +m[0].replace(/\D+/g,'');
+          let d = +m[0].replace(/\D+/g, '');
           let ds = d.toLocaleString(document.documentElement.lang);
           let rtxt = txt.replace(ds, '')
-          if(rtxt !== txt && !/\d/.test(rtxt)){
+          if (rtxt !== txt && !/\d/.test(rtxt)) {
             r = ds;
           }
         }
@@ -3315,7 +3335,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })))
 
-    if(requireResultCaching) {
+    if (requireResultCaching) {
       resultCommentsCountCaching(res);
     }
 
@@ -3360,7 +3380,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function checkAndMakeNewCommentFetch(){
+  function checkAndMakeNewCommentFetch() {
     if (renderDeferred.resolved && Q.comments_section_loaded === 0 && fetchCounts.new && !fetchCounts.fetched) {
       fetchCounts.new.f();
       fetchCounts.fetched = true;
@@ -3368,7 +3388,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(9972, 'fetched = true')
     }
   }
-  function onCommentsReady(){
+  function onCommentsReady() {
     if (mtf_forceCheckLiveVideo_disable !== 2) {
       if (document.querySelector(`ytd-comments#comments`).hasAttribute('hidden')) {
         // unavailable but not due to live chat
@@ -3566,7 +3586,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           // buggy; this section might not be correctly executed.
           // guess no collaspe change but still iframe will distory and reload.
           let btn = document.querySelector('tyt-iframe-popup-btn')
-          if(btn) btn.remove();
+          if (btn) btn.remove();
         }
 
       })
@@ -3711,7 +3731,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  
+
   function getLang() {
 
     let lang = 'en';
@@ -3754,7 +3774,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       default:
         lang = 'en';
     }
-    
+
     return lang;
 
   }
@@ -3831,7 +3851,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       new Promise(f => f(document.querySelector('#masthead-container, #masthead')))
 
     ]);
- 
+
 
     let ito_dt = 0;
     let ito = new IntersectionObserver((entries) => {
@@ -3953,7 +3973,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const pageBeingInit = function () {
 
-    if(_isPageFirstLoaded && location.pathname==='/watch') document.documentElement.setAttribute('tyt-lock', '')
+    if (_isPageFirstLoaded && location.pathname === '/watch') document.documentElement.setAttribute('tyt-lock', '')
 
     // call regardless pageType
     // run once on / before pageSeq2
@@ -3965,7 +3985,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // in case , rarely, tabsDeferred not yet resolved but animateLoadDeferred resolved
       action = 2;
     }
-    
+
     renderIdentifier++;
     if (renderIdentifier > 1e9) renderIdentifier = 9;
     renderDeferred.reset();
@@ -4109,7 +4129,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let g_check_detail_A = 0;
   let checkDuplicateRes = null;
-  function setHiddenStateForDesc(){
+  function setHiddenStateForDesc() {
     let ytdFlexyElm = es.ytdFlexy
     if (!ytdFlexyElm) return
     let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
@@ -4146,83 +4166,83 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  
-async function checkDuplicatedInfoMay2023() {
-  const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
-  const secondElementSelector = "#tab-info ytd-expander #description";
 
-  const firstElement = document.querySelector(firstElementSelector);
-  const secondElement = document.querySelector(secondElementSelector);
+  async function checkDuplicatedInfoMay2023() {
+    const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+    const secondElementSelector = "#tab-info ytd-expander #description";
 
-  if(!firstElement || !secondElement) return false;
-  if(firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
+    const firstElement = document.querySelector(firstElementSelector);
+    const secondElement = document.querySelector(secondElementSelector);
 
-  const asyncGetContent = async (n)=>{
-    return n.textContent;
-  }
+    if (!firstElement || !secondElement) return false;
+    if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
 
-  const getTextContentArr = async (element) => {
+    const asyncGetContent = async (n) => {
+      return n.textContent;
+    }
+
+    const getTextContentArr = async (element) => {
       let contentArray = [];
 
-      for (let currentNode = element.firstChild; currentNode; currentNode = currentNode.nextSibling) {
+      for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
 
-          if (currentNode.nodeType === Node.ELEMENT_NODE) {
-              if (currentNode.hasAttribute("hidden")) {
-                  continue;
+        if (currentNode.nodeType === Node.ELEMENT_NODE) {
+          if (currentNode.hasAttribute("hidden")) {
+            continue;
+          }
+          if (currentNode.id === "snippet") {
+            let allHidden = true;
+            for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
+              if (child.hasAttribute("hidden")) {
+                continue;
               }
-              if (currentNode.id === "snippet") {
-                  let allHidden = true;
-                  for (let child = currentNode.firstChild; child; child = child.nextSibling) {
-                      if (child.hasAttribute("hidden")) {
-                          continue;
-                      }
-                      let trimmedTextContent = await asyncGetContent(child);
-                      trimmedTextContent = trimmedTextContent.trim();
-                      if (trimmedTextContent.length === 0) continue;
-                      allHidden = false;
-                      break;
-                  }
-                  if (allHidden) {
-                      continue;
-                  }
-              }
-
-              if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
-                  // break;
-                  continue;
-              }
-
-
-          } else if (currentNode.nodeType === Node.TEXT_NODE) {
-          } else {
+              let trimmedTextContent = await asyncGetContent(child);
+              trimmedTextContent = trimmedTextContent.trim();
+              if (trimmedTextContent.length === 0) continue;
+              allHidden = false;
+              break;
+            }
+            if (allHidden) {
               continue;
+            }
           }
 
-          let trimmedTextContent = await asyncGetContent(currentNode);
-          trimmedTextContent = trimmedTextContent.trim();
-          if (trimmedTextContent.length > 0) {
-            trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g,'\n\n');
-            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
-            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-              contentArray.push(trimmedTextContent);
+          if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
+            // break;
+            continue;
           }
+
+
+        } else if (currentNode.nodeType === Node.TEXT_NODE) {
+        } else {
+          continue;
+        }
+
+        let trimmedTextContent = await asyncGetContent(currentNode);
+        trimmedTextContent = trimmedTextContent.trim();
+        if (trimmedTextContent.length > 0) {
+          trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
+          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
+          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
+          contentArray.push(trimmedTextContent);
+        }
 
       }
 
       return contentArray;
-  };
+    };
 
-  const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
+    const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
 
-  function isSubset(arr1, arr2) {
-    const set = new Set(arr2);
-    const r = arr1.every(item => set.has(item));
-    set.clear();
-    return r;
+    function isSubset(arr1, arr2) {
+      const set = new Set(arr2);
+      const r = arr1.every(item => set.has(item));
+      set.clear();
+      return r;
+    }
+
+    return isSubset(firstElementTextArr, secondElementTextArr);
   }
-
-  return isSubset(firstElementTextArr, secondElementTextArr);
-}
 
 
 
@@ -4264,7 +4284,7 @@ async function checkDuplicatedInfoMay2023() {
 
       infoDuplicated = await checkDuplicatedInfoMay2023();
 
-      if(infoDuplicated === false && clicked){
+      if (infoDuplicated === false && clicked) {
 
         await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
           return new Promise(r => {
@@ -4272,7 +4292,7 @@ async function checkDuplicatedInfoMay2023() {
             r();
           });
         }));
-        
+
       }
 
     } catch (e) {
@@ -4363,7 +4383,7 @@ async function checkDuplicatedInfoMay2023() {
     }
   }
 
-  async function setupVideo(node){
+  async function setupVideo(node) {
     // this can be fired even in background without tabs rendered
     const attrKey = 'gM7Cp'
     let video = querySelectorFromAnchor.call(node, `#movie_player video[src]:not([${attrKey}])`);
@@ -4569,7 +4589,7 @@ async function checkDuplicatedInfoMay2023() {
       if (!evt) return;
       let target = evt.target;
       if (!target) return;
-      let items = target.parentNode;
+      let items = nodeParent(target);
       if (!items || items.id !== 'items') return;
       let m = /\/watch\?v=[^\&]+\&/.exec(location.href || '')
       if (!m) return;
@@ -4610,7 +4630,7 @@ async function checkDuplicatedInfoMay2023() {
 
     handleDOMAppear('oldYtIconPinAppeared', (evt) => {
       /* added in May 2023 - 2023.05.19 */
-      
+
       /*
       from 
       <svg style="pointer-events: none; display: block; width: 100%; height: 100%;" focusable="false" width="24" viewBox="0 0 24 24" height="24"><path d="M16 11V3h1V2H7v1h1v8l-2 2v2h5v6l1 1 1-1v-6h5v-2l-2-2zm1 3H7v-.59l1.71-1.71.29-.29V3h6v8.41l.29.29L17 13.41V14z"></path></svg> 
@@ -4670,7 +4690,7 @@ async function checkDuplicatedInfoMay2023() {
 
     });
 
-    async function triggerMenuItemResizing(){
+    async function triggerMenuItemResizing() {
       /*
       const menus = document.querySelectorAll('ytd-menu-renderer[has-flexible-items]');
       for(const menu of menus){
@@ -4690,7 +4710,7 @@ async function checkDuplicatedInfoMay2023() {
           r(menu.offsetHeight);
         });
       });
-     */ 
+     */
     }
 
 
@@ -4749,7 +4769,7 @@ async function checkDuplicatedInfoMay2023() {
 
             checkDuplicateRes = null;
             let descExpandState = null;
-            let descMetaExpander =  closestDOMX(document.querySelector('ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
+            let descMetaExpander = closestDOMX(document.querySelector('ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
             let descToggleBtn = null;
             let descMetaLines = null;
             if (descMetaExpander) {
@@ -4773,9 +4793,9 @@ async function checkDuplicatedInfoMay2023() {
               descMetaExpander.classList.add('tyt-tmp-hide-metainfo');
             }
 
-            try{
+            try {
 
-                
+
 
               do {
 
@@ -4821,10 +4841,10 @@ async function checkDuplicatedInfoMay2023() {
 
               }
 
-              
 
 
-            }catch(e){
+
+            } catch (e) {
 
               console.warn(e)
 
@@ -4881,13 +4901,13 @@ async function checkDuplicatedInfoMay2023() {
             let mainContent1 = document.querySelector('#tab-info ytd-expander > #content');
             if (mainContent0 && mainContent1) {
               const hashedContents = new Set();
-              for (let s1 = mainContent1.nextElementSibling; s1 instanceof HTMLElement; s1 = s1.nextElementSibling) {
+              for (let s1 = elementNextSibling(mainContent1); s1 instanceof HTMLElement; s1 = elementNextSibling(s1)) {
                 let m = contentExtractor(s1);
-                if(m === null) continue;
+                if (m === null) continue;
                 hashedContents.add(m);
               }
 
-              for (let s0 = mainContent0.nextElementSibling; s0 instanceof HTMLElement; s0 = s0.nextElementSibling) {
+              for (let s0 = elementNextSibling(mainContent0); s0 instanceof HTMLElement; s0 = elementNextSibling(s0)) {
                 let m = contentExtractor(s0);
                 if (m !== null && hashedContents.has(m)) {
                   s0.classList.add('tyt-hidden-duplicated-meta');
@@ -4914,7 +4934,7 @@ async function checkDuplicatedInfoMay2023() {
 
         }
         */
-        
+
 
         let renderId = renderIdentifier
         renderDeferred.debounce(() => {
@@ -5027,7 +5047,6 @@ async function checkDuplicatedInfoMay2023() {
         checkPlaylistForInitialization();
 
         mtf_fix_details().then(() => {
-          // setKeywords();
           setToggleInfo();
           renderDeferred.debounce(() => {
             if (renderId !== renderIdentifier) return
@@ -5389,7 +5408,7 @@ async function checkDuplicatedInfoMay2023() {
   }
 
 
-  
+
 
   // function forceDisplayChatReplay() {
   //   let items = chatFrameElement('yt-live-chat-item-list-renderer #items');
@@ -5577,11 +5596,11 @@ async function checkDuplicatedInfoMay2023() {
 
   }
 
-  async function restorePIPforStickyHead(){
+  async function restorePIPforStickyHead() {
     // after a trusted user action, PIP can be cancelled.
     // this is to ensure enterPIP can be re-excecuted
 
-    if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation){
+    if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation) {
       userActivation = false;
       exitPIP();
     }
@@ -5591,9 +5610,9 @@ async function checkDuplicatedInfoMay2023() {
 
   let _navigateLoadDT = 0;
 
-  function delayedClickHandler(){
+  function delayedClickHandler() {
 
-    if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled){
+    if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled) {
       restorePIPforStickyHead();
     } else if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && typeof IntersectionObserver == 'function') {
       enablePIPforStickyHead();
@@ -5601,7 +5620,7 @@ async function checkDuplicatedInfoMay2023() {
 
   }
 
-  function setupTabBtns(){
+  function setupTabBtns() {
 
     const materialTab = document.querySelector("#material-tabs")
     if (!materialTab) return;
@@ -5614,8 +5633,8 @@ async function checkDuplicatedInfoMay2023() {
     materialTab.addEventListener('click', function (evt) {
 
       if (!evt.isTrusted) return; // prevent call from background
-        
-      if(isMiniviewForStickyHeadEnabled){
+
+      if (isMiniviewForStickyHeadEnabled) {
         setTimeout(delayedClickHandler, 80);
       } else if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && typeof IntersectionObserver == 'function') {
         setTimeout(delayedClickHandler, 80);
@@ -5678,12 +5697,12 @@ async function checkDuplicatedInfoMay2023() {
 
     }
 
-    
 
-    function getDefaultTabBtnSetting(store){
-      
+
+    function getDefaultTabBtnSetting(store) {
+
       if (!store) return;
-      let myDefaultTab=  store[key_default_tab];
+      let myDefaultTab = store[key_default_tab];
       if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) return;
       if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) settings.defaultTab = myDefaultTab;
 
@@ -5695,15 +5714,15 @@ async function checkDuplicatedInfoMay2023() {
 
   }
 
-  function setMyDefaultTab(myDefaultTab_tmp){
+  function setMyDefaultTab(myDefaultTab_tmp) {
 
     let myDefaultTab_final = null
-    if (myDefaultTab_tmp && typeof myDefaultTab_tmp === 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)){
+    if (myDefaultTab_tmp && typeof myDefaultTab_tmp === 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) {
       if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
     }
 
     let store = getStore();
-    if(myDefaultTab_final) {
+    if (myDefaultTab_final) {
       store[key_default_tab] = myDefaultTab_final;
       settings.defaultTab = myDefaultTab_final;
     } else {
@@ -5760,7 +5779,7 @@ async function checkDuplicatedInfoMay2023() {
       let newElm = docTmp.content.firstElementChild;
       if (newElm !== null) {
         insertBeforeTo(newElm, related);
-        querySelectorFromAnchor.call(newElm, '#material-tabs').addEventListener('mousemove', (evt)=>{
+        querySelectorFromAnchor.call(newElm, '#material-tabs').addEventListener('mousemove', (evt) => {
           evt.preventDefault();
           evt.stopPropagation();
           evt.stopImmediatePropagation();
@@ -5777,10 +5796,10 @@ async function checkDuplicatedInfoMay2023() {
     // append the next videos 
     // it exists as "related" is already here
     fixTabs();
-    
+
     let switchToDefaultTabNotAllowed = false;
 
-    if (document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')){
+    if (document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')) {
       switchToDefaultTabNotAllowed = true;
     } else if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
       switchToDefaultTabNotAllowed = true;
@@ -5807,7 +5826,7 @@ async function checkDuplicatedInfoMay2023() {
     // renderDeferred.debounce(() => {
     //   if (ks !== renderIdentifier) return
     //   if (_navigateLoadDT !== tdt) return;
-        
+
     //   let donationShelf = document.querySelector('ytd-watch-flexy:not([tyt-donation-shelf]) ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
     //   if (donationShelf) {
     //     // console.log(334)
@@ -5816,7 +5835,7 @@ async function checkDuplicatedInfoMay2023() {
     //       if (ks !== renderIdentifier) return
     //       if (_navigateLoadDT !== tdt) return;
     //       // console.log(554)
-          
+
     //       let donationShelf = document.querySelector('ytd-watch-flexy:not([tyt-donation-shelf]) ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
     //       if(!donationShelf) return;
     //       document.dispatchEvent(new CustomEvent('tabview-donation-shelf-set-visibility', {
@@ -5909,138 +5928,6 @@ async function checkDuplicatedInfoMay2023() {
     cssElm.setAttribute('tyt-comments', 'D');
 
     _console.log(2909, 10)
-
-
-  }
-
-
-  function setKeywords() {
-
-    return;
-
-    if (typeof String.prototype.replacei !== 'function') {
-      // reference: https://stackoverflow.com/questions/7313395/case-insensitive-replace-all
-      String.replacei = String.prototype.replacei = function (rep, rby) {
-        var pos = this.toLowerCase().indexOf(rep.toLowerCase());
-        return pos == -1 ? this : this.substring(0, pos) + rby(this.substring(pos, pos + rep.length)) + this.substring(pos + rep.length);
-      };
-    }
-
-    let data = pageFetchedData;
-    console.log(data)
-
-
-    let keywords = ((((data || 0).pageData || 0).playerResponse || 0).videoDetails || 0).keywords;
-    console.log(keywords)
-
-    if (keywords && keywords.length > 0) {
-
-
-      let title = '';
-
-      try {
-        title = ((((data || 0).pageData || 0).response || 0).contents || 0).twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.title.runs[0].text;
-        if (typeof title !== 'string') title = '';
-      } catch (e) { }
-
-      let strText = title;
-
-      let tabsDeferredSess = pageSession.session();
-      if (!scriptEnable && tabsDeferred.resolved) { }
-      else tabsDeferred.debounce(() => {
-
-        if (!tabsDeferredSess.isValid) return;
-        tabsDeferredSess = null;
-
-
-        let res = [];
-        for (const keyword of keywords) {
-          if (strText.toUpperCase().includes(keyword.toUpperCase())) {
-            res.push(keyword);
-          }
-        }
-        if (res.length > 0) {
-          console.log('tabview video keywords', res)
-          window.postMessage({
-            tabview: {
-              eventType: 0x3700,
-              eventDetail: {
-                keywords: res
-              }
-            }
-          }, location.origin);
-        }
-
-
-
-        let strElms = document.querySelectorAll('#title.ytd-watch-metadata yt-formatted-string.style-scope.ytd-watch-metadata');
-        //console.log(keywords,strElms)
-        for (const strElm of strElms) {
-          if (strElm.id == 'super-title' || strElm.id == 'original-info') {
-
-          } else {
-            if (strElm.querySelector('*')) {
-
-            } else {
-              /** @type{string} */
-              let strText = strElm.textContent;
-              if (strText) {
-
-                let res = [];
-                for (const keyword of keywords) {
-                  if (strText.toUpperCase().includes(keyword.toUpperCase())) {
-                    res.push(keyword);
-                  }
-                }
-                if (res.length > 0) {
-                  console.log('tabview video keywords', res)
-
-                  if (res.length > 1) res.sort((a, b) => { return b.length - a.length });
-                  let usedKeywords = {};
-                  for (const s of res) {
-                    strText = strText.replacei(s, ((s) => {
-                      usedKeywords[s] = true;
-                      return `\n${s}\n`
-                    }))
-                  }
-                  strText = strText.replace(`\n\n+`, '\n')
-                  let retElms = strText.split('\n').map(w => {
-                    let elm = document.createElement('tabview-txt')
-                    if (usedKeywords[w]) elm.classList.add('tabview-title-keyword')
-                    elm.textContent = w;
-                    return elm
-                  })
-
-                  let p = querySelectorFromAnchor.call(strElm.parentNode, '.tabview-txt');
-
-                  if (!p) {
-                    p = strElm.cloneNode(false)
-                    p.classList.add('tabview-txt')
-                    strElm.after(p);
-                  } else {
-                    strElm.after(p);
-                  }
-
-                  requestAnimationFrame(() => {
-
-                    p.textContent = 'x';
-                    p.firstChild.replaceWith(...retElms);
-                    p.removeAttribute('is-empty')
-                    strElm.setAttribute('is-empty', '')
-
-                  })
-
-
-                }
-                break;
-              }
-            }
-          }
-        }
-
-      })
-
-    }
 
 
   }
@@ -6138,7 +6025,7 @@ async function checkDuplicatedInfoMay2023() {
 
       let bool = false;
       let descClickable = null;
-      
+
       if (fT(wls.layoutStatus, 0, LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_CHATROOM_EXPANDED | LAYOUT_TAB_EXPANDED) === false) {
         descClickable = closestDOM.call(dom, '#description.item.style-scope.ytd-watch-metadata')
         if (descClickable) {
@@ -6167,7 +6054,7 @@ async function checkDuplicatedInfoMay2023() {
           x.setAttribute('userscript-scrollbar-render', '')
           if (h1 > h2 && h2 > 0 && h1 > 0) nw = h1 - h2
         } catch (e) { }
-        if(pInner){
+        if (pInner) {
           pInner.style.setProperty('--tyt-desc-top-h', `${nw ? nw : 0}px`)
         }
       }
@@ -6184,7 +6071,7 @@ async function checkDuplicatedInfoMay2023() {
 
     if (!scriptEnable) return;
 
-    if(fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)){
+    if (fT(wls.layoutStatus, LAYOUT_TWO_COLUMNS, LAYOUT_TAB_EXPANDED | LAYOUT_ENGAGEMENT_PANEL_EXPANDED | LAYOUT_DONATION_SHELF_EXPANDED | LAYOUT_THEATER | LAYOUT_FULLSCREEN | LAYOUT_CHATROOM_EXPANDED)) {
       setToActiveTab();
     }
 
@@ -6477,11 +6364,11 @@ async function checkDuplicatedInfoMay2023() {
     return false;
   }
 
-  document.addEventListener('tabview-fix-layout',()=>{
-    
+  document.addEventListener('tabview-fix-layout', () => {
+
     immediateCheck()
 
-  },false)
+  }, false)
 
 
   function switchTabActivity(activeLink) {
@@ -6707,11 +6594,11 @@ async function checkDuplicatedInfoMay2023() {
 
   let videoPlayerInsectObserver = null;
   let videoInsected = false;
-  
+
 
   async function enablePIPforStickyHead() {
     // use async & await to avoid handler took 60ms
-    
+
     if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
       let video = document.querySelector('#player video');
       if (!video) return;
@@ -6719,7 +6606,7 @@ async function checkDuplicatedInfoMay2023() {
       await Promise.resolve(0)
       const pageClientWidth = document.documentElement.clientWidth;
       if (pageClientWidth + 320 < screen.width && pageClientWidth > 320 && !document.querySelector('#rCbM3')) {
-        
+
 
         await Promise.resolve(0)
         // desktop or notebook can use this feature
@@ -6728,7 +6615,7 @@ async function checkDuplicatedInfoMay2023() {
         // ignore user activation error
         enterPIP(video, null).then(r => {
           if (r === true) {
-            
+
             userActivation = false;
             isMiniviewForStickyHeadEnabled = true;
           }
@@ -6737,31 +6624,31 @@ async function checkDuplicatedInfoMay2023() {
         video.removeEventListener('leavepictureinpicture', onVideoLeavePictureInPicuture, false);
         video.addEventListener('leavepictureinpicture', onVideoLeavePictureInPicuture, false);
 
-        if(!video.hasAttribute('NOL4j')){
-          video.setAttribute('NOL4j',"");
-          
+        if (!video.hasAttribute('NOL4j')) {
+          video.setAttribute('NOL4j', "");
+
 
           await Promise.resolve(0)
 
-          let callback = (entries)=>{
+          let callback = (entries) => {
 
 
-            let lastEntry = entries[entries.length-1];
-            if(lastEntry && lastEntry.isIntersecting === true){
+            let lastEntry = entries[entries.length - 1];
+            if (lastEntry && lastEntry.isIntersecting === true) {
 
               videoInsected = true;
-              
-              if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected){
+
+              if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected) {
                 restorePIPforStickyHead();
               }
 
-            }else {
-              videoInsected =false;
+            } else {
+              videoInsected = false;
             }
-            
+
           };
 
-          if(!videoPlayerInsectObserver){
+          if (!videoPlayerInsectObserver) {
             videoPlayerInsectObserver = new IntersectionObserver(callback, {
               root: null,
               rootMargin: "0px",
@@ -6774,7 +6661,7 @@ async function checkDuplicatedInfoMay2023() {
 
           videoPlayerInsectObserver.observe(video);
 
-          
+
         }
 
       }
@@ -7000,7 +6887,7 @@ async function checkDuplicatedInfoMay2023() {
     const new_isFullScreen = new_layoutStatus & LAYOUT_FULLSCREEN;
     const new_isExpandedEPanel = new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPANDED;
     const new_isExpandedDonationShelf = new_layoutStatus & LAYOUT_DONATION_SHELF_EXPANDED;
-    
+
     const nothingShown = !new_isTabExpanded && !new_isExpandedChat && !new_isExpandedEPanel && !new_isExpandedDonationShelf
 
     if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && nothingShown && !new_isFullScreen) {
@@ -7232,7 +7119,7 @@ async function checkDuplicatedInfoMay2023() {
 
   }
 
-  
+
   // ---------------------------------------------------------------------------------------------
 
   // ---- EVENTS ----
@@ -7240,15 +7127,15 @@ async function checkDuplicatedInfoMay2023() {
   let ytEventSequence = 0
   let formatDates = null
 
-  
+
   function pageBeingFetched(evt, isPageFirstLoaded) {
 
-    let nodeName = (((evt||0).target||0).nodeName||'').toUpperCase()
+    let nodeName = (((evt || 0).target || 0).nodeName || '').toUpperCase()
     if (nodeName !== 'YTD-APP') return;
 
     let pageFetchedDataLocal = evt.detail;
 
-    let d_page = ((pageFetchedDataLocal||0).pageData||0).page;
+    let d_page = ((pageFetchedDataLocal || 0).pageData || 0).page;
     if (!d_page) return;
 
     pageType = d_page;
@@ -7287,36 +7174,36 @@ async function checkDuplicatedInfoMay2023() {
     }
     // tabview-loaded delay set
 
-    formatDates={}
-    try{
+    formatDates = {}
+    try {
       formatDates.publishDate = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.publishDate
-    }catch(e){}
+    } catch (e) { }
     // 2022-12-30
 
-    try{
+    try {
       formatDates.uploadDate = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.uploadDate
-    }catch(e){}
+    } catch (e) { }
     // 2022-12-30
 
-    try{
+    try {
       formatDates.publishDate2 = pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.results.results.contents[0].videoPrimaryInfoRenderer.dateText.simpleText
-    }catch(e){}
+    } catch (e) { }
     // 2022/12/31
 
-    if(typeof formatDates.publishDate2==='string' && formatDates.publishDate2 !== formatDates.publishDate){
+    if (typeof formatDates.publishDate2 === 'string' && formatDates.publishDate2 !== formatDates.publishDate) {
       formatDates.publishDate = formatDates.publishDate2
       formatDates.uploadDate = null
     }
 
-    try{
+    try {
       formatDates.broadcastBeginAt = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.startTimestamp
-    }catch(e){}
-    try{
+    } catch (e) { }
+    try {
       formatDates.broadcastEndAt = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.endTimestamp
-    }catch(e){}
-    try{
+    } catch (e) { }
+    try {
       formatDates.isLiveNow = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.isLiveNow
-    }catch(e){}
+    } catch (e) { }
 
     promiseChatDetails = new Promise(resolve => {
       if (ytEventSequence >= 2) {
@@ -7405,7 +7292,7 @@ async function checkDuplicatedInfoMay2023() {
     _navigateLoadDT = 0
     if (ytEventSequence !== 1) {
       ytEventSequence = 1
-      pageSeqMutex.lockWith(unlock=>{
+      pageSeqMutex.lockWith(unlock => {
         pageBeingInit();
         unlock();
       })
@@ -7417,7 +7304,7 @@ async function checkDuplicatedInfoMay2023() {
 
     if (ytEventSequence !== 1) {
       ytEventSequence = 1
-      pageSeqMutex.lockWith(unlock=>{
+      pageSeqMutex.lockWith(unlock => {
         pageBeingInit();
         unlock();
       })
@@ -7425,13 +7312,13 @@ async function checkDuplicatedInfoMay2023() {
     if (ytEventSequence === 1) {
       ytEventSequence = 2
 
-      
+
       pageType = null
-      
-      pageSeqMutex.lockWith(unlock=>{
-        
+
+      pageSeqMutex.lockWith(unlock => {
+
         let mIsPageFirstLoaded = _isPageFirstLoaded
-        
+
         pageType = null
         // mIsPageFirstLoaded && console.time("Tabview Youtube Load")
         pageBeingFetched(evt, mIsPageFirstLoaded)
@@ -7479,10 +7366,10 @@ async function checkDuplicatedInfoMay2023() {
 
   function pageSeq3(evt) {
     _navigateLoadDT = 0
-    
+
     if (ytEventSequence === 2) {
       ytEventSequence = 3
-      
+
       pageSeqMutex.lockWith(unlock => {
         if (pageType === 'watch') {
           let mIsPageFirstLoaded = _isPageFirstLoaded
@@ -7490,8 +7377,8 @@ async function checkDuplicatedInfoMay2023() {
           onNavigationEndAsync(mIsPageFirstLoaded)
           _isPageFirstLoaded = false
         }
-        
-        
+
+
         unlock();
       })
     }
@@ -7530,15 +7417,15 @@ async function checkDuplicatedInfoMay2023() {
   // ---------------------------------------------------------------------------------------------
 
 
-  function manualResizeT(){
+  function manualResizeT() {
 
     if (!scriptEnable) return;
     if (pageType !== 'watch') return;
     //lastResizeAt = Date.now();
 
-    if((wls.layoutStatus & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN ){
+    if ((wls.layoutStatus & LAYOUT_FULLSCREEN) === LAYOUT_FULLSCREEN) {
 
-    }else if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0) {
+    } else if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0) {
       // single col
 
       setTimeout3(() => {
@@ -7558,15 +7445,15 @@ async function checkDuplicatedInfoMay2023() {
   let resizeCount = 0;
   window.addEventListener('resize', function (evt) {
 
-    if (evt.isTrusted === true) { 
+    if (evt.isTrusted === true) {
       //console.log(evt)
       let tcw = ++resizeCount;
-      Promise.resolve(0).then(()=>{
+      Promise.resolve(0).then(() => {
         if (tcw !== resizeCount) return;
         setTimeout(() => {
           // avoid duplicate calling during resizing
           if (tcw !== resizeCount) return;
-          
+
           resizeCount = 0;
           manualResizeT();
           dispatchCommentRowResize();
@@ -7577,7 +7464,7 @@ async function checkDuplicatedInfoMay2023() {
   }, bubblePassive)
 
 
-  document.addEventListener("tyt-chat-popup",(evt)=>{
+  document.addEventListener("tyt-chat-popup", (evt) => {
 
     let detail = (evt || 0).detail
     if (!detail) return
@@ -7598,7 +7485,7 @@ async function checkDuplicatedInfoMay2023() {
 
   })
 
-  
+
 
   let doingSelectionChange = false;
   document.addEventListener("keyup", (evt) => {
@@ -7654,7 +7541,7 @@ async function checkDuplicatedInfoMay2023() {
     checkAndMakeNewCommentFetch();
   }, true);
 
-  document.addEventListener('ytd-comments-header-changed', function(){
+  document.addEventListener('ytd-comments-header-changed', function () {
     innerDOMCommentsCountLoader(true);
     checkAndMakeNewCommentFetch();
   }, true);
@@ -7866,25 +7753,25 @@ async function checkDuplicatedInfoMay2023() {
       dialog.show();
     });
 
-      /*
-    GM_registerMenuCommand("Default Tab: NULL", function () {
-      setMyDefaultTab(null);
-    });
-    GM_registerMenuCommand("Default Tab: Info", function () {
-      setMyDefaultTab("#tab-info");
-    });
-    GM_registerMenuCommand("Default Tab: Comments", function () {
-      setMyDefaultTab("#tab-comments");
-    });
-    GM_registerMenuCommand("Default Tab: Video", function () {
-      setMyDefaultTab("#tab-videos");
-    });
-    */
+    /*
+  GM_registerMenuCommand("Default Tab: NULL", function () {
+    setMyDefaultTab(null);
+  });
+  GM_registerMenuCommand("Default Tab: Info", function () {
+    setMyDefaultTab("#tab-info");
+  });
+  GM_registerMenuCommand("Default Tab: Comments", function () {
+    setMyDefaultTab("#tab-comments");
+  });
+  GM_registerMenuCommand("Default Tab: Video", function () {
+    setMyDefaultTab("#tab-videos");
+  });
+  */
   }
 
 
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
-  if(document.documentElement.getAttribute('tabview-unwrapjs')){
+  if (document.documentElement.getAttribute('tabview-unwrapjs')) {
     document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
   }
 
