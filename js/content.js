@@ -5749,9 +5749,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     _navigateLoadDT = tdt;
 
     // avoid blocking the page when youtube is initializing the page
-    const promiseDelay = new Promise(requestAnimationFrame)
-    const promiseVideoRendered = videosDeferred.d()
-    await Promise.all([promiseVideoRendered, promiseDelay])
+    const promiseDelay = new Promise(requestAnimationFrame);
+    const promiseVideoRendered = videosDeferred.d();
+    await Promise.all([promiseVideoRendered, promiseDelay]);
 
     if (_navigateLoadDT !== tdt) return;
     if (ytEventSequence !== 3) return;
@@ -5762,6 +5762,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       ytdFlexy = null
       return;
     }
+
+    scriptletDeferred.debounce(()=>{
+      document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
+    });
 
     scriptEnable = true;
 
@@ -5850,7 +5854,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // })
 
-    isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock')
+    isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock');
 
   }
 

@@ -2370,6 +2370,43 @@ function injection_script_1() {
 
   })();
 
+  let busy_fixLiveChatToggleButton = false;
+  /* added in 2023.06.25 */
+  async function fixLiveChatToggleButton() {
+    if (busy_fixLiveChatToggleButton) return;
+
+    let elm = document.querySelector('ytd-live-chat-frame');
+    let initialDisplayState = null;
+    try {
+      initialDisplayState = elm.data.liveChatRenderer.initialDisplayState
+    } catch (e) { }
+    if (typeof initialDisplayState !== 'string') return;
+
+    let btn = HTMLElement.prototype.querySelector.call(elm, 'ytd-toggle-button-renderer');
+    let isToggled = null;
+    try {
+      isToggled = btn.data.isToggled;
+    } catch (e) { }
+    if (typeof isToggled !== 'boolean') return;
+
+    let collapsed = elm.collapsed;
+    if (typeof collapsed !== 'boolean') return;
+
+    let b = false;
+    if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_EXPANDED' && collapsed === true && isToggled === false) {
+      b = true;
+    } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_EXPANDED' && collapsed === false && isToggled === true) {
+      b = true;
+    } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' && collapsed === false && isToggled === false) {
+      b = true;
+    } else if (initialDisplayState === 'LIVE_CHAT_DISPLAY_STATE_COLLAPSED' && collapsed === false && isToggled === true) {
+      b = true;
+    }
+    if (b) {
+      btn.data = Object.assign({}, btn.data, { isToggled: !isToggled });
+    }
+  }
+
   function ceHackExecution() {
 
     // handled by customYtElements
@@ -2845,6 +2882,11 @@ function injection_script_1() {
       proto.onShowHideChat = ((onShowHideChat) => {
 
         return function () {
+          busy_fixLiveChatToggleButton = true;
+          requestAnimationFrame(() => {
+            busy_fixLiveChatToggleButton = false;
+            fixLiveChatToggleButton();
+          });
           g();
           return onShowHideChat.apply(this, arguments);
         }
@@ -2852,6 +2894,7 @@ function injection_script_1() {
       })(proto.onShowHideChat);
 
 
+      fixLiveChatToggleButton();
       g();
 
 
@@ -4690,6 +4733,10 @@ rcb(b) => a = playlistId = undefinded
       target.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
     }
   }, true);
+
+  document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
+    fixLiveChatToggleButton();
+  })
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
