@@ -2481,9 +2481,16 @@ body .ytp-autohide .ytp-unmute,
             fill: var(--iron-icon-fill-color, currentcolor);
             stroke: var(--iron-icon-stroke-color, none);
         }
+
+        ytd-watch-flexy #right-tabs .tab-btn {
+            --tabview-btn-txt-ml: 8px;
+        }
+        ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content="#tab-comments"][loaded-comment="message"] {
+            --tabview-btn-txt-ml: 0px;
+        }
         
-        ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content]>svg+span:not(:empty) {
-            margin-left: 8px;
+        ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content]>svg+span {
+            margin-left: var(--tabview-btn-txt-ml);
         }
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content] svg {
