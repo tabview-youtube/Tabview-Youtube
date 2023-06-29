@@ -5546,3 +5546,20 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         --yt-spec-brand-background-primary: var(--ytd-searchbox-legacy-button-color);
     }
 }
+
+@supports (color: var(--general-fix-video-ended-mode-display)) {
+    /* this is a general fix, might or might not directly related to this script */
+    #movie_player .html5-video-container {
+        position: absolute;
+        bottom: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        overflow: hidden; /* to against overflow:visible in #movie_player in some userscripts */
+        contain: layout size paint style; /* if supported */
+    }
+    #movie_player .html5-video-container > video[style*="top: -"],
+    #movie_player .html5-video-container > video[style*="top:-"] {
+        margin-top: -1px !important; /* (.ended-mode#movie_player) video size 943 x 530.44, but top: -530px only */
+    }
+}
