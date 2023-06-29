@@ -5519,7 +5519,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 @supports (color: var(--compatibile-with-Youtube-subtitles-under-video-frame)){
     /* partial support */
     /* https://greasyfork.org/en/scripts/433440-youtube-subtitles-under-video-frame/ */
-    .yfms-userjs #below {
+    .yfms-userjs:not([fullscreen]) #below {
         margin-top: var(--subs-gap) !important;
     }
     .yfms-userjs[theater]:not([fullscreen]) #below {
