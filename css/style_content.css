@@ -5516,7 +5516,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 }
 
-@supports (color: var(--compatibile-with-Youtube-subtitles-under-video-frame)){
+@supports (color: var(--compatibile-with-Youtube-subtitles-under-video-frame)) {
     /* partial support */
     /* https://greasyfork.org/en/scripts/433440-youtube-subtitles-under-video-frame/ */
     .yfms-userjs:not([fullscreen]) #below {
@@ -5524,5 +5524,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     .yfms-userjs[theater]:not([fullscreen]) #below {
         --subs-gap: var(--subs-gap-theater);
+    }
+}
+
+@supports (color: var(--fix-engagement-panels-light-theme-header-background)) {
+    body #header.ytd-engagement-panel-title-header-renderer {
+        /* 
+        background-color: var(--ytd-searchbox-legacy-button-color);
+        */
+        --yt-spec-brand-background-primary: var(--ytd-searchbox-legacy-button-color);
     }
 }
