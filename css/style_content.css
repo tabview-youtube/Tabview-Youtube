@@ -5515,3 +5515,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         color: var(--ytd-author-comment-badge-name-color);
     }
 }
+
+@supports (color: var(--compatibile-with-Youtube-subtitles-under-video-frame)){
+    /* partial support */
+    /* https://greasyfork.org/en/scripts/433440-youtube-subtitles-under-video-frame/ */
+    .yfms-userjs #below {
+        margin-top: var(--subs-gap) !important;
+    }
+}
