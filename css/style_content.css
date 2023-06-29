@@ -5522,4 +5522,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     .yfms-userjs #below {
         margin-top: var(--subs-gap) !important;
     }
+    .yfms-userjs[theater]:not([fullscreen]) #below {
+        --subs-gap: var(--subs-gap-theater);
+    }
 }
