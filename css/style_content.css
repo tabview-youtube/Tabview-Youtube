@@ -2483,7 +2483,7 @@ body .ytp-autohide .ytp-unmute,
         }
         
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content]>svg+span:not(:empty) {
-            margin-left: 4px;
+            margin-left: 8px;
         }
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content] svg {
