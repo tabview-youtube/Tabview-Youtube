@@ -4003,6 +4003,187 @@ function injection_script_1() {
 
   });
 
+
+  function findLcComment(lc) {
+    if (arguments.length === 1) {
+
+      let element = document.querySelector(`#tab-comments ytd-comments ytd-comment-renderer #header-author a[href*="lc=${lc}"]`);
+      if (element) {
+        let commentRenderer = closestFromAnchor.call(element, 'ytd-comment-renderer');
+        if (commentRenderer && lc) {
+          return {
+            lc,
+            commentRenderer
+          }
+        }
+      }
+    } else if (arguments.length === 0) {
+
+      let element = document.querySelector(`#tab-comments ytd-comments ytd-comment-renderer > #linked-comment-badge span:not(:empty)`);
+      if (element) {
+        let commentRenderer = closestFromAnchor.call(element, 'ytd-comment-renderer');
+        if (commentRenderer) {
+
+          let header = querySelectorFromAnchor.call(commentRenderer, '#header-author');
+          if (header) {
+
+            let anchor = querySelectorFromAnchor.call(header, 'a[href*="lc="]');
+            if (anchor) {
+              let href = (anchor.getAttribute('href') || '');
+              let m = /[&?]lc=([\w_.-]+)/.exec(href); // dot = sub-comment
+              if (m) {
+                lc = m[1];
+              }
+            }
+          }
+
+        }
+        if (commentRenderer && lc) {
+          return {
+            lc,
+            commentRenderer
+          }
+        }
+      }
+    }
+
+    return null;
+
+  }
+
+  function findContentsRenderer(ytNode) {
+
+    let pNode = ytNode;
+    let kNode = ytNode;
+    const ytNodeData = ytNode.data
+    if (!ytNodeData || typeof ytNodeData !== 'object') return;
+    while ((pNode = nodeParent(pNode)) instanceof HTMLElement) {
+      const contents = (pNode.data || 0).contents
+      if (typeof contents === 'object' && typeof contents.length === 'number') {
+
+        // console.log(pNode.data.contents, ytNode.data)
+
+        let index = -1;
+
+        let j = 0;
+        for (const content of contents) {
+          let mz = ((content.commentThreadRenderer || 0).comment || 0).commentRenderer || content.commentRenderer;
+
+          if (mz && mz.commentId === ytNodeData.commentId) { // top comment or sub comment
+            index = j;
+            break;
+          }
+          j++;
+        }
+
+        return {
+          parent: pNode,
+          index
+        }
+      }
+      kNode = pNode;
+      if (pNode.nodeName === 'YTD-COMMENTS') break;
+    }
+    return null;
+
+  }
+
+  function lcSwapFuncA(targetLcId, currentLcId) {
+
+
+    let done = 0;
+    try {
+      // console.log(currentLcId, targetLcId)
+
+      let r1 = findLcComment(currentLcId).commentRenderer;
+      let r2 = findLcComment(targetLcId).commentRenderer;
+
+
+      if (typeof r1.data.linkedCommentBadge === 'object' && typeof r2.data.linkedCommentBadge === 'undefined') {
+
+        let p = Object.assign({}, r1.data.linkedCommentBadge)
+
+        if (((p || 0).metadataBadgeRenderer || 0).trackingParams) {
+          delete p.metadataBadgeRenderer.trackingParams;
+        }
+
+        const v1 = findContentsRenderer(r1)
+        const v2 = findContentsRenderer(r2)
+
+
+        if (v1.parent === v2.parent && (v2.parent.nodeName === 'YTD-COMMENTS' || v2.parent.nodeName === 'YTD-ITEM-SECTION-RENDERER')) {
+
+        } else {
+          // currently not supported
+          return false;
+        }
+
+
+
+        if (v2.index >= 0) {
+          const v2Conents = v2.parent.data.contents
+          if (v2.parent.nodeName === 'YTD-COMMENT-REPLIES-RENDERER') {
+
+
+            if (lcSwapFuncB(targetLcId, currentLcId, p)) {
+              done = 1;
+            }
+
+            done = 1;
+          } else {
+
+
+            v2.parent.data = Object.assign({}, v2.parent.data, { contents: [].concat([v2Conents[v2.index]], v2Conents.slice(0, v2.index), v2Conents.slice(v2.index + 1)) });
+
+            if (lcSwapFuncB(targetLcId, currentLcId, p)) {
+              done = 1;
+            }
+          }
+
+
+        }
+
+
+
+      }
+
+
+
+    } catch (e) {
+      console.warn(e)
+    }
+    return done === 1;
+  }
+
+
+  function lcSwapFuncB(targetLcId, currentLcId, _p) {
+
+    let done = 0;
+    try {
+
+      let r1 = findLcComment(currentLcId).commentRenderer;
+      let r2 = findLcComment(targetLcId).commentRenderer;
+
+      let p = Object.assign({}, _p)
+      r1.data.linkedCommentBadge = null;
+      delete r1.data.linkedCommentBadge;
+
+      let q = Object.assign({}, r1.data);
+      q.linkedCommentBadge = null;
+      delete q.linkedCommentBadge;
+
+      r1.data = Object.assign({}, q);
+      r2.data = Object.assign({}, r2.data, { linkedCommentBadge: p });
+
+      done = 1;
+
+    } catch (e) {
+      console.warn(e)
+    }
+    return done === 1;
+  }
+
+
   document.addEventListener("tabview-miniview-browser-enable", () => {
 
     if (miniview_enabled) return;
@@ -4032,6 +4213,8 @@ function injection_script_1() {
     }
     */
 
+    // yt-navigate enpoint
+
     ytdApp.handleNavigate = ((handleNavigate) => {
 
       return function (req) {
@@ -4040,6 +4223,43 @@ function injection_script_1() {
         const $arguments = arguments;
 
         let endpoint = null;
+
+        if (req && req.command && (req.command.commandMetadata || 0).webCommandMetadata && req.command.watchEndpoint) {
+          let videoId = req.command.watchEndpoint.videoId;
+          let url = req.command.commandMetadata.webCommandMetadata.url;
+
+          if (typeof videoId === 'string' && typeof url === 'string' && url.indexOf('lc=') > 0) {
+
+            let m = /^\/watch\?v=([\w_-]+)&lc=([\w_.-]+)$/.exec(url); // dot = sub-comment
+            if (m && m[1] === videoId) {
+
+
+              /*
+              {
+                "style": "BADGE_STYLE_TYPE_SIMPLE",
+                "label": "注目のコメント",
+                "trackingParams": "XXXXXX"
+            }
+              */
+
+              let targetLc = findLcComment(m[2])
+              let currentLc = targetLc ? findLcComment() : null;
+
+              if (targetLc && currentLc) {
+
+                let done = lcSwapFuncA(targetLc.lc, currentLc.lc) ? 1 : 0
+
+                if (done === 1) {
+
+                  history.replaceState(history.state, '', url);
+                  return;
+                }
+              }
+            }
+
+          }
+
+        }
         if (req && req.command) {
           /*
               
