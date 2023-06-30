@@ -4247,7 +4247,8 @@ function injection_script_1() {
 
               if (targetLc && currentLc) {
 
-                let done = lcSwapFuncA(targetLc.lc, currentLc.lc) ? 1 : 0
+                
+                let done =  targetLc.lc === currentLc.lc ? 1: lcSwapFuncA(targetLc.lc, currentLc.lc) ? 1 : 0
 
                 if (done === 1) {
 
