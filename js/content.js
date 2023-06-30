@@ -3974,8 +3974,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // bug
       const ytdFlexyElm = es.ytdFlexy;
       if (!scriptEnable || !ytdFlexyElm) return;
-      if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tyt-tab') + '').indexOf('#tab-') === 0 && /https\:\/\/www\.youtube\.com\/watch.*[\?\&]list=[\w\-\_]+/.test(location.href)) {
-        if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+      if (!switchTabActivity_lastTab && (ytdFlexyElm.getAttribute('tyt-tab') + '').indexOf('#tab-') === 0 && location.pathname === '/watch') {
+        if (/[\?\&]list=[\w\-\_]+/.test(location.search)) {
+          if (setToActiveTab('#tab-list')) switchTabActivity_lastTab = '#tab-list';
+        } else if (/[\?\&]lc=[\w\-\_]+/.test(location.search)) {
+          if (setToActiveTab('#tab-comments')) switchTabActivity_lastTab = '#tab-comments';
+        }
       }
     })
 
