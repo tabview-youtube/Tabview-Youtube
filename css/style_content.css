@@ -5539,7 +5539,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 }
 
 @supports (color: var(--fix-engagement-panels-light-theme-header-background)) {
-    body #header.ytd-engagement-panel-title-header-renderer {
+    body ytd-watch-flexy[flexy] #columns.ytd-watch-flexy #header.ytd-engagement-panel-title-header-renderer {
         /* 
         background-color: var(--ytd-searchbox-legacy-button-color);
         */
