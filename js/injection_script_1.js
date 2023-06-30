@@ -65,8 +65,17 @@ function injection_script_1() {
     return;
   }
 
-
   document.documentElement.setAttribute('tabview-unwrapjs', '')
+
+  let byPassPause = false;
+
+  HTMLVideoElement.prototype.pause = ((pause) => {
+    return function () {
+      if (arguments.length !== 0) return pause.apply(this, arguments); // fallback
+      if (byPassPause) return;
+      pause.call(this);
+    }
+  })(HTMLVideoElement.prototype.pause);
 
 
   const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
@@ -2907,6 +2916,43 @@ function injection_script_1() {
 
 
     }, true);
+
+
+    customYtElements.whenRegistered('ytd-player', (proto) => {
+
+      let keyDefined = 'pause' in proto;
+      if (!keyDefined) console.warn('pause is not defined in ytd-player.');
+
+      proto.pause = ((pause) => {
+
+        return function () {
+          if (arguments.length !== 0) return pause.apply(this, arguments); // fallback
+          if (byPassPause) return;
+          pause.call(this);
+        }
+
+      })(proto.pause);
+
+
+    })
+
+    customYtElements.whenRegistered('ytd-comment-renderer', (proto) => {
+
+
+      let keyDefined = 'linkedCommentBadgeChanged' in proto;
+      if (!keyDefined) console.warn('linkedCommentBadgeChanged is not defined in ytd-comment-renderer.');
+
+      proto.linkedCommentBadgeChanged = ((linkedCommentBadgeChanged) => {
+
+        return function () {
+          byPassPause = true;
+          let r = linkedCommentBadgeChanged.apply(this, arguments);
+          byPassPause = false;
+          return r;
+        }
+
+      })(proto.linkedCommentBadgeChanged);
+    })
 
   }
 
