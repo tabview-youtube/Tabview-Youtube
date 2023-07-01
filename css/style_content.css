@@ -4647,7 +4647,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         yt-img-shadow[height][width] {
             contain: layout paint style;
             /* experimental */
-            content-visibility: auto;
+            /* content-visibility: auto; */
         }
 
         img[height][width] {
