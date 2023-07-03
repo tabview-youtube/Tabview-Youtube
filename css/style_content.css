@@ -5563,3 +5563,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         margin-top: -1px !important; /* (.ended-mode#movie_player) video size 943 x 530.44, but top: -530px only */
     }
 }
+
+@supports (color: var(--anti-css-or-hardcoded-will-change)){
+    .ytp-contextmenu[class],
+    .toggle-button.tp-yt-paper-toggle-button[class],
+    .yt-spec-touch-feedback-shape__fill[class],
+    .fill.yt-interaction[class],
+    .ytp-videowall-still-info-content[class],
+    .ytp-suggestion-image[class] {
+      will-change: unset !important;
+    }
+}
