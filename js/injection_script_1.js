@@ -2469,7 +2469,7 @@ function injection_script_1() {
             })
           }
           let eventHandler = (evt) => {
-            this.removeEventListener(EVENT_KEY_ON_REGISTRY_READY, eventHandler, false);
+            document.removeEventListener(EVENT_KEY_ON_REGISTRY_READY, eventHandler, false);
             const f = callback;
             callback = null;
             eventHandler = null;
