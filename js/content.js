@@ -115,7 +115,7 @@ SOFTWARE.
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
   const REPLACE_PIN_ICON = true; /* Some browsers still using the old yt-icon for pin */
-
+  const FIX_UNCERTAIN_HISTORY_STATE = true;
 
   let _isPageFirstLoaded = true
 
@@ -717,7 +717,6 @@ SOFTWARE.
   let generalLog901 = !DEBUG_LOG ? 0 : (evt) => {
     _console.log(901, evt.type)
   }
-
   const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
   // https://caniuse.com/?search=addEventListener%20passive
@@ -5780,8 +5779,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   async function onNavigationEndAsync(isPageFirstLoaded) {
 
-    if (pageType !== 'watch') return
-
+    if (pageType !== 'watch') return;
 
     let tdt = Date.now();
     _navigateLoadDT = tdt;
@@ -7014,7 +7012,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return { default_display_state, txt_collapse, txt_expand }
 
   }
-
 
   function newVideoPage(evt_detail) {
 
