@@ -105,6 +105,18 @@ function injection_script_1() {
 
     return clonedObj;
   }
+  
+  function deepClean(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return ;
+    }
+
+    for (const [key, value] of Object.entries(obj)) {
+      obj[key]=null;
+      deepClean(value);
+    }
+
+  }
 
   const xReplaceState=(s, u)=>{
     history.replaceState(s, '', u);
@@ -123,6 +135,7 @@ function injection_script_1() {
 
   let _ceHack_calledOnce = false;
   let isLoadStartListened = false;
+
 
 
   DEBUG_e32 && console.log(9442, 103);
@@ -1352,7 +1365,7 @@ function injection_script_1() {
 
         // if (pt < 1) pt = 1;
 
-        await new Promise(requestAnimationFrame);
+        await new Promise($requestAnimationFrame);
         if (isInvalidOps()) return;
 
         let endPointClicker = ytLivePU.getEndPointClicker()
@@ -2099,7 +2112,7 @@ function injection_script_1() {
           if (!target.hasAttribute('QNJMC')) {
             target.setAttribute('QNJMC', '')
             target.addEventListener('mouseenter', function () {
-              requestAnimationFrame(() => {
+              $requestAnimationFrame(() => {
                 if (this.atStart === true) this.reset();
               })
             }, false)
@@ -2602,7 +2615,7 @@ function injection_script_1() {
 
     // assume initialTranscriptsRenderer is not called before ceHack()
 
-    requestAnimationFrame(() => {
+    $requestAnimationFrame(() => {
       if (translateHanlder === null)
         translateHanlder = getTranslate();
     })
@@ -2637,13 +2650,50 @@ function injection_script_1() {
       })
     });
 
-    customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
+    
+     customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
       let keyDefined = 'postToContentWindow' in cProto;
       // postToContentWindow is property defined during "_initializeProperties()"
       if (!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
+      if (typeof cProto.__$$postToContentWindow$$__ ==='function') console.warn('__$$postToContentWindow$$__ is already defined in ytd-live-chat-frame.');
+      
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
       cProto.__$$postToContentWindow$$__ = cProto.postToContentWindow;
       cProto.postToContentWindow = g_postToContentWindow;
+
+      cProto._attached322_ = cProto.attached;
+      let lastContinutation = '';
+      cProto.attached = function(){ // for watch page change
+        
+        this._attached322_.apply(this, arguments);
+
+        let hostElement = this.hostElement || this;
+        let cnt = this.inst || this;
+        let sf = '';
+        try{
+         sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
+        }catch(e){
+
+        }
+        if(sf && sf !== lastContinutation){
+          let p = lastContinutation;
+          let q = sf;
+          lastContinutation = sf;
+          let chatframe = cnt.$.chatframe;
+          if(chatframe){
+            let src = chatframe.getAttribute('src');
+            let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
+            if(nSrc!==src){
+
+              chatframe.setAttribute('src', nSrc.replace(/&\d+$/,'')+'&'+Date.now());
+              console.debug('[tyt] replaced chat url')
+            }
+          }
+
+        }
+
+      }
+      
     });
 
 
@@ -2781,7 +2831,7 @@ function injection_script_1() {
         const hostElement = this.hostElement || this;
 
         if (renderStore.get(hostElement) >= 1) return;
-        renderStore.set(hostElement, requestAnimationFrame(() => {
+        renderStore.set(hostElement, $requestAnimationFrame(() => {
           renderStore.set(hostElement, 0);
 
           if (hostElement.hidden !== true && hostElement.isAttached === true && hostElement.isConnected === true) {
@@ -2819,11 +2869,12 @@ function injection_script_1() {
 
 
     /* added in 2023.06.25 */
+    /* removed in 2023.07.06 */
     customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
 
       let crid = 0;
 
-      cProto.__forceChatRender2__ = async function () {
+      cProto.__forceChatRender2__ = async function () {  // for watch page change + initial load
 
         const cnt = this;
         const hostElement = this.hostElement || this;
@@ -2841,52 +2892,40 @@ function injection_script_1() {
         if (isYtChatLiveAppLoaded()) return;
 
         let trid = ++crid;
-        const f = () => {
-          
-          if (trid === crid && hostElement.isConnected === true && hostElement.collapsed === false) {
-            if (isYtChatLiveAppLoaded()) return;
+        await new Promise($requestAnimationFrame);
 
-            cnt.visibilityObserverForChild_ = null; cnt.localVisibilityObserver_ = null;
-            cnt.visibilityOptionVisible_ = null; cnt.visibilityOptionHidden_ = null; cnt.visibilityOptionPrescan_ = null;
-            cnt.childCache_ = new Set;
-            cnt.playerListeners_ = new Map;
-            cnt.openPopupConfig = null; cnt.hostElement = hostElement; cnt.polymerController = cnt;
-            // this.detached();this.attached();
-            // this.created();
+        if (trid === crid && hostElement.isConnected === true && cnt.collapsed === false) {
+          if (isYtChatLiveAppLoaded()) return;
 
+          const chatframe = (cnt.$ || 0).chatframe;
 
+          if (chatframe && hostElement.isConnected === true && cnt.collapsed === false && chatframe.isConnected === true) {
+            let src = chatframe.getAttribute('src');
+            let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
 
-            this.detached(); /* this.created(); */ this.attached();
-            Promise.resolve().then(() => {
+            if (m && m[2]) {
 
-              const chatframe = (cnt.$ || 0).chatframe;
+              let kf = false;
+              try {
+                kf = m[2] === cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
+              } catch (e) { }
 
-              if (this.isChatReplay() === false && chatframe && hostElement.isConnected === true && hostElement.collapsed === false && chatframe.isConnected === true) {
-                let src = chatframe.getAttribute('src');
-                let m = /live_chat\?continuation=[^&\/\=]+([&\/\=].*|)$/.exec(src || '')
-                if (m) {
-                  let k = m[1];
-                  if (k === '&z' || k === '') {
-                    chatframe.setAttribute('src', src.replace(/&z$/, '') + '&');
-                  } else if (k === '&') {
-                    chatframe.setAttribute('src', src + 'z');
-                  }
-                }
+              if (kf) {
+
+                let k = m[4];
+                let nSrc;
+                let td = Date.now();
+                if (k) nSrc = src.replace(k, '&' + td); else nSrc = src + '&' + td;
+
+                chatframe.setAttribute('src', nSrc);
+                console.debug('[tyt] chat __forceChatRender2__',)
               }
 
-            });
-
-            return true;
+            }
           }
-          return false;
-        }
 
-        // let executed = f() === true;
-        let executed = false;
-        if (!executed) {
-          requestAnimationFrame(f);
-        }
 
+        }
       };
 
       cProto.__forceChatRender__ = cProto.__forceChatRender2__;
@@ -3542,7 +3581,7 @@ function injection_script_1() {
 
             this.onParticipantsChangedBusy322 = true;
 
-            let waiter = new Promise(window.requestAnimationFrame); // avoid frequently update
+            let waiter = new Promise($requestAnimationFrame); // avoid frequently update
 
             this.onParticipantsChanged322()
 
@@ -3769,7 +3808,7 @@ function injection_script_1() {
       while (!itemScroller) {
         if (!cr) cr = kRef(chatroomRenderer)
         if (cr) itemScroller = cr.querySelector('#item-scroller.yt-live-chat-item-list-renderer')
-        await new Promise(resolve => window.requestAnimationFrame(resolve));
+        await new Promise(resolve => $requestAnimationFrame(resolve));
         if (tid !== popupBtnId) return
         if (count++ > 200) return
       }
@@ -5206,7 +5245,7 @@ rcb(b) => a = playlistId = undefinded
           }
           xReplaceState(s, data.url);
 
-          console.debug('FIX_UNCERTAIN_HISTORY_STATE 02')
+          console.debug('[tyt] FIX_UNCERTAIN_HISTORY_STATE for yt-navigate-start')
         }
 
       });
@@ -5252,7 +5291,7 @@ rcb(b) => a = playlistId = undefinded
             "entryTime": 1
           };
           xReplaceState(s, u);
-          console.debug('FIX_UNCERTAIN_HISTORY_STATE 01')
+          console.debug('[tyt] FIX_UNCERTAIN_HISTORY_STATE for NULL or VideoChanged state')
 
         }
       });

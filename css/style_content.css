@@ -308,9 +308,9 @@ Same for #secondary
 
  */
 
- @supports (color: var(--fix-old-pin-icon)){
+@supports (color: var(--fix-old-pin-icon)){
 
-    
+
     @keyframes oldYtIconPinAppeared {
         from {
             background-position-x: 3px;
@@ -319,7 +319,7 @@ Same for #secondary
             background-position-x: 4px;
         }
     }
-    
+
     html[tabview-loaded] yt-icon.ytd-pinned-comment-badge-renderer[size="12"] svg[width="24"] {
         /* May 2023 - 2020.05.19 */
         /* old yt-icon in some browsers e.g. Chrome */
@@ -338,7 +338,7 @@ Same for #secondary
         display: inline-flex; /* override the original display which induced a taller element height */
     }
 
- }
+}
 
 @supports (not-color: var(--performance-fix-v2)){
 

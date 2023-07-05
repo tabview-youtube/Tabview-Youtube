@@ -1209,7 +1209,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
  * 'uidStore' is the static store of strings used.
  * @static
  */
-  ObserverRegister.uidStore = {}; //backward compatible with FireFox 55.
+  ObserverRegister.uidStore = {}; // backward compatible with FireFox 55.
 
 
   const mtoObservationDetails = new ObserverRegister(() => {
@@ -3549,7 +3549,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     },
 
-    mtf_attrChatroom: (attrName, newValue) => {
+    mtf_attrChatroom: () => {
       //attr mutation checker - {ytd-live-chat-frame#chat} \single
       //::attr ~ collapsed
 
@@ -3609,10 +3609,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           // guess no collaspe change but still iframe will distory and reload.
           let btn = document.querySelector('tyt-iframe-popup-btn')
           if (btn) btn.remove();
+        } else {
+          forceChatRenderDispatchEvent();
         }
 
         fixLiveChatToggleButtonDispatchEvent();
-        forceChatRenderDispatchEvent();
+        
 
 
       })
@@ -3951,7 +3953,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     else if (m_playlist) {
 
       if (mtoVisibility_Playlist.bindElement(m_playlist)) {
-        mtoVisibility_Playlist.observer.check(9); //delay check required for browser bug - hidden changed not triggered 
+        mtoVisibility_Playlist.observer.check(9); // delay check required for browser bug - hidden changed not triggered 
       }
       let playlist_wr = mWeakRef(m_playlist);
       scriptletDeferred.debounce(() => {
@@ -4341,6 +4343,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
+  /** @type {MutationObserver | null} */
+  // let liveChatFrameMutObserver = null;
+  
+  
+  // setupChatFrameDOM (v2) - added in 2023.07.06 to replace the v1 to a simple version
+  /*
+  function setupChatFrameDOM() {
+
+    let liveChatFrame = document.querySelector('ytd-watch-flexy:not([hidden]) ytd-live-chat-frame#chat:not([hidden])');
+    if (liveChatFrame) {
+      if (!liveChatFrameMutObserver) {
+        liveChatFrameMutObserver = new MutationObserver(() => {
+          FP.mtf_attrChatroom()
+        });
+      }
+      liveChatFrameMutObserver.observe(liveChatFrame, {
+        attributeFilter: ['collapsed']
+      });
+      FP.mtf_attrChatroom();
+    }
+
+
+  }
+  */
+
+  // setupChatFrameDOM (v1) - removed in 2023.07.06 since it is buggy for page changing. subject to further review
   function setupChatFrameDOM(node) {
     // this function calls 3 times per each new video page
 
