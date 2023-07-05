@@ -2545,14 +2545,17 @@ function injection_script_1() {
     // f.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     // e.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     // const funcCanCollapse = function () { this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed) ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight };
+    
+
     const funcCanCollapse = function (s) {
       if (!s) return;
       this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed)
         ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight
         : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight
     };
+    
+    const insObserver = getInsObserver();
 
-    let insObserver = getInsObserver();
 
     // console.log(customElements.get('ytd-expander').prototype.recomputeOnResize) // undefined
 
@@ -2564,24 +2567,24 @@ function injection_script_1() {
 
 
 
-    customYtElements.whenRegistered('ytd-expander', (proto) => {
+    customYtElements.whenRegistered('ytd-expander', (cProto) => {
 
-      let keyDefined = 'recomputeOnResize' in proto;
+      let keyDefined = 'recomputeOnResize' in cProto;
       // recomputeOnResize is just value assignment after "_initializeProperties()"
       if (keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
 
-      Object.defineProperty(proto, 'recomputeOnResize', {
+      Object.defineProperty(cProto, 'recomputeOnResize', {
         get() {
           if (this.calculateCanCollapse !== funcCanCollapse) {
             this.calculateCanCollapse = funcCanCollapse
-            if (insObserver) insObserver.observe(this) // throw TypeError if get from prototype.
+            if (insObserver) insObserver.observe(this.hostElement || this) // throw TypeError if get from prototype.
           }
           return this[s1];
         },
         set(nv) {
           if (this.calculateCanCollapse !== funcCanCollapse) {
             this.calculateCanCollapse = funcCanCollapse
-            if (insObserver) insObserver.observe(this)
+            if (insObserver) insObserver.observe(this.hostElement || this)
           }
           if (nv === false) nv = true;
           // console.log(591);
@@ -2605,11 +2608,11 @@ function injection_script_1() {
     })
 
 
-    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (proto) => {
-      let keyDefined = 'initialTranscriptsRenderer' in proto;
+    customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (cProto) => {
+      let keyDefined = 'initialTranscriptsRenderer' in cProto;
       // initialTranscriptsRenderer is just value assignment after "_initializeProperties()"
       if (keyDefined) console.warn('initialTranscriptsRenderer is defined in ytd-transcript-search-panel-renderer.');
-      Object.defineProperty(proto, 'initialTranscriptsRenderer', {
+      Object.defineProperty(cProto, 'initialTranscriptsRenderer', {
         get() {
           return this.__$$initialTranscriptsRenderer$$__
         },
@@ -2634,13 +2637,13 @@ function injection_script_1() {
       })
     });
 
-    customYtElements.whenRegistered('ytd-live-chat-frame', (proto) => {
-      let keyDefined = 'postToContentWindow' in proto;
+    customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
+      let keyDefined = 'postToContentWindow' in cProto;
       // postToContentWindow is property defined during "_initializeProperties()"
       if (!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
       const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
-      proto.__$$postToContentWindow$$__ = proto.postToContentWindow;
-      proto.postToContentWindow = g_postToContentWindow;
+      cProto.__$$postToContentWindow$$__ = cProto.postToContentWindow;
+      cProto.postToContentWindow = g_postToContentWindow;
     });
 
 
@@ -2660,8 +2663,8 @@ function injection_script_1() {
           return this[s32];
         },
         set(nv) {
-          if (insObserverChipCloud) insObserverChipCloud.observe(this);
-          if (mutObserverChipCloud) mutObserverChipCloud.observe(this, {
+          if (insObserverChipCloud) insObserverChipCloud.observe(this.hostElement || this);
+          if (mutObserverChipCloud) mutObserverChipCloud.observe(this.hostElement || this, {
             attributes: false, childList: true, subtree: true
           });
           this[s32] = nv;
@@ -2673,49 +2676,54 @@ function injection_script_1() {
 
 
 
+    const getProto = (element) => {
+      let proto = null;
+      if (element) {
+          if (element.inst) proto = element.inst.constructor.prototype;
+          else proto = element.constructor.prototype;
+      }
+      return proto || null;
+  };
 
     // dataChanged_ & headerChanged_ for comments counting update
 
-    async function asyncTriggerInitialContinuations(sections) {
-      try {
-        sections.triggerInitialContinuations();
-      } catch (e) {
-
-      }
-    }
-
-    customYtElements.whenRegistered('ytd-comments', (proto) => {
-      let keyDefined = 'headerChanged_' in proto && 'headerChanged_' in proto;
-      const ytdCommentsP = proto;
+    customYtElements.whenRegistered('ytd-comments', (cProto) => {
+      let keyDefined = 'headerChanged_' in cProto;
 
       // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
       if (!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
 
       // dataChanged_ for cache update & clear cached count
       // const ytdCommentsP = customElements.get('ytd-comments').prototype;
-      if (typeof ytdCommentsP.dataChanged_ == 'function' && !('tytDataChanged_' in ytdCommentsP)) {
-        ytdCommentsP.tytDataChanged_ = ytdCommentsP.dataChanged_;
-        ytdCommentsP.dataChanged_ = function () {
-          this.tytDataChanged_();
-          const hasData = (((this.__data || 0).data || 0).contents || 0) !== 0;
-          // console.log(this.__data.data, hasData)
+      if (typeof cProto.dataChanged_ == 'function' && !('tytDataChanged_' in cProto)) {
+        cProto.tytDataChanged_ = cProto.dataChanged_;
+        cProto.dataChanged_ = function () {
+          const cnt = this;
+          const hostElement = this.hostElement || this;
+          cnt.tytDataChanged_();
+          const hasData = (((cnt.__data || 0).data || 0).contents || 0) !== 0;
           if (hasData) {
-            const sections = ((this.$ || 0).sections || 0);
+            const sections = ((cnt.$ || 0).sections || 0);
             if (sections && 'triggerInitialContinuations' in sections) {
-              asyncTriggerInitialContinuations(sections);
-              // console.log('sections.triggerInitialContinuations'); //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+              Promise.resolve(sections).then((sections)=>{
+                sections.triggerInitialContinuations();
+              }).catch(()=>{});
+              // console.log('sections.triggerInitialContinuations'); 
+              //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
             }
           }
-          this.dispatchEvent(new CustomEvent('ytd-comments-data-changed', { detail: { hasData } }));
+          hostElement.dispatchEvent(new CustomEvent('ytd-comments-data-changed', { detail: { hasData } }));
         }
       }
 
       // headerChanged_ - new method to fetch comments count
-      if (typeof ytdCommentsP.headerChanged_ == 'function' && !('tytHeaderChanged_' in ytdCommentsP)) {
-        ytdCommentsP.tytHeaderChanged_ = ytdCommentsP.headerChanged_;
-        ytdCommentsP.headerChanged_ = function () {
-          this.tytHeaderChanged_();
-          this.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+      if (typeof cProto.headerChanged_ == 'function' && !('tytHeaderChanged_' in cProto)) {
+        cProto.tytHeaderChanged_ = cProto.headerChanged_;
+        cProto.headerChanged_ = function () {
+          const cnt = this;
+          const hostElement = this.hostElement || this;
+          cnt.tytHeaderChanged_();
+          hostElement.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
         }
       }
 
@@ -2724,118 +2732,61 @@ function injection_script_1() {
 
     document.addEventListener('tabview-fix-popup-refit', function () {
 
-      const P = customElements.get('tp-yt-iron-dropdown').prototype;
-      if (!P) return;
+      const cProto = getProto(document.createElement('tp-yt-iron-dropdown'));
+      if (!cProto) return;
 
-      if (P.__refit) return;
-      let _refit = P.refit;
-      let refitFunc = function () {
-        if (this.horizontalAlign || this.verticalAlign) {
-          if ((this.__restoreFocusNode || 0).matches) {
-            let node = this.__restoreFocusNode
+      if (cProto.__refit) return;
+      let _refit = cProto.refit;
+      if(typeof _refit !== 'function') return;
+
+      // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
+      // reproduction: click watch later without login 
+      // without this, the layout coordinates and size (height) of container will become incorrect.
+
+      cProto.__refit = _refit;
+      cProto.refit = function () {
+        const cnt = this;
+        // const hostElement = this.hostElement || this;
+        const alignHost = (this.inst && (typeof this.inst.horizontalAlign || typeof this.inst.verticalAlign)) ? this.inst : this;
+        if (alignHost.horizontalAlign || alignHost.verticalAlign) {
+          let node = cnt.__restoreFocusNode
+          if (node instanceof HTMLElement) {
             let nodeName = node.nodeName.toUpperCase();
             if (nodeName === 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') {
-              if (node.matches('#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail')) {
-                if (this.horizontalAlign) this.horizontalAlign = false;
-                if (this.verticalAlign) this.verticalAlign = false;
+              const selector = '#tab-videos ytd-thumbnail-overlay-toggle-button-renderer.style-scope.ytd-thumbnail';
+              if (HTMLElement.prototype.matches.call(node, selector)) {
+                if (alignHost.horizontalAlign) alignHost.horizontalAlign = false;
+                if (alignHost.verticalAlign) alignHost.verticalAlign = false;
               }
             }
           }
         }
-        if (this.__refit) return this.__refit();
+        if (cnt.__refit) return cnt.__refit();
       };
-      if (_refit) {
-
-        // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
-        // reproduction: click watch later without login 
-        // without this, the layout coordinates and size (height) of container will become incorrect.
-
-        P.__refit = _refit;
-        P.refit = refitFunc;
-
-      }
 
     }, false);
 
     /* added in 2023.06.09 */
-    const regRFn = (proto, keyA, keyB) => {
+    const regRFn = (cProto, keyA, keyB) => {
 
-      if (proto[keyB] || !proto[keyA]) return;
-      /*
-      proto.__renderIdom__ = proto.renderIdom;
-      proto.renderIdo2m = function(){
-        if(this.templatingFn_delayId) return;
-        this.templatingFn_delayId = requestAnimationFrame(()=>{
-          this.templatingFn_delayId = 0;
- 
-          if(this.classList.contains('ytd-video-secondary-info-renderer')){
-            this.__data.data.styleRuns = [{
-                "startIndex": 0,
-                "length": 30,
-                "fontColor": 4282296063
-            }];
-          }
- 
-          this.__renderIdom__();
-        });
-      }
-      */
+      if (cProto[keyB] || !cProto[keyA]) return;
 
-
-      proto[keyB] = proto[keyA];
+      cProto[keyB] = cProto[keyA];
 
       let renderStore = new WeakMap();
 
-      proto[keyA] = function () {
+      cProto[keyA] = function () {
 
-        if (renderStore.get(this) >= 1) return;
-        renderStore.set(this, requestAnimationFrame(() => {
-          renderStore.set(this, 0);
+        const cnt = this;
+        const hostElement = this.hostElement || this;
 
-          /*
-          let data = ((this.__data||0).data||0);
-          if(data){
- 
-            if(this.classList.contains('ytd-video-secondary-info-renderer')){
-              let content = data.content;
-              let lines = content.split('\n');
-              let pIdx = 0;
-              let styleRuns = [];
-              for(const line of lines){
-                if(line.length > 8 && content.indexOf(line)!==content.lastIndexOf(line) && content.indexOf('@')<0){
-                  
-                  let q = line.replace(/(([\x21-\x2F\x3A-\x40\x5B-\x60\x7B-\x7E])\2{3,})/g,'@$1@').replace(/\x40+/g,'@');
-                  let w = q.split('@')
-                  if(w.length>=2){
-                    let cIdx = 0;
-                    for(const b of w){
-                      if(!b) continue;
-                      styleRuns.push({
-                        "startIndex": pIdx+cIdx,
-                        "length": b.length,
-                        "baselineOffset": "BASELINE_OFFSET_UNKNOWN",
-                        /-* "fontColor": 4282296063 *-/
-                      })
-                      cIdx+=b.length;
-                    }
-                  }
-                }
-                pIdx += line.length + 1
-              }
- 
-              if(styleRuns.length){
- 
-                data.styleRuns =  styleRuns;
-              }
-              
-            }
- 
-          }
-          */
+        if (renderStore.get(hostElement) >= 1) return;
+        renderStore.set(hostElement, requestAnimationFrame(() => {
+          renderStore.set(hostElement, 0);
 
-          if (this.hidden !== true && this.isAttached === true && this.isConnected === true) {
+          if (hostElement.hidden !== true && hostElement.isAttached === true && hostElement.isConnected === true) {
 
-            this[keyB]();
+            cnt[keyB]();
           }
 
         }));
@@ -2848,37 +2799,40 @@ function injection_script_1() {
 
 
     /* added in 2023.06.09 */
-    customYtElements.whenRegistered('yt-attributed-string', (proto) => {
+    customYtElements.whenRegistered('yt-attributed-string', (cProto) => {
       // since DFa cannot be hacked
 
-      regRFn(proto, 'templatingFn', '__templatingFn__');
-      regRFn(proto, 'doIdomRender', '__doIdomRender__');
+      regRFn(cProto, 'templatingFn', '__templatingFn__');
+      regRFn(cProto, 'doIdomRender', '__doIdomRender__');
 
     });
 
 
     /* added in 2023.06.09 */
-    customYtElements.whenRegistered('yt-button-shape', (proto) => {
+    customYtElements.whenRegistered('yt-button-shape', (cProto) => {
       // since DFa cannot be hacked
 
-      regRFn(proto, 'templatingFn', '__templatingFn__');
-      regRFn(proto, 'doIdomRender', '__doIdomRender__');
+      regRFn(cProto, 'templatingFn', '__templatingFn__');
+      regRFn(cProto, 'doIdomRender', '__doIdomRender__');
 
     });
 
 
     /* added in 2023.06.25 */
-    customYtElements.whenRegistered('ytd-live-chat-frame', (proto) => {
+    customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
 
       let crid = 0;
 
-      proto.__forceChatRender2__ = async function () {
+      cProto.__forceChatRender2__ = async function () {
+
+        const cnt = this;
+        const hostElement = this.hostElement || this;
 
         const isYtChatLiveAppLoaded = () => {
 
           let ytChatLiveApp = null;
           try {
-            ytChatLiveApp = this.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
+            ytChatLiveApp = cnt.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
           } catch (e) { }
 
           return ytChatLiveApp !== null;
@@ -2888,14 +2842,15 @@ function injection_script_1() {
 
         let trid = ++crid;
         const f = () => {
-          if (trid === crid && this.isConnected === true && this.collapsed === false) {
+          
+          if (trid === crid && hostElement.isConnected === true && hostElement.collapsed === false) {
             if (isYtChatLiveAppLoaded()) return;
 
-            this.visibilityObserverForChild_ = null; this.localVisibilityObserver_ = null;
-            this.visibilityOptionVisible_ = null; this.visibilityOptionHidden_ = null; this.visibilityOptionPrescan_ = null;
-            this.childCache_ = new Set;
-            this.playerListeners_ = new Map;
-            this.openPopupConfig = null; this.hostElement = this; this.polymerController = this;
+            cnt.visibilityObserverForChild_ = null; cnt.localVisibilityObserver_ = null;
+            cnt.visibilityOptionVisible_ = null; cnt.visibilityOptionHidden_ = null; cnt.visibilityOptionPrescan_ = null;
+            cnt.childCache_ = new Set;
+            cnt.playerListeners_ = new Map;
+            cnt.openPopupConfig = null; cnt.hostElement = hostElement; cnt.polymerController = cnt;
             // this.detached();this.attached();
             // this.created();
 
@@ -2904,8 +2859,9 @@ function injection_script_1() {
             this.detached(); /* this.created(); */ this.attached();
             Promise.resolve().then(() => {
 
-              if (this.isChatReplay() === false && (this.$ || 0).chatframe && this.isConnected === true && this.collapsed === false && this.$.chatframe.isConnected === true) {
-                const chatframe = this.$.chatframe;
+              const chatframe = (cnt.$ || 0).chatframe;
+
+              if (this.isChatReplay() === false && chatframe && hostElement.isConnected === true && hostElement.collapsed === false && chatframe.isConnected === true) {
                 let src = chatframe.getAttribute('src');
                 let m = /live_chat\?continuation=[^&\/\=]+([&\/\=].*|)$/.exec(src || '')
                 if (m) {
@@ -2919,26 +2875,6 @@ function injection_script_1() {
               }
 
             });
-            /*
-            if(this.isChatReplay() === false){
-              // specific method
-              // this.created();
-
-              
-
-            } else if ( true) {
-              this.detached(); this.attached();
-            } else {
-              this.detached(); this.attached();
-              // this.detached();  this.created(); this.attached();
-              if ((this.$ || 0).chatframe) {
-                let src = this.$.chatframe.getAttribute('src');
-                if (/live_chat.+[^&]$/.test(src || '')) {
-                  this.$.chatframe.setAttribute('src', src + '&');
-                }
-              }
-            }
-            */
 
             return true;
           }
@@ -2953,102 +2889,51 @@ function injection_script_1() {
 
       };
 
-      // proto.__forceChatRender__ = async function () {
+      cProto.__forceChatRender__ = cProto.__forceChatRender2__;
 
-      //   let ytChatLiveApp = null;
-      //   try {
-      //     ytChatLiveApp = this.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
-      //   } catch (e) { }
-
-      //   if (ytChatLiveApp !== null) return;
-
-      //   let trid = ++crid;
-      //   const f = () => {
-      //     if (trid === crid && this.isConnected === true && !this.hasAttribute('collapsed')) {
-      //       this.visibilityObserverForChild_ = null; this.localVisibilityObserver_ = null;
-      //       this.visibilityOptionVisible_ = null; this.visibilityOptionHidden_ = null; this.visibilityOptionPrescan_ = null;
-      //       this.childCache_ = new Set;
-      //       this.playerListeners_ = new Map;
-      //       this.openPopupConfig = null; this.hostElement = this; this.polymerController = this;
-      //       // this.detached();this.attached();
-      //       // this.created();
-      //       //this.detached(); /* this.created(); */ this.attached();
-      //       /*
-      //       if ((this.$ || 0).chatframe) {
-      //         let src = this.$.chatframe.getAttribute('src');
-      //         if (/live_chat.+[^&]$/.test(src || '')) {
-      //           this.$.chatframe.setAttribute('src', src + '&');
-      //         }
-      //       }*/
-      //       return true;
-      //     }
-      //     return false;
-      //   }
-
-      //   let executed = f() === true;
-      //   if (!executed) {
-      //     requestAnimationFrame(f);
-      //   }
-
-      // };
-
-      proto.__forceChatRender__ = proto.__forceChatRender2__;
-
-      const g = (elm) => {
-        elm = elm || document.querySelector('ytd-live-chat-frame');
-        elm && elm.__forceChatRender__ && elm.__forceChatRender__();
+      (() => {
+        let elm = document.querySelector('ytd-live-chat-frame');
+        if(elm){
+          let cnt = elm.inst || elm;
+          cnt.__forceChatRender__ && cnt.__forceChatRender__();
+        }
         elm = null;
-      }
-
-      // proto.onShowHideChat = ((onShowHideChat) => {
-
-      //   return function () {
-      //     // g();
-      //     return onShowHideChat.apply(this, arguments);
-      //   }
-
-      // })(proto.onShowHideChat);
-
-      g();
+      })();
 
 
     }, true);
 
 
-    customYtElements.whenRegistered('ytd-player', (proto) => {
+    customYtElements.whenRegistered('ytd-player', (cProto) => {
 
-      let keyDefined = 'pause' in proto;
-      if (!keyDefined) console.warn('pause is not defined in ytd-player.');
+      let keyDefined = 'pause' in cProto;
+      if (!keyDefined) return console.warn('pause is not defined in ytd-player.');
 
-      proto.pause = ((pause) => {
+      const pause = cProto.pause;
 
-        return function () {
-          if (arguments.length !== 0) return pause.apply(this, arguments); // fallback
-          if (byPassPause) return;
-          pause.call(this);
-        }
-
-      })(proto.pause);
-
+      cProto.pause = function () {
+        if (arguments.length !== 0) return pause.apply(this, arguments); // fallback
+        if (byPassPause) return;
+        pause.call(this);
+      };
 
     })
 
-    customYtElements.whenRegistered('ytd-comment-renderer', (proto) => {
+    customYtElements.whenRegistered('ytd-comment-renderer', (cProto) => {
 
 
-      let keyDefined = 'linkedCommentBadgeChanged' in proto;
-      if (!keyDefined) console.warn('linkedCommentBadgeChanged is not defined in ytd-comment-renderer.');
+      let keyDefined = 'linkedCommentBadgeChanged' in cProto;
+      if (!keyDefined) return console.warn('linkedCommentBadgeChanged is not defined in ytd-comment-renderer.');
 
-      proto.linkedCommentBadgeChanged = ((linkedCommentBadgeChanged) => {
+      const linkedCommentBadgeChanged = cProto.linkedCommentBadgeChanged;
 
-        return function () {
-          byPassPause = true;
-          let r = linkedCommentBadgeChanged.apply(this, arguments);
-          byPassPause = false;
-          return r;
-        }
+      cProto.linkedCommentBadgeChanged = function () {
+        byPassPause = true;
+        let r = linkedCommentBadgeChanged.apply(this, arguments);
+        byPassPause = false;
+        return r;
+      };
 
-      })(proto.linkedCommentBadgeChanged);
     })
 
   }
