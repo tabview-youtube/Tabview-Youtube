@@ -4442,7 +4442,8 @@ function injection_script_1() {
 
             if (endpoint.browseEndpoint && endpoint.browseEndpoint.browseId === "FEwhat_to_watch") {
               // valid = false;
-              valid = true; // home page
+              const playerVideo = document.querySelector('ytd-player#ytd-player video[src]');
+              if(playerVideo && playerVideo.paused === false) valid = true; // home page
             } else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
               let meta = endpoint.commandMetadata.webCommandMetadata
