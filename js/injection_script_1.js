@@ -4441,7 +4441,8 @@ function injection_script_1() {
           if (endpoint && (endpoint.browseEndpoint || endpoint.searchEndpoint) && !endpoint.urlEndpoint && !endpoint.watchEndpoint) {
 
             if (endpoint.browseEndpoint && endpoint.browseEndpoint.browseId === "FEwhat_to_watch") {
-              valid = false;
+              // valid = false;
+              valid = true; // home page
             } else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
               let meta = endpoint.commandMetadata.webCommandMetadata

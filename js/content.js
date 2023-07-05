@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
--(function () {
+-(function (__CONTEXT__) {
   'use strict';
 
   let __Promise__;
@@ -32,6 +32,7 @@ SOFTWARE.
   } catch (e) {
     throw 'Please update your browser to use Tabview Youtube.';
   }
+  
 
 
   const fxOperator = (proto, propertyName) => {
@@ -58,6 +59,8 @@ SOFTWARE.
 
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
+
+  const { requestAnimationFrame } = __CONTEXT__;
 
   function inIframe() {
     try {
@@ -123,7 +126,7 @@ SOFTWARE.
     let c = 8;
     while (!document.documentElement) {
       if (--c === 0) return
-      await new Promise(window.requestAnimationFrame)
+      await new Promise(requestAnimationFrame)
     }
     if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
   }
@@ -922,8 +925,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     lockWith(f) {
 
       this.p = this.p.then(() => {
-        return new Promise(f)
-      }).catch(console.warn)
+        return new Promise(f).catch(console.warn)
+      })
     }
 
   }
@@ -3857,7 +3860,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     document.addEventListener(eventType, function (evt) {
       if (evt[s]) return;
       evt[s] = true;
-      new Promise(() => {
+      Promise.resolve().then(() => {
         func(evt);
       })
 
@@ -3872,11 +3875,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     const [header, headerP, navElm] = await Promise.all([
-      new Promise(f => f(document.querySelector("#right-tabs header"))),
+      Promise.resolve().then(() => document.querySelector("#right-tabs header")),
 
-      new Promise(f => f(document.querySelector("#right-tabs tabview-view-pos-thead"))),
+      Promise.resolve().then(() => document.querySelector("#right-tabs tabview-view-pos-thead")),
 
-      new Promise(f => f(document.querySelector('#masthead-container, #masthead')))
+      Promise.resolve().then(() => document.querySelector('#masthead-container, #masthead'))
 
     ]);
 
@@ -4305,10 +4308,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let clicked = false;
       await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
-        return new Promise(r => {
+        return Promise.resolve().then(()=>{
           button.click();
           clicked = true;
-          r();
         });
       }));
 
@@ -4319,9 +4321,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (infoDuplicated === false && clicked) {
 
         await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
-          return new Promise(r => {
+          return Promise.resolve().then(() => {
             button.click();
-            r();
           });
         }));
 
@@ -4433,7 +4434,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let node = (evt || 0).target || 0
     let activeElement = document.activeElement || 0
     if (node.nodeType === 1 && activeElement.nodeType === 1) {
-      new Promise(() => {
+      Promise.resolve().then(() => {
         if (node.contains(activeElement)) {
           activeElement.blur();
         }
@@ -4623,7 +4624,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           FP.mtf_attrEngagementPanel(9, node);
 
-          new Promise(() => {
+          Promise.resolve().then(() => {
 
             mtoVisibility_EngagementPanel.bindElement(node, {
               attributes: true,
@@ -4747,29 +4748,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     });
-
-    async function triggerMenuItemResizing() {
-      /*
-      const menus = document.querySelectorAll('ytd-menu-renderer[has-flexible-items]');
-      for(const menu of menus){
-        
-      }
-      let promises;
-      promises = menus.map(menu=>{
-        return new Promise(r=>{
-          r(menu.offsetHeight);
-        });
-      });
-      let heights = await Promise.all(promises);
-      
-      promises = menus.map((menu,idx)=>{
-        return new Promise(r=>{
-          menu.setAttribute
-          r(menu.offsetHeight);
-        });
-      });
-     */
-    }
 
 
     globalHook('yt-page-data-updated', (evt) => {
@@ -4998,8 +4976,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         renderDeferred.debounce(() => {
           if (renderId !== renderIdentifier) return
           // domInit_teaserInfo() // YouTube obsoleted feature? 
-
-          triggerMenuItemResizing();
 
           let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string')
           if (h1) {
@@ -6854,11 +6830,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     let [targetElm, header, navElm] = await Promise.all([
-      new Promise(f => f(document.querySelector("#right-tabs"))),
+      Promise.resolve().then(() => document.querySelector("#right-tabs")),
 
-      new Promise(f => f(document.querySelector("#right-tabs header"))),
+      Promise.resolve().then(() => document.querySelector("#right-tabs header")),
 
-      new Promise(f => f(document.querySelector('#masthead-container, #masthead'))),
+      Promise.resolve().then(() => document.querySelector('#masthead-container, #masthead')),
 
     ]);
 
@@ -6874,8 +6850,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (singleColumnScrolling_dt !== tdt) return emptyForGC();
 
     let res2 = await Promise.all([
-      new Promise(f => f(navElm ? navElm.offsetHeight : 0)),
-      new Promise(f => f(targetElm.offsetTop))
+      Promise.resolve().then(() => navElm ? navElm.offsetHeight : 0),
+      Promise.resolve().then(() => targetElm.offsetTop)
     ])
 
     if (res2 === null) return emptyForGC();
@@ -6927,8 +6903,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     let [targetElm, header] = await Promise.all([
-      new Promise(f => f(document.querySelector("#right-tabs"))),
-      new Promise(f => f(document.querySelector("#right-tabs header")))
+      Promise.resolve().then(() => document.querySelector("#right-tabs")),
+      Promise.resolve().then(() => document.querySelector("#right-tabs header"))
     ]);
 
     function emptyForGC() {
@@ -7299,7 +7275,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       formatDates.isLiveNow = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.isLiveNow
     } catch (e) { }
 
-    promiseChatDetails = new Promise(resolve => {
+    promiseChatDetails = Promise.resolve().then(() => {
       if (ytEventSequence >= 2) {
         let liveChatRenderer = null;
         try {
@@ -7308,8 +7284,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
         liveChatRenderer = null; // release memory for GC, just in case
       }
-      resolve(0)
-    })
+    });
 
     let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
 
@@ -7418,7 +7393,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         pageBeingFetched(evt, mIsPageFirstLoaded)
         // mIsPageFirstLoaded && console.timeEnd("Tabview Youtube Load")
         // ytMicroEventsInit set + tabview-loaded delay set
-        new Promise(() => {
+        Promise.resolve().then(() => {
           if (ytEventSequence >= 2) {
             document.documentElement.classList.toggle('tabview-normal-player', pageType === 'watch');
           }
@@ -7970,5 +7945,5 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
    */
 
 
-})();
+})({ requestAnimationFrame });
 // console.timeEnd("Tabview Youtube Init Script")
