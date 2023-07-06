@@ -2879,52 +2879,61 @@ function injection_script_1() {
         const cnt = this;
         const hostElement = this.hostElement || this;
 
-        const isYtChatLiveAppLoaded = () => {
+        const getReadyState = ()=>{
+          let readyState = null;
+          try {
+            readyState = cnt.$.chatframe.contentWindow.document.readyState;
+          } catch (e) { }
+          return readyState;
+        }
 
+        let trid = ++crid;
+
+        let maxN = 99; // avoid dead loop
+        while (maxN-- > 0) {
+          let readyState = getReadyState();
+          if (typeof readyState === 'string' && readyState !== 'loading') break; // suggests that empty body is loaded
+          await new Promise($requestAnimationFrame);
+          if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation
+        }
+        if(maxN < 0) return;
+
+        const isYtChatLiveAppLoaded = () => {
           let ytChatLiveApp = null;
           try {
-            ytChatLiveApp = cnt.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app')
+            ytChatLiveApp = cnt.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app');
           } catch (e) { }
-
           return ytChatLiveApp !== null;
         }
 
+        const getContinuation = () => {
+          let continuation = null;
+          try {
+            continuation = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
+          } catch (e) { }
+          return continuation;
+        }
+
+        if (isYtChatLiveAppLoaded()) return; // confirm the body is empty
+        await new Promise($requestAnimationFrame); // wait for 1 animation frame
+        if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation 
         if (isYtChatLiveAppLoaded()) return;
 
-        let trid = ++crid;
-        await new Promise($requestAnimationFrame);
+        const chatframe = (cnt.$ || 0).chatframe;
 
-        if (trid === crid && hostElement.isConnected === true && cnt.collapsed === false) {
-          if (isYtChatLiveAppLoaded()) return;
+        if (!chatframe || chatframe.isConnected !== true) return; // invalid operation 
+        let src = chatframe.getAttribute('src');
+        let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
 
-          const chatframe = (cnt.$ || 0).chatframe;
-
-          if (chatframe && hostElement.isConnected === true && cnt.collapsed === false && chatframe.isConnected === true) {
-            let src = chatframe.getAttribute('src');
-            let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
-
-            if (m && m[2]) {
-
-              let kf = false;
-              try {
-                kf = m[2] === cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
-              } catch (e) { }
-
-              if (kf) {
-
-                let k = m[4];
-                let nSrc;
-                let td = Date.now();
-                if (k) nSrc = src.replace(k, '&' + td); else nSrc = src + '&' + td;
-
-                chatframe.setAttribute('src', nSrc);
-                console.debug('[tyt] chat __forceChatRender2__',)
-              }
-
-            }
+        if (m && m[2]) {
+          if (m[2] === getContinuation()) {
+            let k = m[4];
+            let nSrc;
+            let td = Date.now();
+            if (k) nSrc = src.replace(k, '&' + td); else nSrc = src + '&' + td;
+            chatframe.setAttribute('src', nSrc);
+            console.debug('[tyt] chat __forceChatRender2__')
           }
-
-
         }
       };
 
