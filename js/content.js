@@ -3613,6 +3613,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let btn = document.querySelector('tyt-iframe-popup-btn')
           if (btn) btn.remove();
         } else {
+          console.debug('[tyt] forceChatRenderDispatchEvent')
           forceChatRenderDispatchEvent();
         }
 

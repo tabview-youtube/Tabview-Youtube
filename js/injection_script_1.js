@@ -2663,34 +2663,42 @@ function injection_script_1() {
 
       cProto._attached322_ = cProto.attached;
       let lastContinutation = '';
+      let arid = 0;
       cProto.attached = function(){ // for watch page change
         
         this._attached322_.apply(this, arguments);
+        
 
         let hostElement = this.hostElement || this;
         let cnt = this.inst || this;
-        let sf = '';
-        try{
-         sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
-        }catch(e){
 
-        }
-        if(sf && sf !== lastContinutation){
-          let p = lastContinutation;
-          let q = sf;
-          lastContinutation = sf;
-          let chatframe = cnt.$.chatframe;
-          if(chatframe){
-            let src = chatframe.getAttribute('src');
-            let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
-            if(nSrc!==src){
+        let tid = ++arid;
+        setTimeout(() => {
+          if (tid !== arid || hostElement.isConnected !== true || cnt.isAttached !== true) return;
+          
+          let sf = '';
+          try {
+            sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
+          } catch (e) {
 
-              chatframe.setAttribute('src', nSrc.replace(/&\d+$/,'')+'&'+Date.now());
-              console.debug('[tyt] replaced chat url')
+          }
+          if (sf && sf !== lastContinutation) {
+            let p = lastContinutation;
+            let q = sf;
+            lastContinutation = sf;
+            let chatframe = cnt.$.chatframe;
+            if (chatframe) {
+              let src = chatframe.getAttribute('src');
+              let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
+              if (nSrc !== src) {
+                chatframe.setAttribute('src', nSrc.replace(/&\d+$/, '') + '&' + Date.now());
+                console.debug('[tyt] replaced chat url')
+              }
             }
+
           }
 
-        }
+        }, 80);
 
       }
       
@@ -2888,6 +2896,8 @@ function injection_script_1() {
         }
 
         let trid = ++crid;
+
+        await new Promise(resolve => setTimeout(resolve, 80)); // avoid rendering not in a page (DOM not ready)
 
         let maxN = 99; // avoid dead loop
         while (maxN-- > 0) {
