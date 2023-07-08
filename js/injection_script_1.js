@@ -2895,7 +2895,6 @@ function injection_script_1() {
           return readyState;
         }
 
-        console.debug('[tyt] chat __forceChatRender2__ a05')
         let trid = ++crid;
 
         await new Promise(resolve => setTimeout(resolve, 80)); // avoid rendering not in a page (DOM not ready)
@@ -2925,7 +2924,6 @@ function injection_script_1() {
           return continuation;
         }
 
-        console.debug('[tyt] chat __forceChatRender2__ a07')
         if (isYtChatLiveAppLoaded()) return; // confirm the body is empty
         await new Promise($requestAnimationFrame); // wait for 1 animation frame
         if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation 
@@ -2937,9 +2935,19 @@ function injection_script_1() {
         let src = chatframe.getAttribute('src');
         let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
 
-        console.debug('[tyt] chat __forceChatRender2__ a09')
-        if (m && m[2]) {
-          if (m[2] === getContinuation()) {
+        const srcContinuation = m ? m[2] : '';
+        if (srcContinuation) {
+          // somehow getContinuation() === `${m[2]}${m[2]}`
+          let currentContinuation = getContinuation();
+          if (currentContinuation && currentContinuation.length > 260 && currentContinuation === `${srcContinuation}${srcContinuation}`) {
+            try {
+              const ct = cnt.data.liveChatRenderer.continuations[0];
+              ct.reloadContinuationData = Object.assign({}, ct.reloadContinuationData, { continuation: srcContinuation });
+            } catch (e) { }
+            currentContinuation = srcContinuation;
+          }
+
+          if (srcContinuation === currentContinuation) {
             let k = m[4];
             let nSrc;
             let td = Date.now();
@@ -5219,16 +5227,15 @@ rcb(b) => a = playlistId = undefinded
 
   document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
     fixLiveChatToggleButton();
-  });
+  })
 
   document.addEventListener('tabview-force-chat-render', () => {
 
-    console.debug('[tyt] chat __forceChatRender2__ a01')
     let elm;
     elm = elm || document.querySelector('ytd-live-chat-frame');
     elm && elm.__forceChatRender__ && elm.__forceChatRender__();
     elm = null;
-  });
+  })
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
