@@ -2976,19 +2976,21 @@ function injection_script_1() {
 
       let lastShowHide = 0;
       const urlChanged = cProto.urlChanged;
-
-      cProto.urlChanged = function () {
+      cProto.urlChanged = function (...args) {
         const skip = this.collapsed === false && Date.now() - lastShowHide < 80;
         lastShowHide = 0;
         if (skip) return; // handled by force rendering
-        return urlChanged.apply(this, arguments);
-      }
-
+        Promise.resolve().then(() => {
+          urlChanged.apply(this, args);
+        });
+      };
       const onShowHideChat = cProto.onShowHideChat;
-      cProto.onShowHideChat = function () {
+      cProto.onShowHideChat = function (...args) {
         lastShowHide = Date.now();
-        return onShowHideChat.apply(this, arguments);
-      }
+        Promise.resolve().then(() => {
+          onShowHideChat.apply(this, args);
+        });
+      };
 
     }, true);
 
