@@ -2936,11 +2936,15 @@ function injection_script_1() {
         let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
 
         console.debug('[tyt] chat __forceChatRender2__ (a)')
-        const srcContinuation = m ? m[2] : '';
+        let srcContinuation = m ? m[2] : '';
         if (srcContinuation) {
-          // somehow getContinuation() === `${m[2]}${m[2]}`
           let currentContinuation = getContinuation();
-          if (currentContinuation && currentContinuation.length > 260 && currentContinuation === `${srcContinuation}${srcContinuation}`) {
+          if (srcContinuation && srcContinuation.length > 260 && currentContinuation && srcContinuation === `${currentContinuation}${currentContinuation}`) {
+            // root clause unknown
+            src = src.replace(srcContinuation, currentContinuation);
+            srcContinuation = currentContinuation;
+          } else if (currentContinuation && currentContinuation.length > 260 && currentContinuation === `${srcContinuation}${srcContinuation}`) {
+            // play safe
             try {
               const ct = cnt.data.liveChatRenderer.continuations[0];
               ct.reloadContinuationData = Object.assign({}, ct.reloadContinuationData, { continuation: srcContinuation });
