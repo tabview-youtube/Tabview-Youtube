@@ -2980,14 +2980,14 @@ function injection_script_1() {
         const skip = this.collapsed === false && Date.now() - lastShowHide < 80;
         lastShowHide = 0;
         if (skip) return; // handled by force rendering
-        Promise.resolve().then(() => {
-          urlChanged.apply(this, args);
-        });
+        urlChanged.apply(this, args);
       };
       const onShowHideChat = cProto.onShowHideChat;
       cProto.onShowHideChat = function (...args) {
         lastShowHide = Date.now();
-        onShowHideChat.apply(this, args);
+        Promise.resolve().then(() => {
+          onShowHideChat.apply(this, args);
+        });
       };
 
     }, true);
