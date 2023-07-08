@@ -575,79 +575,6 @@ Same for #secondary
     }
 }
 
-@supports (not-color: var(--japanese-text-button-too-long-squeezing-channel-name-unable-display)){ /* removed in May 2023 */
-
-/* <<< pre-fix for japanese layout native bug */
-/* remove if YouTube fixed this bug */
-/* tabview-uploader-hover */
-
-    html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
-        display: inline-flex;
-        width: 2em;
-        color:transparent;
-    }
-
-    html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
-        content:'Join';
-        display:inline;
-        color: var(--yt-spec-text-primary);
-    }
-
-    
-    html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
-        display: inline-flex;
-        width: 2em;
-        color:transparent;
-    }
-
-    html:lang(ja) #sponsor-button.style-scope.ytd-video-owner-renderer button[aria-label="このチャンネルのメンバーになります"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
-        content:'Join';
-        display:inline;
-        color: var(--yt-spec-text-primary-inverse);
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
-        display: inline-flex;
-        width: 4.5em;
-        color:transparent;
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--filled span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
-        content:'Subscribe';
-        display:inline;
-        color: var(--yt-spec-text-primary-inverse);
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録を解除"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
-        display: inline-flex;
-        width: 5em;
-        color:transparent;
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata button[aria-label$="チャンネル登録を解除"].yt-spec-button-shape-next--mono.yt-spec-button-shape-next--tonal span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
-        content:'Subscribed';
-        display:inline;
-        color: var(--yt-spec-text-primary);
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata tp-yt-paper-button[aria-label$="チャンネル登録を解除"][hidden] ~ #notification-preference-button.style-scope.ytd-subscribe-button-renderer 
-    button.yt-spec-button-shape-next--tonal.yt-spec-button-shape-next--mono:only-child[aria-label] span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap{
-        display: inline-flex;
-        width: 5em;
-        color:transparent;
-    }
-
-    html:lang(ja) #subscribe-button.style-scope.ytd-watch-metadata tp-yt-paper-button[aria-label$="チャンネル登録を解除"][hidden] ~ #notification-preference-button.style-scope.ytd-subscribe-button-renderer 
-    button.yt-spec-button-shape-next--tonal.yt-spec-button-shape-next--mono:only-child[aria-label] span.yt-core-attributed-string.yt-core-attributed-string--white-space-no-wrap::before{
-        content:'Subscribed';
-        display:inline;
-        color: var(--yt-spec-text-primary);
-    }
-
-/* <<< pre-fix for japanese layout native bug >>> */
-
-}
-
 @supports (color: var(--wider-playlist-button-for-japanese)){ /* May 2023 */
     /*
     @media screen and (min-width: 1294px) and (max-width: 1294px) {
@@ -664,7 +591,7 @@ Same for #secondary
     }
 }
 
-@supports (color: var(--hide-menu-icon-text-by-default)) { /* May 2023 */
+@supports (color: var(--hide-menu-icon-text-by-default-v1)) { /* May 2023 */
 
     ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon {
         margin-right: 0;
@@ -673,6 +600,37 @@ Same for #secondary
     }
 
     ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon+.yt-spec-button-shape-next--button-text-content {
+        display: none !important;
+        width: 0 !important;
+        contain: strict !important;
+    }
+
+    /* https://greasyfork.org/en/scripts/456108 */
+    
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] div[name="top_level_translate_btn"] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading > img:first-child+span:last-child {
+        display: none !important;
+        width: 0 !important;
+        contain: strict !important;
+    }
+    
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] div[name="top_level_translate_btn"] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading > img:first-child:nth-last-child(2) {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        contain: layout style;
+    }
+
+}
+
+
+@supports (color: var(--hide-menu-icon-text-by-default-v2)) { /* Jul 2023 */
+
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon {
+        margin-right: 0;
+        margin-left: 0;
+        contain: layout style;
+    }
+
+    ytd-watch-metadata:not([actions-on-separate-line]) ytd-menu-renderer.ytd-watch-metadata[class] [button-next] .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-leading .yt-spec-button-shape-next__icon+.yt-spec-button-shape-next__button-text-content {
         display: none !important;
         width: 0 !important;
         contain: strict !important;
@@ -1586,69 +1544,6 @@ body .ytp-autohide .ytp-unmute,
         animation: titleHoverShowUpToThreeLines 1ms ease 670ms forwards;
     }
 
-}
-
-
-@media screen and (max-width: 1294px) {
-
-    /*
-    #actions.ytd-watch-metadata #top-level-buttons-computed.top-level-buttons.style-scope.ytd-menu-renderer 
-    ytd-segmented-like-dislike-button-renderer ~ ytd-button-renderer.ytd-menu-renderer 
-    .yt-spec-button-shape-next__icon {
-        margin-right: 0;
-        margin-left: 0;
-    }
-    
-    #actions.ytd-watch-metadata #top-level-buttons-computed.top-level-buttons.style-scope.ytd-menu-renderer 
-    ytd-segmented-like-dislike-button-renderer ~ ytd-button-renderer.ytd-menu-renderer 
-    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
-        display: none;
-    }
-    */
-
-    /*
-    @supports (color: var(--compatibile-with-translation-button)) {
-
-        div[name="top_level_translate_btn"] img {
-            margin: 0 !important;
-        }
-
-        div[name="top_level_translate_btn"] span {
-            display: none;
-        }
-    }
-    */
-
- 
-    /*
-    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
-    ytd-button-renderer.ytd-download-button-renderer 
-    .yt-spec-button-shape-next__icon {
-        margin-right: 0;
-        margin-left: 0;
-    }
-    
-    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
-    ytd-button-renderer.ytd-download-button-renderer 
-    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
-        display: none;
-    }
-
-    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
-    ytd-button-renderer.ytd-menu-renderer 
-    .yt-spec-button-shape-next__icon {
-        margin-right: 0;
-        margin-left: 0;
-    }
-    
-    #actions.ytd-watch-metadata #flexible-item-buttons.style-scope.ytd-menu-renderer 
-    ytd-button-renderer.ytd-menu-renderer 
-    .yt-spec-button-shape-next__icon + .yt-spec-button-shape-next--button-text-content {
-        display: none;
-    }
-    */
-
-    
 }
 
 @media all {
