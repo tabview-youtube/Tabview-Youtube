@@ -2974,6 +2974,10 @@ function injection_script_1() {
         elm = null;
       })();
 
+      /*
+      // removed in 2023.07.09 as it might create a potential runtime bug
+      // livestream video ended -> switch to another video lived before but no chat can be replayed.
+      // video is played inside iframe
       let lastShowHide = 0;
       const urlChanged = cProto.urlChanged;
       cProto.urlChanged = function (...args) {
@@ -2989,6 +2993,7 @@ function injection_script_1() {
           onShowHideChat.apply(this, args);
         });
       };
+      */
 
     }, true);
 
