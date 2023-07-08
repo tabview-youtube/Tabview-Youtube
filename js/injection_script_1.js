@@ -2691,8 +2691,22 @@ function injection_script_1() {
               let src = chatframe.getAttribute('src');
               let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
               if (nSrc !== src) {
-                chatframe.setAttribute('src', nSrc.replace(/&\d+$/, '') + '&' + Date.now());
-                console.debug('[tyt] replaced chat url')
+                nSrc = nSrc.replace(/&\d+$/, '') + '&' + Date.now();
+                Promise.resolve().then(() => {
+                  try{
+                    chatframe.contentWindow.stop();
+                  }catch(e){}
+                  chatframe.setAttribute('src', 'about:blank');
+                  try{
+                    chatframe.contentWindow.stop();
+                  }catch(e){}
+                }).then(() => {
+                  try{
+                    chatframe.contentWindow.stop();
+                  }catch(e){}
+                  chatframe.setAttribute('src', nSrc);
+                });
+                console.debug('[tyt] replaced chat url');
               }
             }
 
@@ -2957,7 +2971,20 @@ function injection_script_1() {
             let nSrc;
             let td = Date.now();
             if (k) nSrc = src.replace(k, '&' + td); else nSrc = src + '&' + td;
-            chatframe.setAttribute('src', nSrc);
+            Promise.resolve().then(() => {
+              try{
+                chatframe.contentWindow.stop();
+              }catch(e){}
+              chatframe.setAttribute('src', 'about:blank');
+              try{
+                chatframe.contentWindow.stop();
+              }catch(e){}
+            }).then(() => {
+              try{
+                chatframe.contentWindow.stop();
+              }catch(e){}
+              chatframe.setAttribute('src', nSrc);
+            });
             console.debug('[tyt] chat __forceChatRender2__')
           }
         }
