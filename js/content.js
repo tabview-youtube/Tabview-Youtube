@@ -295,60 +295,8 @@ SOFTWARE.
       white-space: nowrap;
   }
   
-  /*
-  // removed in 2023.06.17
-  #items.style-scope.yt-live-chat-item-list-renderer>yt-live-chat-text-message-renderer.yt-live-chat-item-list-renderer {
-      --tabview-chat-message-display: block;
-      --tabview-chat-message-mt: 2px;
-      --tabview-chat-message-mb: 4px;
-  }
-  
-  #message.yt-live-chat-text-message-renderer {
-      display: var(--tabview-chat-message-display);
-      margin-top: var(--tabview-chat-message-mt);
-      margin-bottom: var(--tabview-chat-message-mb);
-  }
-  
-  [collapsed] #message.yt-live-chat-text-message-renderer {
-      --tabview-chat-message-display: 'VOID';
-      --tabview-chat-message-mt: 'VOID';
-      --tabview-chat-message-mb: 'VOID';
-  }
-  // removed in 2023.06.17
-  */
-  
-  
   @supports (contain: layout paint style) {
 
-    /*
-    contain: layout paint style;
-    // #item-offset uses transform, it is buggy in Opera 93.0 with contain: layout & paint
-    */
-
-    body yt-live-chat-app {
-        /* contain: size layout paint style; */ /* removed in 2023.06.17 */
-        /* content-visibility: auto; */
-        /* transform: translate3d(0, 0, 0);
-        overflow: hidden; */  /* removed in 2023.06.17 */
-    }
-
-    #items.style-scope.yt-live-chat-item-list-renderer{
-        /* contain: layout paint style; */  /* removed in 2023.06.17 */
-    }
-
-    #item-offset.style-scope.yt-live-chat-item-list-renderer {
-        /* contain: style; */ /* removed in 2023.06.17 */
-    }
-
-    #item-scroller.style-scope.yt-live-chat-item-list-renderer {
-        /* contain: size style; */ /* removed in 2023.06.17 */
-    }
-
-    #contents.style-scope.yt-live-chat-item-list-renderer,
-    #chat.style-scope.yt-live-chat-renderer {
-        /* contain: size layout paint style; */ /* removed in 2023.06.17 */
-    }
-    
     img.style-scope.yt-img-shadow[width][height] {
         contain: size layout paint style;
     }
@@ -358,13 +306,8 @@ SOFTWARE.
         contain: layout paint style;
     }
 
-
     yt-img-shadow#author-photo.style-scope {
         contain: layout paint style;
-        /*
-        content-visibility: auto;
-        contain-intrinsic-size: 24px 24px;
-        */
     }
 
     yt-live-chat-text-message-renderer:not([author-is-owner]) #author-photo.style-scope.yt-live-chat-text-message-renderer,
@@ -375,7 +318,6 @@ SOFTWARE.
     yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer>img.emoji.yt-formatted-string.style-scope.yt-live-chat-text-message-renderer {
         cursor: var(--tabview-msg-cursor);
     }
-
 
     yt-live-chat-text-message-renderer:not([author-is-owner]) span#message.style-scope.yt-live-chat-text-message-renderer,
     yt-live-chat-paid-message-renderer #message.yt-live-chat-paid-message-renderer,
@@ -401,15 +343,6 @@ SOFTWARE.
         contain: layout paint style;
     }
 
-    /*
-    yt-live-chat-banner-renderer[collapsed] #contents, yt-live-chat-banner-renderer[collapsed] #contents * {
-
-      content-visibility: visible !important;
-      contain: none !important;
-
-    }
-    */
-
      
     /* YouTube Native Bug - style="height:0px; translateY(0px);" */
     yt-live-chat-banner-renderer[collapsed]:has(#contents[style*="0px;"][style*="translateY(0px);"]) #header.yt-live-chat-banner-renderer{
@@ -421,22 +354,18 @@ SOFTWARE.
       transform:initial !important;
     }
 
-  
   }
-  
   
   #chat-messages tp-yt-iron-dropdown#dropdown.style-scope.tp-yt-paper-menu-button {
       margin-right: var(--ytd-margin-12x);
   }
 
-
   tp-yt-iron-dropdown.yt-live-chat-app[vertical-align="top"] ytd-menu-popup-renderer.yt-live-chat-app {
     max-height: 60vh !important; /* override style */
   }
 
-  /* 2023/05/05 fixed darker-dark-theme thin border on the bottom of chatroom */
-  html yt-live-chat-renderer[darker-dark-theme] #panel-pages.yt-live-chat-renderer {
-    border: 0;
+  html #panel-pages.yt-live-chat-renderer {
+    border-bottom: 0;
   }
 
     `.trim();

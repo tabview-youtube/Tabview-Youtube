@@ -2935,7 +2935,7 @@ function injection_script_1() {
         let src = chatframe.getAttribute('src');
         let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
 
-        console.debug('[tyt] chat __forceChatRender2__ (a)')
+        // console.debug('[tyt] chat __forceChatRender2__ (a)')
         let srcContinuation = m ? m[2] : '';
         if (srcContinuation) {
           let currentContinuation = getContinuation();
