@@ -2987,9 +2987,7 @@ function injection_script_1() {
       const onShowHideChat = cProto.onShowHideChat;
       cProto.onShowHideChat = function (...args) {
         lastShowHide = Date.now();
-        Promise.resolve().then(() => {
-          onShowHideChat.apply(this, args);
-        });
+        onShowHideChat.apply(this, args);
       };
 
     }, true);
