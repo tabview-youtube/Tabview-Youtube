@@ -2897,7 +2897,7 @@ function injection_script_1() {
 
         let trid = ++crid;
 
-        await new Promise(resolve => setTimeout(resolve, 80)); // avoid rendering not in a page (DOM not ready)
+        await new Promise(resolve => setTimeout(resolve, 73)); // avoid rendering not in a page (DOM not ready)
 
         let maxN = 99; // avoid dead loop
         while (maxN-- > 0) {
@@ -2974,6 +2974,21 @@ function injection_script_1() {
         elm = null;
       })();
 
+      let lastShowHide = 0;
+      const urlChanged = cProto.urlChanged;
+
+      cProto.urlChanged = function () {
+        const skip = this.collapsed === false && Date.now() - lastShowHide < 80;
+        lastShowHide = 0;
+        if (skip) return; // handled by force rendering
+        return urlChanged.apply(this, arguments);
+      }
+
+      const onShowHideChat = cProto.onShowHideChat;
+      cProto.onShowHideChat = function () {
+        lastShowHide = Date.now();
+        return onShowHideChat.apply(this, arguments);
+      }
 
     }, true);
 
