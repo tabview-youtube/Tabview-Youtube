@@ -379,6 +379,11 @@ SOFTWARE.
       border-bottom: 0;
   }
 
+  #input-panel #picker-buttons yt-live-chat-icon-toggle-button-renderer#product-picker {
+    overflow: hidden;
+    contain: layout paint style;
+  }
+
     `.trim();
   });
 
