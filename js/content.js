@@ -32,7 +32,7 @@ SOFTWARE.
   } catch (e) {
     throw 'Please update your browser to use Tabview Youtube.';
   }
-  
+
 
 
   const fxOperator = (proto, propertyName) => {
@@ -55,6 +55,7 @@ SOFTWARE.
   // const elementQS = fxAPI(Element.prototype, 'querySelector');
   // const elementQSA = fxAPI(Element.prototype, 'querySelectorAll');
   const elementNextSibling = fxOperator(Element.prototype, 'nextElementSibling');
+  // const elementPrevSibling = fxOperator(Element.prototype, 'previousElementSibling');
 
 
   /** @type {PromiseConstructor} */
@@ -364,8 +365,18 @@ SOFTWARE.
     max-height: 60vh !important; /* override style */
   }
 
+
+  html #panel-pages.yt-live-chat-renderer > #input-panel.yt-live-chat-renderer:not(:empty) {
+      --yt-live-chat-action-panel-top-border: none;
+  }
+
+  html #panel-pages.yt-live-chat-renderer > #input-panel.yt-live-chat-renderer.iron-selected > *:first-child {
+      border-top: 1px solid var(--yt-live-chat-panel-pages-border-color);
+  }
+
   html #panel-pages.yt-live-chat-renderer {
-    border-bottom: 0;
+      border-top: 0;
+      border-bottom: 0;
   }
 
     `.trim();
@@ -2522,34 +2533,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-
     /** @type {HTMLElement | null} */
+
     let chatroom = null;
-    if (chatroom = document.querySelector('*:not([data-positioner="before|#chat"]) + ytd-live-chat-frame#chat, ytd-live-chat-frame#chat:first-child')) {
+    if (chatroom = document.querySelector('ytd-live-chat-frame#chat')) {
+
+      const container = chatroom.parentNode.id === 'chat-container' ? chatroom.parentNode : chatroom;
 
       let pHolderElm = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
-      if (pHolderElm) pHolderElm.remove();
 
-      if (document.querySelector('.YouTubeLiveFilledUpView')) {
-        // no relocation
-      } else {
+      if (!pHolderElm || pHolderElm.nextElementSibling !== container) {
 
-        let rightTabs = document.querySelector('#right-tabs');
-        if (rightTabs) {
-          insertBeforeTo(chatroom, rightTabs);
+        if (pHolderElm) pHolderElm.remove();
+
+        if (document.querySelector('.YouTubeLiveFilledUpView')) {
+          // no relocation
+        } else {
+
+          let rightTabs = document.querySelector('#right-tabs');
+          if (rightTabs) {
+            insertBeforeTo(container, rightTabs);
+          }
+
         }
 
-      }
+        if (!pHolderElm) {
+          pHolderElm = document.createElement('tabview-view-pholder');
+          pHolderElm.setAttribute('data-positioner', 'before|#chat');
+        }
 
-      if (!pHolderElm) {
-        pHolderElm = document.createElement('tabview-view-pholder');
-        pHolderElm.setAttribute('data-positioner', 'before|#chat');
+        insertBeforeTo(pHolderElm, container)
       }
-
-      insertBeforeTo(pHolderElm, chatroom)
 
     }
-
 
   }
 
@@ -3547,7 +3563,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         fixLiveChatToggleButtonDispatchEvent();
-        
+
 
 
       })
@@ -4238,7 +4254,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let clicked = false;
       await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
-        return Promise.resolve().then(()=>{
+        return Promise.resolve().then(() => {
           button.click();
           clicked = true;
         });
@@ -4276,8 +4292,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   /** @type {MutationObserver | null} */
   // let liveChatFrameMutObserver = null;
-  
-  
+
+
   // setupChatFrameDOM (v2) - added in 2023.07.06 to replace the v1 to a simple version
   /*
   function setupChatFrameDOM() {

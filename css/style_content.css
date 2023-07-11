@@ -858,7 +858,15 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
 
 @supports (color: var(--tabview-tab-panel-scrollbar-spacing)){
 
-    @supports (color: var(--scrollbar-gutter-spacing)) and (scrollbar-gutter: stable){
+    @supports (color: var(--scrollbar-gutter-spacing)) and (scrollbar-gutter: stable) and (scrollbar-gutter: var(--p)){
+
+
+        ytd-watch-flexy {
+            --tyt-scrollbar-gutter: auto;
+        }
+        ytd-watch-flexy[is-two-columns_] {
+            --tyt-scrollbar-gutter: stable;
+        }
 
         /* Chrome: >=94 ; FireFox: >= 97 */
         /* FireFox >= 107 stil have the incorrect spacing, indepedent of scrollbar-gutter setting */
@@ -866,7 +874,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         #tab-comments /*, 
         #tab-videos */
         {
-            scrollbar-gutter: stable; /* align expander btn rendering position */
+            scrollbar-gutter: var(--tyt-scrollbar-gutter); /* align expander btn rendering position */
         }
 
         /*
@@ -880,6 +888,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
             --tyt-tab-panel-scrollbar-margin: 0px;
         }
         */
+
     }
     
 
@@ -2516,9 +2525,7 @@ body .ytp-autohide .ytp-unmute,
 
     /* double .ytd-watch-flexy is Youtube Coding Bug */
     body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
-    body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
-    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
-    body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
         --tyt-x-chat-max-height: calc(var(--tyt-x-base-height) - 20px - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
         height: var(--tyt-x-chat-max-height);
         min-height: 10px;
@@ -2530,6 +2537,11 @@ body .ytp-autohide .ytp-unmute,
         --tyt-x-chat-max-height: calc(var(--tyt-x-chatroom-height) - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
         /* not override if value not set */
 
+    }
+
+    body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
+        height: unset;
     }
 
     
@@ -2951,6 +2963,13 @@ body .ytp-autohide .ytp-unmute,
         ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info>ytd-expander {
             margin-left: 0;
             flex-grow: 300;
+            margin-right: 0;
+        }
+
+        ytd-watch-flexy:not([is-two-columns_]) #right-tabs .tab-content-cld#tab-info::after {
+            content: " ";
+            flex-grow: 200;
+            max-width: 64px;
         }
 
     }
