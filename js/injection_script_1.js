@@ -1719,6 +1719,7 @@ function injection_script_1() {
     }
 
     function translate(initialSegments) {
+      // 2023.07.13 - fix initialSegments with transcriptSectionHeaderRenderer
 
       if (!initialSegments) return initialSegments;
 
@@ -1752,7 +1753,11 @@ function injection_script_1() {
 
       for (const initialSegment of initialSegments) {
         const transcript = (initialSegment || 0).transcriptSegmentRenderer;
-        if (!transcript) continue;
+        if (!transcript) {
+          // https://www.youtube.com/watch?v=dmHJJ5k_G-A - transcriptSectionHeaderRenderer
+          fRes.push(initialSegment);
+          continue;
+        }
 
         const runs = transcript.snippet.runs
         if (!runs || runs.length === 0) {
@@ -1888,6 +1893,7 @@ function injection_script_1() {
       for (let si = 0; si < si_length; si++) {
         const segment = fRes[si];
         let transcript = segment.transcriptSegmentRenderer;
+        if (!transcript) continue; // e.g. transcriptSectionHeaderRenderer
         const runs = transcript.snippet.runs;
         if (runs.length > 1 || runs[0].text.includes('\n')) continue; // skip multi lines
         let main_startMs = (+transcript.startMs || 0);
@@ -1899,11 +1905,17 @@ function injection_script_1() {
 
         // assume that it is asc-ordered array of key startMs;
         for (let sj = sj_start; sj < sj_length; sj++) {
-          const initialSegment = initialSegments[sj]
+          const initialSegment = initialSegments[sj];
 
-          if (!initialSegment || initialSegment[s8]) continue;
+          if (!initialSegment || initialSegment[s8]) continue; // should invalid_sj be set ?
 
-          const transcriptSegementJ = initialSegment.transcriptSegmentRenderer
+          const transcriptSegementJ = initialSegment.transcriptSegmentRenderer;
+          
+          if (!transcriptSegementJ) {
+            // https://www.youtube.com/watch?v=dmHJJ5k_G-A - transcriptSectionHeaderRenderer
+            invalid_sj = sj; // should invalid_sj be set ?
+            continue;
+          } 
 
           let startMs = (+transcriptSegementJ.startMs || 0)
           let isStartValid = startMs >= main_startMs;
