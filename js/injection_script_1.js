@@ -1539,27 +1539,25 @@ function injection_script_1() {
             let cr = ytLivePU.ytLiveChatRenderer;
             if (!cr) return;
 
-            await ytLivePU.createLoadingWaiter()
+            await ytLivePU.createLoadingWaiter();
 
             if (tmp_postI !== ytLivePU.postI) return;
 
-
-            // console.log(ytLivePU.requestedVideoProgress , ytLivePU.renderedVideoProgress)
-
-
-
             if (ytLivePU.requestedVideoProgress < ytLivePU.renderedVideoProgress && ytLivePU.requestedVideoProgress >= 0 && ytLivePU.renderedVideoProgress >= 0 && ytLivePU.renderedVideoProgress !== null) {
-
+              let goBackward = true;
               if (Math.abs(ytLivePU.requestedVideoProgress - ytLivePU.renderedVideoProgress) < 0.001) {
                 // js Bug?  ytLivePU.requestedVideoProgress = 5122.329545  & ytLivePU.renderedVideoProgress = 5122.329545454545
-              } else {
-                ytLivePU.timelineBackward();
+                goBackward = false;
+              } else if (ytLivePU.renderedVideoProgress - ytLivePU.requestedVideoProgress < 0.04) {
+                // possible playback video quality change (0.006 < diff < 0.019)
+                let video = document.querySelector('#movie_player video[src]');
+                if ((video || 0).paused === false) {
+                  goBackward = false;
+                }
               }
+              if (goBackward) ytLivePU.timelineBackward();
               return;
             }
-
-
-
 
             let exec = true;
             if (rfaId > 0 && Date.now() > refreshAt) {
