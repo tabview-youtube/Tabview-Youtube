@@ -1710,9 +1710,12 @@ body .ytp-autohide .ytp-unmute,
         @supports not (contain: layout size style) {
             /* Waterfox Classic */
 
+            /* removed in 2023.07.17; seems not required in FireFox >= 88 ? */
+            /*
             html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] {
                 display: none;
             }
+            */
 
         }
 
