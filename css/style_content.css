@@ -1684,6 +1684,19 @@ body .ytp-autohide .ytp-unmute,
 
     @supports (color: var(--rendering-fix-cinematic)){
 
+        ytd-watch-flexy #cinematics.ytd-watch-flexy[id][class]:empty {
+            /* Found in FireFox 88, the layout effect still apply when it is empty. unknown bug */
+            display: none !important;
+            height: 0px !important;
+            position: fixed !important;
+            min-height: 0px !important;
+            overflow: hidden !important;
+            float: left !important;
+            transform: initial !important;
+            transition: none !important;
+            z-index: -1 !important;
+        }
+
         html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class],
         html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] div,
         html body ytd-watch-flexy.style-scope[cinematics-enabled] #cinematics.ytd-watch-flexy[class] canvas {
