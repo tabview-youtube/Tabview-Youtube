@@ -1791,7 +1791,7 @@ function injection_script_1() {
 
         if (!mh1e) {
 
-          if (/^[\,\.\x60\x27\x22\u200b\xA0\x20\;\-]*$/.test(text)) {
+          if (/^[,.\x60\x27\x22\u200b\xA0\x20;-]*$/.test(text)) {
             initialSegment[s8] = true;
             mh1.set(text, 2);
             //effect only
@@ -2775,26 +2775,36 @@ function injection_script_1() {
 
       if (data.header && data.header.length === 1 && ((data.header[0] || 0).commentsHeaderRenderer || 0).countText) {
         const countText = data.header[0].commentsHeaderRenderer.countText;
-        if (countText.runs && countText.runs.length === 2 && countText.runs[0].text === '0') {
+        if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string') {
 
-          await new Promise(r => setTimeout(r, 80)); // wait comments count updated
+          let countTextString = countText.runs[0].text;
+          let ctString = countTextString.replace(/[,.\s]+/g, '');
+          let ctNum = +ctString;
+          if (ctNum >= 0 && countTextString.trim() === ctNum.toLocaleString(document.documentElement.lang)) {
 
-          const n = data.contents.length;
-          if (n > 0 && hostElement.isConnected === true && cnt.isAttached === true) {
 
-            let header = querySelectorFromAnchor.call(hostElement, 'ytd-comments-header-renderer');
-            let headerCnt = header.inst || header;
+            await new Promise(r => setTimeout(r, 80)); // wait comments count updated
 
-            if (headerCnt.data === data.header[0].commentsHeaderRenderer) {
-              let runs = [{ text: data.contents.length.toLocaleString(document.documentElement.lang) }, countText.runs[1]];
-              let m = Object.assign({}, data.header[0].commentsHeaderRenderer.countText, { runs: runs });
-              headerCnt.data = Object.assign({}, headerCnt.data, { countText: m }); // update header text
-              Promise.resolve().then(() => {
-                cnt.headerChanged_(); // ask to update tab count span
-              })
+            const n = data.contents.length;
+            if (n > ctNum && hostElement.isConnected === true && cnt.isAttached === true) {
+
+              let header = querySelectorFromAnchor.call(hostElement, 'ytd-comments-header-renderer');
+              let headerCnt = header.inst || header;
+
+              if (headerCnt.data === data.header[0].commentsHeaderRenderer) {
+                let runs = [{ text: data.contents.length.toLocaleString(document.documentElement.lang) }, countText.runs[1]];
+                let m = Object.assign({}, data.header[0].commentsHeaderRenderer.countText, { runs: runs });
+                headerCnt.data = Object.assign({}, headerCnt.data, { countText: m }); // update header text
+                Promise.resolve().then(() => {
+                  cnt.headerChanged_(); // ask to update tab count span
+                })
+              }
+
             }
 
           }
+
+
 
         }
       }

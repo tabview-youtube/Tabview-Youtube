@@ -7556,18 +7556,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (hasData === false) {
       // this is much effective to clear the counting text
       emptyCommentSection();
-    } else {
-      // force refresh count dom
-      if (fetchCounts.fetched) {
-        fetchCounts.fetched = false;
-      }
     }
     innerDOMCommentsCountLoader(true);
     checkAndMakeNewCommentFetch();
   }, true);
 
   document.addEventListener('ytd-comments-header-changed', function () {
-    innerDOMCommentsCountLoader(true);
+    const res = innerDOMCommentsCountLoader(true);
+    if (res.newFound === true && res.length === 1 && res[0].isLatest && res[0].isNew) {
+      if (renderDeferred.resolved && fetchCounts.new) {
+        // force refresh count dom
+        fetchCounts.fetched = false;
+        Q.comments_section_loaded = 0;
+      }
+    }
     checkAndMakeNewCommentFetch();
   }, true);
 
