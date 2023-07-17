@@ -2761,11 +2761,44 @@ function injection_script_1() {
     const getProto = (element) => {
       let proto = null;
       if (element) {
-          if (element.inst) proto = element.inst.constructor.prototype;
-          else proto = element.constructor.prototype;
+        if (element.inst) proto = element.inst.constructor.prototype;
+        else proto = element.constructor.prototype;
       }
       return proto || null;
-  };
+    };
+
+
+    async function checkCommentCountCorrectness(data) {
+
+      const cnt = this;
+      const hostElement = this.hostElement || this;
+
+      if (data.header && data.header.length === 1 && ((data.header[0] || 0).commentsHeaderRenderer || 0).countText) {
+        const countText = data.header[0].commentsHeaderRenderer.countText;
+        if (countText.runs && countText.runs.length === 2 && countText.runs[0].text === '0') {
+
+          await new Promise(r => setTimeout(r, 80)); // wait comments count updated
+
+          const n = data.contents.length;
+          if (n > 0 && hostElement.isConnected === true && cnt.isAttached === true) {
+
+            let header = querySelectorFromAnchor.call(hostElement, 'ytd-comments-header-renderer');
+            let headerCnt = header.inst || header;
+
+            if (headerCnt.data === data.header[0].commentsHeaderRenderer) {
+              let runs = [{ text: data.contents.length.toLocaleString(document.documentElement.lang) }, countText.runs[1]];
+              let m = Object.assign({}, data.header[0].commentsHeaderRenderer.countText, { runs: runs });
+              headerCnt.data = Object.assign({}, headerCnt.data, { countText: m }); // update header text
+              Promise.resolve().then(() => {
+                cnt.headerChanged_(); // ask to update tab count span
+              })
+            }
+
+          }
+
+        }
+      }
+    }
 
     // dataChanged_ & headerChanged_ for comments counting update
 
@@ -2783,16 +2816,20 @@ function injection_script_1() {
           const cnt = this;
           const hostElement = this.hostElement || this;
           cnt.tytDataChanged_();
-          const hasData = (((cnt.__data || 0).data || 0).contents || 0) !== 0;
+          const data = ((cnt.__data || 0).data || 0);
+          const hasData = (data.contents || 0) !== 0;
           if (hasData) {
             const sections = ((cnt.$ || 0).sections || 0);
             if (sections && 'triggerInitialContinuations' in sections) {
-              Promise.resolve(sections).then((sections)=>{
+              Promise.resolve(sections).then((sections) => {
                 sections.triggerInitialContinuations();
-              }).catch(()=>{});
+              }).catch(() => { });
               // console.log('sections.triggerInitialContinuations'); 
               //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
             }
+
+            checkCommentCountCorrectness.call(this, data)
+
           }
           hostElement.dispatchEvent(new CustomEvent('ytd-comments-data-changed', { detail: { hasData } }));
         }
@@ -2804,11 +2841,19 @@ function injection_script_1() {
         cProto.headerChanged_ = function () {
           const cnt = this;
           const hostElement = this.hostElement || this;
+          const data = ((cnt.__data || 0).data || 0);
+          if (data) {
+
+            checkCommentCountCorrectness.call(this, data);
+            // console.log(311, data.contents.length, data.header)
+
+          }
+
           cnt.tytHeaderChanged_();
           hostElement.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+
         }
       }
-
 
     });
 

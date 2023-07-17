@@ -7556,6 +7556,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (hasData === false) {
       // this is much effective to clear the counting text
       emptyCommentSection();
+    } else {
+      // force refresh count dom
+      if (fetchCounts.fetched) {
+        fetchCounts.fetched = false;
+      }
     }
     innerDOMCommentsCountLoader(true);
     checkAndMakeNewCommentFetch();
