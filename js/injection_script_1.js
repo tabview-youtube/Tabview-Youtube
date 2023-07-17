@@ -2551,6 +2551,15 @@ function injection_script_1() {
 
   }
 
+  function fixSrc(src) {
+    // cause of bug: unknown
+    let m = /(^[\S]+)continuation=([\w]{120,})(\%3D|\%253D)\2(\%3D|\%253D)(&[\S]*|$)/.exec(src);
+    if (m) {
+      src = `${m[1]}continuation=${m[2]}&${m[5]}`;
+    }
+    return src;
+  }
+
   function ceHackExecution() {
 
     // handled by customYtElements
@@ -2700,20 +2709,21 @@ function injection_script_1() {
             if (chatframe) {
               let src = chatframe.getAttribute('src');
               let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
+              nSrc = fixSrc(nSrc);
               if (nSrc !== src) {
-                nSrc = nSrc.replace(/&\d+$/, '') + '&' + Date.now();
+                nSrc = nSrc.replace(/\&\d+$/, '') + '&' + Date.now();
                 Promise.resolve().then(() => {
-                  try{
+                  try {
                     chatframe.contentWindow.stop();
-                  }catch(e){}
+                  } catch (e) { }
                   chatframe.setAttribute('src', 'about:blank');
-                  try{
+                  try {
                     chatframe.contentWindow.stop();
-                  }catch(e){}
+                  } catch (e) { }
                 }).then(() => {
-                  try{
+                  try {
                     chatframe.contentWindow.stop();
-                  }catch(e){}
+                  } catch (e) { }
                   chatframe.setAttribute('src', nSrc);
                 });
                 console.debug('[tyt] replaced chat url');
@@ -3035,19 +3045,20 @@ function injection_script_1() {
             let k = m[4];
             let nSrc;
             let td = Date.now();
-            if (k) nSrc = src.replace(k, '&' + td); else nSrc = src + '&' + td;
+            nSrc = fixSrc(src);
+            if (k) nSrc = nSrc.replace(k, '&' + td); else nSrc = nSrc + '&' + td;
             Promise.resolve().then(() => {
-              try{
+              try {
                 chatframe.contentWindow.stop();
-              }catch(e){}
+              } catch (e) { }
               chatframe.setAttribute('src', 'about:blank');
-              try{
+              try {
                 chatframe.contentWindow.stop();
-              }catch(e){}
+              } catch (e) { }
             }).then(() => {
-              try{
+              try {
                 chatframe.contentWindow.stop();
-              }catch(e){}
+              } catch (e) { }
               chatframe.setAttribute('src', nSrc);
             });
             console.debug('[tyt] chat __forceChatRender2__')
