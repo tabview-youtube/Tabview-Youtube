@@ -1704,7 +1704,7 @@ body .ytp-autohide .ytp-unmute,
             user-select: none;
             touch-action: none;
             pointer-events: none;
-            transform: translateZ(1px);
+            /* transform: translateZ(1px); */
         }
 
         @supports not (contain: layout size style) {
