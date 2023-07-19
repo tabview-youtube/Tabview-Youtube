@@ -2554,7 +2554,7 @@ function injection_script_1() {
   function fixSrc(src) {
     // cause of bug: unknown
     if (src && src.length > 253) {
-      let m = /(^[^\s\%]+)continuation=([\w\-]{120,})(\%3D|\%253D)\2(\%3D|\%253D)(&[^\s\%]*|$)/.exec(src);
+      let m = /(^[^\s\%]+)continuation=([\w\-]{120,})(\%3D|\%253D)+\2(\%3D|\%253D)+(&[^\s\%]*|$)/.exec(src);
       if (m) {
         src = `${m[1]}continuation=${m[2]}&${m[5]}`;
       }
