@@ -4776,6 +4776,9 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
             contain: layout size; 
         }
 
+        .ytp-spinner {
+            contain: layout style;
+        }
 
     }
 
