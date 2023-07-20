@@ -667,29 +667,33 @@ SOFTWARE.
 
   const timeline = {
     // after initialized (initObserver)
-    cn1: {},
-    cn2: {},
+    cn1: new Set(),
+    cn2: new Set(),
     setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d) {
-      let cid = setTimeout(f, d)
-      timeline.cn1[cid] = true
+      let cid = setTimeout(f, d);
+      timeline.cn1.add(cid);
       return cid;
     },
     clearTimeout(/** @type {number} */ cid) {
-      timeline.cn1[cid] = false; return clearTimeout(cid)
+      cid = +cid;
+      timeline.cn1.remove(cid);
+      return clearTimeout(cid);
     },
     setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d) {
       let cid = setInterval(f, d);
-      timeline.cn2[cid] = true
+      timeline.cn2.add(cid);
       return cid;
     },
     clearInterval(/** @type {number} */ cid) {
-      timeline.cn2[cid] = false; return clearInterval(cid)
+      cid = +cid;
+      timeline.cn2.remove(cid);
+      return clearInterval(cid);
     },
     reset() {
-      for (let cid in timeline.cn1) timeline.cn1[cid] && clearTimeout(cid)
-      for (let cid in timeline.cn2) timeline.cn2[cid] && clearInterval(cid)
-      timeline.cn1 = {}
-      timeline.cn2 = {}
+      timeline.cn1.forEach(clearTimeout);
+      timeline.cn2.forEach(clearInterval);
+      timeline.cn1.clear();
+      timeline.cn2.clear();
     }
   }
 
