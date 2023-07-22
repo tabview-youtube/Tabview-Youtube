@@ -71,6 +71,13 @@
 
 }
 
+@supports (background: -webkit-named-image(i)) {
+    /* safari only */
+    #player #cinematics.ytd-watch-flexy {
+        display: none
+    }
+}
+
 @supports (color: var(--performance-hack)){
 
     ytd-watch-flexy[video-id] #columns {
