@@ -5549,3 +5549,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 }
+
+@supports (color: var(--no-backdrop-filter-when-menu-shown)){
+    html.tabview-normal-player tp-yt-iron-dropdown.ytd-popup-container ytd-menu-popup-renderer {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
