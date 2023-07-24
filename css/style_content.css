@@ -4307,33 +4307,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
-    @supports (color: var(--disable-ytd-will-change-optimization)) {
-
-        /* remove YouTube constant will-change */
-        body .yt-spec-touch-feedback-shape__fill,
-        body .yt-spec-touch-feedback-shape__stroke,
-        body tp-yt-iron-list,
-        body #items.tp-yt-iron-list>*,
-        body #onRadio.tp-yt-paper-radio-button,
-        body .toggle-button.tp-yt-paper-toggle-button,
-        body .fill.yt-interaction,
-        body .stroke.yt-interaction,
-        body #items.ytd-post-multi-image-renderer,
-        body #items.ytd-horizontal-card-list-renderer,
-        body #items.yt-horizontal-list-renderer,
-        body #left-arrow.yt-horizontal-list-renderer,
-        body #right-arrow.yt-horizontal-list-renderer,
-        body #items.ytd-video-description-music-section-renderer,
-        body #chips.yt-chip-cloud-renderer,
-        body #items.ytd-merch-shelf-renderer,
-        body #items.ytd-product-details-image-carousel-renderer,
-        body #chips.ytd-feed-filter-chip-bar-renderer,
-        ytd-miniplayer[enabled] {
-            will-change: auto;
-            /* constant value will slow down the performance; default auto */
-        }
-    }
-
     @supports (color: var(--super-title-better-color)) {
 
         /* 2022/11/09 added coloring css to make the super title looks better */
@@ -5506,13 +5479,62 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 }
 
-@supports (color: var(--anti-css-or-hardcoded-will-change)){
-    .ytp-contextmenu[class],
-    .toggle-button.tp-yt-paper-toggle-button[class],
-    .yt-spec-touch-feedback-shape__fill[class],
-    .fill.yt-interaction[class],
+@supports (color: var(--disable-ytd-will-change-optimization)) {
+
+    /* remove YouTube constant will-change */
+    /* constant value will slow down the performance; default auto */
+
+    /* www-player.css */
+    html .ytp-contextmenu,
+    html .ytp-settings-menu {
+        will-change: unset;
+    }
+
+    /* live_chat_polymer.js */
+    html .toggle-button.tp-yt-paper-toggle-button,
+    html #primaryProgress.tp-yt-paper-progress,#secondaryProgress.tp-yt-paper-progress,
+    html #onRadio.tp-yt-paper-radio-button,
+    html .fill.yt-interaction,
+    html .stroke.yt-interaction,
+    html .yt-spec-touch-feedback-shape__fill,
+    html .yt-spec-touch-feedback-shape__stroke {
+        will-change: unset;
+    }
+
+    /* desktop_polymer_enable_wil_icons.js */
+    html .fill.yt-interaction,
+    html .stroke.yt-interaction,
+    html tp-yt-app-header::before,
+    html tp-yt-iron-list,
+    html #items.tp-yt-iron-list > *,
+    html #onRadio.tp-yt-paper-radio-button,
+    html .toggle-button.tp-yt-paper-toggle-button,
+    html ytd-thumbnail-overlay-toggle-button-renderer[use-expandable-tooltip] #label.ytd-thumbnail-overlay-toggle-button-renderer,
+    html #items.ytd-post-multi-image-renderer,
+    html #items.ytd-horizontal-card-list-renderer,
+    html #items.yt-horizontal-list-renderer,
+    html #left-arrow.yt-horizontal-list-renderer,
+    html #right-arrow.yt-horizontal-list-renderer,
+    html #items.ytd-video-description-infocards-section-renderer,
+    html #items.ytd-video-description-music-section-renderer,
+    html #chips.ytd-feed-filter-chip-bar-renderer,
+    html #chips.yt-chip-cloud-renderer,
+    html #items.ytd-merch-shelf-renderer,
+    html #items.ytd-product-details-image-carousel-renderer,
+    html ytd-video-preview,
+    html #player-container.ytd-video-preview,
+    html #primaryProgress.tp-yt-paper-progress,
+    html #secondaryProgress.tp-yt-paper-progress,
+    html ytd-miniplayer[enabled],
+    html .yt-spec-touch-feedback-shape__fill,
+    html .yt-spec-touch-feedback-shape__stroke {
+        will-change: unset;
+    }
+
+    /* other */
     .ytp-videowall-still-info-content[class],
     .ytp-suggestion-image[class] {
-      will-change: unset !important;
+        will-change: unset !important;
     }
+
 }
