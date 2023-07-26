@@ -4469,16 +4469,6 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
         /* contain 321 */
 
-        #tab-comments ytd-comments,
-        #tab-comments ytd-item-section-renderer,
-        #tab-comments #contents,
-        ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos],
-        ytd-watch-flexy[is-two-columns_] #tab-videos ytd-watch-next-secondary-results-renderer,
-        ytd-watch-flexy[is-two-columns_] #tab-videos #items {
-            contain: layout paint style;
-            /* experimental */
-        }
-
         ytd-watch-flexy #material-tabs,
         ytd-watch-flexy #material-tabs .tab-btn {
             contain: layout;
