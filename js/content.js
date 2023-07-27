@@ -4069,213 +4069,305 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  const { removeDuplicateInfoFn, setHiddenStateForDesc, checkDuplicatedInfo_then } = (() => {
 
-  let g_check_detail_A = 0;
-  let checkDuplicateRes = null;
-  function setHiddenStateForDesc() {
-    let ytdFlexyElm = es.ytdFlexy
-    if (!ytdFlexyElm) return
-    let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
-    let elm
-    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #plain-snippet-text')
-    if (elm) {
-      wAttr(elm, 'hidden', hiddenBool)
-    }
-    elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #formatted-snippet-text')
-    if (elm) {
-      wAttr(elm, 'hidden', hiddenBool)
-    }
-  }
-  function checkDuplicatedInfo_then(isCheck, checkDuplicateRes) {
-
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!ytdFlexyElm) return; //unlikely
-
-    let cssbool_c1 = false, cssbool_c2 = false;
-    if (isCheck === 5) {
-
-      if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
-        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
-        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+    let g_check_detail_A = 0;
+    let checkDuplicateRes = null;
+    function setHiddenStateForDesc() {
+      let ytdFlexyElm = es.ytdFlexy
+      if (!ytdFlexyElm) return
+      let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
+      let elm
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #plain-snippet-text')
+      if (elm) {
+        wAttr(elm, 'hidden', hiddenBool)
       }
-
-      if (typeof checkDuplicateRes === 'boolean') {
-        setHiddenStateForDesc();
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #formatted-snippet-text')
+      if (elm) {
+        wAttr(elm, 'hidden', hiddenBool)
       }
     }
+    function checkDuplicatedInfo_then(isCheck, checkDuplicateRes) {
 
-    ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}`);
+      const ytdFlexyElm = es.ytdFlexy;
+      if (!ytdFlexyElm) return; //unlikely
 
-  }
+      let cssbool_c1 = false, cssbool_c2 = false;
+      if (isCheck === 5) {
 
+        if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
+          cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+          cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
+        }
 
+        if (typeof checkDuplicateRes === 'boolean') {
+          setHiddenStateForDesc();
+        }
+      }
 
-  async function checkDuplicatedInfoMay2023() {
-    const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
-    const secondElementSelector = "#tab-info ytd-expander #description";
+      ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}`);
 
-    const firstElement = document.querySelector(firstElementSelector);
-    const secondElement = document.querySelector(secondElementSelector);
-
-    if (!firstElement || !secondElement) return false;
-    if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
-
-    const asyncGetContent = async (n) => {
-      return n.textContent;
     }
 
-    const getTextContentArr = async (element) => {
-      let contentArray = [];
+    async function checkDuplicatedInfoMay2023() {
+      const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+      const secondElementSelector = "#tab-info ytd-expander #description";
 
-      for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
+      const firstElement = document.querySelector(firstElementSelector);
+      const secondElement = document.querySelector(secondElementSelector);
 
-        if (currentNode.nodeType === Node.ELEMENT_NODE) {
-          if (currentNode.hasAttribute("hidden")) {
-            continue;
-          }
-          if (currentNode.id === "snippet") {
-            let allHidden = true;
-            for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
-              if (child.hasAttribute("hidden")) {
-                continue;
-              }
-              let trimmedTextContent = await asyncGetContent(child);
-              trimmedTextContent = trimmedTextContent.trim();
-              if (trimmedTextContent.length === 0) continue;
-              allHidden = false;
-              break;
-            }
-            if (allHidden) {
+      if (!firstElement || !secondElement) return false;
+      if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
+
+      const asyncGetContent = async (n) => {
+        return n.textContent;
+      }
+
+      const getTextContentArr = async (element) => {
+        let contentArray = [];
+
+        for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
+
+          if (currentNode.nodeType === Node.ELEMENT_NODE) {
+            if (currentNode.hasAttribute("hidden")) {
               continue;
             }
-          }
+            if (currentNode.id === "snippet") {
+              let allHidden = true;
+              for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
+                if (child.hasAttribute("hidden")) {
+                  continue;
+                }
+                let trimmedTextContent = await asyncGetContent(child);
+                trimmedTextContent = trimmedTextContent.trim();
+                if (trimmedTextContent.length === 0) continue;
+                allHidden = false;
+                break;
+              }
+              if (allHidden) {
+                continue;
+              }
+            }
 
-          if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
-            // break;
+            if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
+              // break;
+              continue;
+            }
+
+
+          } else if (currentNode.nodeType === Node.TEXT_NODE) {
+          } else {
             continue;
           }
 
+          let trimmedTextContent = await asyncGetContent(currentNode);
+          trimmedTextContent = trimmedTextContent.trim();
+          if (trimmedTextContent.length > 0) {
+            trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
+            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
+            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
+            contentArray.push(trimmedTextContent);
+          }
 
-        } else if (currentNode.nodeType === Node.TEXT_NODE) {
-        } else {
-          continue;
         }
 
-        let trimmedTextContent = await asyncGetContent(currentNode);
-        trimmedTextContent = trimmedTextContent.trim();
-        if (trimmedTextContent.length > 0) {
-          trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
-          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
-          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-          contentArray.push(trimmedTextContent);
-        }
+        return contentArray;
+      };
 
+      const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
+
+      function isSubset(arr1, arr2) {
+        const set = new Set(arr2);
+        const r = arr1.every(item => set.has(item));
+        set.clear();
+        return r;
       }
 
-      return contentArray;
-    };
-
-    const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
-
-    function isSubset(arr1, arr2) {
-      const set = new Set(arr2);
-      const r = arr1.every(item => set.has(item));
-      set.clear();
-      return r;
+      return isSubset(firstElementTextArr, secondElementTextArr);
     }
 
-    return isSubset(firstElementTextArr, secondElementTextArr);
-  }
+    async function checkDuplicatedInfo() {
+
+      const ytdFlexyElm = es.ytdFlexy;
+      if (!ytdFlexyElm) return; //unlikely
+
+      const targetDuplicatedInfoPanel = document.querySelector('ytd-text-inline-expander#description-inline-expander:not([hidden])');
+      if (targetDuplicatedInfoPanel && !targetDuplicatedInfoPanel.closest('[hidden]')) { } else {
+        return; // the layout is not required to have this checking.
+      }
+
+      let t = Date.now();
+      g_check_detail_A = t;
+
+      ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
+      let infoDuplicated = false;
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
 
 
+        if (g_check_detail_A !== t) return;
 
 
-
-  async function checkDuplicatedInfo() {
-
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!ytdFlexyElm) return; //unlikely
-
-    const targetDuplicatedInfoPanel = document.querySelector('ytd-text-inline-expander#description-inline-expander:not([hidden])');
-    if (targetDuplicatedInfoPanel && !targetDuplicatedInfoPanel.closest('[hidden]')) { } else {
-      return; // the layout is not required to have this checking.
-    }
-
-    let t = Date.now();
-    g_check_detail_A = t;
-
-    ytdFlexyElm.classList.toggle('tabview-info-duplicated', true) // hide first;
-    let infoDuplicated = false;
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
-
-
-      if (g_check_detail_A !== t) return;
-
-
-      let clicked = false;
-      await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
-        return Promise.resolve().then(() => {
-          button.click();
-          clicked = true;
-        });
-      }));
-
-      await Promise.resolve(0);
-
-      infoDuplicated = await checkDuplicatedInfoMay2023();
-
-      if (infoDuplicated === false && clicked) {
-
-        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
+        let clicked = false;
+        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
           return Promise.resolve().then(() => {
             button.click();
+            clicked = true;
           });
         }));
 
+        await Promise.resolve(0);
+
+        infoDuplicated = await checkDuplicatedInfoMay2023();
+
+        if (infoDuplicated === false && clicked) {
+
+          await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
+            return Promise.resolve().then(() => {
+              button.click();
+            });
+          }));
+
+        }
+
+      } catch (e) {
+
+        ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
       }
 
-    } catch (e) {
+      console.debug('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
 
-      ytdFlexyElm.classList.toggle('tabview-info-duplicated', false) // error => unhide
-    }
+      if (g_check_detail_A !== t) return;
 
-    console.debug('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
+      //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
+      checkDuplicateRes = infoDuplicated;
 
-    if (g_check_detail_A !== t) return;
+      return 5; // other than 5, duplicated check = false
 
-    //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
-    checkDuplicateRes = infoDuplicated;
+    };
 
-    return 5; // other than 5, duplicated check = false
+    const removeDuplicateInfoFn = () => {
 
-  };
+      checkDuplicateRes = null;
+      async function alCheckFn(ks) {
 
-  /** @type {MutationObserver | null} */
-  // let liveChatFrameMutObserver = null;
+        let alCheckCount = 4;
+        let alCheckInterval = 270;
+
+        checkDuplicateRes = null;
+        let descExpandState = null;
+        let descMetaExpander = closestDOMX(document.querySelector('ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
+        let descToggleBtn = null;
+        let descMetaLines = null;
+        if (descMetaExpander) {
+
+          // ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata
+          descMetaLines = querySelectorFromAnchor.call(descMetaExpander, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata')
+          if (descMetaLines) {
+
+            descToggleBtn = querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
+            if (descToggleBtn) {
+              if (descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id === 'expand') {
+                descExpandState = false;
+              } else if (!descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id === 'collapse') {
+                descExpandState = true;
+              }
+            }
+          }
+
+        }
+        if (descMetaExpander) {
+          descMetaExpander.classList.add('tyt-tmp-hide-metainfo');
+        }
+
+        try {
 
 
-  // setupChatFrameDOM (v2) - added in 2023.07.06 to replace the v1 to a simple version
-  /*
-  function setupChatFrameDOM() {
 
-    let liveChatFrame = document.querySelector('ytd-watch-flexy:not([hidden]) ytd-live-chat-frame#chat:not([hidden])');
-    if (liveChatFrame) {
-      if (!liveChatFrameMutObserver) {
-        liveChatFrameMutObserver = new MutationObserver(() => {
-          FP.mtf_attrChatroom()
-        });
+          do {
+
+            if (renderIdentifier !== ks) break;
+            if (alCheckCount === 0) break;
+            if (checkDuplicateRes === true) break;
+            checkDuplicateRes = null;
+
+            let res = await checkDuplicatedInfo(); //async
+            if (res === 5) {
+
+              const ytdFlexyElm = es.ytdFlexy;
+              if (ytdFlexyElm) {
+                if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
+                  ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
+                  ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
+                  checkDuplicatedInfo_then(res, checkDuplicateRes);
+                }
+              }
+
+            }
+            --alCheckCount;
+
+            if (checkDuplicateRes === true) break;
+
+            await new Promise(r => setTimeout(r, alCheckInterval));
+
+          } while (true)
+
+          await Promise.resolve(0)
+
+          descToggleBtn = descMetaLines ? querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])') : null;
+          if (descToggleBtn) {
+
+            let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
+            let id = descToggleBtn.id
+            let b1 = descExpandState === true && isCollapsed && id === 'expand';
+            let b2 = descExpandState === false && !isCollapsed && id === 'collapse';
+
+            if (b1 || b2) {
+              descToggleBtn.click();
+            }
+
+          }
+
+
+
+
+        } catch (e) {
+
+          console.warn(e)
+
+        }
+
+        if (descMetaExpander) {
+          descMetaExpander.classList.remove('tyt-tmp-hide-metainfo');
+
+          await Promise.resolve(0)
+
+          let detailsIntersectioner = querySelectorFromAnchor.call(descMetaExpander, '#info-container.style-scope.ytd-watch-metadata');
+          if (detailsIntersectioner) {
+            Promise.resolve(detailsIntersectioner).then(detailsIntersectioner => {
+              let dom = detailsIntersectioner;
+              if (dom) mtoObservationDetails.bindElement(dom);
+            })
+          }
+
+        }
+
+
+
       }
-      liveChatFrameMutObserver.observe(liveChatFrame, {
-        attributeFilter: ['collapsed']
+      let ks = renderIdentifier;
+      renderDeferred.debounce(() => {
+        if (ks !== renderIdentifier) return
+        alCheckFn(ks);
+
       });
-      FP.mtf_attrChatroom();
     }
 
+    return { removeDuplicateInfoFn, setHiddenStateForDesc, checkDuplicatedInfo_then };
 
-  }
-  */
+  })();
+
 
   // setupChatFrameDOM (v1) - removed in 2023.07.06 since it is buggy for page changing. subject to further review
   function setupChatFrameDOM(node) {
@@ -4657,6 +4749,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     });
 
+    if (REMOVE_DUPLICATE_INFO) {
+
+      handleDOMAppear('deferredDuplicatedMetaChecker', (evt) => {
+
+        removeDuplicateInfoFn();
+
+      });
+
+    }
 
     globalHook('yt-page-data-updated', (evt) => {
 
@@ -4704,120 +4805,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (REMOVE_DUPLICATE_INFO) {
 
-
-          checkDuplicateRes = null;
-          async function alCheckFn(ks) {
-
-            let alCheckCount = 4;
-            let alCheckInterval = 270;
-
-            checkDuplicateRes = null;
-            let descExpandState = null;
-            let descMetaExpander = closestDOMX(document.querySelector('ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
-            let descToggleBtn = null;
-            let descMetaLines = null;
-            if (descMetaExpander) {
-
-              // ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata
-              descMetaLines = querySelectorFromAnchor.call(descMetaExpander, 'ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata')
-              if (descMetaLines) {
-
-                descToggleBtn = querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
-                if (descToggleBtn) {
-                  if (descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id === 'expand') {
-                    descExpandState = false;
-                  } else if (!descMetaExpander.hasAttribute('description-collapsed') && descToggleBtn.id === 'collapse') {
-                    descExpandState = true;
-                  }
-                }
-              }
-
-            }
-            if (descMetaExpander) {
-              descMetaExpander.classList.add('tyt-tmp-hide-metainfo');
-            }
-
-            try {
-
-
-
-              do {
-
-                if (renderIdentifier !== ks) break;
-                if (alCheckCount === 0) break;
-                if (checkDuplicateRes === true) break;
-                checkDuplicateRes = null;
-
-                let res = await checkDuplicatedInfo(); //async
-                if (res === 5) {
-
-                  const ytdFlexyElm = es.ytdFlexy;
-                  if (ytdFlexyElm) {
-                    if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
-                      ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
-                      ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
-                      checkDuplicatedInfo_then(res, checkDuplicateRes);
-                    }
-                  }
-
-                }
-                --alCheckCount;
-
-                if (checkDuplicateRes === true) break;
-
-                await new Promise(r => setTimeout(r, alCheckInterval));
-
-              } while (true)
-
-              await Promise.resolve(0)
-
-              descToggleBtn = descMetaLines ? querySelectorFromAnchor.call(descMetaLines, '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])') : null;
-              if (descToggleBtn) {
-
-                let isCollapsed = descMetaExpander.hasAttribute('description-collapsed')
-                let id = descToggleBtn.id
-                let b1 = descExpandState === true && isCollapsed && id === 'expand';
-                let b2 = descExpandState === false && !isCollapsed && id === 'collapse';
-
-                if (b1 || b2) {
-                  descToggleBtn.click();
-                }
-
-              }
-
-
-
-
-            } catch (e) {
-
-              console.warn(e)
-
-            }
-
-            if (descMetaExpander) {
-              descMetaExpander.classList.remove('tyt-tmp-hide-metainfo');
-
-              await Promise.resolve(0)
-
-              let detailsIntersectioner = querySelectorFromAnchor.call(descMetaExpander, '#info-container.style-scope.ytd-watch-metadata');
-              if (detailsIntersectioner) {
-                Promise.resolve(detailsIntersectioner).then(detailsIntersectioner => {
-                  let dom = detailsIntersectioner;
-                  if (dom) mtoObservationDetails.bindElement(dom);
-                })
-              }
-
-            }
-
-
-
-          }
-          let ks = renderIdentifier;
-          renderDeferred.debounce(() => {
-            if (ks !== renderIdentifier) return
-            alCheckFn(ks);
-
-          });
+          // removeDuplicateInfoFn();
 
         } else {
 
