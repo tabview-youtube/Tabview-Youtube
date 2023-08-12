@@ -4907,7 +4907,8 @@ rcb(b) => a = playlistId = undefinded
       if (!br.overrides || br.overrides.style) br.overrides = {}
       dsMgr.onVisibilityChanged();
     },
-    onDSAppended(donationShelf) {
+    onDSAppended(cnt) {
+      const donationShelf = (cnt || 0).hostElement || cnt || null;
       if (!donationShelf) return;
 
       let buttons = document.querySelector('div#buttons.ytd-masthead');
@@ -5191,10 +5192,11 @@ rcb(b) => a = playlistId = undefinded
       dsMgr.onVisibilityChanged();
 
     },
-    async triggerDOMAppearWhenDataChanged(ds) {
+    async triggerDOMAppearWhenDataChanged(cnt) {
 
       await Promise.resolve(0);
-      let videoId = ((ds || 0).data || 0).videoId || 0;
+      const ds = (cnt || 0).hostElement || cnt || null;
+      let videoId = ((cnt || 0).data || 0).videoId || 0;
       if (!videoId) return;
       let lastDSVideo = dsMgr._lastDSVideo;
       if (lastDSVideo === videoId) {
@@ -5203,12 +5205,12 @@ rcb(b) => a = playlistId = undefinded
       dsMgr._lastDSVideo = videoId;
       if (typeof videoId === 'string') {
         // note: this will not work for video with donation section -> switching to normal video -> switching back to this.
-        ds.disconnectedCallback(); // native bug - switch between two campaign videos -> donation money flashing
+        cnt.disconnectedCallback(); // native bug - switch between two campaign videos -> donation money flashing
         dsMgr._dsToggleButtonRenderer.i8KBd = 1;
         ds.classList.remove('tyt-hidden');
         HTMLElement.prototype.removeAttribute.call(ds, 'swVq2');
         await Promise.resolve(0);
-        ds.connectedCallback();
+        cnt.connectedCallback();
 
         Promise.resolve(ds).then((ds) => {
           dsMgr.setVisibility({
@@ -5236,14 +5238,15 @@ rcb(b) => a = playlistId = undefinded
       // html[tabview-unwrapjs="1"] ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty):not([swVq2="1"])
       const target = (evt || 0).target || 0;
       if (target.nodeType !== 1) return;
-      dsMgr._lastDSVideo = (((target || 0).data || 0).videoId || 0); // avoid double calling triggerDOMAppearWhenDataChanged
+      const cnt = target.inst || target;
+      dsMgr._lastDSVideo = (((cnt || 0).data || 0).videoId || 0); // avoid double calling triggerDOMAppearWhenDataChanged
       HTMLElement.prototype.setAttribute.call(target, 'swVq2', '1')
-      dsMgr.onDSAppended(target);
-      if (typeof target.dataChangedM !== 'function' && typeof target.dataChanged === 'function') {
-        target.dataChangedM = target.dataChanged
-        if (typeof target.updateStylesM !== 'function' && typeof target.updateStyles === 'function') {
-          target.updateStylesM = target.updateStyles
-          target.updateStyles = function (c) {
+      dsMgr.onDSAppended(cnt);
+      if (typeof cnt.dataChangedM !== 'function' && typeof cnt.dataChanged === 'function') {
+        cnt.dataChangedM = cnt.dataChanged
+        if (typeof cnt.updateStylesM !== 'function' && typeof cnt.updateStyles === 'function') {
+          cnt.updateStylesM = cnt.updateStyles
+          cnt.updateStyles = function (c) {
             let data = null;
             if (this.isAttached === true) {
               data = this.data;
@@ -5257,9 +5260,9 @@ rcb(b) => a = playlistId = undefinded
             else { return this.updateStylesM.apply(this, arguments) }
           }
         }
-        target.dataChanged = function () {
+        cnt.dataChanged = function () {
           dsMgr.triggerDOMAppearWhenDataChanged(this);
-          return this.dataChangedM();
+          return cnt.dataChangedM();
         }
       }
     }
