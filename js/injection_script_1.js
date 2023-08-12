@@ -363,8 +363,9 @@ function injection_script_1() {
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
       if (chat === null) {
-        if (this.elmChat && this.elmChat.disconnectedCallback && this.elmChat.isAttached === true) {
-          this.elmChat.disconnectedCallback();
+        const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
+        if (elmChatCnt && elmChatCnt.disconnectedCallback && elmChatCnt.isAttached === true) {
+          elmChatCnt.disconnectedCallback();
           // console.log('aa', this.elmChat.isAttached)
         }
         this.elmChat = null;
@@ -392,9 +393,10 @@ function injection_script_1() {
 
 
         this.elmChat = chat;
-        if (this.elmChat && this.elmChat.connectedCallback && this.elmChat.isAttached === false) {
+        const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
+        if (elmChatCnt && elmChatCnt.connectedCallback && elmChatCnt.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
-          this.elmChat.connectedCallback();
+          elmChatCnt.connectedCallback();
           this.initialFetchReq = 21;
         }
 
@@ -1445,9 +1447,10 @@ function injection_script_1() {
     }
 
 
-    checkChatNativeReady(chat) {
-      if (chat.isAttached === false) return false;
-      if ('isFrameReady' in chat && chat.isFrameReady !== true) return false
+    checkChatNativeReady(chatCnt) {
+      // this = controller
+      if (chatCnt.isAttached === false) return false;
+      if ('isFrameReady' in chatCnt && chatCnt.isFrameReady !== true) return false
       // this.isListeningForPlayerProgress is no longer applicable
       return true;
     }
@@ -1470,6 +1473,7 @@ function injection_script_1() {
       document.addEventListener('tabview-chatroom-newpage', ytLivePU.handlerChatRoomNewPage, true);
 
       const g_postToContentWindow = async function () {
+        // this = controller
 
         try {
           // console.log(6223, arguments)
@@ -2249,7 +2253,7 @@ function injection_script_1() {
       ytLivePU.postI++;
 
       let ds = document.querySelector('ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)')
-      if (ds && ds.isAttached === true) {
+      if (ds && (ds.inst || ds).isAttached === true) {
       } else {
         dsMgr._lastDSVideo = null; // for next video page
       }
@@ -2933,7 +2937,7 @@ function injection_script_1() {
         renderStore.set(hostElement, $requestAnimationFrame(() => {
           renderStore.set(hostElement, 0);
 
-          if (hostElement.hidden !== true && hostElement.isAttached === true && hostElement.isConnected === true) {
+          if (cnt.hidden !== true && cnt.isAttached === true && hostElement.isConnected === true) {
 
             cnt[keyB]();
           }
@@ -4801,13 +4805,13 @@ rcb(b) => a = playlistId = undefinded
   }
 
 
-  function detachedFunc(elm, f) {
+  function detachedFunc(cnt, f) {
 
-    if (!elm.detacheds) {
-      elm.detacheds = []
-      if (typeof elm.detached !== 'function') console.warn('elm.detached is not a function.')
-      elm._detached_original = elm.detached
-      elm.detached = function () {
+    if (!cnt.detacheds) {
+      cnt.detacheds = []
+      if (typeof cnt.detached !== 'function') console.warn('cnt.detached is not a function.')
+      cnt._detached_original = cnt.detached
+      cnt.detached = function () {
         let ret = this._detached_original();
         try {
           for (const s of this.detacheds) s(this);
@@ -4817,7 +4821,7 @@ rcb(b) => a = playlistId = undefinded
         return ret;
       }
     }
-    elm.detacheds.push(f)
+    cnt.detacheds.push(f)
 
   }
 
@@ -4858,11 +4862,13 @@ rcb(b) => a = playlistId = undefinded
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
       // let updateIcon = false
       if (ytdFlexyElm) {
-        let shelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-        let currentVisibile = shelf && shelf.isAttached === true && !shelf.classList.contains('tyt-hidden') && !shelf.hasAttribute('hidden')
+        const shelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
+        const shelfCnt = shelfElm.inst || shelfElm;
+        
+        let currentVisibile = shelfElm && shelfCnt && shelfCnt.isAttached === true && !shelfElm.classList.contains('tyt-hidden') && !shelfElm.hasAttribute('hidden')
         let tytAttr = ytdFlexyElm.hasAttribute('tyt-donation-shelf')
         if (currentVisibile) {
-          if (shelf.isCollapsed === true) shelf.isCollapsed = false // for shelf content
+          if (shelfCnt.isCollapsed === true) shelfCnt.isCollapsed = false // for shelf content
         }
         if ((currentVisibile === true) ^ (tytAttr === true)) {
           if (currentVisibile) ytdFlexyElm.setAttribute('tyt-donation-shelf', '');
@@ -4955,8 +4961,10 @@ rcb(b) => a = playlistId = undefinded
       let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelf) return;
 
-      if ((donationShelf.detacheds || 0).swVq2 !== 1) {
-        detachedFunc(donationShelf, (s) => {
+      const cnt = donationShelf.inst || donationShelf;
+
+      if ((cnt.detacheds || 0).swVq2 !== 1) {
+        detachedFunc(cnt, (s) => {
           Promise.resolve(s).then((s) => {
             if (s.isAttached === true) return;
             dsMgr._dsToggleButtonRenderer.i8KBd = 1;
@@ -4966,7 +4974,7 @@ rcb(b) => a = playlistId = undefinded
             dsMgr.onVisibilityChanged();
           })
         });
-        (donationShelf.detacheds || 0).swVq2 = 1;
+        (cnt.detacheds || 0).swVq2 = 1;
       }
 
       /** @type {object[]} */
@@ -5072,7 +5080,7 @@ rcb(b) => a = playlistId = undefinded
     removeToggleBtn(evt) {
 
       let donationShelf = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
-      if (donationShelf && donationShelf.isAttached === true) return;
+      if (donationShelf && (donationShelf.inst || donationShelf).isAttached === true) return;
 
 
       // console.log(4455)
@@ -5151,10 +5159,6 @@ rcb(b) => a = playlistId = undefinded
       }
 
       if (dBtn === false) {
-        // if the page is switched; the topbarButtons will be updated before the donation shelf is removed.
-        // if(donationShelf.isAttached === false) donationShelf.classList.remove('tyt-hidden');
-        // dsMgr._dsToggleButtonRenderer = {};
-        // dsMgr.onVisibilityChanged();
         return;
       }
 
