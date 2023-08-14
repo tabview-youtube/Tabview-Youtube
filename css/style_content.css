@@ -5385,6 +5385,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 }
 
+/*
 @supports (color: var(--experimental-playlist-grid-render-boost)) and (grid-template-columns: 100%) and (row-gap: 2px) {
 
     ytd-watch-next-secondary-results-renderer #contents.style-scope.ytd-item-section-renderer {
@@ -5407,6 +5408,7 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
     
 }
+*/
 
 @supports (color: var(--smaller-shorts-viewer-in-tab-for-arrow-display)) {
     #tab-videos ytd-watch-next-secondary-results-renderer.ytd-watch-flexy ytd-reel-shelf-renderer.ytd-item-section-renderer yt-horizontal-list-renderer.ytd-reel-shelf-renderer {
