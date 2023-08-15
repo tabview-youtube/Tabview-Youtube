@@ -396,6 +396,7 @@ SOFTWARE.
   let hiddenTabsByUserCSS = 0;
   let defaultTabByUserCSS = 0;
   let setupDefaultTabBtnSetting = null;
+  let isCommentsTabBtnHidden = false;
   
   let fetchCounts = {
     base: null,
@@ -2136,10 +2137,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
+  function setTabBtnVisible(tabBtn, toVisible) {
+    let doClassListChange = false;
+    if (tabBtn.getAttribute('tyt-tab-content') === '#tab-comments') {
+      isCommentsTabBtnHidden = !toVisible;
+      if ((hiddenTabsByUserCSS & 2) !== 2) {
+        doClassListChange = true;
+      }
+    } else {
+      doClassListChange = true;
+    }
+    if (doClassListChange) {
+      if (toVisible) {
+        tabBtn.classList.remove("tab-btn-hidden");
+      } else {
+        tabBtn.classList.add("tab-btn-hidden");
+      }
+    }
+  }
+
   function hideTabBtn(tabBtn) {
     //console.log('hideTabBtn', tabBtn)
     let isActiveBefore = tabBtn.classList.contains('active');
-    tabBtn.classList.add("tab-btn-hidden");
+    setTabBtnVisible(tabBtn, false);
     if (isActiveBefore) {
       setToActiveTab();
     }
@@ -3285,7 +3305,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     span.innerHTML = '';
 
     if (tabBtn) {
-      tabBtn.classList.remove("tab-btn-hidden")
+      setTabBtnVisible(tabBtn, true);
     }
 
     _console.log(2905)
@@ -3448,7 +3468,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           emptyCommentSection();
         }
         //_console.log(9360, 71);
-        tabBtn.classList.remove("tab-btn-hidden") //if contains
+        setTabBtnVisible(tabBtn, true); //if contains
 
       } else if (isCommentHidden) {
 
@@ -4523,13 +4543,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (val > -1 && val >= 0) {
       if (controllerId === 'tabviewTabsHideController') {
         hiddenTabsByUserCSS = val;
+
         let btn;
         btn = document.querySelector('[tyt-tab-content="#tab-info"]')
         if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 1) === 1));
+
         btn = document.querySelector('[tyt-tab-content="#tab-comments"]')
-        if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 2) === 2));
+        if (btn) {
+          if ((hiddenTabsByUserCSS & 2) === 2) {
+            btn.classList.toggle('tab-btn-hidden', true);
+          } else {
+            btn.classList.toggle('tab-btn-hidden', isCommentsTabBtnHidden);
+          }
+        }
         btn = document.querySelector('[tyt-tab-content="#tab-videos"]');
         if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 4) === 4));
+
+        let activeHiddenBtn = document.querySelector('[tyt-tab-content^="#"].active.tab-btn-hidden');
+        if (activeHiddenBtn) {
+          setToActiveTab();
+        }
+
       } else if (controllerId === 'tabviewDefaultTabController') {
         defaultTabByUserCSS = val;
         if (setupDefaultTabBtnSetting) setupDefaultTabBtnSetting();
@@ -7016,7 +7050,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (tabBtn) {
             emptyCommentSection();
             _console.log(9360, 74);
-            tabBtn.classList.remove("tab-btn-hidden")
+            setTabBtnVisible(tabBtn, true);
           } else {
             setCommentSection(0);
           }
@@ -7591,7 +7625,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               let myDefaultTab = store[key_default_tab];
               if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) {
               } else {
-                if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) return setDefaultTabTick(myDefaultTab);
+                if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]`)) return setDefaultTabTick(myDefaultTab);
               }
             }
             setDefaultTabTick(null);
