@@ -5583,3 +5583,10 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         box-sizing: border-box;
     }
 }
+
+@supports (color: var(--fix-native-bug-no-pre-wrap-for-video-info)){
+    /* see https://www.youtube.com/watch?v=qHtz9s3UXsM */
+    .yt-core-attributed-string.yt-core-attributed-string--white-space-pre-wrap span.yt-core-attributed-string--highlight-text-decorator > a.yt-core-attributed-string__link.yt-core-attributed-string__link--display-type.yt-core-attributed-string__link--call-to-action-color[href]{
+        white-space: initial;
+    }
+}
