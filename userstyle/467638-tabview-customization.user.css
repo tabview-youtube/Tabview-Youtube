@@ -1,6 +1,6 @@
 /* ==UserStyle==
 @name           Tabview Youtube Design Customization
-@version        0.2.0
+@version        0.2.1
 @namespace      github.com/cyfung1031
 @license        MIT
 @description    Change some designs in Tabview Youtube
@@ -19,7 +19,8 @@
 @var checkbox   round-live-chat-frame           "Round Live Chat Frame"                    0
 @var checkbox   hide-tab-info                   "Hide Tab - Info"                          0
 @var checkbox   hide-tab-comments               "Hide Tab - Comments"                      0
-@var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0                  
+@var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0   
+@var checkbox   no-red-line-for-single-tab      "No Red Line For Single Tab"               0                  
 ==/UserStyle== */
 
 keyFrameForTabviewTabsHideController(a, x)
@@ -66,16 +67,25 @@ keyFrameForTabviewTabsHideController(a, x)
         
     if hide-tab-info + hide-tab-comments + hide-tab-videos < 3 {
 
+        tki = 0
         if hide-tab-info {
             tyt-tabs-hide-config += 1
+            tki += 1
         }
         if hide-tab-comments {
             tyt-tabs-hide-config += 2
+            tki += 1
         }
         if hide-tab-videos {
             tyt-tabs-hide-config += 4
-        }   
+            tki += 1
+        }
 
+        if tki == 2 && no-red-line-for-single-tab {
+            body ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content].active {
+                border-bottom-color: transparent;
+            }
+        }
         
     }
 
