@@ -393,6 +393,10 @@ SOFTWARE.
   const STORE_key = 'userscript-tabview-settings';
   const key_default_tab = 'my-default-tab';
 
+  let hiddenTabsByUserCSS = 0;
+  let defaultTabByUserCSS = 0;
+  let setupDefaultTabBtnSetting = null;
+  
   let fetchCounts = {
     base: null,
     new: null,
@@ -3643,9 +3647,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     `.replace(/[\r\n]+/g, '');
 
     const str_tabs = [
-      `<a id="tab-btn1" tyt-di="q9Kjc" tyt-tab-content="#tab-info" class="tab-btn">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn3" tyt-di="q9Kjc" tyt-tab-content="#tab-comments" class="tab-btn">${svgElm(16, 16, 120, 120, svgComments)}<span id="tyt-cm-count"></span>${str1}${str_fbtns}</a>`,
-      `<a id="tab-btn4" tyt-di="q9Kjc" tyt-tab-content="#tab-videos" class="tab-btn">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn1" tyt-di="q9Kjc" tyt-tab-content="#tab-info" class="tab-btn${(hiddenTabsByUserCSS & 1) === 1 ? ' tab-btn-hidden' : ''}">${sTabBtnInfo}${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn3" tyt-di="q9Kjc" tyt-tab-content="#tab-comments" class="tab-btn${(hiddenTabsByUserCSS & 2) === 2 ? ' tab-btn-hidden' : ''}">${svgElm(16, 16, 120, 120, svgComments)}<span id="tyt-cm-count"></span>${str1}${str_fbtns}</a>`,
+      `<a id="tab-btn4" tyt-di="q9Kjc" tyt-tab-content="#tab-videos" class="tab-btn${(hiddenTabsByUserCSS & 4) === 4 ? ' tab-btn-hidden' : ''}">${sTabBtnVideos}${str1}${str_fbtns}</a>`,
       `<a id="tab-btn5" tyt-di="q9Kjc" tyt-tab-content="#tab-list" class="tab-btn tab-btn-hidden">${sTabBtnPlayList}${str1}${str_fbtns}</a>`
     ].join('');
 
@@ -4514,23 +4518,53 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   });
 
+  function tabviewControllerFn(controllerId, val) {
+    val = +val;
+    if (val > -1 && val >= 0) {
+      if (controllerId === 'tabviewTabsHideController') {
+        hiddenTabsByUserCSS = val;
+        let btn;
+        btn = document.querySelector('[tyt-tab-content="#tab-info"]')
+        if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 1) === 1));
+        btn = document.querySelector('[tyt-tab-content="#tab-comments"]')
+        if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 2) === 2));
+        btn = document.querySelector('[tyt-tab-content="#tab-videos"]');
+        if (btn) btn.classList.toggle('tab-btn-hidden', ((hiddenTabsByUserCSS & 4) === 4));
+      } else if (controllerId === 'tabviewDefaultTabController') {
+        defaultTabByUserCSS = val;
+        if (setupDefaultTabBtnSetting) setupDefaultTabBtnSetting();
+      }
+    }
+  }
+
+
+  /** @type {Map<string, Function>} */
+  let handleDOMAppearFN = new Map();
+  function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
+    if (handleDOMAppearFN.size === 0) {
+      document.addEventListener('animationstart', (evt) => {
+        const animationName = evt.animationName;
+        if (!animationName) return;
+        let idx = -1;
+        let func = handleDOMAppearFN.get(animationName);
+        if (func) func(evt);
+        else {
+          let idx = animationName.indexOf('Controller-');
+          if (idx > 0) {
+            let j = idx + 'Controller'.length;
+            tabviewControllerFn(animationName.substring(0, j), animationName.substring(j + 1));
+          }
+        }
+      }, capturePassive)
+    } else {
+      if (handleDOMAppearFN.has(fn)) return;
+    }
+    handleDOMAppearFN.set(fn, func);
+  }
+
   function ytMicroEventsInit() {
 
-    _console.log(902)
-
-    /** @type {Map<string, Function>} */
-    let handleDOMAppearFN = new Map();
-    function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
-      if (handleDOMAppearFN.size === 0) {
-        document.addEventListener('animationstart', (evt) => {
-          let func = handleDOMAppearFN.get(evt.animationName);
-          if (func) func(evt);
-        }, capturePassive)
-      } else {
-        if (handleDOMAppearFN.has(fn)) return;
-      }
-      handleDOMAppearFN.set(fn, func);
-    }
+    _console.log(902);
 
     handleDOMAppear('videosDOMAppended', function (evt) {
       videosDeferred.resolve();
@@ -5512,6 +5546,31 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
   }
+  
+  function convertDefaultTabFromTmpToFinal(myDefaultTab_tmp){
+    
+    let myDefaultTab_final = null
+    if (myDefaultTab_tmp && typeof myDefaultTab_tmp === 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) {
+      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
+    }
+
+    return myDefaultTab_final;
+  }
+
+  function getConfiguredDefaultTab(store) {
+    let myDefaultTab;
+    if (defaultTabByUserCSS === 1) {
+      myDefaultTab = '#tab-info';
+    } else if (defaultTabByUserCSS === 2) {
+      myDefaultTab = '#tab-comments';
+    } else if (defaultTabByUserCSS === 3) {
+      myDefaultTab = '#tab-videos';
+    } else {
+      store = store || getStore();
+      myDefaultTab = store[key_default_tab];
+    }
+    return myDefaultTab;
+  }
 
   function setupTabBtns() {
 
@@ -5570,7 +5629,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let dom = evt.target;
       if (!dom) return;
 
-
       let value = dom.classList.contains('font-size-plus') ? 1 : dom.classList.contains('font-size-minus') ? -1 : 0;
 
       let active_tab_content = closestDOM.call(dom, '[tyt-tab-content]').getAttribute('tyt-tab-content');
@@ -5584,47 +5642,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       else if (store[settingKey] > 10) store[settingKey] = 10.0;
       setStore(store);
 
-
       store = getStore();
       updateCSS_fontsize(store);
 
     }
 
-
-
-    function getDefaultTabBtnSetting(store) {
-
-      if (!store) return;
-      let myDefaultTab = store[key_default_tab];
-      if (!myDefaultTab || typeof myDefaultTab !== 'string' || !/^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab)) return;
-      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab}"]:not(.tab-btn-hidden)`)) settings.defaultTab = myDefaultTab;
-
+    function loadDefaultTabBtnSettingToMem(store) {
+      let myDefaultTab = getConfiguredDefaultTab(store);
+      myDefaultTab = myDefaultTab ? convertDefaultTabFromTmpToFinal(myDefaultTab) : null;
+      if (myDefaultTab) {
+        settings.defaultTab = myDefaultTab;
+      }
     }
 
     let store = getStore();
     updateCSS_fontsize(store);
-    getDefaultTabBtnSetting(store);
+    loadDefaultTabBtnSettingToMem(store);
+    setupDefaultTabBtnSetting = function () {
+      let myDefaultTab = getConfiguredDefaultTab();
+      myDefaultTab = myDefaultTab ? convertDefaultTabFromTmpToFinal(myDefaultTab) : null;
+      if (myDefaultTab) {
+        settings.defaultTab = myDefaultTab;
+      } else {
+        settings.defaultTab = SETTING_DEFAULT_TAB_0;
+      }
+    }
 
   }
 
-  function setMyDefaultTab(myDefaultTab_tmp) {
-
-    let myDefaultTab_final = null
-    if (myDefaultTab_tmp && typeof myDefaultTab_tmp === 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) {
-      if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
-    }
-
+  function setMyDefaultTab(myDefaultTab) {
+    myDefaultTab = convertDefaultTabFromTmpToFinal(myDefaultTab);
     let store = getStore();
-    if (myDefaultTab_final) {
-      store[key_default_tab] = myDefaultTab_final;
-      settings.defaultTab = myDefaultTab_final;
+    if (myDefaultTab) {
+      store[key_default_tab] = myDefaultTab;
+      settings.defaultTab = myDefaultTab;
     } else {
       delete store[key_default_tab];
       settings.defaultTab = SETTING_DEFAULT_TAB_0;
     }
     setStore(store);
-
   }
+
   document.addEventListener('tabview-setMyDefaultTab', function (evt) {
 
     let myDefaultTab_tmp = ((evt || 0).detail || 0).myDefaultTab
@@ -7704,6 +7762,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   */
   }
 
+
+  handleDOMAppear('#tabview-controller', ()=>{}); // dummy
+  document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-tabs-hide-controller';
+  document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-default-tab-controller';
 
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
   if (document.documentElement.getAttribute('tabview-unwrapjs')) {

@@ -1,0 +1,101 @@
+/* ==UserStyle==
+@name           Tabview Youtube Design Customization
+@version        0.2.0
+@namespace      github.com/cyfung1031
+@license        MIT
+@description    Change some designs in Tabview Youtube
+@author         CY Fung
+@supportURL     https://github.com/cyfung1031/Tabview-Youtube/
+@preprocessor   stylus
+@var select     default-tab                     "Default Tab" {
+  "dt0:Default / Local Setting": "0",
+  "dt1:Info Tab": "1",
+  "dt2:Comments Tab": "2",
+  "dt3:Videos Tab": "3"
+}
+@var checkbox   no-rounded-button               "No Rounded Button"                        0
+@var checkbox   no-tab-btn-text                 "No Tab Button Text"                       0
+@var checkbox   round-tab-container             "Round Tab Container"                      0
+@var checkbox   round-live-chat-frame           "Round Live Chat Frame"                    0
+@var checkbox   hide-tab-info                   "Hide Tab - Info"                          0
+@var checkbox   hide-tab-comments               "Hide Tab - Comments"                      0
+@var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0                  
+==/UserStyle== */
+
+keyFrameForTabviewTabsHideController(a, x)
+    $keyframe-name = s('%s-%s',a, x);
+    @keyframes {$keyframe-name}
+      for i in 0..1
+        {100% * i}
+          background-position-x (i+1)px
+
+
+@-moz-document url-prefix("https://www.youtube.com/watch?v=") {
+
+                
+    if no-rounded-button {
+        html .yt-spec-button-shape-next--size-m,
+        html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--segmented-start,
+        html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-button.yt-spec-button-shape-next--segmented-end {
+            border-radius:0;
+        }
+    }
+
+    if no-tab-btn-text {
+        .tab-btn[tyt-tab-content="#tab-info"] span,
+        .tab-btn[tyt-tab-content="#tab-videos"] span,
+        .tab-btn[tyt-tab-content="#tab-playlist"] span {
+            display: none;
+        }
+    }
+    
+    if round-tab-container {
+        html body ytd-watch-flexy[class] #right-tabs {
+            border-radius: 28px;
+            contain: paint;
+        }
+    }
+    
+    if round-live-chat-frame {
+        ytd-live-chat-frame#chat.ytd-watch-flexy{
+            border-radius: 16px;
+        }
+    }
+    
+    tyt-tabs-hide-config = 0
+        
+    if hide-tab-info + hide-tab-comments + hide-tab-videos < 3 {
+
+        if hide-tab-info {
+            tyt-tabs-hide-config += 1
+        }
+        if hide-tab-comments {
+            tyt-tabs-hide-config += 2
+        }
+        if hide-tab-videos {
+            tyt-tabs-hide-config += 4
+        }   
+
+        
+    }
+
+    controllerId = unquote('tabviewTabsHideController')
+    keyFrameForTabviewTabsHideController(controllerId, tyt-tabs-hide-config)
+
+    #tabview-tabs-hide-controller{
+        animation: s('%s-%s 0ms linear 0ms 1 normal forwards', controllerId, tyt-tabs-hide-config);
+    }
+    
+    tyt-default-tab-config = default-tab - 0;
+    
+    controllerId = unquote('tabviewDefaultTabController')
+    keyFrameForTabviewTabsHideController(controllerId, tyt-default-tab-config)
+
+    #tabview-default-tab-controller{
+        animation: s('%s-%s 0ms linear 0ms 1 normal forwards', controllerId, tyt-default-tab-config);
+    }
+    
+    
+    
+    
+}

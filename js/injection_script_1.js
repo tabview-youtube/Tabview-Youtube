@@ -4781,7 +4781,6 @@ rcb(b) => a = playlistId = undefinded
 
   })
 
-
   const isPassiveArgSupport = (typeof IntersectionObserver === 'function');
   // https://caniuse.com/?search=observer
   // https://caniuse.com/?search=addEventListener%20passive
@@ -4795,7 +4794,9 @@ rcb(b) => a = playlistId = undefinded
   function handleDOMAppear( /** @type {string} */ fn, /** @type { listener: (this: Document, ev: AnimationEvent ) => any } */ func) {
     if (handleDOMAppearFN.size === 0) {
       document.addEventListener('animationstart', (evt) => {
-        let func = handleDOMAppearFN.get(evt.animationName);
+        const animationName = evt.animationName;
+        if(!animationName) return;
+        let func = handleDOMAppearFN.get(animationName);
         if (func) func(evt);
       }, capturePassive)
     } else {
@@ -5278,7 +5279,6 @@ rcb(b) => a = playlistId = undefinded
   handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1)
   handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2)
   document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false)
-
 
   const buttonTooltipPositionProp = {
     get() {
