@@ -6569,10 +6569,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       timeline.setTimeout(() => {
         // single column view; click button; scroll to tab content area 100%
         let rightTabs = document.querySelector('#right-tabs');
-        if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && tabBtn.classList.contains('active')) {
+        if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && tabBtn.classList.contains('active') && rightTabs.hasAttribute('tyt-stickybar')) {
           let tabButtonBar = document.querySelector('#material-tabs');
           let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
-          window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight);
+          window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight); // scrollIntoView
         }
       }, 60)
       // _console.log(8519)
