@@ -118,10 +118,83 @@ SOFTWARE.
   const REMOVE_DUPLICATE_META_RECOMMENDATION = true; /* https://www.youtube.com/watch?v=kGihxscQCPE */
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
-  const REPLACE_PIN_ICON = true; /* Some browsers still using the old yt-icon for pin */
-  const FIX_UNCERTAIN_HISTORY_STATE = true;
 
-  let _isPageFirstLoaded = true
+  function dnsPrefetch() {
+
+
+    function linker(link, rel, href, _as) {
+      return new Promise(resolve => {
+        if (!link) link = document.createElement('link');
+        link.rel = rel;
+        if (_as) link.setAttribute('as', _as);
+        link.onload = function () {
+          resolve({
+            link: this,
+            success: true
+          })
+          this.remove();
+        };
+        link.onerror = function () {
+          resolve({
+            link: this,
+            success: false
+          });
+          this.remove();
+        };
+        link.href = href;
+        (document.head || document.documentElement).appendChild(link);
+        link = null;
+      });
+    }
+
+    new Promise(resolve => {
+
+      if (document.documentElement) {
+        resolve();
+      } else {
+
+        let mo = new MutationObserver(() => {
+          if (mo !== null && document.documentElement) {
+            mo.takeRecords();
+            mo.disconnect();
+            mo = null;
+            resolve();
+          }
+        });
+        mo.observe(document, { childList: true, subtree: false })
+
+      }
+
+    }).then(() => {
+
+      const hosts = [
+        'https://i.ytimg.com',
+        'https://www.youtube.com',
+        'https://rr2---sn-5n5ip-ioqd.googlevideo.com',
+        'https://googlevideo.com',
+        'https://accounts.youtube.com',
+        'https://jnn-pa.googleapis.com',
+        'https://googleapis.com',
+        'https://fonts.gstatic.com',
+        'https://www.gstatic.com',
+        'https://yt3.ggpht.com',
+        'https://yt4.ggpht.com'
+      ]
+      for (const h of hosts) {
+
+
+        linker(null, 'preconnect', h);
+
+      }
+
+
+
+    });
+  }
+  dnsPrefetch();
+
+
+  let _isPageFirstLoaded = true;
 
   async function makeTytLock() {
     let c = 8;
@@ -4927,13 +5000,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         }
 
-        /*
-        if (REPLACE_PIN_ICON) {
-
-
-
-        }
-        */
 
 
         let renderId = renderIdentifier
