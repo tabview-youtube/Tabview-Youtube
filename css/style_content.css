@@ -5599,3 +5599,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         user-select: none !important;
     }
 }
+
+@supports (color: var(--fix-badge-nowrap)){
+
+    ytd-badge-supported-renderer.badges.ytd-compact-video-renderer > [role="status"].badge.ytd-badge-supported-renderer{
+        white-space: nowrap;
+    }
+
+}
