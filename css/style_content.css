@@ -2870,7 +2870,8 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (color: var(--videos-row-metadata-UI-adjustment)) {
+    @supports (color-x: var(--videos-row-metadata-UI-adjustment)) { 
+        /* removed in 2023.08.20 */
 
         /* ytd-watch-flexy[is-two-columns_] #tab-videos ytd-compact-video-renderer .metadata  */
 
