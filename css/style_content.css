@@ -5591,3 +5591,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         white-space: initial;
     }
 }
+
+@supports (color: var(--fix-undefined-tooltip)){
+    .style-scope tp-yt-paper-tooltip:empty:not([class]) {
+        visibility: collapse !important;
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+}
