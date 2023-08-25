@@ -2747,7 +2747,10 @@ function injection_script_1() {
             for (const taskObject of tasks) {
               if (lastTaskObject === taskObject) continue;
               lastTaskObject = taskObject;
-              this.__$$postToContentWindow$$__(taskObject);
+              const convertedObject = latestProgressObject == taskObject ? {
+                'yt-player-video-progress': __targetVideoProgress__
+              } : taskObject;
+              this.__$$postToContentWindow$$__(convertedObject);
               await new Promise(r => setTimeout(r, 1));
             }
 
