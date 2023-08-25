@@ -105,25 +105,25 @@ function injection_script_1() {
 
     return clonedObj;
   }
-  
+
   function deepClean(obj) {
     if (obj === null || typeof obj !== 'object') {
-      return ;
+      return;
     }
 
     for (const [key, value] of Object.entries(obj)) {
-      obj[key]=null;
+      obj[key] = null;
       deepClean(value);
     }
 
   }
 
-  const xReplaceState=(s, u)=>{
+  const xReplaceState = (s, u) => {
     history.replaceState(s, '', u);
-    if(s.endpoint){
+    if (s.endpoint) {
       try {
         document.querySelector('ytd-app').replaceState(s.endpoint, '', u)
-      }catch(e){
+      } catch (e) {
       }
     }
   }
@@ -1912,12 +1912,12 @@ function injection_script_1() {
           if (!initialSegment || initialSegment[s8]) continue; // should invalid_sj be set ?
 
           const transcriptSegementJ = initialSegment.transcriptSegmentRenderer;
-          
+
           if (!transcriptSegementJ) {
             // https://www.youtube.com/watch?v=dmHJJ5k_G-A - transcriptSectionHeaderRenderer
             invalid_sj = sj; // should invalid_sj be set ?
             continue;
-          } 
+          }
 
           let startMs = (+transcriptSegementJ.startMs || 0)
           let isStartValid = startMs >= main_startMs;
@@ -2519,6 +2519,42 @@ function injection_script_1() {
 
   // ========================
 
+  let __debouncerResolve__ = null;
+  let __targetVideoProgress__ = null;
+  const { iframeToLiveChatWM, initDebouncer, createLatestProgressObject } = (() => {
+
+    const iframeToLiveChatWM = new WeakMap();
+
+
+    const initDebouncer = () => {
+
+      let debouncer = document.querySelector('tabview-debouncer') || document.createElement('tabview-debouncer');
+      debouncer.addEventListener('animationiteration', function () {
+        __debouncerResolve__ && __debouncerResolve__();
+        __debouncerResolve__ = null;
+      }, { capture: false, passive: false });
+      document.documentElement.appendChild(debouncer);
+      return debouncer;
+    }
+
+    const createLatestProgressObject = () => {
+
+      const o = {};
+      Object.defineProperty(o, 'yt-player-video-progress', {
+        get() {
+          return __targetVideoProgress__;
+        },
+        set(nv) {
+          return true;
+        },
+        enumerable: true,
+        configurable: true
+      });
+      return o
+    }
+    return { iframeToLiveChatWM, initDebouncer, createLatestProgressObject }
+
+  })();
 
   /* added in 2023.06.25 */
   async function fixLiveChatToggleButton() {
@@ -2583,7 +2619,7 @@ function injection_script_1() {
     // f.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     // e.calculateCanCollapse=function(){this.canToggle=this.shouldUseNumberOfLines?this.alwaysToggleable||this.$.content.offsetHeight<this.$.content.scrollHeight:this.alwaysToggleable||this.$.content.scrollHeight>this.collapsedHeight};
     // const funcCanCollapse = function () { this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed) ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight };
-    
+
 
     const funcCanCollapse = function (s) {
       if (!s) return;
@@ -2591,7 +2627,7 @@ function injection_script_1() {
         ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight
         : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight
     };
-    
+
     const insObserver = getInsObserver();
 
 
@@ -2675,24 +2711,102 @@ function injection_script_1() {
       })
     });
 
-    
-     customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
+
+    customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
       let keyDefined = 'postToContentWindow' in cProto;
       // postToContentWindow is property defined during "_initializeProperties()"
       if (!keyDefined) console.warn('postToContentWindow is not defined in ytd-live-chat-frame.');
-      if (typeof cProto.__$$postToContentWindow$$__ ==='function') console.warn('__$$postToContentWindow$$__ is already defined in ytd-live-chat-frame.');
-      
-      const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
+      if (typeof cProto.__$$postToContentWindow$$__ === 'function') console.warn('__$$postToContentWindow$$__ is already defined in ytd-live-chat-frame.');
+      if (typeof cProto.postToContentWindow !== 'function' || cProto.postToContentWindow.length !== 1) console.warn('postToContentWindow cannot be altered');
+
+      // const g_postToContentWindow = ytLivePU.getFunc_postToContentWindow();
       cProto.__$$postToContentWindow$$__ = cProto.postToContentWindow;
-      cProto.postToContentWindow = g_postToContentWindow;
+
+      //  let prevProgessSent = null;
+      //  let prevProgessSentDate = null;
+
+      initDebouncer();
+
+      const latestProgressObject = createLatestProgressObject();
+
+      const pendingTasks = [];
+      let promisePostContent = Promise.resolve();
+      cProto.__postToContentWindowK__ = function (o) {
+        pendingTasks.push(o);
+        if (pendingTasks.length > 1) return;
+        promisePostContent = promisePostContent.then(() => new Promise(async (unlock) => {
+
+          const iframe = ((this || 0).$ || 0).chatframe;
+
+          const tasks = pendingTasks.length === 1 ? [pendingTasks[0]] : pendingTasks.slice(0);
+          pendingTasks.length = 0;
+
+          if (this.isAttached === true && iframe.isConnected === true) {
+
+            let lastTaskObject = null;
+            for (const taskObject of tasks) {
+              if (lastTaskObject === taskObject) continue;
+              lastTaskObject = taskObject;
+              this.__$$postToContentWindow$$__(taskObject);
+              await new Promise(r => setTimeout(r, 1));
+            }
+
+          }
+
+          __debouncerResolve__ = unlock;
+
+        })).catch(console.warn);
+
+      };
+      cProto.postToContentWindow = function (o) {
+        // cnt.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app');
+        if (!o || typeof o !== 'object') return;
+
+        const iframe = ((this || 0).$ || 0).chatframe;
+        if (iframe) {
+          // only do hacking when iframe is defined
+          let doc = null;
+          try {
+            doc = iframe.contentDocument
+          } catch (e) { }
+          if (!doc) return;
+
+          let chatApp = iframeToLiveChatWM.get(doc)
+          if (!chatApp) {
+            chatApp = doc.querySelector('yt-live-chat-app')
+            if (chatApp) iframeToLiveChatWM.set(doc, chatApp);
+          }
+          if (!chatApp) return;
+
+          /*
+          if ('yt-player-video-progress' in o) {
+            let prev = prevProgessSent;
+            let curr = o['yt-player-video-progress']
+            let time = Date.now();
+            if (curr - prev < 0.25 && (time - prevProgessSentDate) < 400) return;
+            prevProgessSentDate = time;
+            prevProgessSent = curr;
+          }
+          */
+
+          if ('yt-player-video-progress' in o && Object.keys(o).length === 1) {
+            __targetVideoProgress__ = o['yt-player-video-progress'];
+            return this.__postToContentWindowK__.call(this, latestProgressObject);
+          }
+
+        }
+
+        return this.__postToContentWindowK__.apply(this, arguments);
+      }
+      // cProto.postToContentWindow = g_postToContentWindow;
 
       cProto._attached322_ = cProto.attached;
       let lastContinutation = '';
       let arid = 0;
-      cProto.attached = function(){ // for watch page change
-        
+      cProto.attached = function () { // for watch page change
+
         this._attached322_.apply(this, arguments);
-        
+
 
         let hostElement = this.hostElement || this;
         let cnt = this.inst || this;
@@ -2700,7 +2814,7 @@ function injection_script_1() {
         let tid = ++arid;
         setTimeout(() => {
           if (tid !== arid || hostElement.isConnected !== true || cnt.isAttached !== true) return;
-          
+
           let sf = '';
           try {
             sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
@@ -2741,7 +2855,7 @@ function injection_script_1() {
         }, 80);
 
       }
-      
+
     });
 
 
@@ -2890,7 +3004,7 @@ function injection_script_1() {
 
       if (cProto.__refit) return;
       let _refit = cProto.refit;
-      if(typeof _refit !== 'function') return;
+      if (typeof _refit !== 'function') return;
 
       // fix issue mentioned in https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/157029 
       // reproduction: click watch later without login 
@@ -2982,7 +3096,7 @@ function injection_script_1() {
         const cnt = this;
         const hostElement = this.hostElement || this;
 
-        const getReadyState = ()=>{
+        const getReadyState = () => {
           let readyState = null;
           try {
             readyState = cnt.$.chatframe.contentWindow.document.readyState;
@@ -3001,7 +3115,7 @@ function injection_script_1() {
           await new Promise($requestAnimationFrame);
           if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation
         }
-        if(maxN < 0) return;
+        if (maxN < 0) return;
 
         const isYtChatLiveAppLoaded = () => {
           let ytChatLiveApp = null;
@@ -3076,7 +3190,7 @@ function injection_script_1() {
 
       (() => {
         let elm = document.querySelector('ytd-live-chat-frame');
-        if(elm){
+        if (elm) {
           let cnt = elm.inst || elm;
           cnt.__forceChatRender__ && cnt.__forceChatRender__();
         }
@@ -4607,7 +4721,7 @@ function injection_script_1() {
             if (endpoint.browseEndpoint && endpoint.browseEndpoint.browseId === "FEwhat_to_watch") {
               // valid = false;
               const playerVideo = document.querySelector('ytd-player#ytd-player video[src]');
-              if(playerVideo && playerVideo.paused === false) valid = true; // home page
+              if (playerVideo && playerVideo.paused === false) valid = true; // home page
             } else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
               let meta = endpoint.commandMetadata.webCommandMetadata
@@ -4795,7 +4909,7 @@ rcb(b) => a = playlistId = undefinded
     if (handleDOMAppearFN.size === 0) {
       document.addEventListener('animationstart', (evt) => {
         const animationName = evt.animationName;
-        if(!animationName) return;
+        if (!animationName) return;
         let func = handleDOMAppearFN.get(animationName);
         if (func) func(evt);
       }, capturePassive)
@@ -4865,7 +4979,7 @@ rcb(b) => a = playlistId = undefinded
       if (ytdFlexyElm) {
         const shelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
         const shelfCnt = shelfElm.inst || shelfElm;
-        
+
         let currentVisibile = shelfElm && shelfCnt && shelfCnt.isAttached === true && !shelfElm.classList.contains('tyt-hidden') && !shelfElm.hasAttribute('hidden')
         let tytAttr = ytdFlexyElm.hasAttribute('tyt-donation-shelf')
         if (currentVisibile) {
@@ -5422,7 +5536,7 @@ rcb(b) => a = playlistId = undefinded
 
     }, true);
 
-    
+
     fixHistoryStatePN = () => { // fallback
 
       Promise.resolve().then(() => {
@@ -5468,7 +5582,7 @@ rcb(b) => a = playlistId = undefinded
 
 
     };
-    
+
 
   }
 

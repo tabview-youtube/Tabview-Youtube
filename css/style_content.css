@@ -5607,3 +5607,33 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 }
+
+@supports (color: var(--live-chat-debouncer)){
+    @keyframes tabviewDebouncer {
+        0% {
+            order: 0;
+        }
+        100% {
+            order: 6;
+        }
+    }
+    tabview-debouncer {
+        display: block;
+        position: fixed;
+        width: 1px;
+        height: 1px;
+        left: -10px;
+        top: -10px;
+        contain: strict;
+        visibility: collapse;
+        pointer-events: none !important;
+        user-select: none !important;
+        touch-action: none !important;
+        margin:0;
+        padding:0;
+        z-index: -1;
+        box-sizing: border-box;
+
+        animation:250ms steps(2) 0ms infinite alternate forwards running tabviewDebouncer;
+    }
+}
