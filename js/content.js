@@ -7629,7 +7629,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   document.addEventListener('ytd-comments-header-changed', function () {
     const res = innerDOMCommentsCountLoader(true);
-    if (res.newFound === true && res.length === 1 && res[0].isLatest && res[0].isNew) {
+    if (res && res.newFound === true && res.length === 1 && res[0].isLatest && res[0].isNew) {
       if (renderDeferred.resolved && fetchCounts.new) {
         // force refresh count dom
         fetchCounts.fetched = false;
