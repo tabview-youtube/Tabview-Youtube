@@ -129,6 +129,20 @@ function injection_script_1() {
   }
 
 
+  let foregroundPromise = null;
+
+  const getForegroundPromise = () => {
+    if (document.visibilityState === 'visible') return Promise.resolve();
+    else {
+      return (foregroundPromise = (foregroundPromise || new Promise(resolve=>{
+        $requestAnimationFrame(()=>{
+          foregroundPromise = null;
+          resolve();
+        });
+      })));
+    }
+  }
+
   const DEBUG_e32 = false;
   // const DO_REQ_CHANGE_FOR_NEXT_VIDEO = false;
   const FIX_UNCERTAIN_HISTORY_STATE = true;
@@ -3036,7 +3050,11 @@ function injection_script_1() {
 
     }, false);
 
+
+
+
     /* added in 2023.06.09 */
+    /* modified in 2023.08.26 */
     const regRFn = (cProto, keyA, keyB) => {
 
       if (cProto[keyB] || !cProto[keyA]) return;
@@ -3051,7 +3069,9 @@ function injection_script_1() {
         const hostElement = this.hostElement || this;
 
         if (renderStore.get(hostElement) >= 1) return;
-        renderStore.set(hostElement, $requestAnimationFrame(() => {
+        renderStore.set(hostElement, 1);
+        getForegroundPromise().then(()=>{
+
           renderStore.set(hostElement, 0);
 
           if (cnt.hidden !== true && cnt.isAttached === true && hostElement.isConnected === true) {
@@ -3059,7 +3079,7 @@ function injection_script_1() {
             cnt[keyB]();
           }
 
-        }));
+        });
 
       };
 

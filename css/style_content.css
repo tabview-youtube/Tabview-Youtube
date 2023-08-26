@@ -5637,3 +5637,12 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
         animation:250ms steps(2) 0ms infinite alternate forwards running tabviewDebouncer;
     }
 }
+
+@supports (color: var(--tab-info-yt-video-hyperlink-box-size)){
+
+    /* https://www.youtube.com/watch?v=3sdWD9qRdjA */
+    #tab-info span.yt-core-attributed-string--link-inherit-color > span.yt-core-attributed-string--highlight-text-decorator{
+        display: inline-block;
+    }
+
+}
