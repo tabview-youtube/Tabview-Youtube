@@ -83,8 +83,11 @@ function injection_script_1() {
   const closestFromAnchor = HTMLElement.prototype.closest;
   const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements; due to Waterfox classic and https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/174437
 
-  const $requestAnimationFrame = window.requestAnimationFrame.bind(window);
-  const $cancelAnimationFrame = window.cancelAnimationFrame.bind(window);
+  /** @type {globalThis.requestAnimationFrame} */
+  const $requestAnimationFrame = (window.webkitRequestAnimationFrame || window.requestAnimationFrame).bind(window);
+  
+  /** @type {globalThis.cancelAnimationFrame} */
+  const $cancelAnimationFrame = (window.webkitCancelAnimationFrame || window.cancelAnimationFrame).bind(window);
 
   // /** @type {(o: Object | null) => WeakRef | null} */
   const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'

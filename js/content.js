@@ -61,7 +61,7 @@ SOFTWARE.
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
-  const { requestAnimationFrame } = __CONTEXT__;
+  const { requestAnimationFrame, cancelAnimationFrame } = __CONTEXT__;
 
   function inIframe() {
     try {
@@ -7973,5 +7973,8 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
    */
 
 
-})({ requestAnimationFrame });
+})({
+  requestAnimationFrame: (typeof webkitRequestAnimationFrame === 'function' ? webkitRequestAnimationFrame : requestAnimationFrame),
+  cancelAnimationFrame: (typeof webkitRequestAnimationFrame === 'function' ? webkitRequestAnimationFrame : requestAnimationFrame)
+});
 // console.timeEnd("Tabview Youtube Init Script")
