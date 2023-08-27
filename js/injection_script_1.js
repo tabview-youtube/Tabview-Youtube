@@ -96,6 +96,93 @@ function injection_script_1() {
   // /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
+  /** @param {HTMLIFrameElement} iframe */
+  const getIframeSrc = (iframe) => {
+
+    let src = iframe.getAttribute('src');
+    let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
+    if (!m) {
+      return {
+        src,
+        pathname: null,
+        continuation: null,
+        spd: null
+      }
+    }
+    let pathname = m[1];
+    let continuation = m[2];
+    let spd = m[4];
+
+    let src2 = null;
+
+    try {
+      src2 = iframe.contentWindow.location.href
+    } catch (e) { }
+    src2 = src;
+
+    if (typeof src2 === 'string' && src2 !== src) {
+      let m2 = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src2 || '');
+      let readyState = null;
+      try {
+        readyState = iframe.contentDocument.readyState;
+      } catch (e) { }
+
+      if (m2 && m[1] === pathname && m[2] === continuation) {
+        src = src2;
+        spd = m[4];
+      } else if (m2 && readyState === 'complete') {
+        src = src2;
+        pathname = m[1];
+        continuation = m[2];
+        spd = m[4];
+      }
+    }
+
+    return {
+      src,
+      pathname,
+      continuation,
+      spd
+    }
+
+  }
+
+  /** 
+   * @param {HTMLIFrameElement} chatframe 
+   * @param {string | null} nSrc
+   *  */
+  const iframeSrcReplacement = (chatframe, nSrc) => {
+    Promise.resolve().then(() => {
+      /*
+      try {
+        chatframe.contentWindow.stop();
+      } catch (e) { }
+      try{
+        chatframe.contentWindow.location.replace('about:blank');
+      }catch(e){
+        console.log(e);
+        chatframe.setAttribute('src', 'about:blank');
+      }
+      try {
+        chatframe.contentWindow.stop();
+      } catch (e) { }
+      */
+    }).then(() => {
+      if (chatframe.isConnected !== true) return;
+      if (typeof nSrc !== 'string') return;
+      try {
+        chatframe.contentWindow.stop();
+      } catch (e) { }
+      try {
+        // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
+        chatframe.contentWindow.location.replace(nSrc);
+      } catch (e) {
+        console.log(e);
+        chatframe.setAttribute('src', nSrc);
+      }
+    }).catch(console.warn);
+  }
+
   function deepClone(obj) {
     if (obj === null || typeof obj !== 'object') {
       return obj;
@@ -1848,36 +1935,13 @@ function injection_script_1() {
               lastContinutation = sf;
               let chatframe = cnt.$.chatframe;
               if (chatframe) {
-                let src = chatframe.getAttribute('src');
+                const isc = getIframeSrc(chatframe);
+                let src = isc.src;
                 let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
                 nSrc = fixSrc(nSrc);
                 if (nSrc !== src) {
                   nSrc = nSrc.replace(/\&\d+$/, '') + '&' + Date.now();
-                  Promise.resolve().then(() => {
-                    try {
-                      chatframe.contentWindow.stop();
-                    } catch (e) { }
-                    try{
-                      chatframe.contentWindow.location.replace('about:blank');
-                    }catch(e){
-                      chatframe.setAttribute('src', 'about:blank');
-                    }
-                    try {
-                      chatframe.contentWindow.stop();
-                    } catch (e) { }
-                  }).then(() => {
-                    try {
-                      chatframe.contentWindow.stop();
-                    } catch (e) { }
-                   
-                try{
-                  // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
-                  chatframe.contentWindow.location.replace(nSrc);
-                }catch(e){
-                  console.log(e);
-                  chatframe.setAttribute('src', nSrc);
-                }
-                  });
+                  iframeSrcReplacement(chatframe, nSrc);
                   console.debug('[tyt] replaced chat url');
                 }
               }
@@ -2202,11 +2266,13 @@ function injection_script_1() {
 
           // console.log('__forceChatRender2__',44)
 
-          let src = chatframe.getAttribute('src');
-          let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
+          let isc = getIframeSrc(chatframe);
+
+          let src = isc.src;
+
 
           // console.debug('[tyt] chat __forceChatRender2__ (a)')
-          let srcContinuation = m ? m[2] : '';
+          let srcContinuation = isc.continuation ? isc.continuation : '';
           if (srcContinuation) {
             // console.log('__forceChatRender2__',44)
             let currentContinuation = getContinuation();
@@ -2226,35 +2292,12 @@ function injection_script_1() {
             if (srcContinuation === currentContinuation) {
 
               // console.log('__forceChatRender2__',45)
-              let k = m[4];
+              let k = isc.spd;
               let nSrc;
               let td = Date.now();
               nSrc = fixSrc(src);
               if (k) nSrc = nSrc.replace(k, '&' + td); else nSrc = nSrc + '&' + td;
-              Promise.resolve().then(() => {
-                try {
-                  chatframe.contentWindow.stop();
-                } catch (e) { }
-                try{
-                  chatframe.contentWindow.location.replace('about:blank');
-                }catch(e){
-                  chatframe.setAttribute('src', 'about:blank');
-                }
-                try {
-                  chatframe.contentWindow.stop();
-                } catch (e) { }
-              }).then(() => {
-                try {
-                  chatframe.contentWindow.stop();
-                } catch (e) { }
-                try{
-                  // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
-                  chatframe.contentWindow.location.replace(nSrc);
-                }catch(e){
-                  console.log(e);
-                  chatframe.setAttribute('src', nSrc);
-                }
-              });
+              iframeSrcReplacement(chatframe, nSrc);
               console.debug('[tyt] chat __forceChatRender2__')
             }
           }
