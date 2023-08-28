@@ -1234,7 +1234,7 @@ function injection_script_1() {
         }, 160)
 
         target.onResize && target.onResize();
-        console.log(target, 332)
+        // console.log(target, 332)
 
       }
 
@@ -3319,6 +3319,16 @@ function injection_script_1() {
     if (liveChatRenderer) {
       addPopupButton(chat);
       ytLivePU.initByChatRenderer(liveChatRenderer);
+
+      const isReplay = ((liveChatRenderer || 0).data || 0).isReplay;
+      if (isReplay === true && typeof chat.playerProgressHandler === 'function') {
+        const player = chat.player || (chat.inst || 0).player || 0;
+        const playerState = typeof player.getPlayerState === 'function' ? player.getPlayerState() : null;
+        if (playerState === 2 || playerState === -1) {
+          chat.playerProgressHandler();
+        }
+      }
+
     } else {
       removePopupButton(chat);
     }
