@@ -59,8 +59,6 @@ function injection_script_1() {
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
-  const DO_IFRAME_URL_CHANGE = true;
-
   if (document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')) {
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
     return;
@@ -171,7 +169,7 @@ function injection_script_1() {
       if (chatframe.isConnected !== true) return;
       if (typeof nSrc !== 'string') return;
       try {
-        chatframe.contentWindow.stop();
+        // chatframe.contentWindow.stop();
       } catch (e) { }
       try {
         // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
@@ -393,33 +391,22 @@ function injection_script_1() {
       /** @type {HTMLIFrameElement | null} */
       this.elmChatFrame = null
       this.isChatReplay = null
-      this.loadStatus = 0
-      this.renderedVideoProgress = null
-      this.clearVars(0);
-
-      this.cnpCID = 0
-      this.handlerPageDataFetched = null
+      this.loadStatus = 0;
+      this.clearVars();
 
       this.ytLiveMO = null
       this.adsState = 0
 
-      this.keepOriginalPTCW = false;
-      this.ytInitialChecked = false;
 
     }
 
-    clearVars(t) {
+    clearVars() {
 
-      /** @type {HTMLElement | null} */
-      this.ytInitialChecked = false;
-      this.keepOriginalPTCW = false; // reset
       this.ytLiveChatApp = null
       /** @type {HTMLElement | null} */
       this.ytLiveChatRenderer = null
 
       this.initialFetchReq = 0
-
-
 
     }
 
@@ -442,28 +429,34 @@ function injection_script_1() {
       // console.log('initByChat')
 
       if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
-        this.elmChat.classList.remove('tyt-chat-frame-ready');
+
+        // disable this...
+
+        // this.elmChat.classList.remove('tyt-chat-frame-ready');
+        // console.log('removed tyt-chat-frame-ready')
+        // setTimeout(() => {
+        //   console.log('??')
+        //   this.elmChat.fixChatframeContentDisplay();
+        // }, 1);
+
+
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
       if (chat === null) {
         const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
         if (elmChatCnt && elmChatCnt.disconnectedCallback && elmChatCnt.isAttached === true) {
-          elmChatCnt.disconnectedCallback();
+
+          // disable this...
+          // elmChatCnt.disconnectedCallback();
+
           // console.log('aa', this.elmChat.isAttached)
         }
         this.elmChat = null;
         this.elmChatFrame = null;
         if (this.loadStatus & 1) this.loadStatus -= 1;
         if (this.loadStatus & 2) this.loadStatus -= 2;
-
-        if (this.loadStatus & 16) this.loadStatus -= 16
-        if (this.loadStatus & 32) this.loadStatus -= 32
-
-        this.renderedVideoProgress = null;
-
-
-        this.clearVars();
         if (this.loadStatus & 4) this.loadStatus -= 4;
+        this.clearVars();
 
       } else {
 
@@ -476,24 +469,25 @@ function injection_script_1() {
         const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
         if (elmChatCnt && elmChatCnt.connectedCallback && elmChatCnt.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
-          elmChatCnt.connectedCallback();
+
+          // disable this ...
+          //elmChatCnt.connectedCallback();
+
           this.initialFetchReq = 21;
         }
 
         this.loadStatus |= 1 // 00000001
-        if (this.loadStatus & 16) this.loadStatus -= 16
-        if (this.loadStatus & 32) this.loadStatus -= 32
         if (chat.collapsed === true) {
-          this.renderedVideoProgress = null
           this.clearVars();
           if (this.loadStatus & 4) this.loadStatus -= 4
         } else if (this.initialFetchReq === 0) {
-          this.initialFetchReq = 1
-          // console.log(this.renderedVideoProgress, this.ytLiveChatRenderer ,this.ytLiveChatApp, this.loadStatus.toString(2) )
+          this.initialFetchReq = 1;
         } else if (this.initialFetchReq === 21) {
           // url changed
           // this fire mutiple times until initByChatRenderer reset it.
-          this.chatUrlChanged();
+
+          // disable this ...
+          // this.chatUrlChanged();
         }
 
         // chat.classList.remove('tyt-chat-frame-ready')
@@ -504,9 +498,9 @@ function injection_script_1() {
 
 
 
+    /** @param {boolean} b */
     setAdPlaying(b) {
-      if (typeof b !== 'boolean') return;
-      if (b === true) {
+      if (b) {
         this.adsState |= 2; // played once [2]
         if (this.adsState & 1) this.adsState -= 1; // reset pause [1]
         // 2|0 = 2
@@ -528,12 +522,8 @@ function injection_script_1() {
 
       // console.log('initByChatRenderer')
       if (!cr) return;
-      this.ytInitialChecked = false;
-      this.keepOriginalPTCW = false; // reset
       this.ytLiveChatApp = closestFromAnchor.call(cr, 'yt-live-chat-app')
       if (!this.ytLiveChatApp) return;
-
-
 
       if (this.initialFetchReq >= 3) {
         // including  this.initialFetchReq === 21
@@ -634,18 +624,12 @@ function injection_script_1() {
 
       if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
         this.ytLiveChatRenderer._gIxmf = 1;
-
-        this.ytLiveChatRenderer._setPlayerProgressSec = ((f) => {
-
-          return function (x) {
-            if (x === 0) x = 1e-99
-            let t = f.apply(this, arguments)
-            return t
-          }
-
-        })(this.ytLiveChatRenderer._setPlayerProgressSec);
-
-
+        this.ytLiveChatRenderer._setPlayerProgressSec26 = this.ytLiveChatRenderer._setPlayerProgressSec;
+        this.ytLiveChatRenderer._setPlayerProgressSec = function (x) {
+          if (x < 1e-99) x = 1e-99
+          let t = this._setPlayerProgressSec26.apply(this, arguments)
+          return t
+        };
 
       }
 
@@ -657,19 +641,12 @@ function injection_script_1() {
           yt-live-chat-renderer[loading2] #chat.yt-live-chat-renderer::after {
             display: block;
           }
-          
-          `;
-
+        `;
 
         elementAppend.call(ytLivePU.ytLiveChatApp, style);
       }
 
     }
-
-
-
-
-
 
     queryCR(query, inCR) {
       let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
@@ -726,12 +703,6 @@ function injection_script_1() {
       }
 
     }
-
-
-
-
-
-
 
   }
 
@@ -1367,7 +1338,6 @@ function injection_script_1() {
   function onPageFetched(evt) {
     dsMgr._dsToggleButtonRenderer.i8KBd = 1;
     pageType = ((evt.detail || 0).pageData || 0).page;
-    if (ytLivePU.handlerPageDataFetched) ytLivePU.handlerPageDataFetched();
   }
 
   function onPageFinished(evt) {
@@ -1905,52 +1875,157 @@ function injection_script_1() {
         return this.__postToContentWindowK__.apply(this, arguments);
       }
 
-      if (DO_IFRAME_URL_CHANGE) {
+      document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
+
+        const chat = (evt || 0).target;
+        if (!chat || chat.id !== 'chat') return;
+
+        if (typeof chat.fixChatframeContentDisplay !== 'function') return;
+        console.debug('[tyt.chat] fix chat render on changed video');
+        chat.fixChatframeContentDisplay(0);
+
+      }, true);
 
 
-        cProto._attached322_ = cProto.attached;
-        let lastContinutation = '';
-        let arid = 0;
-        cProto.attached = function () { // for watch page change
+      cProto.fixChatframeContentDisplay = async function (isChatExpansionChanged) {
+        const iframe = (this.$ || 0).chatframe;
 
-          this._attached322_.apply(this, arguments);
+        if (!iframe || iframe.isConnected !== true) return;
+        if (this.collapsed === true) return;
+
+        let hostElement = this.hostElement || this;
+        let cnt = this.inst || this;
 
 
-          let hostElement = this.hostElement || this;
-          let cnt = this.inst || this;
+        let isReplay = null;
+        try {
+          isReplay = cnt.data.liveChatRenderer.isReplay;
+        } catch (e) { }
 
-          let tid = ++arid;
-          setTimeout(() => {
-            if (tid !== arid || hostElement.isConnected !== true || cnt.isAttached !== true) return;
+        // fix video data changed
 
-            let sf = '';
-            try {
-              sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
-            } catch (e) {
+        let dtConversationBar1
+        let dtConversationBar2;
 
+        try {
+
+          dtConversationBar1 = window.ytInitialData.contents.twoColumnWatchNextResults.conversationBar;
+          dtConversationBar2 = document.querySelector('ytd-watch-flexy').data.contents.twoColumnWatchNextResults.conversationBar;
+
+        } catch (e) { }
+
+        let forceUpdate = false;
+
+        if (dtConversationBar1 && dtConversationBar2 && dtConversationBar1.liveChatRenderer && dtConversationBar2.liveChatRenderer) {
+
+          let ct1;
+          let ct2;
+          let ct3;
+          try {
+
+            ct1 = dtConversationBar1.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
+            ct2 = dtConversationBar2.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
+            ct3 = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
+          } catch (e) { }
+          if (typeof ct1 === 'string' && typeof ct2 === 'string' && typeof ct3 === 'string') {
+            if (ct1 === ct2 && ct1 !== ct3) {
+              const __data = cnt.__data || 0;
+              if (isReplay === true && __data && __data.baseUrl === "/live_chat") __data.baseUrl = '/live_chat_replay';
+              if (isReplay === true && __data && (__data.url || '').startsWith("/live_chat?")) __data.url = __data.url.replace('/live_chat?', '/live_chat_replay?');
+
+              if (isReplay === false && __data && __data.baseUrl === "/live_chat_replay") __data.baseUrl = '/live_chat';
+              if (isReplay === false && __data && (__data.url || '').startsWith("/live_chat_replay?")) __data.url = __data.url.replace('/live_chat_replay?', '/live_chat?');
+
+              cnt.data = { liveChatRenderer: dtConversationBar2.liveChatRenderer };
+              if (__data && __data.data) __data.data = cnt.data;
+              try {
+                cnt.notifyPath("data.liveChatRenderer");
+              } catch (e) { }
+              console.debug('[tyt.chat] data changed to ', dtConversationBar2.liveChatRenderer);
+              forceUpdate = true;
             }
-            if (sf && sf !== lastContinutation) {
-              let p = lastContinutation;
-              let q = sf;
-              lastContinutation = sf;
-              let chatframe = cnt.$.chatframe;
-              if (chatframe) {
-                const isc = getIframeSrc(chatframe);
-                let src = isc.src;
-                let nSrc = src.replace(`continuation=${p}`, `continuation=${q}`);
-                nSrc = fixSrc(nSrc);
-                if (nSrc !== src) {
-                  nSrc = nSrc.replace(/\&\d+$/, '') + '&' + Date.now();
-                  iframeSrcReplacement(chatframe, nSrc);
-                  console.debug('[tyt] replaced chat url');
-                }
+          }
+
+        }
+
+
+        let sf = '';
+        try {
+          sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
+        } catch (e) {
+
+        }
+
+        if (!sf) return;
+
+        const isc = getIframeSrc(iframe);
+
+        let doReplacement = 0;
+
+        if (forceUpdate) {
+
+          doReplacement = 1;
+        } else if (isc.continuation !== sf && isc.continuation) {
+          doReplacement = 1;
+        } else {
+          let cDoc = null;
+          try {
+            cDoc = iframe.contentDocument;
+          } catch (e) { }
+          if (!cDoc) {
+            doReplacement = 2;
+          } else {
+
+            if (cDoc.readyState === 'loading') {
+              await new Promise(resolve => {
+
+                cDoc.addEventListener('readystatechange', function () {
+
+                  resolve && resolve();
+                  resolve = null;
+
+                }, false);
+
+              });
+              if (cDoc !== iframe.contentDocument) doReplacement = 3;
+            }
+
+            if (doReplacement === 0) {
+
+              const contentElement = ((cDoc || 0).body || 0).firstElementChild || 0;
+
+
+              if (!contentElement) {
+                doReplacement = 4;
               }
 
             }
 
-          }, 80);
 
-        };
+          }
+        }
+
+
+        if (doReplacement > 0) {
+          const src = isc.src;
+          let nSrc = src.replace(/([?&])continuation=[-\w.+$@%]+/, `$1continuation=${sf}`).replace(/\&\d+$/, '') + '&' + Date.now();
+          if (isReplay === true && isc.pathname === 'live_chat') {
+            // if the video in previous record was live but now it is playback (VOD).
+            // then change the live_chat to live_chat_replay
+            nSrc = nSrc.replace('/live_chat?', '/live_chat_replay?');
+            console.debug('[tyt.chat] live_chat changed to live_chat_replay');
+          } else if (isReplay === false && isc.pathname === 'live_chat_replay') {
+            nSrc = nSrc.replace('/live_chat_replay?', '/live_chat?');
+            console.debug('[tyt.chat] live_chat_replay changed to live_chat');
+          }
+          console.log({
+            src,
+            nSrc
+          })
+          iframeSrcReplacement(iframe, nSrc);
+          console.debug('[tyt] replaced chat url');
+        }
+
 
       }
 
@@ -1987,8 +2062,8 @@ function injection_script_1() {
 
     });
 
-    document.addEventListener('tyt-resize-chip-cloud', (evt)=>{
-      const target= ((evt||0).target||0);
+    document.addEventListener('tyt-resize-chip-cloud', (evt) => {
+      const target = ((evt || 0).target || 0);
       // console.log(target)
       target.onResize && target.onResize();
     }, true)
@@ -2196,152 +2271,6 @@ function injection_script_1() {
       regRFn(cProto, 'doIdomRender', '__doIdomRender__');
 
     });
-
-
-    /* added in 2023.06.25 */
-    /* removed in 2023.07.06 */
-    customYtElements.whenRegistered('ytd-live-chat-frame', (cProto) => {
-
-      let crid = 0;
-
-      cProto.__forceChatRender2__ = async function () {  // for watch page change + initial load
-
-        // console.log('__forceChatRender2__',40)
-        if (DO_IFRAME_URL_CHANGE) {
-
-          const cnt = this;
-          const hostElement = this.hostElement || this;
-
-          const getReadyState = () => {
-            let readyState = null;
-            try {
-              readyState = cnt.$.chatframe.contentWindow.document.readyState;
-            } catch (e) { }
-            return readyState;
-          }
-
-          let trid = ++crid;
-
-          // console.log('__forceChatRender2__',41)
-          await new Promise(resolve => setTimeout(resolve, 73)); // avoid rendering not in a page (DOM not ready)
-
-          let maxN = 99; // avoid dead loop
-          while (maxN-- > 0) {
-            let readyState = getReadyState();
-            if (typeof readyState === 'string' && readyState !== 'loading') break; // suggests that empty body is loaded
-            await new Promise($requestAnimationFrame);
-            if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation
-          }
-          if (maxN < 0) return;
-
-          // console.log('__forceChatRender2__',42)
-          const isYtChatLiveAppLoaded = () => {
-            let ytChatLiveApp = null;
-            try {
-              ytChatLiveApp = cnt.$.chatframe.contentWindow.document.querySelector('yt-live-chat-app');
-            } catch (e) { }
-            return ytChatLiveApp !== null;
-          }
-
-          const getContinuation = () => {
-            let continuation = null;
-            try {
-              continuation = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
-            } catch (e) { }
-            return continuation;
-          }
-
-
-
-          if (isYtChatLiveAppLoaded()) return; // confirm the body is empty
-          await new Promise($requestAnimationFrame); // wait for 1 animation frame
-          if (trid !== crid || hostElement.isConnected !== true || cnt.collapsed !== false || cnt.isAttached !== true) return; // invalid operation 
-          if (isYtChatLiveAppLoaded()) return;
-
-          // console.log('__forceChatRender2__',43)
-          const chatframe = (cnt.$ || 0).chatframe;
-
-          if (!chatframe || chatframe.isConnected !== true) return; // invalid operation 
-
-
-          // console.log('__forceChatRender2__',44)
-
-          let isc = getIframeSrc(chatframe);
-
-          let src = isc.src;
-
-
-          // console.debug('[tyt] chat __forceChatRender2__ (a)')
-          let srcContinuation = isc.continuation ? isc.continuation : '';
-          if (srcContinuation) {
-            // console.log('__forceChatRender2__',44)
-            let currentContinuation = getContinuation();
-            if (srcContinuation && srcContinuation.length > 260 && currentContinuation && srcContinuation === `${currentContinuation}${currentContinuation}`) {
-              // root clause unknown
-              src = src.replace(srcContinuation, currentContinuation);
-              srcContinuation = currentContinuation;
-            } else if (currentContinuation && currentContinuation.length > 260 && currentContinuation === `${srcContinuation}${srcContinuation}`) {
-              // play safe
-              try {
-                const ct = cnt.data.liveChatRenderer.continuations[0];
-                ct.reloadContinuationData = Object.assign({}, ct.reloadContinuationData, { continuation: srcContinuation });
-              } catch (e) { }
-              currentContinuation = srcContinuation;
-            }
-
-            if (srcContinuation === currentContinuation) {
-
-              // console.log('__forceChatRender2__',45)
-              let k = isc.spd;
-              let nSrc;
-              let td = Date.now();
-              nSrc = fixSrc(src);
-              if (k) nSrc = nSrc.replace(k, '&' + td); else nSrc = nSrc + '&' + td;
-              iframeSrcReplacement(chatframe, nSrc);
-              console.debug('[tyt] chat __forceChatRender2__')
-            }
-          }
-
-        }
-      };
-
-      cProto.__forceChatRender__ = cProto.__forceChatRender2__;
-
-      if (DO_IFRAME_URL_CHANGE) {
-
-        (() => {
-          let elm = document.querySelector('ytd-live-chat-frame');
-          if (elm) {
-            let cnt = elm.inst || elm;
-            cnt.__forceChatRender__ && cnt.__forceChatRender__();
-          }
-          elm = null;
-        })();
-
-      }
-
-      /*
-      // removed in 2023.07.09 as it might create a potential runtime bug
-      // livestream video ended -> switch to another video lived before but no chat can be replayed.
-      // video is played inside iframe
-      let lastShowHide = 0;
-      const urlChanged = cProto.urlChanged;
-      cProto.urlChanged = function (...args) {
-        const skip = this.collapsed === false && Date.now() - lastShowHide < 80;
-        lastShowHide = 0;
-        if (skip) return; // handled by force rendering
-        urlChanged.apply(this, args);
-      };
-      const onShowHideChat = cProto.onShowHideChat;
-      cProto.onShowHideChat = function (...args) {
-        lastShowHide = Date.now();
-        Promise.resolve().then(() => {
-          onShowHideChat.apply(this, args);
-        });
-      };
-      */
-
-    }, true);
 
 
     customYtElements.whenRegistered('ytd-player', (cProto) => {
@@ -3281,18 +3210,6 @@ function injection_script_1() {
   });
 
 
-  document.addEventListener('tabview-chatframe-loaded', function (evt) {
-
-    let iframe = evt.target
-    if (!iframe) return
-
-    ytLivePU.setupYtLiveMO(); // setup when iframe is loaded; no need to setup when the video is without chatroom
-    ytLivePU.elmChatFrame = null; // required
-    ytLivePU.initByIframe(iframe); // main
-
-
-  }, true)
-
 
 
   function addPopupButton(chat) {
@@ -3319,12 +3236,34 @@ function injection_script_1() {
     }
   }
 
+  function removePopupButton(chat) {
+    try {
+
+
+      let showHideBtn = HTMLElement.prototype.querySelector.call(chat, 'div#show-hide-button')
+      if (showHideBtn) {
+
+        let btn;
+        btn = document.querySelector('tyt-iframe-popup-btn')
+        if (btn) btn.remove();
+
+      }
+
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
 
   document.addEventListener('tabview-chatroom-ready', async function (evt) {
 
     const chat = (evt || 0).target;
     if (!chat) return;
 
+    console.debug('[tyt.iframe] ready 01')
+
+    const currentPopupBtn = HTMLElement.prototype.querySelector.call(chat, 'tyt-iframe-popup-btn');
+    if (currentPopupBtn) currentPopupBtn.classList.remove('tyt-btn-enabled');
 
     const iframe = (chat.$ || 0).chatframe;
     if (!iframe) return
@@ -3334,48 +3273,55 @@ function injection_script_1() {
     } catch (e) { }
     if (!cDoc) return;
 
-
-    addPopupButton(chat);
-
-    await new Promise(resolve => {
-      const lcr = cDoc.querySelector('yt-live-chat-renderer.yt-live-chat-app');
-      if (lcr && (lcr.data || 0).isReplay === true && typeof chat.playerProgressHandler ==='function') {
-        const player = chat.player || (chat.inst || 0).player || 0;
-        let playerState = typeof player.getPlayerState === 'function' ? player.getPlayerState() : null;
-        if (playerState === 2 || playerState === -1) {
-          let mo = null;
-          let cid = 0;
-          const mf = () => {
-            if (mo !== null) {
-              mo.disconnect();
-              mo.takeRecords();
-              mo = null;
-            }
-            resolve && resolve();
-            resolve = null;
-            if (cid > 0) {
-              clearTimeout(cid);
-              cid = 0;
-            }
-          };
-          mo = new MutationObserver(mf);
-          mo.observe(lcr, { subtree: true, childList: true });
-          chat.playerProgressHandler();
-          cid = setTimeout(mf, 300);
-        }
-      }
-      resolve();
-    }).then().catch(console.warn);
+    Promise.resolve().then(() => {
+      ytLivePU.setupYtLiveMO(); // setup when iframe is loaded; no need to setup when the video is without chatroom
+      ytLivePU.elmChatFrame = null; // required
+      ytLivePU.initByIframe(iframe); // main
+    });
 
     chat.classList.add('tyt-chat-frame-ready');
 
 
+    const liveChatRenderer = cDoc.querySelector('yt-live-chat-renderer') || (await new Promise(resolve => {
 
+      let cid = 0;
+      let mo = new MutationObserver(() => {
+        const liveChatRenderer = cDoc.querySelector('yt-live-chat-renderer');
+        if (liveChatRenderer) {
+          if (mo !== null) {
+            mo.disconnect();
+            mo.takeRecords();
+            mo = null;
+          }
+          resolve && resolve(liveChatRenderer);
+          resolve = null;
+          if (cid > 0) {
+            clearTimeout(cid);
+            cid = 0;
+          }
+        }
+      });
+      mo.observe(cDoc, { subtree: true, childList: true })
+      cid = setTimeout(() => {
+        if (mo !== null) {
+          mo.disconnect();
+          mo.takeRecords();
+          mo = null;
+        }
+        resolve && resolve(null);
+        resolve = null;
+      }, 1780)
 
-    ytLivePU.initByChatRenderer(iframe.contentWindow.document.querySelector('yt-live-chat-renderer'));
+    }).catch(console.warn));
 
+    console.debug(`[tyt.iframe] ready 02, lcr = ${liveChatRenderer ? 'Y' : 'N'}`)
 
-
+    if (liveChatRenderer) {
+      addPopupButton(chat);
+      ytLivePU.initByChatRenderer(liveChatRenderer);
+    } else {
+      removePopupButton(chat);
+    }
 
 
   }, true)
@@ -4576,11 +4522,11 @@ rcb(b) => a = playlistId = undefinded
 
   }
 
-  dsMgr._lastDSVideo = null
-  dsMgr._dsToggleButtonRenderer = {}
-  handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1)
-  handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2)
-  document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false)
+  dsMgr._lastDSVideo = null;
+  dsMgr._dsToggleButtonRenderer = {};
+  handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1);
+  handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2); // ytd-donation-shelf-renderer.ytd-watch-flexy
+  document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false);
 
   const buttonTooltipPositionProp = {
     get() {
@@ -4668,18 +4614,17 @@ rcb(b) => a = playlistId = undefinded
     fixLiveChatToggleButton();
   })
 
-  document.addEventListener('tabview-force-chat-render', () => {
+  document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
 
-    if (DO_IFRAME_URL_CHANGE) {
+    const chat = (evt || 0).target;
+    if (!chat || chat.id !== 'chat') return;
 
-      let elm;
-      elm = elm || document.querySelector('ytd-live-chat-frame');
-      elm && elm.__forceChatRender__ && elm.__forceChatRender__();
-      elm = null;
-    }
+    if (typeof chat.fixChatframeContentDisplay !== 'function') return;
 
+    console.debug('[tyt.chat] fix chat render on expanded chat');
+    chat.fixChatframeContentDisplay(1);
 
-  })
+  }, true)
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;

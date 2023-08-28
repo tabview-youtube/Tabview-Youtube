@@ -470,7 +470,7 @@ SOFTWARE.
   let defaultTabByUserCSS = 0;
   let setupDefaultTabBtnSetting = null;
   let isCommentsTabBtnHidden = false;
-  
+
   let fetchCounts = {
     base: null,
     new: null,
@@ -1244,41 +1244,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function isNonEmptyString(s) {
     return typeof s == 'string' && s.length > 0;
   }
-
-  function tabviewDispatchEvent(elmTarget, eventName, detail) {
-    if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
-    if (detail && typeof detail === 'object') {
-      elmTarget.dispatchEvent(new CustomEvent(eventName, { detail: detail }))
-    } else {
-      elmTarget.dispatchEvent(new CustomEvent(eventName))
-    }
-  }
-
-  // removed in 2023.06.17
-  // FireFox (Some UserScript Managers): Uncaught Error: Permission denied to access property "length" (event.detail as Object)
-  // async function nativeCall(/** @type {EventTarget} */ dom, /** @type {any[]} */ detail) {
-  //   //console.log(1231)
-  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom", { detail: detail }))
-  //   //console.log(1232)
-  // }
-
-  // removed in 2023.06.17
-  // async function nativeFunc(/** @type {EventTarget} */ dom, /** @type {string} */ property, /** @type {any} */ args) {
-  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom-func", { detail: { property, args } }))
-  // }
-
-  // async function nativeValue(dom, property, args) {
-  //   dom.dispatchEvent(new CustomEvent("userscript-call-dom-value", { detail: { property, args } }))
-  // }
-  // async function nativeFuncStacked(/** @type {string} */ selector, /** @type {string} */ property, /** @type {any} */ args){
-  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-func-stacked", { detail: { selector, property, args } }))
-  // }
-  // async function nativeValueStacked(selector, property, args){
-  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-value-stacked", { detail: { selector, property, args } }))
-  // }
-  // async function nativeConstStacked(selector, property, args){
-  //   document.dispatchEvent(new CustomEvent("userscript-call-dom-const-stacked", { detail: { selector, property, args } }))
-  // }
 
   async function dispatchWindowResize() {
     // for youtube to detect layout resize for adjusting Player tools
@@ -3464,19 +3429,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
   }
 
-  let forceChatRenderDispatchEventRid = 0;
-  const forceChatRenderDispatchEvent = () => {
 
-    let tid = ++forceChatRenderDispatchEventRid;
-    scriptletDeferred.debounce(() => {
-      if (tid === forceChatRenderDispatchEventRid) {
-        // console.log(' document.dispatchEvent(new CustomEvent("tabview-force-chat-render"));')
-        document.dispatchEvent(new CustomEvent("tabview-force-chat-render"));
-      }
-    });
 
+  const eventDispatcher = (evtName) => {
+    let erid = 0;
+    return (evtNode) => {
+      let tid = ++erid;
+      scriptletDeferred.debounce(() => {
+        if (tid === erid) {
+          evtNode.dispatchEvent(new CustomEvent(evtName));
+        }
+      });
+    }
   }
 
+  let chatroomAttrCollapseCount = 0;
+
+  const dpeForceChatRenderOnChatExpanded = eventDispatcher("tabview-force-chat-render-on-chat-expanded");
+
+  const dpeNewUrlChat = eventDispatcher("tabview-chat-fix-url-on-new-video-page");
+
+  const dpeIframeReady = eventDispatcher('tabview-chatroom-ready');
 
   const FP = {
 
@@ -3611,6 +3584,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         if (isCollapsed) {
+          ++chatroomAttrCollapseCount;
           chatBlock.removeAttribute('tyt-iframe-loaded');
           // console.log(922,1)
           // buggy; this section might not be correctly executed.
@@ -3618,8 +3592,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let btn = document.querySelector('tyt-iframe-popup-btn')
           if (btn) btn.remove();
         } else {
-          console.debug('[tyt] forceChatRenderDispatchEvent')
-          forceChatRenderDispatchEvent();
+
+          if (pageFetchedDataVideoId && proceedingChatFrameVideoID === pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC) {
+            console.debug('[tyt] forceChatRenderOnChatExpanded')
+            const _chatBlock = chatBlock;
+            const tyid = ++dpeChatRefreshCounter;
+            setTimeout(() => {
+              if (pageFetchedDataVideoId && proceedingChatFrameVideoID === pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC) {
+                if (tyid !== dpeChatRefreshCounter) return;
+                dpeChatRefreshCounter++;
+                const chat = document.querySelector('ytd-live-chat-frame#chat');
+                const chatBlock = _chatBlock;
+                if (chat === chatBlock && !chatBlock.hasAttribute('collapsed')) {
+                  dpeForceChatRenderOnChatExpanded(chatBlock);
+                }
+              }
+            }, 67);
+          }
         }
 
         fixLiveChatToggleButtonDispatchEvent();
@@ -5434,14 +5423,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-
-
-  function addIframeStyle(cDoc) {
-    if (cDoc.querySelector('#tyt-chatroom-css')) return false;
-    addStyle((iframeCSS() || ''), cDoc.documentElement).id = 'tyt-chatroom-css'
-    return true;
-  }
-
   function chatFrameContentDocument() {
     // non-null if iframe exist && contentDocument && readyState = complete
     /** @type {HTMLIFrameElement | null} */
@@ -5472,117 +5453,40 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return elm;
   }
 
-  function iFrameContentReady(cDoc, iframe) {
-
-    Promise.resolve().then(() => {
-
-      // console.log(702, 1)
-      if (!cDoc) return;
-
-      // console.log(702, 2)
-      addIframeStyle(cDoc);
-
-
-      const _iframe = iframe;
-
-
-
-      const contentReadyPromise = new Promise(resolve => {
-
-
-        if (cDoc.querySelector('.yt-live-chat-renderer.iron-selected')) {
-          resolve();
-        } else {
-
-          let cid = 0;
-          let mo = new MutationObserver(() => {
-            if (cDoc.querySelector('.yt-live-chat-renderer.iron-selected')) {
-              if (mo !== null) {
-
-                mo.disconnect();
-                mo.takeRecords();
-                mo = null;
-              }
-              resolve && resolve();
-              resolve = null;
-              if (cid > 0) {
-                clearTimeout(cid);
-                cid = 0;
-              }
-
-
-            }
-          });
-
-          mo.observe(cDoc, { subtree: true, childList: true });
-          cid = setTimeout(() => {
-            if (mo !== null) {
-              mo.disconnect();
-              mo.takeRecords();
-              mo = null;
-            }
-            resolve && resolve();
-            resolve = null;
-          }, 3000);
-
-        }
-
-      }).catch(console.warn);
-
-      contentReadyPromise.then(() => {
-
-        if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
-        const iframe = _iframe;
-        if (!(iframe instanceof HTMLIFrameElement) || iframe.isConnected !== true) return; //prevent iframe is detached from the page
-        let isCorrectDoc = false;
-        try {
-          isCorrectDoc = iframe.contentDocument === cDoc;
-        } catch (e) { }
-        if (isCorrectDoc && cDoc.querySelector('.yt-live-chat-renderer.iron-selected')) {
-          let chatFrame = HTMLElement.prototype.closest.call(iframe, 'ytd-live-chat-frame#chat');
-          if (chatFrame) {
-            chatFrame.setAttribute('tyt-iframe-loaded', '')
-            chatFrame.dispatchEvent(new CustomEvent("tabview-chatroom-ready"))
-          }
-        }
-
-      })
-
-
-    }).catch(console.warn)
-
-    Promise.resolve().then(() => {
-      iframe.dispatchEvent(new CustomEvent('tabview-chatframe-loaded'));
-    }).catch(console.warn);
-  }
-
   let iframeLoadHookA_id = 0
 
   const iframeLoadHookA = async function (evt) {
 
     const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
     const iframe = isIframe ? evt.target : null;
-    
+
     if (iframe && iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
     } else {
       return;
     }
-    
+
 
     const chat = HTMLElement.prototype.closest.call(iframe, 'ytd-live-chat-frame#chat');
-    
+
     // console.log('chat', chat)
     if (!chat) return;
 
     if (iframe.isConnected !== true) return;
+
+    // dpeChatRefreshCounter++; // optional ?
+
+    console.debug('[tyt.iframe] loaded 01')
+
     const tid = ++iframeLoadHookA_id;
 
     const cDoc = await new Promise((resolve) => {
 
       let timeoutCount = 80;
-      let cid = setInterval(() => {
+      let cid = 0;
+      const tf = () => {
         if (tid !== iframeLoadHookA_id || --timeoutCount < 0) {
-          resolve(null);
+          resolve && resolve(null);
+          resolve = null;
           cid && clearInterval(cid);
           cid = 0;
         }
@@ -5592,66 +5496,54 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         } catch (e) {
         }
         if (!cDoc) return;
-        if (cDoc.readyState != 'complete') return;
+        if (cDoc.readyState === 'loading') return;
         if (!cDoc.body) return;
 
-        resolve(cDoc);
+        resolve && resolve(cDoc);
+        resolve = null;
         cid && clearInterval(cid);
         cid = 0;
 
-      }, 17);
+      }
+      tf();
+      if (resolve !== null) {
+        cid = setInterval(tf, 17);
+      }
 
 
     }).catch(console.warn);
-    
+
     // console.log('cDoc', cDoc)
     if (tid !== iframeLoadHookA_id) return;
     if (!cDoc) {
       return;
     }
 
+    if (cDoc.readyState === 'loading') return;
 
-    const liveChatApp = cDoc.querySelector('yt-live-chat-app') || (await new Promise(resolve => {
 
+    const contentElement = (cDoc.body || 0).firstElementChild;
 
-      let cid = 0;
-      let mo = new MutationObserver(() => {
-        const liveChatApp = cDoc.querySelector('yt-live-chat-app');
-        if (liveChatApp) {
-          if (mo !== null) {
-            mo.disconnect();
-            mo.takeRecords();
-            mo = null;
-          }
-          resolve && resolve(liveChatApp);
-          resolve = null;
-          if(cid>0) {
-            clearTimeout(cid);
-            cid=0;
-          }
+    // const currentPopupBtn = HTMLElement.prototype.querySelector.call(chat, 'tyt-iframe-popup-btn');
+    // if(currentPopupBtn) currentPopupBtn.classList.remove('tyt-btn-enabled');
+
+    if (contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+
+      if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
+      if (!(iframe instanceof HTMLIFrameElement) || iframe.isConnected !== true) return; //prevent iframe is detached from the page
+      let isCorrectDoc = false;
+      try {
+        isCorrectDoc = iframe.contentDocument === cDoc;
+      } catch (e) { }
+      if (isCorrectDoc) {
+        let chatFrame = HTMLElement.prototype.closest.call(iframe, 'ytd-live-chat-frame#chat');
+        if (chatFrame) {
+          console.debug('[tyt.iframe] loaded 02')
+          chatFrame.setAttribute('tyt-iframe-loaded', '');
+          dpeIframeReady(chatFrame);
         }
-      });
-      mo.observe(cDoc, { subtree: true, childList: true })
-      cid = setTimeout(() => {
-        if (mo !== null) {
-          mo.disconnect();
-          mo.takeRecords();
-          mo = null;
-        }
-        resolve && resolve(null);
-        resolve = null;
-      }, 6600)
+      }
 
-    }).catch(console.warn));
-    
-
-    if (tid !== iframeLoadHookA_id) return;
-    // console.log('liveChatApp', liveChatApp)
-
-    // console.log(123, liveChatApp,!chat.hasAttribute('collapsed')  ,iframe.isConnected )
-
-    if (liveChatApp && !chat.hasAttribute('collapsed')  && iframe.isConnected === true) {
-      iFrameContentReady(cDoc, iframe)
     }
 
 
@@ -5680,9 +5572,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
   }
-  
-  function convertDefaultTabFromTmpToFinal(myDefaultTab_tmp){
-    
+
+  function convertDefaultTabFromTmpToFinal(myDefaultTab_tmp) {
+
     let myDefaultTab_final = null
     if (myDefaultTab_tmp && typeof myDefaultTab_tmp === 'string' && /^\#[a-zA-Z\_\-\+]+$/.test(myDefaultTab_tmp)) {
       if (document.querySelector(`.tab-btn[tyt-tab-content="${myDefaultTab_tmp}"]`)) myDefaultTab_final = myDefaultTab_tmp;
@@ -6526,16 +6418,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-      const newTag  =  activeLink ? lstTab.lastTab : '';
+      const newTag = activeLink ? lstTab.lastTab : '';
 
       ytdFlexyElm.setAttribute('tyt-tab', newTag)
 
-      if(newTag ==='#tab-videos'){
+      if (newTag === '#tab-videos') {
 
 
-      
-        let t= document.querySelector('#tab-videos yt-chip-cloud-renderer')
-        if(t){
+
+        let t = document.querySelector('#tab-videos yt-chip-cloud-renderer')
+        if (t) {
           scriptletDeferred.debounce(() => {
             t.dispatchEvent(new CustomEvent('tyt-resize-chip-cloud'))
           })
@@ -7085,6 +6977,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  let dpeChatRefreshCounter = 0;
+  let proceedingChatFrameVideoID = '';
+  let newVideoPageCACC = -1;
+
   function newVideoPage(evt_detail) {
 
     //toggleBtnDC = 1;
@@ -7111,6 +7007,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     pageFetchedDataVideoId = ((((evt_detail || 0).pageData || 0).playerResponse || 0).videoDetails || 0).videoId || 0;
+
+
+    const fvid = pageFetchedDataVideoId;
+    const tyid = ++dpeChatRefreshCounter;
+    proceedingChatFrameVideoID = '';
+    newVideoPageCACC = chatroomAttrCollapseCount;
+    setTimeout(() => {
+      if (fvid !== pageFetchedDataVideoId) return;
+      if (tyid !== dpeChatRefreshCounter) return;
+      ++dpeChatRefreshCounter;
+      const chat = document.querySelector('ytd-live-chat-frame#chat');
+      if (chat && !chat.hasAttribute('collapsed')) {
+        proceedingChatFrameVideoID = fvid;
+        dpeNewUrlChat(chat);
+      }
+    }, 67);
 
 
     const chatBlockR = liveChatRenderer ? (isReplay ? 3 : 1) : 0
@@ -7914,7 +7826,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  handleDOMAppear('#tabview-controller', ()=>{}); // dummy
+  handleDOMAppear('#tabview-controller', () => { }); // dummy
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-tabs-hide-controller';
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-default-tab-controller';
 
