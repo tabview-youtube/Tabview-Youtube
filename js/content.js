@@ -5475,6 +5475,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // dpeChatRefreshCounter++; // optional ?
 
+    if (chat.hasAttribute('collapsed')) return;
     console.debug('[tyt.iframe] loaded 01')
 
     const tid = ++iframeLoadHookA_id;
@@ -5543,6 +5544,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           dpeIframeReady(chatFrame);
         }
       }
+
+    } else if (!contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
 
     }
 

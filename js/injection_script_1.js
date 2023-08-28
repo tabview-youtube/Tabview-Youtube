@@ -1936,6 +1936,10 @@ function injection_script_1() {
               if (isReplay === false && __data && __data.baseUrl === "/live_chat_replay") __data.baseUrl = '/live_chat';
               if (isReplay === false && __data && (__data.url || '').startsWith("/live_chat_replay?")) __data.url = __data.url.replace('/live_chat_replay?', '/live_chat?');
 
+              if (ct3.length > 120 && ct1.length > 120) {
+                __data.url = __data.url.replace(ct3, ct1);
+              }
+
               cnt.data = { liveChatRenderer: dtConversationBar2.liveChatRenderer };
               if (__data && __data.data) __data.data = cnt.data;
               try {
@@ -1959,6 +1963,26 @@ function injection_script_1() {
         if (!sf) return;
 
         const isc = getIframeSrc(iframe);
+
+        if (typeof isc.src === 'string' && isc.src.includes('about:')) {
+
+          const __data = cnt.__data || 0;
+          if (__data) {
+
+            let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(__data.url || '')
+            if (m) {
+
+              isc.src = __data.url;
+
+              isc.pathname = m[1];
+              isc.continuation = m[2];
+              isc.spd = m[4];
+
+            }
+
+          }
+
+        }
 
         let doReplacement = 0;
 
@@ -2004,6 +2028,8 @@ function injection_script_1() {
 
           }
         }
+
+        if (!isc.src.includes('/live_chat')) doReplacement = 0;
 
 
         if (doReplacement > 0) {
