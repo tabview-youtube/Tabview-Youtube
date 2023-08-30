@@ -4222,6 +4222,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
             if (currentNode.role === 'button') {
               // tp-yt-paper-button#expand-sizer
+              // currentNode.matches('#collapse[role="button"]:not([hidden])')
               continue;
             }
             if (currentNode.hasAttribute("hidden")) {
@@ -4230,8 +4231,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (currentNode.id === "snippet") {
               let allHidden = true;
               for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
-                if (currentNode.role === 'button') {
-                  // tp-yt-paper-button#expand-sizer
+                if (child.nodeName === "STYLE") {
+                  // <style is-scoped>
                   continue;
                 }
                 if (child.hasAttribute("hidden")) {
@@ -4246,11 +4247,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               if (allHidden) {
                 continue;
               }
-            }
-    
-            if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
-              // break;
-              continue;
             }
     
     
