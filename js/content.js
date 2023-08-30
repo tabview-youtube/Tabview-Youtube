@@ -4196,32 +4196,44 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    async function checkDuplicatedInfoMay2023() {
+    async function checkDuplicatedInfoAug2023() {
       const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
       const secondElementSelector = "#tab-info ytd-expander #description";
-
+    
       const firstElement = document.querySelector(firstElementSelector);
       const secondElement = document.querySelector(secondElementSelector);
-
+    
       if (!firstElement || !secondElement) return false;
       if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
-
+    
       const asyncGetContent = async (n) => {
         return n.textContent;
       }
-
+    
       const getTextContentArr = async (element) => {
         let contentArray = [];
-
+    
         for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
-
+    
           if (currentNode.nodeType === Node.ELEMENT_NODE) {
+            if (currentNode.nodeName === "STYLE") {
+              // <style is-scoped>
+              continue;
+            }
+            if (currentNode.role === 'button') {
+              // tp-yt-paper-button#expand-sizer
+              continue;
+            }
             if (currentNode.hasAttribute("hidden")) {
               continue;
             }
             if (currentNode.id === "snippet") {
               let allHidden = true;
               for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
+                if (currentNode.role === 'button') {
+                  // tp-yt-paper-button#expand-sizer
+                  continue;
+                }
                 if (child.hasAttribute("hidden")) {
                   continue;
                 }
@@ -4235,18 +4247,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 continue;
               }
             }
-
+    
             if (currentNode.matches('#collapse[role="button"]:not([hidden])')) {
               // break;
               continue;
             }
-
-
+    
+    
           } else if (currentNode.nodeType === Node.TEXT_NODE) {
           } else {
             continue;
           }
-
+    
           let trimmedTextContent = await asyncGetContent(currentNode);
           trimmedTextContent = trimmedTextContent.trim();
           if (trimmedTextContent.length > 0) {
@@ -4255,21 +4267,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
             contentArray.push(trimmedTextContent);
           }
-
+    
         }
-
+    
         return contentArray;
       };
-
+    
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
-
+    
       function isSubset(arr1, arr2) {
         const set = new Set(arr2);
         const r = arr1.every(item => set.has(item));
         set.clear();
         return r;
       }
-
+    
       return isSubset(firstElementTextArr, secondElementTextArr);
     }
 
@@ -4306,7 +4318,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         await Promise.resolve(0);
 
-        infoDuplicated = await checkDuplicatedInfoMay2023();
+        infoDuplicated = await checkDuplicatedInfoAug2023();
 
         if (infoDuplicated === false && clicked) {
 
