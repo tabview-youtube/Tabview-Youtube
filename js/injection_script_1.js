@@ -2856,6 +2856,20 @@ function injection_script_1() {
 
   }, false);
 
+  document.addEventListener('tabview-fix-info-box-tooltip', (evt) => {
+    const ytdFlexy = document.querySelector('ytd-watch-flexy');
+    if (!ytdFlexy) return;
+
+    let isDuplicated = ytdFlexy.classList.contains('tabview-info-duplicated');
+    if (!isDuplicated) return;
+
+    let tooltip = document.querySelector('#bottom-row.style-scope.ytd-watch-metadata tp-yt-paper-tooltip.style-scope[role="tooltip"]');
+    if (!tooltip) return;
+
+    tooltip.position = 'top';
+    tooltip.classList.add('tyt-force-left-0');
+  }, false);
+
 
   // ----------------------------- ytLive / Popup / Begin -----------------------------
 

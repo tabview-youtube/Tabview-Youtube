@@ -5646,3 +5646,11 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
     }
 
 }
+
+@supports (color:var(--fix-tooltip-left-for-into)) {
+
+	.tyt-force-left-0 {
+		left: auto !important;
+	}
+    
+}

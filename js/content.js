@@ -4332,7 +4332,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
       console.debug('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
-
+      
       if (g_check_detail_A !== t) return;
 
       //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
@@ -4396,6 +4396,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                   ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
                   ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
                   checkDuplicatedInfo_then(res, checkDuplicateRes);
+                  scriptletDeferred.debounce(() => {
+                    document.dispatchEvent(new CustomEvent('tabview-fix-info-box-tooltip'));
+                  });
                 }
               }
 
