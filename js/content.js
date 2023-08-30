@@ -183,7 +183,7 @@ SOFTWARE.
       for (const h of hosts) {
 
 
-        linker(null, 'preconnect', h);
+        linker(null, 'dns-prefetch', h);
 
       }
 
