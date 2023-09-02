@@ -1808,6 +1808,18 @@ function injection_script_1() {
       if (typeof cProto.__$$postToContentWindow$$__ === 'function') console.warn('__$$postToContentWindow$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.postToContentWindow !== 'function' || cProto.postToContentWindow.length !== 1) console.warn('postToContentWindow cannot be altered');
 
+
+      if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
+      if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
+
+
+      cProto.__$$urlChanged$$__ = cProto.urlChanged;
+
+      cProto.urlChanged = function () {
+        if (!this.player) return;
+        return this.__$$urlChanged$$__();
+      }
+
       cProto.__$$postToContentWindow$$__ = cProto.postToContentWindow;
 
       initDebouncer();
@@ -2034,7 +2046,20 @@ function injection_script_1() {
 
         if (doReplacement > 0) {
           const src = isc.src;
-          let nSrc = src.replace(/([?&])continuation=[-\w.+$@%]+/, `$1continuation=${sf}`).replace(/\&\d+$/, '') + '&' + Date.now();
+          let baseSrc = src.replace(/([?&])continuation=[-\w.+$@%]+/, `$1continuation=${sf}`).replace(/\&\d+$/, '');
+          if (isReplay && baseSrc.includes('/live_chat_replay?')) {
+            let currentTime = 0;
+            try {
+              currentTime = Math.floor(cnt.player.getCurrentTime() * 1000);
+            } catch (e) {
+            }
+            if (currentTime) {
+              baseSrc = baseSrc.replace(/&playerOffsetMs=\d+/, '') + '&' + `playerOffsetMs=${currentTime}`;
+            } else {
+              baseSrc = baseSrc.replace(/&playerOffsetMs=\d+/, '')
+            }
+          }
+          let nSrc = baseSrc + '&' + Date.now();
           if (isReplay === true && isc.pathname === 'live_chat') {
             // if the video in previous record was live but now it is playback (VOD).
             // then change the live_chat to live_chat_replay
