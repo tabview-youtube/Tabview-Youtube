@@ -3448,6 +3448,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const dpeForceChatRenderOnChatExpanded = eventDispatcher("tabview-force-chat-render-on-chat-expanded");
 
   const dpeNewUrlChat = eventDispatcher("tabview-chat-fix-url-on-new-video-page");
+  const dpeFixUrlChatWhenOnloadWithEmptyBody = eventDispatcher("tabview-chat-fix-url-onload-with-empty-body");
 
   const dpeIframeReady = eventDispatcher('tabview-chatroom-ready');
 
@@ -5557,6 +5558,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
     } else if (!contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+
+      // e.g. when restore from mini view to watch page
+
+      dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
 
     }
 

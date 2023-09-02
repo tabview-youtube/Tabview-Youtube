@@ -94,10 +94,8 @@ function injection_script_1() {
   // /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
-  /** @param {HTMLIFrameElement} iframe */
-  const getIframeSrc = (iframe) => {
+  const _getIframeSrc = (src) => {
 
-    let src = iframe.getAttribute('src');
     let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
     if (!m) {
       return {
@@ -111,6 +109,25 @@ function injection_script_1() {
     let continuation = m[2];
     let spd = m[4];
 
+    return {
+      src,
+      pathname,
+      continuation,
+      spd
+    }
+
+  }
+
+  /** @param {HTMLIFrameElement} iframe */
+  const getIframeSrc = (iframe) => {
+
+    let src = iframe.getAttribute('src');
+    let r1 = _getIframeSrc(src);
+    let {pathname, continuation, spd} = r1;
+
+    if(!pathname || !continuation) return  r1;
+
+
     let src2 = null;
 
     try {
@@ -119,20 +136,20 @@ function injection_script_1() {
     src2 = src;
 
     if (typeof src2 === 'string' && src2 !== src) {
-      let m2 = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src2 || '');
+      let r2 = _getIframeSrc(src2);
       let readyState = null;
       try {
         readyState = iframe.contentDocument.readyState;
       } catch (e) { }
 
-      if (m2 && m[1] === pathname && m[2] === continuation) {
+      if (m2 && r2.pathname === pathname && r2.continuation === continuation) {
         src = src2;
-        spd = m[4];
+        spd = r2.spd;
       } else if (m2 && readyState === 'complete') {
         src = src2;
-        pathname = m[1];
-        continuation = m[2];
-        spd = m[4];
+        pathname = r2.pathname;
+        continuation = r2.continuation
+        spd = r2.spd
       }
     }
 
@@ -1815,8 +1832,11 @@ function injection_script_1() {
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
 
+      cProto.__urlChangedChangeCount = 0;
+
       cProto.urlChanged = function () {
         if (!this.player) return;
+        this.__urlChangedChangeCount++;
         return this.__$$urlChanged$$__();
       }
 
@@ -1893,8 +1913,24 @@ function injection_script_1() {
         if (!chat || chat.id !== 'chat') return;
 
         if (typeof chat.fixChatframeContentDisplay !== 'function') return;
+        if(!chat.player) return;
         console.debug('[tyt.chat] fix chat render on changed video');
-        chat.fixChatframeContentDisplay(0);
+        chat.fixChatframeContentDisplayWithUrlChanged(0);
+        
+        
+
+      }, true);
+
+      
+      document.addEventListener('tabview-chat-fix-url-onload-with-empty-body', function (evt) {
+
+        const chat = (evt || 0).target;
+        if (!chat || chat.id !== 'chat') return;
+
+        if (typeof chat.fixChatframeContentDisplay !== 'function') return;
+        if(!chat.player) return;
+        // console.debug('[tyt.chat] fix chat render when onload with empty body');
+        // chat.fixChatframeContentDisplayWithUrlChanged(0);
 
       }, true);
 
@@ -1974,7 +2010,7 @@ function injection_script_1() {
 
         if (!sf) return;
 
-        const isc = getIframeSrc(iframe);
+        let isc = getIframeSrc(iframe);
 
         if (typeof isc.src === 'string' && isc.src.includes('about:')) {
 
@@ -2041,7 +2077,15 @@ function injection_script_1() {
           }
         }
 
-        if (!isc.src.includes('/live_chat')) doReplacement = 0;
+        let src = isc.src || '';
+
+        if (!src) {
+          src = (cnt.__data || 0).url || '';
+          isc = _getIframeSrc(src);
+        }
+        if (!src || !src.includes('/live_chat')) doReplacement = 0;
+
+       
 
 
         if (doReplacement > 0) {
@@ -2074,12 +2118,19 @@ function injection_script_1() {
             nSrc
           })
           iframeSrcReplacement(iframe, nSrc);
+          cnt.url = nSrc.replace(/&playerOffsetMs=\d+/, '').replace(/&\d+$/, '')
           console.debug('[tyt] replaced chat url');
         }
 
 
       }
 
+      cProto.fixChatframeContentDisplayWithUrlChanged = async function (isChatExpansionChanged) {
+
+        this.isFrameReady = !this.isChatReplay();
+        await Promise.resolve().then(() => this.fixChatframeContentDisplay(isChatExpansionChanged)).catch(console.warn)
+
+      }
 
     });
 
@@ -4695,11 +4746,11 @@ rcb(b) => a = playlistId = undefinded
     if (!chat || chat.id !== 'chat') return;
 
     if (typeof chat.fixChatframeContentDisplay !== 'function') return;
-
+    if (!chat.player) return;
     console.debug('[tyt.chat] fix chat render on expanded chat');
-    chat.fixChatframeContentDisplay(1);
+    chat.fixChatframeContentDisplayWithUrlChanged(1);
 
-  }, true)
+  }, true);
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
