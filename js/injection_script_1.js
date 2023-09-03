@@ -2127,7 +2127,11 @@ function injection_script_1() {
 
       cProto.fixChatframeContentDisplayWithUrlChanged = async function (isChatExpansionChanged) {
 
-        this.isFrameReady = !this.isChatReplay();
+        try {
+          this.isFrameReady = !this.isChatReplay();
+        } catch (e) {
+          console.warn(e)
+        }
         await Promise.resolve().then(() => this.fixChatframeContentDisplay(isChatExpansionChanged)).catch(console.warn)
 
       }
