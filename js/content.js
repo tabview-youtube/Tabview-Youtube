@@ -4221,7 +4221,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               // <style is-scoped>
               continue;
             }
-            if (currentNode.role === 'button') {
+            if (currentNode.getAttribute('role') === 'button') { // .role is not working in Firefox
               // tp-yt-paper-button#expand-sizer
               // currentNode.matches('#collapse[role="button"]:not([hidden])')
               continue;
