@@ -5383,6 +5383,14 @@ https://www.youtube.com/watch?v=3-nuSx3F6YU
 
     }
 
+    @supports (color: var(--fullscreen-info-section)) {
+
+        #bottom-row.ytd-watch-metadata.ytd-watch-metadata {
+            margin: 0;
+        }
+
+    }
+
     
     :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_]:not([tyt-chat]) #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]),
     :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_][tyt-chat^="-"] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]) {
