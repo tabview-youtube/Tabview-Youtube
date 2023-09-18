@@ -88,6 +88,19 @@ function injection_script_1() {
   /** @type {globalThis.cancelAnimationFrame} */
   const $cancelAnimationFrame = (window.webkitCancelAnimationFrame || window.cancelAnimationFrame).bind(window);
 
+  const dispatchCustomEvent = (dom, type, detail)=>{
+    dom.dispatchEvent(detail ? new CustomEvent(type, {detail}) : new CustomEvent(type));
+  }
+
+  let _rafPromise = null;
+
+  const getRAFPromise = () => _rafPromise || (_rafPromise = new Promise(resolve => {
+    $requestAnimationFrame(hRes => {
+      _rafPromise = null;
+      resolve(hRes);
+    });
+  }));
+
   // /** @type {(o: Object | null) => WeakRef | null} */
   const mWeakRef = typeof WeakRef === 'function' ? (o => o ? new WeakRef(o) : null) : (o => o || null); // typeof InvalidVar == 'undefined'
 
@@ -95,27 +108,21 @@ function injection_script_1() {
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
   const _getIframeSrc = (src) => {
-
     let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
-    if (!m) {
-      return {
-        src,
-        pathname: null,
-        continuation: null,
-        spd: null
-      }
+    let pathname = null;
+    let continuation = null;
+    let spd = null;
+    if (m) {
+      pathname = m[1];
+      continuation = m[2];
+      spd = m[4];
     }
-    let pathname = m[1];
-    let continuation = m[2];
-    let spd = m[4];
-
     return {
       src,
       pathname,
       continuation,
       spd
-    }
-
+    };
   }
 
   /** @param {HTMLIFrameElement} iframe */
@@ -168,26 +175,8 @@ function injection_script_1() {
    *  */
   const iframeSrcReplacement = (chatframe, nSrc) => {
     Promise.resolve().then(() => {
-      /*
-      try {
-        chatframe.contentWindow.stop();
-      } catch (e) { }
-      try{
-        chatframe.contentWindow.location.replace('about:blank');
-      }catch(e){
-        console.log(e);
-        chatframe.setAttribute('src', 'about:blank');
-      }
-      try {
-        chatframe.contentWindow.stop();
-      } catch (e) { }
-      */
-    }).then(() => {
       if (chatframe.isConnected !== true) return;
       if (typeof nSrc !== 'string') return;
-      try {
-        // chatframe.contentWindow.stop();
-      } catch (e) { }
       try {
         // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
         chatframe.contentWindow.location.replace(nSrc);
@@ -234,18 +223,10 @@ function injection_script_1() {
     }
   }
 
-
-  let foregroundPromise = null;
-
   const getForegroundPromise = () => {
     if (document.visibilityState === 'visible') return Promise.resolve();
     else {
-      return (foregroundPromise = (foregroundPromise || new Promise(resolve => {
-        $requestAnimationFrame(() => {
-          foregroundPromise = null;
-          resolve();
-        });
-      })));
+      return getRAFPromise();
     }
   }
 
@@ -1239,9 +1220,9 @@ function injection_script_1() {
           if (!target.hasAttribute('QNJMC')) {
             target.setAttribute('QNJMC', '')
             target.addEventListener('mouseenter', function () {
-              $requestAnimationFrame(() => {
+              getRAFPromise().then(() => {
                 if (this.atStart === true) this.reset();
-              })
+              });
             }, false)
           }
         }
@@ -1593,7 +1574,7 @@ function injection_script_1() {
                 if (typeof nv == 'object') {
                   delete this.__CE_registry;
                   this.__CE_registry = nv;
-                  this.dispatchEvent(new CustomEvent(EVENT_KEY_ON_REGISTRY_READY));
+                  dispatchCustomEvent(this, EVENT_KEY_ON_REGISTRY_READY);
                 }
                 return true;
               },
@@ -1782,10 +1763,10 @@ function injection_script_1() {
 
     // assume initialTranscriptsRenderer is not called before ceHack()
 
-    $requestAnimationFrame(() => {
+    getRAFPromise().then(() => {
       if (translateHanlder === null)
         translateHanlder = getTranslate();
-    })
+    });
 
 
     customYtElements.whenRegistered('ytd-transcript-search-panel-renderer', (cProto) => {
@@ -2259,7 +2240,7 @@ function injection_script_1() {
             checkCommentCountCorrectness.call(this, data)
 
           }
-          hostElement.dispatchEvent(new CustomEvent('ytd-comments-data-changed', { detail: { hasData } }));
+          dispatchCustomEvent(hostElement, 'ytd-comments-data-changed', { hasData });
         }
       }
 
@@ -2278,7 +2259,7 @@ function injection_script_1() {
           }
 
           cnt.tytHeaderChanged_();
-          hostElement.dispatchEvent(new CustomEvent('ytd-comments-header-changed'));
+          dispatchCustomEvent(hostElement, 'ytd-comments-header-changed');
 
         }
       }
@@ -2594,7 +2575,7 @@ function injection_script_1() {
     if (panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
       isLyricsLoading = false
       lyricsiframe = panel.querySelector('#lyricsiframe');
-      document.dispatchEvent(new CustomEvent('genius-lyrics-actor', { detail: { action: 'hideLyrics' } }))
+      dispatchCustomEvent(document, 'genius-lyrics-actor', { action: 'hideLyrics' });
       await Promise.resolve(0)
       if (lyricsiframe) {
         document.body.appendChild(lyricsiframe)
@@ -2613,7 +2594,7 @@ function injection_script_1() {
           elementAppend.call(epc, lyricsiframe);
           await Promise.resolve(0)
           setTimeout(() => {
-            document.dispatchEvent(new CustomEvent('genius-lyrics-actor', { detail: { action: 'reloadCurrentLyrics' } }))
+              dispatchCustomEvent(document, 'genius-lyrics-actor', { action: 'reloadCurrentLyrics' });
           }, 40)
         }
 
@@ -2672,12 +2653,10 @@ function injection_script_1() {
           elm.classList.add('tyt-tmp-hide-lyricsiframe');
           elementAppend.call(epc, elm);
 
-          document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
-            detail: {
-              panelId: "engagement-panel-genius-transcript",
-              toShow: true
-            }
-          }))
+          dispatchCustomEvent(document, 'tyt-engagement-panel-visibility-change', {
+            panelId: "engagement-panel-genius-transcript",
+            toShow: true
+          });
 
 
           // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
@@ -2718,13 +2697,10 @@ function injection_script_1() {
       let panel = document.querySelector(panel_cssSelector)
       if (panel && panel.getAttribute('visibility') === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
 
-
-        document.dispatchEvent(new CustomEvent('tyt-engagement-panel-visibility-change', {
-          detail: {
-            panelId: "engagement-panel-genius-transcript",
-            toHide: true
-          }
-        }))
+        dispatchCustomEvent(document, 'tyt-engagement-panel-visibility-change', {
+          panelId: "engagement-panel-genius-transcript",
+          toShow: true
+        });
 
 
         // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN')
@@ -2747,7 +2723,7 @@ function injection_script_1() {
         if (tmp) {
           tmp.remove()
         }
-        document.dispatchEvent(new CustomEvent('getLyricsReady'));
+        dispatchCustomEvent(document, 'getLyricsReady');
       }
     } else if (data.visibility === 'loaded') {
       let p = document.querySelector('iframe#lyricsiframe')
@@ -2874,12 +2850,12 @@ function injection_script_1() {
 
         window.removeEventListener('resize', s.updateSC);
         s.updateSC = function () {
-          this.dispatchEvent(new CustomEvent('tyt-autocomplete-suggestions-change'));
+          dispatchCustomEvent(this, "tyt-autocomplete-suggestions-change");
         };
 
       }
 
-      s.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+      dispatchCustomEvent(s, 'autocomplete-sc-exist');
 
     }
 
@@ -3004,25 +2980,18 @@ function injection_script_1() {
 
     }
 
-    function codeFixForParticipants() {
-      let cr = kRef(chatroomRenderer)
-      if (!cr) return;
-      let participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
-      if (!participants) return;
-      participants.canShow322 = !participants.matches('iron-pages > :not(slot):not(.iron-selected)')
-      // console.log('canShow322', participants.canShow322)
-
-      if (!participants.onParticipantsChanged322 && typeof participants.onParticipantsChanged === 'function') {
-        participants.onParticipantsChanged322 = participants.onParticipantsChanged
+    function setupParticipantsCnt(participantsCnt){
+      if (!participantsCnt.onParticipantsChanged322 && typeof participantsCnt.onParticipantsChanged === 'function' && !participantsCnt.participantsChangeIfPending) {
+        participantsCnt.onParticipantsChanged322 = participantsCnt.onParticipantsChanged
 
         // let _lastData = null
-        participants.participantsChangeIfPending = function () {
+        participantsCnt.participantsChangeIfPending = function () {
 
           if (this.canShow322 === true && this.showPending322 === true && this.onParticipantsChangedBusy322 === false) {
             this.onParticipantsChanged();
           }
         }
-        participants.onParticipantsChanged = async function () {
+        participantsCnt.onParticipantsChanged = async function () {
           try {
             this.showPending322 = true; // refresh next time
 
@@ -3032,9 +3001,9 @@ function injection_script_1() {
 
             this.onParticipantsChangedBusy322 = true;
 
-            let waiter = new Promise($requestAnimationFrame); // avoid frequently update
+            let waiter = getRAFPromise(); // avoid frequently update
 
-            this.onParticipantsChanged322()
+            this.onParticipantsChanged322();
 
             this.showPending322 = false; // refreshed
 
@@ -3044,24 +3013,25 @@ function injection_script_1() {
             console.warn(e)
           }
 
-
-
           this.onParticipantsChangedBusy322 = false;
           if (typeof this.participantsChangeIfPending === 'function') this.participantsChangeIfPending(); // unknown bug found in 2023.06.18 (FireFox)
-
-
 
         }
 
       }
+    }
 
-      participants.onParticipantsChangedBusy322 = false; // force change
-      participants.participantsChangeIfPending();
-
-      participants = null
-      cr = null
-
-
+    function codeFixForParticipants() {
+      const cr = kRef(chatroomRenderer);
+      if (!cr) return;
+      const participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
+      if (!participants) return;
+      const participantInst = (participants.inst || participants);
+      const participantsCnt = participantInst.constructor.prototype;
+      setupParticipantsCnt(participantsCnt);
+      participantInst.canShow322 = !participants.matches('iron-pages > :not(slot):not(.iron-selected)')
+      participantInst.onParticipantsChangedBusy322 = false; // force change
+      participantInst.participantsChangeIfPending && participantInst.participantsChangeIfPending();
     }
 
     function setupMTO(btn) {
@@ -3122,12 +3092,11 @@ function injection_script_1() {
         if (required === true) {
 
           if (btnElm) {
-            btnElm.classList.toggle('tyt-btn-popuped', popuped)
-            document.dispatchEvent(new CustomEvent('tyt-chat-popup', {
-              detail: {
-                popuped: popuped
-              }
-            }))
+            btnElm.classList.toggle('tyt-btn-popuped', popuped);
+
+            dispatchCustomEvent(document, 'tyt-chat-popup', {
+              popuped: popuped
+            });
             try {
               if (!popuped && popupClose) {
                 popupClose();
@@ -3161,14 +3130,14 @@ function injection_script_1() {
         Promise.resolve(0).then(codeFixForParticipants);
 
 
-      })
+      });
       mtoIframePopup.observe(cm, {
 
         attributes: true,
         attributeFilter: ['class'],
         attributeOldValue: true
 
-      })
+      });
       cm = null
       cr = null
 
@@ -3259,7 +3228,7 @@ function injection_script_1() {
       while (!itemScroller) {
         if (!cr) cr = kRef(chatroomRenderer)
         if (cr) itemScroller = cr.querySelector('#item-scroller.yt-live-chat-item-list-renderer')
-        await new Promise(resolve => $requestAnimationFrame(resolve));
+        await getRAFPromise().then();
         if (tid !== popupBtnId) return
         if (count++ > 200) return
       }
@@ -4882,7 +4851,7 @@ rcb(b) => a = playlistId = undefinded
 
   document.documentElement.setAttribute('tabview-unwrapjs', '1')
   if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {
-    document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
+    dispatchCustomEvent(document, "tabview-plugin-loaded");
   }
 
 
