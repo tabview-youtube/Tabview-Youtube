@@ -4628,12 +4628,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppear('pageLoaderAnimation', (evt) => {
       pageRendered = 2;
       renderDeferred.resolve();
-      console
-      console.debug('[tyt] pageRendered')
+      console.debug('[tyt] pageRendered');
 
       scriptletDeferred.debounce(() => {
-        document.dispatchEvent(new CustomEvent('tabview-page-rendered'))
-      })
+        document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
+        document.dispatchEvent(new CustomEvent("yt-watch-comments-ready")); // immediately render comments when tab is switched from background  
+      });
 
     });
 
