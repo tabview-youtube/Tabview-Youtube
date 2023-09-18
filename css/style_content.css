@@ -659,6 +659,36 @@ Same for #secondary
 
 }
 
+@supports (color: var(--rolling-number-rendering)){
+
+    yt-animated-rolling-number {
+        flex-wrap: nowrap;
+        contain: content;
+        white-space: nowrap;
+    }
+    animated-rolling-character {
+        contain: layout style;
+        display: inline-flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+    }
+    animated-rolling-character > div {
+        contain: content;
+        white-space: nowrap;
+    }
+
+    yt-animated-rolling-number.animated-rolling-number-wiz {
+        font-size: inherit;
+    }
+
+    #info-container.ytd-watch-info-text,
+    #view-count.ytd-watch-info-text {
+        align-items: center;
+    }
+
+}
+
 @supports (color: var(--fix-tooltips-display)) { /* May 2023 */
     #actions-inner.ytd-watch-metadata {
         /* position: relative; */

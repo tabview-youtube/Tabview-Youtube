@@ -4632,7 +4632,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
-        setTimeout(()=>{
+        setTimeout(() => {
           document.dispatchEvent(new CustomEvent("yt-watch-comments-ready")); // immediately render comments when tab is switched from background
         }, 80);
       });
