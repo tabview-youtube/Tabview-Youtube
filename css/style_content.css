@@ -78,7 +78,7 @@
     }
 }
 
-@supports (color: var(--performance-hack)){
+@supports (color-invalid: var(--performance-hack)){
 
     ytd-watch-flexy[video-id] #columns {
         --tyt-lock-display: none;

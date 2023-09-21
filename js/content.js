@@ -209,7 +209,7 @@ SOFTWARE.
       if (--c === 0) return
       await getRAFPromise().then()
     }
-    if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
+    // if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
   }
   if (location.pathname === '/watch') makeTytLock()
   /*
@@ -3928,7 +3928,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const pageBeingInit = function () {
 
-    if (_isPageFirstLoaded && location.pathname === '/watch') document.documentElement.setAttribute('tyt-lock', '')
+    // if (_isPageFirstLoaded && location.pathname === '/watch') document.documentElement.setAttribute('tyt-lock', '')
 
     // call regardless pageType
     // run once on / before pageSeq2
@@ -5810,7 +5810,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // })
 
-    isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock');
+    // isPageFirstLoaded && document.documentElement.removeAttribute('tyt-lock');
 
   }
 
