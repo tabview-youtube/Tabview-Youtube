@@ -3884,7 +3884,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let m_playlist = kRef(playlist_wr);
         playlist_wr = null;
         if (m_playlist) {
-          m_playlist.dispatchEvent(new CustomEvent("tabview-playlist-data-re-assign"));
+          m_playlist.dispatchEvent(new CustomEvent("tabview-yt-data-reassign"));
         }
         m_playlist = null;
       })

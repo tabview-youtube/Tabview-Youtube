@@ -88,8 +88,8 @@ function injection_script_1() {
   /** @type {globalThis.cancelAnimationFrame} */
   const $cancelAnimationFrame = (window.webkitCancelAnimationFrame || window.cancelAnimationFrame).bind(window);
 
-  const dispatchCustomEvent = (dom, type, detail)=>{
-    dom.dispatchEvent(detail ? new CustomEvent(type, {detail}) : new CustomEvent(type));
+  const dispatchCustomEvent = (dom, type, detail) => {
+    dom.dispatchEvent(detail ? new CustomEvent(type, { detail }) : new CustomEvent(type));
   }
 
   let _rafPromise = null;
@@ -130,9 +130,9 @@ function injection_script_1() {
 
     let src = iframe.getAttribute('src');
     let r1 = _getIframeSrc(src);
-    let {pathname, continuation, spd} = r1;
+    let { pathname, continuation, spd } = r1;
 
-    if(!pathname || !continuation) return  r1;
+    if (!pathname || !continuation) return r1;
 
 
     let src2 = null;
@@ -241,125 +241,23 @@ function injection_script_1() {
 
   DEBUG_e32 && console.log(9442, 103);
 
-  let chatroomRenderer = null
+  let chatroomRendererElmWR = null
 
   document.addEventListener("tabview-expander-config", (evt) => {
 
     if (!evt || !evt.target) return;
-    let dom = evt.target;
+    const expanderElm = evt.target;
 
-    /*
-    nativeCall(expander, [
-      { 'property': 'canToggleJobId', 'value': 1 }, // false disable calculateCanCollapse in childrenChanged
-      { 'property': 'alwaysToggleable', 'value': false }, // this is checked in childrenChanged
-      { 'property': 'recomputeOnResize', 'value': false }, // no need to check toggleable
-      { 'property': 'isToggled', 'value': true }, // show full content
-      { 'property': 'canToggle', 'value': false }, // hide show more or less btn
-      { 'property': 'collapsedHeight', 'value': 999999 } // disable collapsed height check
-    ])
-    */
+    const expanderCnt = expanderElm.inst || expanderElm;
 
-    dom.canToggleJobId = 1;
-    dom.alwaysToggleable = false;
-    dom.recomputeOnResize = false;
-    dom.isToggled = true;
-    dom.canToggle = false;
-    dom.collapsedHeight = 999999;
+    expanderCnt.canToggleJobId = 1;
+    expanderCnt.alwaysToggleable = false;
+    expanderCnt.recomputeOnResize = false;
+    expanderCnt.isToggled = true;
+    expanderCnt.canToggle = false;
+    expanderCnt.collapsedHeight = 999999;
 
   }, true);
-
-
-  /*
-  document.addEventListener('userscript-call-dom', function (evt) {
-
-    DEBUG_e32 && console.log(9442, evt.type);
-
-    if (!evt || !evt.target || !evt.detail) return;
-    let dom = evt.target;
-
-    let detail = evt.detail;
-    //console.log(detail)
-    if (!detail || !detail.length) return;
-
-    for (const obj of detail) {
-
-      const { method, property, args, value } = obj
-      if (method && typeof method == 'string') {
-        const f = dom[method];
-        if (!f) console.log('This method is not supported');
-        else if (args && args.length >= 1) {
-          try {
-            f.apply(dom, args)
-
-          } catch (e) {
-            console.log(`Dom Method Failed: ${method}`)
-          }
-        } else {
-          try {
-            f.call(dom)
-
-          } catch (e) {
-            console.log(`Dom Method Failed: ${method}`)
-          }
-        }
-      } else if (property && typeof property == 'string') {
-        if (!(property in dom)) console.log('This propert is not supported')
-        else if (value === undefined) console.log('undefined value is not supported')
-        else {
-
-          try {
-            dom[property] = value;
-
-          } catch (e) {
-            console.log(`Dom Property Failed: ${property}`)
-          }
-        }
-      }
-
-    }
-
-  }, true)
-  */
-
-
-  // document.addEventListener('userscript-call-dom-func', function (evt) {
-
-  //   DEBUG_e32 && console.log(9442, evt.type);
-
-  //   if (!evt || !evt.target || !evt.detail) return;
-  //   let dom = evt.target;
-
-  //   let { property, args } = evt.detail;
-  //   if (!property) return;
-  //   let f = dom[property];
-  //   if (typeof f != 'function') return;
-
-  //   if (args && args.length > 0) f.apply(dom, args);
-  //   else f.call(dom);
-
-  // }, true)
-
-  /*
-  document.addEventListener('userscript-call-dom-func-stacked', function (evt) {
-
-    if (!evt || !evt.target || !evt.detail) return;
-    let document = evt.target;
-
-    let { selector, property, args } = evt.detail;
-    if (!selector || !property) return;
-    let elements = document.querySelectorAll(selector);
-    for (const element of elements) {
-      let f = element[property];
-      if (typeof f != 'function') return;
-      if (args && args.length > 0) f.apply(element, args);
-      else f.call(element);
-    }
-
-  }, false)
-  */
-
-
-
 
 
   // top.tabviewSwitchVideoPage
@@ -400,9 +298,9 @@ function injection_script_1() {
 
     clearVars() {
 
-      this.ytLiveChatApp = null
+      this.ytLiveChatAppElm = null
       /** @type {HTMLElement | null} */
-      this.ytLiveChatRenderer = null
+      this.ytLiveChatRendererElm = null
 
       this.initialFetchReq = 0
 
@@ -421,12 +319,12 @@ function injection_script_1() {
       this.init();
     }
 
-    /** @param {HTMLElement | null} chat */
-    initByChat(chat) {
+    /** @param {HTMLElement | null} chatElm */
+    initByChat(chatElm) {
       // this is triggered when collapsed / expanded / initial state
       // console.log('initByChat')
 
-      if (this.elmChat && this.elmChat !== chat && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
+      if (this.elmChat && this.elmChat !== chatElm && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
 
         // disable this...
 
@@ -440,7 +338,7 @@ function injection_script_1() {
 
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
-      if (chat === null) {
+      if (chatElm === null) {
         const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
         if (elmChatCnt && elmChatCnt.disconnectedCallback && elmChatCnt.isAttached === true) {
 
@@ -460,10 +358,10 @@ function injection_script_1() {
 
         // console.log(2242)
         // console.log('initByChat')
-        if ((chat || 0).id !== 'chat') return;
+        if ((chatElm || 0).id !== 'chat') return;
 
 
-        this.elmChat = chat;
+        this.elmChat = chatElm;
         const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
         if (elmChatCnt && elmChatCnt.connectedCallback && elmChatCnt.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
@@ -475,17 +373,11 @@ function injection_script_1() {
         }
 
         this.loadStatus |= 1 // 00000001
-        if (chat.collapsed === true) {
+        if (chatElm.collapsed === true) {
           this.clearVars();
           if (this.loadStatus & 4) this.loadStatus -= 4
         } else if (this.initialFetchReq === 0) {
           this.initialFetchReq = 1;
-        } else if (this.initialFetchReq === 21) {
-          // url changed
-          // this fire mutiple times until initByChatRenderer reset it.
-
-          // disable this ...
-          // this.chatUrlChanged();
         }
 
         // chat.classList.remove('tyt-chat-frame-ready')
@@ -502,8 +394,8 @@ function injection_script_1() {
         this.adsState |= 2; // played once [2]
         if (this.adsState & 1) this.adsState -= 1; // reset pause [1]
         // 2|0 = 2
-        if (this.ytLiveChatRenderer) {
-          this.ytLiveChatRenderer._setIsAdPlaying(true);
+        if (this.ytLiveChatRendererElm) {
+          this.ytLiveChatRendererElm._setIsAdPlaying(true);
         }
         if (this.elmChat) {
           this.elmChat.classList.add('tyt-chat-ads-playing')
@@ -515,13 +407,22 @@ function injection_script_1() {
       }
     }
 
-    initByChatRenderer(cr) {
+    getPlayerFC() {
+      let playerC = this.elmChat ? (this.elmChat.inst || this.elmChat).player : null;
+      if (playerC) return playerC;
+
+      let ytdFlexyElm = document.querySelector('ytd-watch-flexy') || 0;
+      let cnt = ytdFlexyElm.inst || ytdFlexyElm;
+      return cnt.player || 0;
+    }
+
+    initByChatRenderer(lcrElm) {
       // this is triggered when liveChatApp + Renderer ready
 
       // console.log('initByChatRenderer')
-      if (!cr) return;
-      this.ytLiveChatApp = closestFromAnchor.call(cr, 'yt-live-chat-app')
-      if (!this.ytLiveChatApp) return;
+      if (!lcrElm) return;
+      this.ytLiveChatAppElm = closestFromAnchor.call(lcrElm, 'yt-live-chat-app');
+      if (!this.ytLiveChatAppElm) return;
 
       if (this.initialFetchReq >= 3) {
         // including  this.initialFetchReq === 21
@@ -533,26 +434,23 @@ function injection_script_1() {
         this.ytLiveMOHandler();
       }
 
-      this.ytLiveChatRenderer = cr // for both playback replay and livestream
-      chatroomRenderer = mWeakRef(cr) // avoid memory leak for live popup
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
-      if (ytdFlexyElm) {
-        let playerData = ytdFlexyElm.player || 0
-        if (typeof playerData.getPresentingPlayerType === 'function') {
-          let playerType = playerData.getPresentingPlayerType()
-          // 2 for ads
-          // 1 for normal
-          this.setAdPlaying(playerType === 2);
-        }
+      this.ytLiveChatRendererElm = lcrElm; // for both playback replay and livestream
+      chatroomRendererElmWR = mWeakRef(lcrElm); // avoid memory leak for live popup
+      let playerFC = this.getPlayerFC();
+      if (playerFC && typeof playerFC.getPresentingPlayerType === 'function') {
+        const playerType = playerFC.getPresentingPlayerType();
+        // 2 for ads
+        // 1 for normal
+        this.setAdPlaying(playerType === 2);
       }
-      // console.log(771, this.adsState, this.ytLiveChatRenderer.isAdPlaying)
+      // console.log(771, this.adsState, this.ytLiveChatRendererElm.isAdPlaying)
       // playback replay: loading correct comments at specific time
       // livestream: control popup
 
       // this.setUpPlayerSeekCont();
-      this.isChatReplay = this.isReplay()
-      this.setupChatRenderer()
-      this.loadStatus |= 4 // 00000100
+      this.isChatReplay = this.isReplay();
+      this.setupChatRenderer();
+      this.loadStatus |= 4; // 00000100
       this.init();
     }
 
@@ -561,14 +459,14 @@ function injection_script_1() {
 
       let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
       if (!ytdFlexyElm) {
-        console.warn('error F032')
+        console.warn('error F032');
       }
-      let attr = ytdFlexyElm ? ytdFlexyElm.getAttribute('tyt-chat') : null
-      let chat = attr ? document.querySelector('ytd-live-chat-frame#chat') : null;
+      let attr = ytdFlexyElm ? ytdFlexyElm.getAttribute('tyt-chat') : null;
+      let chatElm = attr ? document.querySelector('ytd-live-chat-frame#chat') : null;
       // note: there is multiple triggering of this (with same final attr value);
       //       not sure whether the bug of tabview layout itself or the element is truly removed and reinserted.
       // the same attr would happen twice
-      ytLivePU.initByChat(chat)
+      ytLivePU.initByChat(chatElm)
     }
 
     setupYtLiveMO() {
@@ -587,43 +485,20 @@ function injection_script_1() {
           characterDataOldValue: false
         })
       } else {
-        console.warn('error F031')
+        console.warn('error F031');
       }
-    }
-
-
-    async chatUrlChanged() {
-      // this function is usually enforced when the chat is expand in livestream and click history back button to video with live chat playback.
-      // first call not effect; only take effect in second call.
-      await Promise.resolve(0)
-      let chat = this.elmChat
-      if (chat && this.initialFetchReq === 21 && chat.collapsed === false) {
-        let cr = this.ytLiveChatRenderer
-        if (cr) {
-          this.initialFetchReq = 1
-          this.initByChatRenderer(cr);
-          return false
-        } else {
-          // this.initialFetchReq = 1
-
-          chat.urlChanged(); // neccessary
-          return true
-        }
-      }
-      this.initialFetchReq = 0
-      return null
     }
 
     setupChatRenderer() {
       // only triggered in init
 
-      const ytLivePU = this
+      const ytLivePU = this;
 
 
-      if (this.isChatReplay && !this.ytLiveChatRenderer._gIxmf) {
-        this.ytLiveChatRenderer._gIxmf = 1;
-        this.ytLiveChatRenderer._setPlayerProgressSec26 = this.ytLiveChatRenderer._setPlayerProgressSec;
-        this.ytLiveChatRenderer._setPlayerProgressSec = function (x) {
+      if (this.isChatReplay && !this.ytLiveChatRendererElm._gIxmf) {
+        this.ytLiveChatRendererElm._gIxmf = 1;
+        this.ytLiveChatRendererElm._setPlayerProgressSec26 = this.ytLiveChatRendererElm._setPlayerProgressSec;
+        this.ytLiveChatRendererElm._setPlayerProgressSec = function (x) {
           if (x < 1e-99) x = 1e-99
           let t = this._setPlayerProgressSec26.apply(this, arguments)
           return t
@@ -633,7 +508,7 @@ function injection_script_1() {
 
 
       if (this.isChatReplay && !ytLivePU.queryCR('style#tyt-chatframe-css')) {
-        let style = ytLivePU.ytLiveChatApp.ownerDocument.createElement('style')
+        let style = ytLivePU.ytLiveChatAppElm.ownerDocument.createElement('style')
         style.id = 'tyt-chatframe-css'
         style.textContent = `
           yt-live-chat-renderer[loading2] #chat.yt-live-chat-renderer::after {
@@ -641,13 +516,13 @@ function injection_script_1() {
           }
         `;
 
-        elementAppend.call(ytLivePU.ytLiveChatApp, style);
+        elementAppend.call(ytLivePU.ytLiveChatAppElm, style);
       }
 
     }
 
     queryCR(query, inCR) {
-      let elm = inCR ? this.ytLiveChatRenderer : this.ytLiveChatApp
+      let elm = inCR ? this.ytLiveChatRendererElm : this.ytLiveChatAppElm
       if (elm) return HTMLElement.prototype.querySelector.call(elm, query)
       return null
     }
@@ -660,20 +535,27 @@ function injection_script_1() {
         // click: ()=>p.click()
         click: () => {
 
-          let ytReloadCont = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu')
-          let getContinuationUrl = ytReloadCont.getContinuationUrl.bind(ytReloadCont)
-          // ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
+          const ytReloadContElm = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu');
+          const ytReloadContCnt = ytReloadContElm.inst || ytReloadContElm;
 
-          // ytReloadCont.trigger();
-          ytReloadCont.fire("yt-load-reload-continuation", getContinuationUrl);
+          let getContinuationUrl = null;
 
+          if (typeof ytReloadContCnt.getContinuationUrl === 'function') getContinuationUrl = ytReloadContCnt.getContinuationUrl.bind(ytReloadContCnt);
+          else if (typeof ytReloadContElm.getContinuationUrl === 'function') getContinuationUrl = ytReloadContElm.getContinuationUrl.bind(ytReloadContElm);
+
+          if (getContinuationUrl) {
+
+            if (typeof ytReloadContCnt.fire === 'function') ytReloadContCnt.fire("yt-load-reload-continuation", getContinuationUrl);
+            else if (typeof ytReloadContElm.fire === 'function') ytReloadContElm.fire("yt-load-reload-continuation", getContinuationUrl);
+
+          }
 
         }
       }
     }
 
     isReplay() {
-      let liveChatRendererData = (this.ytLiveChatRenderer || 0).data
+      let liveChatRendererData = (this.ytLiveChatRendererElm || 0).data
       return liveChatRendererData && liveChatRendererData.continuations && liveChatRendererData.isReplay === true
     }
 
@@ -683,11 +565,12 @@ function injection_script_1() {
         // usually not used
         // chat element found; cr found.
         // bug - no load event;
-        let iframe = HTMLElement.prototype.querySelector.call(this.elmChat, 'iframe#chatframe');
+        const chatCnt = this.elmChat.inst || this.elmChat;
+        const iframe = (chatCnt.$ || chatCnt).chatframe;
         if (iframe) {
           this.elmChatFrame = null; // required
           this.initByIframe(iframe); // supplementary
-          return // init fire again in this.initByIframe
+          return; // init fire again in this.initByIframe
         }
       }
       if (!this.elmChat || !this.elmChatFrame) return;
@@ -749,8 +632,10 @@ function injection_script_1() {
       }
 
       if (actions.length > 0) {
+        const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
+        const cnt = ytdWatchFlexy.inst || ytdWatchFlexy;
 
-        document.querySelector('ytd-watch-flexy').resolveCommand(
+        cnt.resolveCommand(
           {
             "signalServiceEndpoint": {
               "signal": "CLIENT_SIGNAL",
@@ -1105,8 +990,8 @@ function injection_script_1() {
 
         for (const entry of entries) {
 
-          const threadRenderer = entry.target;
-          if (!threadRenderer) continue;
+          const threadRendererElm = entry.target;
+          if (!threadRendererElm) continue;
 
           let h = entry.boundingClientRect.height
 
@@ -1114,7 +999,7 @@ function injection_script_1() {
           let b2 = !entry.isIntersecting;
           if (!b1 && !b2) continue;
 
-          let m = cmtWM.get(threadRenderer);
+          let m = cmtWM.get(threadRendererElm);
           // m:string -> css for --tabview-cmt-height
           // m===-1: not intialized
           // m===-2: disabled
@@ -1126,7 +1011,7 @@ function injection_script_1() {
 
             let t = `${h.toFixed(3)}px` //123.456px
             if (m !== t) {
-              cmtWM.set(threadRenderer, t)
+              cmtWM.set(threadRendererElm, t)
             }
             m = t;
 
@@ -1136,7 +1021,7 @@ function injection_script_1() {
 
           if (m === -1) continue; // h is not available
 
-          const style = threadRenderer.style
+          const style = threadRendererElm.style
 
           if (b2) {
             // set CSS rule when it leaves the visible region
@@ -1145,12 +1030,12 @@ function injection_script_1() {
               style.setProperty("--tabview-cmt-height", m)
             }
 
-            threadRenderer.classList.remove('tyt-visible-comment')
+            threadRendererElm.classList.remove('tyt-visible-comment')
 
           } else {
             //invisible -> visible
             style.removeProperty("--tabview-cmt-height")
-            threadRenderer.classList.add('tyt-visible-comment')
+            threadRendererElm.classList.add('tyt-visible-comment')
           }
 
         }
@@ -1201,6 +1086,13 @@ function injection_script_1() {
 
   }
 
+  function ytChipCloudRendererMouseEnter() {
+    getRAFPromise().then(() => {
+      const cnt = this.inst || this;
+      if (cnt.atStart === true) cnt.reset();
+    });
+  }
+
 
   function getInsObserverChipCloud() {
 
@@ -1211,27 +1103,25 @@ function injection_script_1() {
       let wm = new WeakMap();
 
 
-      async function callReset(target, value) {
+      async function callReset(targetElm, value) {
+        // target = yt-chip-cloud-renderer
 
+        const cnt = targetElm.inst || targetElm;
 
-        if (wm.get(target) !== value) {
-          wm.set(target, value)
-          target.reset();
-          if (!target.hasAttribute('QNJMC')) {
-            target.setAttribute('QNJMC', '')
-            target.addEventListener('mouseenter', function () {
-              getRAFPromise().then(() => {
-                if (this.atStart === true) this.reset();
-              });
-            }, false)
+        if (wm.get(targetElm) !== value) {
+          wm.set(targetElm, value);
+          cnt.reset();
+          if (!targetElm.hasAttribute('QNJMC')) {
+            targetElm.setAttribute('QNJMC', '');
+            targetElm.addEventListener('mouseenter', ytChipCloudRendererMouseEnter, false);
           }
         }
 
         setTimeout(() => {
-          if (target.atStart === true) target.reset();
-        }, 160)
+          if (cnt.atStart === true) cnt.reset();
+        }, 160);
 
-        target.onResize && target.onResize();
+        cnt.onResize && cnt.onResize();
         // console.log(target, 332)
 
       }
@@ -1243,11 +1133,12 @@ function injection_script_1() {
           let h = entry.boundingClientRect.height
           if (h > 10 && entry.isIntersecting) {
             // possible to get height even it is not intersecting
-
-            if (entry.target && entry.target.reset) {
+            const target = entry.target;
+            const cnt = target ? (target.inst || target) : 0;
+            if (cnt && cnt.reset) {
               let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
               if (area > 10) {
-                callReset(entry.target, area)
+                callReset(target, area) // yt-chip-cloud-renderer
               }
             }
 
@@ -1277,23 +1168,23 @@ function injection_script_1() {
 
       let wm = new WeakMap();
 
+      async function callReset(targetElm, value) {
+        // target = yt-chip-cloud-renderer
 
-      async function callReset(target, value) {
-
-        if (wm.get(target) !== value) {
-          wm.set(target, value)
-          target.reset();
+        const cnt = targetElm.inst || targetElm;
+        if (wm.get(targetElm) !== value) {
+          wm.set(targetElm, value)
+          cnt.reset();
         }
         setTimeout(() => {
-          if (target.atStart === true) target.reset();
-        }, 160)
-
+          if (cnt.atStart === true) cnt.reset();
+        }, 160);
       }
 
       let t = 0;
       let cid_mset = 0;
-      function mSet(target) {
-
+      function mSet(targetElm) {
+        // target = yt-chip-cloud-renderer
 
         let c = Date.now();
         t = c;
@@ -1302,11 +1193,11 @@ function injection_script_1() {
 
           if (t !== c) return;
 
-          let chips = querySelectorFromAnchor.call(target, 'iron-selector#chips');
+          let chips = querySelectorFromAnchor.call(targetElm, 'iron-selector#chips');
 
           if (!chips) return;
 
-          callReset(target, chips.offsetWidth)
+          callReset(targetElm, chips.offsetWidth)
 
         }, 160)
 
@@ -1315,9 +1206,10 @@ function injection_script_1() {
       mutObserver = new MutationObserver(function (mutationList, observer) {
         for (const mutation of mutationList) {
           let target = mutation.target;
-          target = closestFromAnchor.call(target, 'yt-chip-cloud-renderer')
-          if (target && target.reset) {
-            mSet(target)
+          target = target ? (closestFromAnchor.call(target, 'yt-chip-cloud-renderer') || 0) : 0;
+          const cnt = target.inst || target;
+          if (cnt && cnt.reset) {
+            mSet(target);
           }
         }
       })
@@ -1834,7 +1726,7 @@ function injection_script_1() {
         if (pendingTasks.length > 1) return;
         promisePostContent = promisePostContent.then(() => new Promise(async (unlock) => {
 
-          const iframe = ((this || 0).$ || 0).chatframe;
+          const iframe = this ? ((this.$ || this).chatframe || 0) : 0;
 
           const tasks = pendingTasks.length === 1 ? [pendingTasks[0]] : pendingTasks.slice(0);
           pendingTasks.length = 0;
@@ -1862,7 +1754,7 @@ function injection_script_1() {
       cProto.postToContentWindow = function (o) {
         if (!o || typeof o !== 'object') return;
 
-        const iframe = ((this || 0).$ || 0).chatframe;
+        const iframe = this ? ((this.$ || this).chatframe || 0) : 0;
         if (iframe) {
           // only do hacking when iframe is defined
           let doc = null;
@@ -1890,26 +1782,28 @@ function injection_script_1() {
 
       document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
 
-        const chat = (evt || 0).target;
-        if (!chat || chat.id !== 'chat') return;
+        const chatElm = (evt || 0).target;
+        if (!chatElm || chatElm.id !== 'chat') return;
+        const chatCnt = chatElm.inst || chatElm;
 
-        if (typeof chat.fixChatframeContentDisplay !== 'function') return;
-        if(!chat.player) return;
+        if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
+        if (!chatCnt.player) return;
         console.debug('[tyt.chat] fix chat render on changed video');
-        chat.fixChatframeContentDisplayWithUrlChanged(0);
-        
-        
+        chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
+
+
 
       }, true);
 
-      
+
       document.addEventListener('tabview-chat-fix-url-onload-with-empty-body', function (evt) {
 
-        const chat = (evt || 0).target;
-        if (!chat || chat.id !== 'chat') return;
+        const chatElm = (evt || 0).target;
+        if (!chatElm || chatElm.id !== 'chat') return;
+        const chatCnt = chatElm.inst || chatElm;
 
-        if (typeof chat.fixChatframeContentDisplay !== 'function') return;
-        if(!chat.player) return;
+        if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
+        if (!chatCnt.player) return;
         // console.debug('[tyt.chat] fix chat render when onload with empty body');
         // chat.fixChatframeContentDisplayWithUrlChanged(0);
 
@@ -1917,7 +1811,8 @@ function injection_script_1() {
 
 
       cProto.fixChatframeContentDisplay = async function (isChatExpansionChanged) {
-        const iframe = (this.$ || 0).chatframe;
+
+        const iframe = this ? ((this.$ || this).chatframe || 0) : 0;
 
         if (!iframe || iframe.isConnected !== true) return;
         if (this.collapsed === true) return;
@@ -2066,7 +1961,7 @@ function injection_script_1() {
         }
         if (!src || !src.includes('/live_chat')) doReplacement = 0;
 
-       
+
 
 
         if (doReplacement > 0) {
@@ -2151,8 +2046,10 @@ function injection_script_1() {
 
     document.addEventListener('tyt-resize-chip-cloud', (evt) => {
       const target = ((evt || 0).target || 0);
+      if (target.nodeType !== 1) return;
+      const cnt = target.inst || target;
       // console.log(target)
-      target.onResize && target.onResize();
+      cnt.onResize && cnt.onResize();
     }, true)
 
 
@@ -2267,6 +2164,7 @@ function injection_script_1() {
     });
 
     document.addEventListener('tabview-fix-popup-refit', function () {
+      // this = document
 
       const cProto = getProto(document.createElement('tp-yt-iron-dropdown'));
       if (!cProto) return;
@@ -2740,7 +2638,7 @@ function injection_script_1() {
   }
 
   window.addEventListener('message', (evt) => {
-    let data = ((evt || 0).data || 0)
+    let data = ((evt || 0).data || 0);
 
 
     if (data.iAm === 'Youtube Genius Lyrics') {
@@ -2757,7 +2655,9 @@ function injection_script_1() {
 
   })
 
-  if (document.documentElement.hasAttribute('tabview-loaded')) ceHack(); else
+  if (document.documentElement.hasAttribute('tabview-loaded'))
+    ceHack();
+  else
     document.addEventListener('tabview-ce-hack', ceHack, true);
 
 
@@ -2778,20 +2678,20 @@ function injection_script_1() {
       const selector = '#tab-comments #contents.style-scope.ytd-item-section-renderer > ytd-comment-thread-renderer.style-scope.ytd-item-section-renderer ytd-expander#expander[max-number-of-lines]';
       if (elm.matches(selector)) {
         //setTimeout(()=>{
-        let cmRender = closestFromAnchor.call(elm, 'ytd-comment-renderer')
-        let tabComments = closestFromAnchor.call(cmRender, '#tab-comments')
-        let cmRenderRect = cmRender.getBoundingClientRect()
+        let cmRenderElm = closestFromAnchor.call(elm, 'ytd-comment-renderer')
+        let tabComments = closestFromAnchor.call(cmRenderElm, '#tab-comments')
+        let cmRenderRect = cmRenderElm.getBoundingClientRect()
         let tabCommentsRect = tabComments.getBoundingClientRect()
         let eTop = cmRenderRect.top
         let cTop = tabCommentsRect.top
 
         if (cTop - eTop > 0) {
-          cmRender.scrollIntoView();
+          cmRenderElm.scrollIntoView();
         }
 
       }
 
-    })
+    });
 
 
   }, true);
@@ -2897,11 +2797,12 @@ function injection_script_1() {
 
 
   document.addEventListener('tyt-info-toggler', (evt) => {
-    let node = (evt || 0).target;
+    const node = (evt || 0).target;
     node.addEventListener('click', tabviewInfoTogglerOnClick, false)
   }, true);
 
   document.addEventListener('tabview-resize-comments-rows', (evt) => {
+    // this = document
     //slightly delayed
     //console.log('tabview-resize-comments-rows')
     for (const s of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')) {
@@ -2929,12 +2830,12 @@ function injection_script_1() {
 
   // ----------------------------- ytLive / Popup / Begin -----------------------------
 
-  // chatroomRenderer
+  // chatroomRendererElmWR
   // popupBtnId
   // mtoIframePopup
 
   document.addEventListener('tyt-close-popup', (evt) => {
-    let cr = kRef(chatroomRenderer);
+    let cr = kRef(chatroomRendererElmWR);
 
     if (cr) {
 
@@ -2980,7 +2881,7 @@ function injection_script_1() {
 
     }
 
-    function setupParticipantsCnt(participantsCnt){
+    function setupParticipantsCnt(participantsCnt) {
       if (!participantsCnt.onParticipantsChanged322 && typeof participantsCnt.onParticipantsChanged === 'function' && !participantsCnt.participantsChangeIfPending) {
         participantsCnt.onParticipantsChanged322 = participantsCnt.onParticipantsChanged
 
@@ -3022,60 +2923,61 @@ function injection_script_1() {
     }
 
     function codeFixForParticipants() {
-      const cr = kRef(chatroomRenderer);
-      if (!cr) return;
-      const participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
-      if (!participants) return;
-      const participantInst = (participants.inst || participants);
+      const lcrElm = kRef(chatroomRendererElmWR);
+      if (!lcrElm) return;
+      const participantsElm = HTMLElement.prototype.querySelector.call(lcrElm, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
+      if (!participantsElm) return;
+      const participantInst = (participantsElm.inst || participantsElm);
       const participantsCnt = participantInst.constructor.prototype;
       setupParticipantsCnt(participantsCnt);
-      participantInst.canShow322 = !participants.matches('iron-pages > :not(slot):not(.iron-selected)')
+      participantInst.canShow322 = !participantsElm.matches('iron-pages > :not(slot):not(.iron-selected)')
       participantInst.onParticipantsChangedBusy322 = false; // force change
       participantInst.participantsChangeIfPending && participantInst.participantsChangeIfPending();
     }
 
-    function setupMTO(btn) {
+    function setupMTO(btnElm) {
       // when btn clicked
 
-      btn = mWeakRef(btn)
+      let btn = mWeakRef(btnElm);
 
-      let cr = kRef(chatroomRenderer)
-      if (!cr) return;
-      let cm = cr.querySelector('#chat-messages')
-      if (!cm) return;
+      let lcrElm = kRef(chatroomRendererElmWR);
+      if (!lcrElm) return;
+      const lcrCnt = lcrElm.inst || lcrElm;
+      let cmElm = lcrCnt.$['chat-messages'];
+      if (!cmElm) return;
 
 
       mtoIframePopup = new MutationObserver((mutations) => {
 
-        let cm = null
-        let required = null
-        let popuped = null
-        let toHideBtn = null
-        let toShowBtn = null
+        let cm = null;
+        let required = null;
+        let popuped = null;
+        let toHideBtn = null;
+        let toShowBtn = null;
         for (const mutation of mutations) {
-          let currentHas = null
+          let currentHas = null;
           if (!cm) {
-            cm = mutation.target
-            currentHas = cm.classList.contains('iron-selected')
+            cm = mutation.target;
+            currentHas = cm.classList.contains('iron-selected');
           }
-          let c = mutation.oldValue
+          let c = mutation.oldValue;
           if (typeof currentHas == 'boolean') {
             if (currentHas === true) {
-              toShowBtn = true
+              toShowBtn = true;
               if (c.indexOf('iron-selected') < 0) {
-                required = true
-                popuped = false
+                required = true;
+                popuped = false;
               }
             } else if (currentHas === false) {
               if (c.indexOf('iron-selected') >= 0) {
-                let cr = kRef(chatroomRenderer)
-                if (cr && cr.popoutWindow) {
-                  required = true
-                  popuped = (popupClose.mPopupWindow === null) // no WeakRef was set
+                const lcrElm = kRef(chatroomRendererElmWR);
+                const lcrPopupWindow = lcrElm ? (lcrElm.inst || lcrElm).popoutWindow || lcrElm.popoutWindow : null;
+                if (lcrPopupWindow) {
+                  required = true;
+                  popuped = (popupClose.mPopupWindow === null); // no WeakRef was set
                 } else {
-                  toHideBtn = true
+                  toHideBtn = true;
                 }
-                cr = null
               }
             }
           }
@@ -3104,55 +3006,46 @@ function injection_script_1() {
             } catch (e) { }
           }
           if (popuped && popupClose) {
-            let cr = kRef(chatroomRenderer)
-            if (cr) {
-              popupClose.mPopupWindow = mWeakRef(cr.popoutWindow)
+            let lcrElm = kRef(chatroomRendererElmWR);
+            if (lcrElm) {
+              const lcrPopupWindow = lcrElm ? (lcrElm.inst || lcrElm).popoutWindow || lcrElm.popoutWindow : null;
+              popupClose.mPopupWindow = mWeakRef(lcrPopupWindow);
             }
-            cr = null
+            lcrElm = null
           }
         } else if (required === null && toHideBtn === true && toShowBtn === null) {
-          if (btnElm) btnElm.classList.remove('tyt-btn-enabled')
+          if (btnElm) btnElm.classList.remove('tyt-btn-enabled');
         }
-
-        // resolve issue - participant list loaded causing long re-rendering time required for chat messages switching (top chats vs full chats)
-        // Promise.resolve(0).then(()=>{
-        //   let cr = kRef(chatroomRenderer)
-        //   if(!cr) return;
-        //   let participants = HTMLElement.prototype.querySelector.call(cr, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
-        //   if(participants){
-        //     if (participants.matches('iron-pages > :not(slot):not(.iron-selected):not(:empty)')) {
-        //       participants.textContent = '';
-        //     }
-        //   }
-        // })
 
         // resolve issue - participant list loaded causing long re-rendering time required for chat messages switching (top chats vs full chats)
         Promise.resolve(0).then(codeFixForParticipants);
 
 
       });
-      mtoIframePopup.observe(cm, {
+      mtoIframePopup.observe(cmElm, {
 
         attributes: true,
         attributeFilter: ['class'],
         attributeOldValue: true
 
       });
-      cm = null
-      cr = null
+      cmElm = null
+      lcrElm = null
 
 
     }
 
-    function isThisChatCanPopup(cr) {
+    function isThisChatCanPopup(lcrElm) {
 
       let canAddBtn = false
       let cm = null
 
-      if (cr && typeof cr.openPopoutWindow === 'function' && cr.openPopoutWindow.length === 1 && typeof cr.closePopoutWindow === 'function') {
+      const lcrCnt = lcrElm.inst || lcrElm;
+
+      if (lcrCnt && typeof lcrCnt.openPopoutWindow === 'function' && lcrCnt.openPopoutWindow.length === 1 && typeof lcrCnt.closePopoutWindow === 'function') {
 
 
-        let crData = cr.data
+        let crData = lcrCnt.data
         if (crData) {
 
           let isReplay = crData.isReplay === true
@@ -3160,7 +3053,7 @@ function injection_script_1() {
           // bool = true
           if (bool) {
 
-            cm = cr.querySelector('#chat-messages')
+            cm = lcrCnt.$['chat-messages'];
             if (cm && !cm.matches('iron-pages > :not(slot):not(.iron-selected)')) {
               canAddBtn = true
             }
@@ -3179,16 +3072,18 @@ function injection_script_1() {
     function popupBtnOnClick() {
 
 
-      let cr = kRef(chatroomRenderer)
+      const lcrElm = kRef(chatroomRendererElmWR);
+      const lcrCnt = lcrElm.inst || lcrElm;
 
-      if (cr && typeof cr.openPopoutWindow === 'function' && cr.openPopoutWindow.length === 1 && typeof cr.closePopoutWindow === 'function') {
+
+      if (lcrElm && typeof lcrCnt.openPopoutWindow === 'function' && lcrCnt.openPopoutWindow.length === 1 && typeof lcrCnt.closePopoutWindow === 'function') {
 
         let v = getV()
         if (v) {
-          let cm = cr.querySelector('#chat-messages')
+          let cm = lcrCnt.$['chat-messages'];
           if (cm) {
 
-            let isReplay = cr.data.isReplay === true
+            let isReplay = lcrCnt.data.isReplay === true
 
             let url;
             if (!isReplay) {
@@ -3199,7 +3094,7 @@ function injection_script_1() {
             // https://studio.youtube.com/live_chat?is_popout=1&v=
 
 
-            !isPopuped(cm) ? cr.openPopoutWindow(url) : popupClose();
+            !isPopuped(cm) ? lcrCnt.openPopoutWindow(url) : popupClose();
 
           }
 
@@ -3216,54 +3111,56 @@ function injection_script_1() {
 
       // console.log(334,4)
 
-      clearMTO()
-      popupClose = null
+      clearMTO();
+      popupClose = null;
 
-      popupBtnId++
-      let tid = popupBtnId
-      let count = 0
+      popupBtnId++;
+      let tid = popupBtnId;
+      let count = 0;
 
-      let cr = null
-      let itemScroller = null
+      let lcrElm = null;
+      let itemScroller = null;
       while (!itemScroller) {
-        if (!cr) cr = kRef(chatroomRenderer)
-        if (cr) itemScroller = cr.querySelector('#item-scroller.yt-live-chat-item-list-renderer')
+        if (!lcrElm) lcrElm = kRef(chatroomRendererElmWR);
+        if (lcrElm) itemScroller = lcrElm.querySelector('#item-scroller.yt-live-chat-item-list-renderer');
         await getRAFPromise().then();
-        if (tid !== popupBtnId) return
-        if (count++ > 200) return
+        if (tid !== popupBtnId) return;
+        if (count++ > 200) return;
       }
-      if (!document.contains(btn)) return
+      if (!document.contains(btn)) return;
 
 
-      clearMTO()
-      let canAddBtn = isThisChatCanPopup(cr)
+      clearMTO();
+      let canAddBtn = lcrElm && isThisChatCanPopup(lcrElm);
       // console.log(334,5, canAddBtn)
 
 
-      if (canAddBtn) {
+      const lcrCnt = lcrElm.inst || lcrElm || 0;
+
+      if (canAddBtn && typeof lcrCnt.closePopoutWindow === 'function') {
 
 
         btn.removeEventListener('click', popupBtnOnClick, false);
 
         popupClose = function () {
 
-          if (!popupClose) return
+          if (!popupClose) return;
           try {
-            popupClose.closePopoutWindow()
+            popupClose.closePopoutWindow();
           } catch (e) { }
-          let mPopupWindow = kRef(popupClose.mPopupWindow)
-          popupClose.mPopupWindow = null
+          let mPopupWindow = kRef(popupClose.mPopupWindow);
+          popupClose.mPopupWindow = null;
           if (mPopupWindow) {
             try {
-              mPopupWindow.close()
+              mPopupWindow.close();
             } catch (e) { }
           }
-          mPopupWindow = null
+          mPopupWindow = null;
         }
-        popupClose.mPopupWindow = null
-        popupClose.closePopoutWindow = cr.closePopoutWindow.bind(cr)
+        popupClose.mPopupWindow = null;
+        popupClose.closePopoutWindow = lcrCnt.closePopoutWindow.bind(lcrCnt);
 
-        setupMTO(btn)
+        setupMTO(btn);
 
 
         btn.addEventListener('click', popupBtnOnClick, false);
@@ -3282,11 +3179,11 @@ function injection_script_1() {
 
 
 
-      btn = null
+      btn = null;
 
 
     }
-    runner(evt.target)
+    runner(evt.target);
 
   }
 
@@ -3301,11 +3198,11 @@ function injection_script_1() {
 
 
 
-  function addPopupButton(chat) {
+  function addPopupButton(chatElm) {
     try {
 
 
-      let showHideBtn = HTMLElement.prototype.querySelector.call(chat, 'div#show-hide-button')
+      let showHideBtn = HTMLElement.prototype.querySelector.call(chatElm, 'div#show-hide-button')
       if (showHideBtn) {
 
         let btn;
@@ -3325,11 +3222,11 @@ function injection_script_1() {
     }
   }
 
-  function removePopupButton(chat) {
+  function removePopupButton(chatElm) {
     try {
 
 
-      let showHideBtn = HTMLElement.prototype.querySelector.call(chat, 'div#show-hide-button')
+      let showHideBtn = HTMLElement.prototype.querySelector.call(chatElm, 'div#show-hide-button')
       if (showHideBtn) {
 
         let btn;
@@ -3346,15 +3243,17 @@ function injection_script_1() {
 
   document.addEventListener('tabview-chatroom-ready', async function (evt) {
 
-    const chat = (evt || 0).target;
-    if (!chat) return;
+    const chatElm = (evt || 0).target;
+    if (!chatElm) return;
 
     console.debug('[tyt.iframe] ready 01')
 
-    const currentPopupBtn = HTMLElement.prototype.querySelector.call(chat, 'tyt-iframe-popup-btn');
+    const currentPopupBtn = HTMLElement.prototype.querySelector.call(chatElm, 'tyt-iframe-popup-btn');
     if (currentPopupBtn) currentPopupBtn.classList.remove('tyt-btn-enabled');
 
-    const iframe = (chat.$ || 0).chatframe;
+    const chatCnt = chatElm.inst || chatElm;
+
+    const iframe = (chatCnt.$ || chatCnt).chatframe;
     if (!iframe) return
     let cDoc = null;
     try {
@@ -3368,21 +3267,21 @@ function injection_script_1() {
       ytLivePU.initByIframe(iframe); // main
     });
 
-    chat.classList.add('tyt-chat-frame-ready');
+    chatElm.classList.add('tyt-chat-frame-ready');
 
 
-    const liveChatRenderer = cDoc.querySelector('yt-live-chat-renderer') || (await new Promise(resolve => {
+    const liveChatRendererElm = cDoc.querySelector('yt-live-chat-renderer') || (await new Promise(resolve => {
 
       let cid = 0;
       let mo = new MutationObserver(() => {
-        const liveChatRenderer = cDoc.querySelector('yt-live-chat-renderer');
-        if (liveChatRenderer) {
+        const liveChatRendererElm = cDoc.querySelector('yt-live-chat-renderer');
+        if (liveChatRendererElm) {
           if (mo !== null) {
             mo.disconnect();
             mo.takeRecords();
             mo = null;
           }
-          resolve && resolve(liveChatRenderer);
+          resolve && resolve(liveChatRendererElm);
           resolve = null;
           if (cid > 0) {
             clearTimeout(cid);
@@ -3403,23 +3302,25 @@ function injection_script_1() {
 
     }).catch(console.warn));
 
-    console.debug(`[tyt.iframe] ready 02, lcr = ${liveChatRenderer ? 'Y' : 'N'}`)
+    console.debug(`[tyt.iframe] ready 02, lcr = ${liveChatRendererElm ? 'Y' : 'N'}`)
 
-    if (liveChatRenderer) {
-      addPopupButton(chat);
-      ytLivePU.initByChatRenderer(liveChatRenderer);
+    if (liveChatRendererElm) {
+      addPopupButton(chatElm);
+      ytLivePU.initByChatRenderer(liveChatRendererElm);
 
-      const isReplay = ((liveChatRenderer || 0).data || 0).isReplay;
-      if (isReplay === true && typeof chat.playerProgressHandler === 'function') {
-        const player = chat.player || (chat.inst || 0).player || 0;
+      const liveChatRendererCnt = liveChatRendererElm.inst || liveChatRendererElm;
+
+      const isReplay = (liveChatRendererCnt.data || 0).isReplay;
+      if (isReplay === true && typeof chatCnt.playerProgressHandler === 'function') {
+        const player = chatCnt.player || 0;
         const playerState = typeof player.getPlayerState === 'function' ? player.getPlayerState() : null;
         if (playerState === 2 || playerState === -1) {
-          chat.playerProgressHandler();
+          chatCnt.playerProgressHandler();
         }
       }
 
     } else {
-      removePopupButton(chat);
+      removePopupButton(chatElm);
     }
 
 
@@ -3541,11 +3442,11 @@ function injection_script_1() {
 
       let element = document.querySelector(`#tab-comments ytd-comments ytd-comment-renderer #header-author a[href*="lc=${lc}"]`);
       if (element) {
-        let commentRenderer = closestFromAnchor.call(element, 'ytd-comment-renderer');
-        if (commentRenderer && lc) {
+        let commentRendererElm = closestFromAnchor.call(element, 'ytd-comment-renderer');
+        if (commentRendererElm && lc) {
           return {
             lc,
-            commentRenderer
+            commentRendererElm
           }
         }
       }
@@ -3553,10 +3454,10 @@ function injection_script_1() {
 
       let element = document.querySelector(`#tab-comments ytd-comments ytd-comment-renderer > #linked-comment-badge span:not(:empty)`);
       if (element) {
-        let commentRenderer = closestFromAnchor.call(element, 'ytd-comment-renderer');
-        if (commentRenderer) {
+        let commentRendererElm = closestFromAnchor.call(element, 'ytd-comment-renderer');
+        if (commentRendererElm) {
 
-          let header = querySelectorFromAnchor.call(commentRenderer, '#header-author');
+          let header = querySelectorFromAnchor.call(commentRendererElm, '#header-author');
           if (header) {
 
             let anchor = querySelectorFromAnchor.call(header, 'a[href*="lc="]');
@@ -3570,10 +3471,10 @@ function injection_script_1() {
           }
 
         }
-        if (commentRenderer && lc) {
+        if (commentRendererElm && lc) {
           return {
             lc,
-            commentRenderer
+            commentRendererElm
           }
         }
       }
@@ -3587,10 +3488,10 @@ function injection_script_1() {
 
     let pNode = ytNode;
     let kNode = ytNode;
-    const ytNodeData = ytNode.data
+    const ytNodeData = (ytNode.inst || ytNode).data;
     if (!ytNodeData || typeof ytNodeData !== 'object') return;
     while ((pNode = nodeParent(pNode)) instanceof HTMLElement) {
-      const contents = (pNode.data || 0).contents
+      const contents = ((pNode.inst || pNode).data || 0).contents; // data
       if (typeof contents === 'object' && typeof contents.length === 'number') {
 
         // console.log(pNode.data.contents, ytNode.data)
@@ -3599,7 +3500,7 @@ function injection_script_1() {
 
         let j = 0;
         for (const content of contents) {
-          let mz = ((content.commentThreadRenderer || 0).comment || 0).commentRenderer || content.commentRenderer;
+          let mz = ((content.commentThreadRenderer || 0).comment || 0).commentRenderer || content.commentRenderer; // data
 
           if (mz && mz.commentId === ytNodeData.commentId) { // top comment or sub comment
             index = j;
@@ -3627,13 +3528,13 @@ function injection_script_1() {
     try {
       // console.log(currentLcId, targetLcId)
 
-      let r1 = findLcComment(currentLcId).commentRenderer;
-      let r2 = findLcComment(targetLcId).commentRenderer;
+      let r1 = findLcComment(currentLcId).commentRendererElm;
+      let r2 = findLcComment(targetLcId).commentRendererElm;
 
 
-      if (typeof r1.data.linkedCommentBadge === 'object' && typeof r2.data.linkedCommentBadge === 'undefined') {
+      if (typeof (r1.inst || r1).data.linkedCommentBadge === 'object' && typeof (r2.inst || r2).data.linkedCommentBadge === 'undefined') {
 
-        let p = Object.assign({}, r1.data.linkedCommentBadge)
+        let p = Object.assign({}, (r1.inst || r1).data.linkedCommentBadge)
 
         if (((p || 0).metadataBadgeRenderer || 0).trackingParams) {
           delete p.metadataBadgeRenderer.trackingParams;
@@ -3693,19 +3594,22 @@ function injection_script_1() {
     let done = 0;
     try {
 
-      let r1 = findLcComment(currentLcId).commentRenderer;
-      let r2 = findLcComment(targetLcId).commentRenderer;
+      let r1 = findLcComment(currentLcId).commentRendererElm;
+      let r1cnt = r1.inst || r1;
+      let r2 = findLcComment(targetLcId).commentRendererElm;
+      let r2cnt = r2.inst || r2;
 
+      const r1d = r1cnt.data;
       let p = Object.assign({}, _p)
-      r1.data.linkedCommentBadge = null;
-      delete r1.data.linkedCommentBadge;
+      r1d.linkedCommentBadge = null;
+      delete r1d.linkedCommentBadge;
 
-      let q = Object.assign({}, r1.data);
+      let q = Object.assign({}, r1d);
       q.linkedCommentBadge = null;
       delete q.linkedCommentBadge;
 
-      r1.data = Object.assign({}, q);
-      r2.data = Object.assign({}, r2.data, { linkedCommentBadge: p });
+      r1cnt.data = Object.assign({}, q);
+      r2cnt.data = Object.assign({}, r2cnt.data, { linkedCommentBadge: p });
 
       done = 1;
 
@@ -4700,12 +4604,14 @@ rcb(b) => a = playlistId = undefinded
     for (const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
   }, false);
 
-  document.addEventListener('tabview-playlist-data-re-assign', (evt) => {
-    let target = evt.target;
-    if (!target) return;
-    let data = target.data;
+  document.addEventListener('tabview-yt-data-reassign', (evt) => {
+    // Example target: playlist
+    const target = (evt || 0).target || 0;
+    if (!target.is) return;
+    const cnt = target.inst || target;
+    let data = cnt.data;
     if (data) {
-      target.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
+      cnt.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
     }
   }, true);
 
@@ -4715,13 +4621,14 @@ rcb(b) => a = playlistId = undefinded
 
   document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
 
-    const chat = (evt || 0).target;
-    if (!chat || chat.id !== 'chat') return;
+    const chatElm = (evt || 0).target;
+    if (!chatElm || chatElm.id !== 'chat') return;
+    const chatCnt = chatElm.inst || chatElm;
 
-    if (typeof chat.fixChatframeContentDisplay !== 'function') return;
-    if (!chat.player) return;
+    if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
+    if (!chatCnt.player) return;
     console.debug('[tyt.chat] fix chat render on expanded chat');
-    chat.fixChatframeContentDisplayWithUrlChanged(1);
+    chatCnt.fixChatframeContentDisplayWithUrlChanged(1);
 
   }, true);
 
