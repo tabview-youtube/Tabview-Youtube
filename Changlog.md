@@ -37,8 +37,10 @@
 
 - Hide duplicated meta ([example](https://www.youtube.com/watch?v=kGihxscQCPE)) (v4.10.0)
 - Icon Fix in v4.10.2
-  - Before: ![Image](https://na.cx/i/MyqSuYP.png)
-  - After: ![Image](https://na.cx/i/MqHUJiP.png)
+  - Before:
+    - <img height="160" src="https://na.cx/i/MyqSuYP.png">
+  - After:
+    - <img height="160" src="https://na.cx/i/MqHUJiP.png">
 - Fixed comment sizing issue with zoom (v4.10.10)
 
 ### VER. v4.9 (Stable) [4.9.17](https://greasyfork.org/scripts/428651-tabview-youtube?version=1192334) - 18 May 2023
