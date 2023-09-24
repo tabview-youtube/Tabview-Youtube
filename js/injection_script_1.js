@@ -2395,16 +2395,21 @@ function injection_script_1() {
 
     const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
     if (!ytdFlexyElm) return null;
+    const ytdFlexyCnt = ytdFlexyElm.inst || ytdFlexyElm;
 
     /** @type {HTMLElement} */
-    let newPanel = ytdFlexyElm.createComponent_({
+    const newPanel = ytdFlexyCnt.createComponent_({
       "component": "ytd-engagement-panel-section-list-renderer",
       "params": {
         "isWatch": true
       }
     }, "ytd-engagement-panel-section-list-renderer", true);
+    
+    const newPanelHostElement = (newPanel || 0).hostElement || newPanel;
+    const newPanelCnt = (newPanelHostElement || 0).inst || newPanelHostElement;
 
-    newPanel.data = {
+
+    newPanelCnt.data = {
       "panelIdentifier": "engagement-panel-genius-transcript",
       "header": {
         "engagementPanelTitleHeaderRenderer": {
@@ -2454,11 +2459,11 @@ function injection_script_1() {
       }
     };
 
-    newPanel.classList.add('style-scope', 'ytd-watch-flexy');
+    newPanelHostElement.classList.add('style-scope', 'ytd-watch-flexy');
 
-    elementAppend.call(querySelectorFromAnchor.call(ytdFlexyElm, '#panels'), newPanel);
+    elementAppend.call(querySelectorFromAnchor.call(ytdFlexyElm, '#panels'), newPanelHostElement);
 
-    return newPanel;
+    return newPanelHostElement;
 
   }
 
