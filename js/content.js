@@ -4857,14 +4857,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         pageCheck();
         setupChatFrameDOM(null);
 
-        let expander = document.querySelector('#meta-contents ytd-expander:not([tabview-expander-checked])');
+        const expander = document.querySelector('#meta-contents ytd-expander:not([tabview-expander-checked])');
         if (expander) {
-
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
 
+          const p = document.querySelector('[tyt-info-expander]');
+          if (p && p !== expander) {
+            p.remove();
+            p.removeAttribute('tyt-info-expander');
+            p.removeAttribute('tabview-expander-checked');
+          }
+          expander.setAttribute('tyt-info-expander', '');
           expander.setAttribute('tabview-expander-checked', '');
-          let tabInfo = document.querySelector("#tab-info");
+          const tabInfo = document.querySelector("#tab-info");
           if (tabInfo) {
             elementAppend.call(tabInfo, expander);
           }
@@ -4922,7 +4928,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           let ks = renderIdentifier;
           renderDeferred.debounce(() => {
-            if (ks !== renderIdentifier) return
+            if (ks !== renderIdentifier) return;
             checkDuplicatedMetaRecommendation();
           })
 
@@ -4932,10 +4938,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         let renderId = renderIdentifier
         renderDeferred.debounce(() => {
-          if (renderId !== renderIdentifier) return
+          if (renderId !== renderIdentifier) return;
           // domInit_teaserInfo() // YouTube obsoleted feature? 
 
-          let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string')
+          let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string');
           if (h1) {
 
 
