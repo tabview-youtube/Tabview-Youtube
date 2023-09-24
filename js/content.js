@@ -3620,6 +3620,112 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  const elementMapper = new WeakMap();
+
+
+  const isContentDuplicationCheckAllow = () => {
+    return document.querySelectorAll('[tyt-info-expander-placeholder]').length === 1 && document.querySelectorAll('[tyt-info-expander-actual]').length === 1;
+  }
+
+  let waitForContentReady = new PromiseExternal(); // dummy initial value
+
+  async function removeContentMismatch() {
+
+    if (!document.querySelector('#tab-info')) return;
+    const dmysOnPage = document.querySelectorAll('[tyt-info-expander-placeholder]');
+    if (dmysOnPage.length === 1) {
+
+      const dmyElm = dmysOnPage[0];
+      const expander = elementMapper.get(dmyElm);
+      if (!expander) return;
+
+      for (const s of document.querySelectorAll('[tyt-info-expander-actual]')) {
+        if (expander !== s) s.remove();
+      }
+      if (expander.isConnected === false) {
+        document.querySelector('#tab-info').appendChild(expander);
+      }
+
+      isContentDuplicationCheckAllow() && waitForContentReady.resolve();
+
+    }
+
+    // let p = document.querySelectorAll(`[tyt-info-expander-placeholder]`);
+    // let q= p.length === 1 ? document.querySelector(`[tyt-info-expander-actual="${p[0].getAttribute('tyt-info-expander-placeholder')}"]`) : null;
+    // if(q){
+
+
+
+
+    //   for (const s of document.querySelectorAll('[tyt-info-expander-actual]')) {
+    //     if(s===q) continue;
+    //     s.remove();
+    //     s.removeAttribute('tabview-expander-checked');
+    //   }
+
+
+    // }
+
+  }
+
+  // async function removeOldExpanders() {
+  //   const entries = [...document.querySelectorAll('[tyt-info-expander-actual]')].map(e => ({
+  //     order: +e.getAttribute('tyt-info-expander-actual'),
+  //     element: e
+  //   }));
+  //   if (entries.length >= 2) {
+  //     let m = 0;
+  //     for (const entry of entries) {
+  //       if (entry.order > m) m = entry.order;
+  //     }
+  //     if (m > 0) {
+  //       const removal = entries.filter(e => e.order !== m);
+  //       for (const e of removal) {
+  //         e.element.remove();
+  //       }
+  //     }
+  //   }
+  // }
+
+  // async function removeContentMismatch() {
+  //   const removal = new Set();
+  //   for (const element of document.querySelectorAll('[tyt-du744]')) {
+
+  //     const s1 = "ytd-text-inline-expander#description-inline-expander";
+  //     const s2 = "#tab-info ytd-expander #description";
+
+  //     const m = element.matches(s1) ? 1 : element.matches(s2) ? 2 : 0;
+
+  //     const du744 = element.getAttribute('tyt-du744');
+  //     const du744Elms = document.querySelectorAll(`[tyt-du744="${du744}"]`);
+  //     if (!m) {
+  //       for (const s of du744Elms) {
+  //         removal.add(s);
+  //       }
+  //     } else {
+  //       const len = du744Elms.length;
+  //       if (len === 1) removal.add(element);
+  //     }
+
+  //   }
+  //   await Promise.resolve().then();
+  //   for (let s of removal) {
+  //     if (s.id === 'description') {
+  //       s = closestDOM.call(s, 'ytd-expander') || s;
+  //       s.remove();
+  //     } else {
+  //       s.removeAttribute('tyt-du744');
+  //     }
+  //   }
+  //   removal.clear();
+
+  //   // const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+  //   // const secondElementSelector = "#tab-info ytd-expander #description";
+
+  //   // const firstElement = document.querySelector(firstElementSelector);
+  //   // const secondElement = document.querySelector(secondElementSelector);
+
+  // }
 
   function getWord(tag) {
     return langWords[pageLang][tag] || langWords['en'][tag] || '';
@@ -4121,12 +4227,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
+    async function contentPairSet(firstElement, secondElement) {
+
+      // const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+      // const secondElementSelector = "#tab-info ytd-expander #description";
+
+      // const firstElement = document.querySelector(firstElementSelector);
+      // const secondElement = document.querySelector(secondElementSelector);
+      if (firstElement && secondElement) {
+
+        // checked that e1 e2 shall be considered with matching pair
+        firstElement.setAttribute('tyt-du744', '');
+        secondElement.setAttribute('tyt-du744', '');
+      }
+
+    }
+
     async function checkDuplicatedInfoAug2023() {
       const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
       const secondElementSelector = "#tab-info ytd-expander #description";
     
       const firstElement = document.querySelector(firstElementSelector);
       const secondElement = document.querySelector(secondElementSelector);
+
+      // dont detect the content change of main info box
+      // if second info box is checked okay before, skip
+      if (firstElement.hasAttribute('tyt-du744') || secondElement.hasAttribute('tyt-du744')) return true; // assume still ok as we checked before
     
       if (!firstElement || !secondElement) return false;
       if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
@@ -4202,8 +4328,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         set.clear();
         return r;
       }
-    
-      return isSubset(firstElementTextArr, secondElementTextArr);
+
+      const result = isSubset(firstElementTextArr, secondElementTextArr);
+
+      if (result) {
+
+        contentPairSet(firstElement, secondElement);
+
+      }
+
+      return result;
     }
 
     async function checkDuplicatedInfo() {
@@ -4303,9 +4437,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         try {
 
-
-
           do {
+            // await removeOldExpanders();
+            // await removeContentMismatch();
+            await getRAFPromise().then();
 
             if (renderIdentifier !== ks) break;
             if (alCheckCount === 0) break;
@@ -4595,6 +4730,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppearFN.set(fn, func);
   }
 
+  
+
+  let thv = 0;
+
+  const moInfoContent = new MutationObserver(()=>{
+
+    removeContentMismatch();
+  });
+  
   function ytMicroEventsInit() {
 
     // _console.log(902);
@@ -4820,13 +4964,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (REMOVE_DUPLICATE_INFO) {
 
-      handleDOMAppear('deferredDuplicatedMetaChecker', (evt) => {
+      handleDOMAppear('deferredDuplicatedMetaChecker', async (evt) => {
+        
+        waitForContentReady = new PromiseExternal();
+
+        isContentDuplicationCheckAllow() ? waitForContentReady.resolve() : (await waitForContentReady.then());
+        await removeContentMismatch(); // play safe
 
         removeDuplicateInfoFn();
 
       });
 
     }
+
+
+
 
     globalHook('yt-page-data-updated', (evt) => {
 
@@ -4862,20 +5014,54 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
           // append the detailed meta contents to the tab-info
 
-          const p = document.querySelector('[tyt-info-expander]');
-          if (p && p !== expander) {
-            p.remove();
-            p.removeAttribute('tyt-info-expander');
-            p.removeAttribute('tabview-expander-checked');
-          }
-          expander.setAttribute('tyt-info-expander', '');
+          // for (const s of document.querySelectorAll('#tab-info [tyt-info-expander]')) {
+          //   if (s !== expander) {
+          //     s.remove();
+          //     s.removeAttribute('tyt-info-expander');
+          //     s.removeAttribute('tabview-expander-checked');
+          //     // s.removeAttribute('tyt-info-expander');
+          //     // s.setAttribute('tabview-expander-checked', '');
+          //     // expander.parentNode.insertBefore(s, expander);
+          //   }
+          // }
+
           expander.setAttribute('tabview-expander-checked', '');
           const tabInfo = document.querySelector("#tab-info");
           if (tabInfo) {
+              
+
+            expander.setAttribute('tyt-info-expander', '');
+            if (!expander.hasAttribute('tyt-info-expander-actual')) {
+              expander.setAttribute('tyt-info-expander-actual', '');
+              const dmy = document.createElement('yt-dummy-532'); // to detemine the content change by youtube engine
+              dmy.setAttribute('tyt-info-expander-placeholder', '');
+              expander.replaceWith(dmy);
+              elementMapper.set(expander, dmy); // interlink
+              elementMapper.set(dmy, expander); // interlink
+
+
+              const parentRoot = dmy.closest('[hidden]'); // only detect if the traditional block is hidden
+              if (parentRoot) {
+                moInfoContent.observe(parentRoot.parentNode, { subtree: true, childList: true });
+              }
+
+            }
             elementAppend.call(tabInfo, expander);
           }
 
+
+          
+          
+          removeContentMismatch();
+
+
+
+
         }
+        // removeContentMismatch();
+        // getRAFPromise().then(()=>{
+        //   removeContentMismatch();
+        // })
 
 
         if (REMOVE_DUPLICATE_INFO) {
