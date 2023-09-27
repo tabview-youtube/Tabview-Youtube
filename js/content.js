@@ -6771,6 +6771,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let video = document.querySelector('#player video');
       if (!video) return;
 
+      const vRect = video.getBoundingClientRect();
+      if (!( vRect.top < 0 && vRect.height > 100 && vRect.bottom < vRect.height * 0.25)) return; // avoid conflic with YouTube Mobile Mode in YouTube Live Borderless
+
       await Promise.resolve(0)
       const pageClientWidth = document.documentElement.clientWidth;
       if (pageClientWidth + 320 < screen.width && pageClientWidth > 320 && !document.querySelector('#rCbM3')) {
