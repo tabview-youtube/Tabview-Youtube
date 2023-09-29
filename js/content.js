@@ -3519,12 +3519,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (btn) btn.remove();
         } else {
 
-          if (pageFetchedDataVideoId && proceedingChatFrameVideoID === pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC) {
+          if (pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC && newVideoPageCACC >= 0) {
             console.debug('[tyt] forceChatRenderOnChatExpanded')
             const _chatBlock = chatBlock;
             const tyid = ++dpeChatRefreshCounter;
             setTimeout(() => {
-              if (pageFetchedDataVideoId && proceedingChatFrameVideoID === pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC) {
+              if (pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC && newVideoPageCACC >= 0) {
                 if (tyid !== dpeChatRefreshCounter) return;
                 dpeChatRefreshCounter++;
                 const chat = document.querySelector('ytd-live-chat-frame#chat');
@@ -7118,7 +7118,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   let dpeChatRefreshCounter = 0;
-  let proceedingChatFrameVideoID = '';
+  // let proceedingChatFrameVideoID = '';
   let newVideoPageCACC = -1;
 
   function newVideoPage(evt_detail) {
@@ -7126,6 +7126,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     //toggleBtnDC = 1;
 
     console.debug('[tyt] newVideoPage')
+    // console.debug('[tyt] debug ym-01-0')
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
@@ -7151,15 +7152,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const fvid = pageFetchedDataVideoId;
     const tyid = ++dpeChatRefreshCounter;
-    proceedingChatFrameVideoID = '';
+    // proceedingChatFrameVideoID = '';
     newVideoPageCACC = chatroomAttrCollapseCount;
+    // console.debug('[tyt] debug ym-01-1')
     setTimeout(() => {
+      
+      // console.debug('[tyt] debug ym-01-2')
       if (fvid !== pageFetchedDataVideoId) return;
+      
+    // console.debug('[tyt] debug ym-01-3')
       if (tyid !== dpeChatRefreshCounter) return;
+      
+    // console.debug('[tyt] debug ym-01-4')
       ++dpeChatRefreshCounter;
       const chat = document.querySelector('ytd-live-chat-frame#chat');
       if (chat && !chat.hasAttribute('collapsed')) {
-        proceedingChatFrameVideoID = fvid;
+        // proceedingChatFrameVideoID = fvid;
+        
+    // console.debug('[tyt] debug ym-01-5')
         dpeNewUrlChat(chat);
       }
     }, 67);

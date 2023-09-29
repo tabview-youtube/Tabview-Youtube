@@ -1798,8 +1798,12 @@ function injection_script_1() {
         if (!chatElm || chatElm.id !== 'chat') return;
         const chatCnt = chatElm.inst || chatElm;
 
+        // console.debug('[tyt] debug ym-02-1')
         if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
+        // console.debug('[tyt] debug ym-02-2')
         if (!chatCnt.player) return;
+        
+        // console.debug('[tyt] debug ym-02-3')
         console.debug('[tyt.chat] fix chat render on changed video');
         chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
 
