@@ -1222,6 +1222,20 @@ function injection_script_1() {
   }
 
 
+  /** @param {Document} cDoc */
+  const cDocReadyStatePromise = (cDoc) => {
+    if (cDoc.readyState !== 'loading') return;
+    return new Promise(resolve => {
+      cDoc.addEventListener('readystatechange', function () {
+        if (cDoc && cDoc.readyState && cDoc.readyState !== 'loading') {
+          cDoc = null;
+          resolve && resolve();
+          resolve = null;
+        }
+      }, false);
+    });
+  }
+
 
   let pageID = 0;
 
@@ -1925,30 +1939,16 @@ function injection_script_1() {
           } else {
 
             if (cDoc.readyState === 'loading') {
-              await new Promise(resolve => {
-
-                cDoc.addEventListener('readystatechange', function () {
-
-                  resolve && resolve();
-                  resolve = null;
-
-                }, false);
-
-              });
+              await cDocReadyStatePromise(cDoc);
               if (cDoc !== iframe.contentDocument) doReplacement = 3;
             }
 
             if (doReplacement === 0) {
-
               const contentElement = ((cDoc || 0).body || 0).firstElementChild || 0;
-
-
               if (!contentElement) {
                 doReplacement = 4;
               }
-
             }
-
 
           }
         }
@@ -1960,9 +1960,6 @@ function injection_script_1() {
           isc = _getIframeSrc(src);
         }
         if (!src || !src.includes('/live_chat')) doReplacement = 0;
-
-
-
 
         if (doReplacement > 0) {
           const src = isc.src;
