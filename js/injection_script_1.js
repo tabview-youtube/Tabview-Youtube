@@ -2121,24 +2121,31 @@ function injection_script_1() {
         cProto.tytDataChanged_ = cProto.dataChanged_;
         cProto.dataChanged_ = function () {
           const cnt = this;
-          const hostElement = this.hostElement || this;
           cnt.tytDataChanged_();
-          const data = ((cnt.__data || 0).data || 0);
-          const hasData = (data.contents || 0) !== 0;
-          if (hasData) {
-            const sections = ((cnt.$ || 0).sections || 0);
-            if (sections && 'triggerInitialContinuations' in sections) {
-              Promise.resolve(sections).then((sections) => {
-                sections.triggerInitialContinuations();
-              }).catch(() => { });
-              // console.log('sections.triggerInitialContinuations'); 
-              //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+
+          getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
+
+            const hostElement = this.hostElement || this;
+            if (!hostElement) return;
+            const data = ((cnt.__data || 0).data || 0);
+            // if (!data) return;
+            const hasData = (data.contents || 0) !== 0;
+            if (hasData) {
+              const sections = ((cnt.$ || 0).sections || 0);
+              if (sections && 'triggerInitialContinuations' in sections) {
+                Promise.resolve(sections).then((sections) => {
+                  sections.triggerInitialContinuations();
+                }).catch(() => { });
+                // console.log('sections.triggerInitialContinuations'); 
+                //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+              }
+
+              checkCommentCountCorrectness.call(this, data)
+
             }
+            dispatchCustomEvent(hostElement, 'ytd-comments-data-changed', { hasData });
 
-            checkCommentCountCorrectness.call(this, data)
-
-          }
-          dispatchCustomEvent(hostElement, 'ytd-comments-data-changed', { hasData });
+          });
         }
       }
 
@@ -2146,18 +2153,25 @@ function injection_script_1() {
       if (typeof cProto.headerChanged_ == 'function' && !('tytHeaderChanged_' in cProto)) {
         cProto.tytHeaderChanged_ = cProto.headerChanged_;
         cProto.headerChanged_ = function () {
+          // function is called inside flushClients's propertiesChanged          
           const cnt = this;
-          const hostElement = this.hostElement || this;
-          const data = ((cnt.__data || 0).data || 0);
-          if (data) {
-
-            checkCommentCountCorrectness.call(this, data);
-            // console.log(311, data.contents.length, data.header)
-
-          }
 
           cnt.tytHeaderChanged_();
-          dispatchCustomEvent(hostElement, 'ytd-comments-header-changed');
+
+          getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
+
+            const hostElement = this.hostElement || this;
+            if (!hostElement) return;
+            const data = ((cnt.__data || 0).data || 0);
+            // if (!data) return;
+            if (data) {
+              checkCommentCountCorrectness.call(this, data);
+              // console.log(311, data.contents.length, data.header)
+            }
+
+            dispatchCustomEvent(hostElement, 'ytd-comments-header-changed');
+
+          });
 
         }
       }
