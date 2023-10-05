@@ -3117,10 +3117,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // _console.log(3434, pageType)
     if (pageType !== 'watch') return;
 
+    /** @type {HTMLElement | null} */
+    const qtElm = document.querySelector('ytd-comments#comments');
+    if (!qtElm) return;
 
     /** @type {Array<HTMLElement>} */
-    let qmElms = [...document.querySelectorAll('ytd-comments#comments #count.ytd-comments-header-renderer, ytd-comments#comments ytd-item-section-renderer.ytd-comments#sections #header ~ #contents > ytd-message-renderer.ytd-item-section-renderer')]
-
+    const qmElms = HTMLElement.prototype.querySelectorAll.call(qtElm, '#count.ytd-comments-header-renderer, ytd-item-section-renderer.ytd-comments#sections #header ~ #contents > ytd-message-renderer.ytd-item-section-renderer');
 
     const eTime = +`${Date.now() - mTime}00`;
 
@@ -4084,7 +4086,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (pageType === 'watch' && !fetchCounts.new && !fetchCounts.fetched) {
       renderDeferred.resolved && innerDOMCommentsCountLoader(true);
       if (renderDeferred.resolved && !fetchCounts.new) {
-        window.dispatchEvent(new Event("scroll"));
+        // [ytd-app, ytd-playlist-panel-renderer#playlist.style-scope.ytd-miniplayer, ytd-playlist-panel-renderer#playlist.style-scope.ytd-watch-flexy]
+
+        // Promise.resolve().then(() => window.dispatchEvent(new Event("scroll")));
+        
+        /*
+
+
+        this.scrollThrottle = new bv(this.onThrottledScroll,200,this);
+        this.mastheadScrollThrottle = new bv(this.onMastheadThrottledScroll,50,this);
+
+        */
+
+        // const ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+        // const ytdFlexyCnt = ytdFlexyElm.inst || ytdFlexyElm;
+
+        // typeof ytdFlexyCnt.onThrottledScroll_ === 'function' ? ytdFlexyCnt.onThrottledScroll_()
+        //   : typeof ytdFlexyElm.onThrottledScroll_ === 'function' ? ytdFlexyElm.onThrottledScroll_() :
+        //     null;
+            
+        // typeof ytdFlexyCnt.onWatchScroll_ === 'function' ? ytdFlexyCnt.onWatchScroll_()
+        // : typeof ytdFlexyElm.onWatchScroll_ === 'function' ? ytdFlexyElm.onWatchScroll_() :
+        //   null;
+
+        // typeof ytdFlexyCnt.onMastheadThrottledScroll === 'function' ? ytdFlexyCnt.onMastheadThrottledScroll()
+        // : typeof ytdFlexyElm.onMastheadThrottledScroll === 'function' ? ytdFlexyElm.onMastheadThrottledScroll() :
+        //   null;
+          
+        // typeof ytdFlexyCnt.onScroll === 'function' ? ytdFlexyCnt.onScroll()
+        // : typeof ytdFlexyElm.onScroll === 'function' ? ytdFlexyElm.onScroll() :
+        //   null;
       }
     }
   };
