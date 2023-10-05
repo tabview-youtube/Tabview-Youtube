@@ -4452,10 +4452,12 @@ function injection_script_1() {
     const target = (evt || 0).target || 0;
     if (!target.is) return;
     const cnt = target.inst || target;
-    let data = cnt.data;
-    if (data) {
-      cnt.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
-    }
+    Promise.resolve().then(() => {
+      const data = cnt.data;
+      if (data) {
+        cnt.data = Object.assign({}, data); // the playlist appended to tab container might lose its reorder control. 
+      }
+    });
   }, true);
 
   document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
