@@ -2700,6 +2700,8 @@ function injection_script_1() {
     let sc = s.sc; //#autocomplete-suggestions 
     if (sc instanceof HTMLElement) {
 
+      if (document.querySelector('autocomplete-holder')) return;
+
       let id = Date.now();
       s.setAttribute('data-autocomplete-results-id', id);
       sc.setAttribute('data-autocomplete-input-id', id);

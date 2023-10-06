@@ -2561,6 +2561,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function handlerAutoCompleteExist() {
     // Youtube - Search While Watching Video
 
+    if (document.querySelector('autocomplete-holder')) return;
+
     /** @type {HTMLElement} */
     let searchBox, autoComplete;
     searchBox = this;
