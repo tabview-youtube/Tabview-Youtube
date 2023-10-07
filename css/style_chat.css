@@ -1,0 +1,265 @@
+
+@supports (color: var(--tyt-chat-frame-ready)){
+    ytd-watch-flexy[tyt-chat="+chat$playback"] #chat:not(.tyt-chat-frame-ready){
+        --tyt-chat-frame-visibility: collapse;
+    }
+    #chat iframe{
+        visibility: var(--tyt-chat-frame-visibility);
+    }
+
+
+    ytd-live-chat-frame#chat::after {
+        display: none;
+        background-color: var(--yt-live-chat-shimmer-background-color);
+        background-image: var(--yt-live-chat-shimmer-linear-gradient);
+        background-size: 300% 300%;
+        transform: rotateX(180deg);
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+
+    ytd-watch-flexy[tyt-chat="+chat$playback"] ytd-live-chat-frame#chat[tyt-iframe-loaded]:not(.tyt-chat-frame-ready):not(.tyt-chat-ads-playing)::after {
+        content: "";
+        display: block;
+    }
+
+}
+
+@supports(color: var(--iframe-popup-btn)) {
+    tyt-iframe-popup-btn {
+        display: none;
+    }
+
+    ytd-watch-flexy[flexy][is-two-columns_] #chat[tyt-iframe-loaded]:not([collapse]) tyt-iframe-popup-btn.tyt-btn-enabled {
+        content: '';
+        width: 1em;
+        height: 1em;
+        display: block;
+        float: right;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 5px;
+        background-size: contain;
+        /*background: var(--yt-live-chat-slider-container-color);*/
+        background-color: currentcolor;
+        pointer-events: all !important;
+        cursor: pointer;
+        border-radius: 3px;
+        margin: 10px;
+        -webkit-mask-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20fill%3D%22currentColor%22%20d%3D%22M14.4%200L16%201.6l1.5%201.6s-1.4.1-7.1.1H3.3v25.5h25.5v-7.2l.1-7.1s.7.6%203%203l.1%205.1v6c0%20.8%200%20.8-.1%201.1-.1.2-.2.4-.2.5a.76.76%200%200%200-.2.4c-.1.1-.3.3-.4.5-.2.1-.4.3-.5.4-.1%200-.2.1-.3.2-.2%200-.3.1-.5.1-.1.1-.3.1-.4.2H2.6l-.3-.1c-.2-.1-.4-.2-.5-.2a.76.76%200%200%200-.4-.2c-.1-.1-.3-.3-.5-.4-.1-.2-.3-.4-.4-.5%200-.1-.1-.2-.2-.3%200-.2-.1-.3-.1-.5-.1-.1-.1-.3-.2-.4V2.6l.1-.3c.1-.1.2-.4.3-.6.1-.1.2-.4.3-.5l.4-.4c.2-.1.4-.3.5-.3A.76.76%200%200%201%202%20.3.76.76%200%200%201%202.4.1c.1%200%20.3-.1.5-.1h11.5zm5.1%200h5l7.5.1v12.4l-4.2-4.1-4%203.9-4%204s-1-.9-2.2-2.1l-2.1-2.1%208-8z%22%2F%3E%3C%2Fsvg%3E');
+        -webkit-mask-position: center;
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-image: url('data:image/svg+xml;charset=utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20fill%3D%22currentColor%22%20d%3D%22M14.4%200L16%201.6l1.5%201.6s-1.4.1-7.1.1H3.3v25.5h25.5v-7.2l.1-7.1s.7.6%203%203l.1%205.1v6c0%20.8%200%20.8-.1%201.1-.1.2-.2.4-.2.5a.76.76%200%200%200-.2.4c-.1.1-.3.3-.4.5-.2.1-.4.3-.5.4-.1%200-.2.1-.3.2-.2%200-.3.1-.5.1-.1.1-.3.1-.4.2H2.6l-.3-.1c-.2-.1-.4-.2-.5-.2a.76.76%200%200%200-.4-.2c-.1-.1-.3-.3-.5-.4-.1-.2-.3-.4-.4-.5%200-.1-.1-.2-.2-.3%200-.2-.1-.3-.1-.5-.1-.1-.1-.3-.2-.4V2.6l.1-.3c.1-.1.2-.4.3-.6.1-.1.2-.4.3-.5l.4-.4c.2-.1.4-.3.5-.3A.76.76%200%200%201%202%20.3.76.76%200%200%201%202.4.1c.1%200%20.3-.1.5-.1h11.5zm5.1%200h5l7.5.1v12.4l-4.2-4.1-4%203.9-4%204s-1-.9-2.2-2.1l-2.1-2.1%208-8z%22%2F%3E%3C%2Fsvg%3E');
+        mask-position: center;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        margin-right: 28px;
+    }
+    tyt-iframe-popup-btn.tyt-btn-enabled.tyt-btn-popuped {
+        transform: rotate(180deg);
+        transform-origin: 50% 50%;
+    
+    }
+
+    
+    tyt-iframe-popup-btn.tyt-btn-enabled:hover {
+        color: var(--yt-live-chat-toast-action-color);
+    
+    }
+
+    ytd-watch-flexy.tyt-chat-popup[theater] ytd-live-chat-frame#chat{
+        min-height: unset !important;
+        height: auto !important;
+    }
+    ytd-watch-flexy.tyt-chat-popup[theater] iframe#chatframe{
+        position: fixed !important;
+        height: 30vh !important;
+        width: 30vw !important;
+        right: -100vw !important;
+        bottom: -100vh !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding:0 !important;
+        border:0 !important;
+        visibility: collapse !important;
+    }
+
+    ytd-watch-flexy.tyt-chat-popup[theater] #secondary-inner,
+    ytd-watch-flexy[tyt-chat^="+"][theater] #secondary-inner {
+        display:block !important;
+        height:auto !important;
+        min-height: unset !important;
+    }
+
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button button {
+        pointer-events: none;
+    }
+    
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button button span {
+        color: var(--disabled-text-color) !important;
+    }
+    
+    ytd-watch-flexy.tyt-chat-popup #show-hide-button {
+        border: 0 !important;
+    }
+    
+}
+
+
+@media all {
+
+
+    
+    ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
+        border-bottom: 1px solid var(--yt-spec-10-percent-layer);
+        box-sizing: border-box;
+        border-bottom-color: var(--yt-spec-general-background-a);
+        /* css fix to background loading */
+    }
+
+    /* double .ytd-watch-flexy is Youtube Coding Bug */
+    body ytd-watch-flexy[flexy] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy,
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
+        --tyt-x-chat-max-height: calc(var(--tyt-x-base-height) - 20px - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
+        height: var(--tyt-x-chat-max-height);
+        min-height: 10px;
+    }
+
+    /* double .ytd-watch-flexy is Youtube Coding Bug */
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat.ytd-watch-flexy:not([collapsed]).ytd-watch-flexy {
+
+        --tyt-x-chat-max-height: calc(var(--tyt-x-chatroom-height) - var(--tyt-tabs-upspace-donation-unavailable, 0px) );
+        /* not override if value not set */
+
+    }
+
+    body ytd-watch-flexy[flexy] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy,
+    body ytd-watch-flexy[flexy][js-panel-height_] #chat-container.ytd-watch-flexy:not([chat-collapsed]).ytd-watch-flexy {
+        height: unset;
+    }
+
+
+
+    @supports (color: var(--chat-frame)){
+
+        /* ytd-live-chat-frame#chat:not([collapsed]) */
+
+        ytd-live-chat-frame#chat:not([collapsed]):not([tyt-iframe-loaded])::before {
+            position: absolute;
+            content: var(--tabview-panel-loading, "Loading");
+            z-index: 0;
+            display: block;
+            height: 100%;
+            color: var(--yt-spec-text-primary);
+            background-color: var(--ytd-searchbox-legacy-button-hover-border-color);
+            width: 100%;
+            text-align: center;
+            /* line-height: 300px; */
+            line-height: var(--tyt-x-chatroom-height);
+            letter-spacing: var(--tyt-x-loading-content-letter-spacing);
+
+            font-size: var(--ytd-subheadline-font-size);
+            font-weight: var(--ytd-subheadline-font-weight);
+        }
+
+        ytd-live-chat-frame#chat:not([collapsed]) {
+            position: relative;
+        }
+
+        ytd-live-chat-frame#chat:not([collapsed])>* {
+            z-index: 1;
+            position: inherit;
+        }
+
+        ytd-live-chat-frame#chat[collapsed] iframe {
+            display: none;
+        }
+
+    }
+
+    
+    /* 2022.08.18 livechat reply disable */
+
+    ytd-watch-flexy:not(.tyt-chat-toggleable) ytd-live-chat-frame#chat>#show-hide-button {
+        display: none;
+    }
+
+    
+    @supports (color: var(--chat-frame-stylish)){
+
+        /* 2022/11/06 - fix round border */
+
+        ytd-live-chat-frame#chat yt-live-chat-app,
+        ytd-live-chat-frame#chat yt-live-chat-renderer,
+        ytd-live-chat-frame#chat yt-live-chat-header-renderer,
+        ytd-live-chat-frame#chat ytd-live-chat-frame#chat,
+        ytd-live-chat-frame#chat iframe#chatframe,
+        body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame * {
+            border: 0;
+            border-radius: 0;
+        }
+
+        body ytd-live-chat-frame[rounded-container] {
+            border: 0;
+            border-radius: 0;
+        }
+
+        body ytd-live-chat-frame[rounded-container] #show-hide-button.ytd-live-chat-frame ytd-toggle-button-renderer.ytd-live-chat-frame {
+            border: 0;
+            border-radius: 0;
+        }
+
+        /* 2022/11/06 - show hide button background fix */
+
+        ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame {
+            /*background-color: var(--yt-spec-black-2);*/
+            background-color: var(--ytd-searchbox-legacy-button-color);
+            color: var(--yt-spec-text-secondary);
+        }
+
+        ytd-live-chat-frame#chat #show-hide-button.style-scope.ytd-live-chat-frame yt-button-shape {
+            outline: 1px solid var(--yt-spec-10-percent-layer);
+        }
+
+        /* 2022/11/07 - chat room border 1px */
+
+        body ytd-live-chat-frame#chat[class] {
+            outline: 1px solid var(--yt-spec-10-percent-layer);
+            margin: 1px;
+        }
+
+        /* --- 2023/05/05 - general update show-hide-button style (darker-dark-theme) --- */
+        
+        #show-hide-button.style-scope.ytd-live-chat-frame {
+            outline: 1px solid var(--yt-spec-10-percent-layer);
+        }
+
+        ytd-live-chat-frame#chat:not([collapsed]):not([tyt-iframe-loaded]) #show-hide-button.style-scope.ytd-live-chat-frame {
+            outline: 0px;
+        }
+
+        html ytd-live-chat-frame[darker-dark-theme] #show-hide-button.ytd-live-chat-frame>ytd-button-renderer.ytd-live-chat-frame, 
+        html ytd-live-chat-frame[darker-dark-theme] #show-hide-button.ytd-live-chat-frame>ytd-toggle-button-renderer.ytd-live-chat-frame {
+            margin: 0px;
+        }
+
+        /* --- 2023/05/05 - general update show-hide-button style (darker-dark-theme) --- */
+        
+
+        /* --- 2023/05/31 - remove padding for show button --- */
+        html ytd-live-chat-frame #show-hide-button.ytd-live-chat-frame>ytd-toggle-button-renderer.ytd-live-chat-frame {
+            padding: 0px;
+        }
+
+
+    }
+
+
+
+}

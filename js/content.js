@@ -126,92 +126,8 @@ SOFTWARE.
   const MINIVIEW_BROWSER_ENABLE = true;
   const DEBUG_LOG = false;
 
-  function dnsPrefetch() {
-
-
-    function linker(link, rel, href, _as) {
-      return new Promise(resolve => {
-        if (!link) link = document.createElement('link');
-        link.rel = rel;
-        if (_as) link.setAttribute('as', _as);
-        link.onload = function () {
-          resolve({
-            link: this,
-            success: true
-          })
-          this.remove();
-        };
-        link.onerror = function () {
-          resolve({
-            link: this,
-            success: false
-          });
-          this.remove();
-        };
-        link.href = href;
-        (document.head || document.documentElement).appendChild(link);
-        link = null;
-      });
-    }
-
-    new Promise(resolve => {
-
-      if (document.documentElement) {
-        resolve();
-      } else {
-
-        let mo = new MutationObserver(() => {
-          if (mo !== null && document.documentElement) {
-            mo.takeRecords();
-            mo.disconnect();
-            mo = null;
-            resolve();
-          }
-        });
-        mo.observe(document, { childList: true, subtree: false })
-
-      }
-
-    }).then(() => {
-
-      const hosts = [
-        'https://i.ytimg.com',
-        'https://www.youtube.com',
-        'https://rr2---sn-5n5ip-ioqd.googlevideo.com',
-        'https://googlevideo.com',
-        'https://accounts.youtube.com',
-        'https://jnn-pa.googleapis.com',
-        'https://googleapis.com',
-        'https://fonts.gstatic.com',
-        'https://www.gstatic.com',
-        'https://yt3.ggpht.com',
-        'https://yt4.ggpht.com'
-      ]
-      for (const h of hosts) {
-
-
-        linker(null, 'preconnect', h);
-
-      }
-
-
-
-    });
-  }
-  dnsPrefetch();
-
-
   let _isPageFirstLoaded = true;
 
-  async function makeTytLock() {
-    let c = 8;
-    while (!document.documentElement) {
-      if (--c === 0) return
-      await getRAFPromise().then()
-    }
-    // if (_isPageFirstLoaded) document.documentElement.setAttribute('tyt-lock', '')
-  }
-  if (location.pathname === '/watch') makeTytLock()
   /*
 
   youtube page
@@ -798,6 +714,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     };
   })();
 
+  let chatController = {
+    allowChatControl: true
+  };
+
   class Deferred {
     constructor() {
       this.reset();
@@ -969,6 +889,171 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   );
 
 
+  let chromeCSSFiles = null;
+
+  try {
+    const o = [{
+      id: 'tabview-css-content',
+      path: 'css/style_content.css'
+    }, {
+      id: 'tabview-css-chat',
+      path: 'css/style_chat.css'
+    }, {
+      id: 'tabview-css-control',
+      path: 'css/style_control.css'
+    }];
+
+    for (const e of o) e.url = chrome.runtime.getURL(e.path) || '';
+
+    chromeCSSFiles = o;
+
+  } catch (e) { }
+
+  if (chromeCSSFiles) {
+    const target = document.head || document.documentElement;
+    for (const { path, url, id } of chromeCSSFiles) {
+
+      if (url && typeof url === 'string' && url.length > 4) {
+
+        const link = document.createElement('link');
+        link.id = id;
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = url;
+
+        target.appendChild(link);
+
+      }
+
+    }
+    chromeCSSFiles = null;
+
+  }
+
+
+  function fixTheaterChat1() {
+    let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
+    if (incorrectChat) {
+      incorrectChat.setAttribute('collapsed', '')
+    }
+  }
+
+
+  function fixTheaterChat2() {
+    let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat[collapsed]')
+    if (incorrectChat) {
+      incorrectChat.removeAttribute('collapsed')
+    }
+  }
+
+  function check1885() {
+    if (chatController.allowChatControl) {
+      if (document.body.hasAttribute('data-ytlstm-theater-mode')) {
+        chatController.allowChatControl = false;
+      }
+    } else {
+      if (!document.body.hasAttribute('data-ytlstm-theater-mode')) {
+        chatController.allowChatControl = true;
+      }
+    }
+  }
+
+  function check1886() {
+    check1885();
+
+    let cssContentNode = document.getElementById('tabview-css-content')
+    if (!cssContentNode) return;
+    let cssChatNode = document.getElementById('tabview-css-chat')
+    if (!cssChatNode) return;
+
+    if (cssContentNode.disabled === false) {
+      if (document.body.hasAttribute('data-ytlstm-theater-mode')) {
+        cssContentNode.disabled = true;
+        cssChatNode.disabled = true;
+        return 1;
+      }
+    } else if (cssContentNode.disabled === true) {
+      if (!document.body.hasAttribute('data-ytlstm-theater-mode')) {
+        cssContentNode.disabled = false;
+        cssChatNode.disabled = false;
+        return 2;
+      }
+    }
+
+  }
+
+  function dnsPrefetch() {
+
+    function linker(link, rel, href, _as) {
+      return new Promise(resolve => {
+        if (!link) link = document.createElement('link');
+        link.rel = rel;
+        if (_as) link.setAttribute('as', _as);
+        link.onload = function () {
+          resolve({
+            link: this,
+            success: true
+          })
+          this.remove();
+        };
+        link.onerror = function () {
+          resolve({
+            link: this,
+            success: false
+          });
+          this.remove();
+        };
+        link.href = href;
+        (document.head || document.documentElement).appendChild(link);
+        link = null;
+      });
+    }
+
+    new Promise(resolve => {
+
+      if (document.documentElement) {
+        resolve();
+      } else {
+
+        let mo = new MutationObserver(() => {
+          if (mo !== null && document.documentElement) {
+            mo.takeRecords();
+            mo.disconnect();
+            mo = null;
+            resolve();
+          }
+        });
+        mo.observe(document, { childList: true, subtree: false })
+
+      }
+
+    }).then(() => {
+
+      const hosts = [
+        'https://i.ytimg.com',
+        'https://www.youtube.com',
+        'https://rr2---sn-5n5ip-ioqd.googlevideo.com',
+        'https://googlevideo.com',
+        'https://accounts.youtube.com',
+        'https://jnn-pa.googleapis.com',
+        'https://googleapis.com',
+        'https://fonts.gstatic.com',
+        'https://www.gstatic.com',
+        'https://yt3.ggpht.com',
+        'https://yt4.ggpht.com'
+      ]
+      for (const h of hosts) {
+
+
+        linker(null, 'preconnect', h);
+
+      }
+
+
+
+    });
+  }
+  dnsPrefetch();
 
   let pageSession = new Session(0);
   const tabsDeferred = new Deferred();
@@ -1129,6 +1214,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const mtoFlexyAttr = new ObserverRegister(() => {
     return new MutationObserver(mtf_attrFlexy)
+  });
+
+  const mtoBodyAttr = new ObserverRegister(() => {
+    return new MutationObserver(mtf_attrBody)
   });
 
   const mtoVisibility_EngagementPanel = new ObserverRegister(() => {
@@ -2454,6 +2543,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let isRelocated = !!queryElement;
 
     if (isRelocated) {
+      // if(1885) return;
 
       // _console.log(3202, 2)
 
@@ -2482,38 +2572,45 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
     /** @type {HTMLElement | null} */
+    check1885();
+    
+    if(!chatController.allowChatControl) return;
+      let chatroom = null;
+      if (chatroom = document.querySelector('ytd-live-chat-frame#chat')) {
 
-    let chatroom = null;
-    if (chatroom = document.querySelector('ytd-live-chat-frame#chat')) {
+        const container = chatroom.parentNode.id === 'chat-container' ? chatroom.parentNode : chatroom;
 
-      const container = chatroom.parentNode.id === 'chat-container' ? chatroom.parentNode : chatroom;
+        let pHolderElm = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
 
-      let pHolderElm = document.querySelector('tabview-view-pholder[data-positioner="before|#chat"]');
+        if (!pHolderElm || pHolderElm.nextElementSibling !== container) {
 
-      if (!pHolderElm || pHolderElm.nextElementSibling !== container) {
 
-        if (pHolderElm) pHolderElm.remove();
+          if (pHolderElm) pHolderElm.remove();
 
-        if (document.querySelector('.YouTubeLiveFilledUpView')) {
-          // no relocation
-        } else {
 
-          let rightTabs = document.querySelector('#right-tabs');
-          if (rightTabs) {
-            insertBeforeTo(container, rightTabs);
+
+          if (1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) {
+
+          } else if (document.querySelector('.YouTubeLiveFilledUpView')) {
+            // no relocation
+          } else {
+
+            let rightTabs = document.querySelector('#right-tabs');
+            if (rightTabs) {
+              insertBeforeTo(container, rightTabs);
+            }
+
           }
 
+          if (!pHolderElm) {
+            pHolderElm = document.createElement('tabview-view-pholder');
+            pHolderElm.setAttribute('data-positioner', 'before|#chat');
+          }
+
+          insertBeforeTo(pHolderElm, container)
         }
 
-        if (!pHolderElm) {
-          pHolderElm = document.createElement('tabview-view-pholder');
-          pHolderElm.setAttribute('data-positioner', 'before|#chat');
-        }
-
-        insertBeforeTo(pHolderElm, container)
-      }
-
-    }
+      } 
 
   }
 
@@ -3614,6 +3711,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     mtoVisibility_Chatroom.clear(true)
     mtoFlexyAttr.clear(true)
+    mtoBodyAttr.clear(true)
 
 
     for (const elem of document.querySelectorAll('ytd-expander[tabview-expander-checked]')) {
@@ -4578,6 +4676,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           mtoVisibility_Chatroom.observer.check(9)
         }
       }
+      
 
       liveChatFrame = null;
       ytdFlexyElm = null;
@@ -4590,10 +4689,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else {
 
         // this is due to page change
-        let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
-        if (incorrectChat) {
-          incorrectChat.setAttribute('collapsed', '')
-        }
+        fixTheaterChat1();
 
       }
 
@@ -4795,6 +4891,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (!tabsDeferredSess.isValid) return;
         tabsDeferredSess = null;
 
+
         setupChatFrameDOM(node); // front page
         node = null;
 
@@ -4827,6 +4924,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (!scriptEnable && tabsDeferred.resolved) { }
         else tabsDeferred.debounce(() => {
 
+      
+          
           if (!tabsDeferredSess.isValid) return;
           tabsDeferredSess = null;
 
@@ -4983,6 +5082,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let tabsDeferredSess = pageSession.session();
       if (!scriptEnable && tabsDeferred.resolved) { }
       else tabsDeferred.debounce(() => {
+        
 
         if (!tabsDeferredSess.isValid) return;
         tabsDeferredSess = null;
@@ -5025,6 +5125,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let tabsDeferredSess = pageSession.session();
       if (!scriptEnable && tabsDeferred.resolved) { }
       else tabsDeferred.debounce(() => {
+        
 
         if (!tabsDeferredSess.isValid) return;
         tabsDeferredSess = null;
@@ -5310,6 +5411,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!scriptEnable && tabsDeferred.resolved) { }
       else tabsDeferred.debounce(() => {
 
+        
         if (!tabsDeferredSess.isValid) return;
         tabsDeferredSess = null;
 
@@ -6000,6 +6102,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     mtoFlexyAttr.clear(true)
+    mtoBodyAttr.clear(true)
     mtf_checkFlexy()
 
     tabsDeferred.resolve();
@@ -6264,6 +6367,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   const mtf_attrFlexy = (mutations, observer) => {
+    
 
     //attr mutation checker - $$ytdFlexyElm$$ {ytd-watch-flexy} \single
     //::attr    
@@ -6279,6 +6383,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!cssElm) return;
 
     if (!mutations) return;
+    
+    check1885();
+    if(!chatController.allowChatControl) return;
 
     const old_layoutStatus = wls.layoutStatus
     if (old_layoutStatus === 0) return;
@@ -6289,6 +6396,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let dcall = 0;
 
     for (const mutation of mutations) {
+      
+
+      if(1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) continue;
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
       // _console.log(8221, 18, mutation.attributeName)
       if (mutation.attributeName === 'tyt-chat') {
@@ -6338,6 +6448,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           updateFloatingSlider();  //required for hover slider // eg video after ads
         }, 1);
       }
+ 
     }
 
     new_layoutStatus = fixLayoutStatus(new_layoutStatus);
@@ -6364,6 +6475,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+
+  const mtf_attrBody = (mutations, observer) => {
+    check1886();
+
+    if (chatController.allowChatControl) {
+
+      mtf_checkFlexy_(wls.layoutStatus);
+      fixTabs();
+      immediateCheck();
+
+      setTimeout(() => {
+        if (chatController.allowChatControl) {
+          fixTheaterChat1();
+        }
+      }, 80);
+    } else {
+
+      mtf_checkFlexy_(wls.layoutStatus);
+
+      setTimeout(() => {
+        if (!chatController.allowChatControl) {
+          fixTheaterChat2();
+        }
+      }, 80);
+    }
+
+
+  }
 
   function setupChatFrameDisplayState1(chatBlockR, initialDisplayState) {
 
@@ -6472,6 +6611,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
+  const mtf_checkFlexy_ = (ls)=>{
+
+
+    ls = flexAttr_toLayoutStatus(ls, 'theater')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-chat')
+    ls = flexAttr_toLayoutStatus(ls, 'is-two-columns_')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-tab')
+    ls = flexAttr_toLayoutStatus(ls, 'fullscreen')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-ep-visible')
+    ls = flexAttr_toLayoutStatus(ls, 'tyt-donation-shelf')
+
+    fixLayoutStatus(ls);
+
+    wls.layoutStatus = ls
+
+
+  }
+
   const mtf_checkFlexy = () => {
     // once per $$native-ytd-watch-flexy$$ {ytd-watch-flexy} detection
 
@@ -6520,22 +6677,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       wAttr(ytdFlexyElm, 'tyt-ep-visible', false);
     }
 
-    let ls = LAYOUT_VAILD;
-    ls = flexAttr_toLayoutStatus(ls, 'theater')
-    ls = flexAttr_toLayoutStatus(ls, 'tyt-chat')
-    ls = flexAttr_toLayoutStatus(ls, 'is-two-columns_')
-    ls = flexAttr_toLayoutStatus(ls, 'tyt-tab')
-    ls = flexAttr_toLayoutStatus(ls, 'fullscreen')
-    ls = flexAttr_toLayoutStatus(ls, 'tyt-ep-visible')
-    ls = flexAttr_toLayoutStatus(ls, 'tyt-donation-shelf')
-
-    fixLayoutStatus(ls)
-
-    wls.layoutStatus = ls
+    mtf_checkFlexy_(LAYOUT_VAILD);
 
     mtoFlexyAttr.bindElement(ytdFlexyElm, {
       attributes: true,
       attributeFilter: ['tyt-chat', 'theater', 'is-two-columns_', 'tyt-tab', 'fullscreen', 'tyt-ep-visible', 'tyt-donation-shelf', 'hidden', 'is-extra-wide-video_'],
+      attributeOldValue: true
+    })
+    mtoBodyAttr.bindElement(document.body, {
+      attributes: true,
+      attributeFilter: ['data-ytlstm-theater-mode'],
       attributeOldValue: true
     })
 
@@ -7500,6 +7651,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let tabsDeferredSess = pageSession.session();
         if (!scriptEnable && tabsDeferred.resolved) { }
         else tabsDeferred.debounce(() => {
+          
 
           if (!tabsDeferredSess.isValid) return;
           tabsDeferredSess = null;

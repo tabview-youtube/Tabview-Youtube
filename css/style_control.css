@@ -1,0 +1,922 @@
+
+@supports (color: var(--donation-shelf-related)) {
+    @keyframes swVq1DOMAppended {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] ytd-masthead#masthead div#buttons.ytd-masthead path[swVq1="1"] {
+        animation: swVq1DOMAppended 1ms linear 0s 1 normal forwards;
+    }
+
+
+    @keyframes swVq2DOMAppended {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty):not([swVq2="1"]) {
+        animation: swVq2DOMAppended 1ms linear 0s 1 normal forwards;
+    }
+
+    
+
+}
+ 
+
+@supports (color: var(--fix-old-pin-icon)){
+
+
+    @keyframes oldYtIconPinAppeared {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+
+    html[tabview-loaded] yt-icon.ytd-pinned-comment-badge-renderer[size="12"] svg[width="24"] {
+        /* May 2023 - 2020.05.19 */
+        /* old yt-icon in some browsers e.g. Chrome */
+        animation: oldYtIconPinAppeared 1ms linear 0s 1 normal forwards;
+        /* visibility: collapse;*/ /* hide before fix */
+    }
+
+}
+ 
+
+@supports (color: var(--fix-primary-info-menu-tooltip-layouting)){
+    
+    @keyframes primaryInfoMenuTooltipAppear {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+    
+    #actions.ytd-watch-metadata tp-yt-paper-tooltip:not([tyt-placed-to-top]) {
+        animation: primaryInfoMenuTooltipAppear 1ms linear 0s 1 normal forwards;
+        visibility: collapse; /* hide before fix */
+    }
+}
+
+@supports (color: var(--fix-primary-info-desc-tooltip-layouting)){
+    
+    @keyframes primaryInfoDescTooltipAppear {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+    
+    #description.ytd-watch-metadata tp-yt-paper-tooltip[for="info"]:not([fit-to-visible-bounds]) {
+        animation: primaryInfoDescTooltipAppear 1ms linear 0s 1 normal forwards;
+        visibility: collapse; /* hide before fix */
+    }
+}
+ 
+
+
+@supports (color: var(--hover-title-to-expand-up-to-three-lines)) and (-webkit-line-clamp:3){
+
+    @keyframes titleHoverShowUpToThreeLines {
+        from {
+            /* */
+        }
+        to {
+            -webkit-line-clamp: 3;
+            max-height: unset;
+        }
+    }
+
+    #below h1.ytd-watch-metadata:hover {
+        animation: titleHoverShowUpToThreeLines 1ms ease 670ms forwards;
+    }
+
+}
+
+@media all {
+    
+    @supports (color: var(--videos-appear)){
+
+        @keyframes videosDOMAppended {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] ytd-watch-flexy #related.ytd-watch-flexy {
+            animation: videosDOMAppended 1ms linear 0s 1 normal forwards;
+        }
+
+    }
+
+    @supports (color: var(--ep-appear)){
+
+        @keyframes epDOMAppended {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]){
+            animation: epDOMAppended 1ms linear 0s 1 normal forwards;
+        }
+    }
+    
+
+    @supports (color: var(--tabview-view-ploader)) {
+
+        @keyframes pageLoaderAnimation {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] tabview-view-ploader {
+            position: fixed;
+            left: 1px;
+            top: 50vh;
+            width: 1px;
+            height: 1px;
+            visibility: collapse;
+            opacity: 0;
+            pointer-events: none !important;
+            user-select: none !important;
+            background: none;
+            touch-action: none !important;
+            padding: 0;
+            margin: 0;
+            z-index: 0;
+            animation: pageLoaderAnimation 1ms linear 0s 1 normal forwards;
+        }
+    }
+
+    @supports (color: var(--dom-appearance-triggering)) {
+
+        @keyframes liveChatFrameDOMAppended {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] ytd-live-chat-frame#chat {
+            animation: liveChatFrameDOMAppended 1ms linear 0s 1 normal forwards;
+        }
+
+        @keyframes chatFrameToggleBtnAppended1 {
+            0% {
+                background-position-x: 1px;
+            }
+            100% {
+                background-position-x: 2px;
+            }
+        }
+
+        @keyframes chatFrameToggleBtnAppended2 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
+            animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
+        }
+
+        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
+            animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
+
+        }
+
+        @keyframes commentsSectionAppended {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        ytd-item-section-renderer#sections.style-scope.ytd-comments {
+            animation: commentsSectionAppended 1ms linear 0s 1 normal forwards;
+        }
+
+        @keyframes commentsHeaderAppended1 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        @keyframes commentsHeaderAppended2 {
+            0% {
+                background-position-x: 5px;
+            }
+            100% {
+                background-position-x: 6px;
+            }
+        }
+
+        ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer:not(.tyt-ani) {
+            animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
+        }
+
+        ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer.tyt-ani {
+            animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
+        }
+
+    }
+
+
+    @supports (color: var(--page-columns-resizing-trigger)){
+
+        tabview-view-columns-endpos {
+
+            position: relative;
+            width: 0;
+            height: 0;
+            display: flex;
+            top: 0;
+            contain: strict;
+            visibility: collapse;
+            pointer-events: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            z-index:0;
+        }
+
+    }
+
+    @supports (color: var(--page-videos-reaching-the-end-trigger)) {
+
+        tabview-view-videos-endpos {
+
+            display: var(--tabview-view-videos-endpos-display, none);
+
+            position: absolute;
+            width: 0;
+            height: 0;
+
+            contain: strict;
+            pointer-events: none !important;
+            user-select: none !important;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+
+            margin-top: -30vh;
+
+        }
+
+        ytd-watch-flexy[tyt-tab="#tab-videos"] #tab-videos.tab-content-cld {
+            --tabview-view-videos-endpos-display: flex;
+        }
+
+        body ytd-watch-flexy[flexy][is-two-columns_] #tab-videos.tab-content-cld {
+            --tabview-view-videos-endpos-display: none;
+        }
+
+        body ytd-watch-flexy #tab-videos.tab-content-cld.tab-content-hidden {
+            --tabview-view-videos-endpos-display: none;
+        }
+
+    }
+
+    @supports (color: var(--tabview-view-tab-expander-btn-define)){
+
+        @media all and (display-mode: fullscreen) {
+            tabview-view-tab-expander{
+                display: none;
+            }
+        }
+
+    }
+
+    
+
+
+    @supports(color: var(--tab-content-expander-btn-define)){
+
+        @keyframes tabviewTabExpanderChover {
+            0% {
+                opacity: var(--tabview-view-tab-expander-opacity2);
+                transform: translateY(0);
+                z-index: 4;
+            }
+
+            4% {
+                opacity: var(--tabview-view-tab-expander-opacity2);
+            }
+
+            8% {
+                opacity: var(--tabview-view-tab-expander-opacity1);
+                /* 4% of 1750ms */
+            }
+
+            90% {
+                opacity: var(--tabview-view-tab-expander-opacity1);
+            }
+
+            99% {
+                opacity: var(--tabview-view-tab-expander-opacity2);
+                /* 8% of 1750ms */
+            }
+
+            100% {
+                opacity: var(--tabview-view-tab-expander-opacity2);
+                transform: translateY(0);
+                z-index: 4;
+            }
+        }
+
+        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander {
+            animation: tabviewTabExpanderChover 1750ms normal forwards;
+        }
+
+
+        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander {
+            animation: tabviewTabExpanderChover 1750ms normal forwards;
+        }
+
+    }
+     
+    
+
+    @supports (color: var(--compatibile-with-youtube-search-while-watching-video)){
+
+        
+        /* https://greasyfork.org/en/scripts/29451-youtube-search-while-watching-video */
+
+        /* autocomplete */
+
+        tabview-view-autocomplete-pos>.autocomplete-suggestions {
+            position: absolute !important;
+            left: auto !important;
+            top: auto !important;
+            width: 100% !important;
+            margin: 0 !important;
+            z-index: 99;
+        }
+
+        tabview-view-autocomplete-pos {
+            overflow: visible;
+            display: block;
+            position: relative;
+            height: 0;
+            width: 100%;
+            margin-top: calc(-1 * (var(--tyt-swwv-searchbox-mb)));
+            margin-bottom: calc(1 * (var(--tyt-swwv-searchbox-mb)));
+            z-index: 99;
+        }
+
+        /* autocomplete | position-fixed-by-tabview-youtube */
+
+        tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube] {
+            position: sticky;
+            top: calc(var(--tyt-swwv-searchbox-h, auto) - var(--tab-content-padding, 0px));
+            z-index: 2;
+        }
+
+        tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube] {
+            z-index: 2;
+        }
+
+        @keyframes SearchWhileWatchAutocomplete {
+            0%{
+                background-position-x: 2px;
+            }
+            100%{
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded] #suggestions-search[autocomplete="off"]{
+            animation: SearchWhileWatchAutocomplete 1ms linear 0s 1 normal forwards;
+        }
+        
+
+    }
+
+    @supports (color: var(--for-youtube-search-while-watching-video)){
+            
+        ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search {
+            position: sticky;
+            /*top: -1px;*/
+            top:0px;
+            /* visual gap */
+            z-index: 2;
+        }
+
+        ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search + tabview-view-autocomplete-pos{
+            position: sticky;
+            --tyt-offset-adjust: -1px;
+            top: calc(var(--tyt-swwv-searchbox-h) + var(--tyt-offset-adjust));
+        }
+
+    }
+
+
+}
+
+@media not all and (display-mode: fullscreen) {
+
+         
+    @supports (color: var(--tabview-hover-slider)){
+        
+        /* ---- v3.7.0 ---- */
+        /* 2022/11/21 css fix wide layout */
+
+        @keyframes tabviewSiderAnimation {
+            0% {
+                transform: translateX(calc(var(--tabview-hover-slider-x1)));
+                right: var(--tabview-hover-slider-r1);
+                min-width: var(--tabview-hover-slider-mw1);
+            }
+
+            1% {
+                transform: translateX(calc(var(--tabview-hover-slider-x1)));
+                right: var(--tabview-hover-slider-r1);
+                min-width: var(--tabview-hover-slider-mw2);
+            }
+
+            99% {
+                transform: translateX(calc(var(--tabview-hover-slider-x3)));
+                right: var(--tabview-hover-slider-r1);
+                min-width: var(--tabview-hover-slider-mw2);
+            }
+
+            100% {
+                transform: translateX(calc(var(--tabview-hover-slider-x1)));
+                right: var(--tabview-hover-slider-r2);
+                min-width: var(--tabview-hover-slider-mw2);
+            }
+
+        }
+
+        @keyframes tabviewSiderAnimationNone {
+            0% {
+                background-position-x: 1px;
+            }
+            100% {
+                background-position-x: 2px;
+            }
+        }
+
+        .tabview-hover-slider>#secondary-inner {
+
+            --tabview-slider-offset-pos: max(var(--tabview-slider-offset), 0);
+
+            --tabview-slider-offset-a: min(var(--ytd-watch-flexy-sidebar-width), var(--tabview-slider-offset-pos));
+
+            /*
+            --tabview-slider-offset-k: calc(var(--tabview-slider-offset-a) / var(--ytd-watch-flexy-sidebar-width));
+
+            --tabview-slider-offset-k2: calc(73px / var(--ytd-watch-flexy-sidebar-width));*/
+
+            --tabview-slider-offset-k2: 1.0;
+
+            /*
+            k = 0 -> --tabview-slider-ow
+            k = 1 -> --ytd-watch-flexy-sidebar-width
+            */
+
+            --tabview-slider-offset-p: calc(var(--tabview-slider-ow) + var(--tabview-slider-offset-k2) * calc(var(--ytd-watch-flexy-sidebar-width) - var(--tabview-slider-ow)));
+
+            --ytd-watch-flexy-sidebar-width-d: var(--tabview-slider-offset-p);
+
+            /*
+            --tabview-slider-offset-actual-old: calc(var(--ytd-watch-flexy-sidebar-width-d) - var(--ytd-watch-flexy-sidebar-min-width) + var(--tabview-slider-offset));
+
+            --tabview-slider-offset-actual: calc( var(--tabview-slider-offset));
+            */
+
+            --tabview-hover-slider-x1: 0px;
+            --tabview-hover-slider-x2: calc(-0.5*var(--tabview-slider-offset-actual));
+            --tabview-hover-slider-x3: calc(-1*var(--tabview-slider-offset-actual));
+
+            --tabview-hover-slider-r1: auto;
+            --tabview-hover-slider-r2: var(--tabview-slider-right);
+
+            --tabview-hover-slider-mw1: var(--ytd-watch-flexy-sidebar-min-width);
+            --tabview-hover-slider-mw2: var(--ytd-watch-flexy-sidebar-width-d);
+
+        }
+
+        .tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner,
+        .tabview-hover-slider.tabview-hover-final>#secondary-inner {
+
+            --tabview-hover-slider-x2: var(--tabview-hover-slider-x1);
+            --tabview-hover-slider-x3: var(--tabview-hover-slider-x1);
+
+            --tabview-hover-slider-r1: var(--tabview-hover-slider-r2);
+
+            --tabview-hover-slider-mw1: var(--tabview-hover-slider-mw2);
+
+        }
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+
+            /*
+            transition: transform 0.13s ease-out, min-width 1ms, background-color 250ms linear, outline 250ms linear;
+            transition-delay: 48ms, 192ms, 192ms, 4ms;
+            */
+
+            animation: tabviewSiderAnimationNone 1ms ease-in-out 0s 1 normal forwards;
+
+            background-color: rgba(0, 0, 0, 0.0);
+            outline: 0px solid var(--ytd-searchbox-background);
+
+            transform: translateX(0px);
+            right: auto;
+            min-width: var(--ytd-watch-flexy-sidebar-min-width);
+            /*
+            transition: min-width 1ms, right 1ms, transform 1ms;
+            transition-delay: 400ms, 400ms, 400ms;
+            position: fixed;
+            */
+
+            transition: initial;
+
+            transition-delay: initial;
+
+            /* 
+            max-width: var(--ytd-watch-flexy-sidebar-width-d);
+            */
+
+
+        }
+
+        /* 2022/12/25 added for firefox css (rendering) bug fixing */
+        @supports (-moz-appearance: none) {
+
+            ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+                border: 1px solid transparent;
+            }
+
+        }
+
+        /* 2023/01/29 added for old browser empty space between content and border issue */
+        @supports (color: var(--css-fix-for-old-browser-view-pholder)){
+            /* view pholder is just an element for space determintation; no css event related */
+            tabview-view-pholder {
+                position: absolute; /* or float: left */
+                contain: strict;
+                visibility: collapse;
+            }
+        }
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner,
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner {
+            /* two layout are different in size and location */
+
+            animation: tabviewSiderAnimation 330ms ease-in-out 0s 1 normal forwards;
+
+            position: fixed;
+
+            background-color: var(--yt-spec-base-background);
+            /*min-width: var(--ytd-watch-flexy-sidebar-width);*/
+            /*
+            transition: min-width 1ms, transform 0.13s ease-out, outline 250ms linear;
+            transition-delay: 48ms, 192ms, 4ms;*/
+            outline: 8px solid var(--ytd-searchbox-background);
+            /*box-shadow: 45px 65px 102px 76px var(--ytd-searchbox-background);*/
+
+            transform: translateX(0px);
+            right: var(--tabview-slider-right);
+            min-width: var(--ytd-watch-flexy-sidebar-width);
+            transition: initial;
+
+            transition-delay: initial;
+        }
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover> tabview-hover-slider-empty-view,
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> tabview-hover-slider-empty-view {
+
+            width: var(--tyt-slider-width, 0px);
+            display:flex;
+            visibility: collapse;
+
+        }
+
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy,
+        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy {
+
+            width: 100%;
+
+        }
+
+    }
+
+
+
+}
+
+
+@supports (color: var(--fix-native-bug-playlist-wrong-row-highlight-after-reorder)){
+
+    
+    @keyframes playlistRowDOMSelected {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+    html[tabview-unwrapjs="1"] #items > ytd-playlist-panel-video-renderer[selected=""] {
+        animation: playlistRowDOMSelected 1ms linear 0s 1 normal forwards;
+    }
+}
+
+
+@supports (color: var(--deferred-duplicated-meta-checker)) {
+
+    @keyframes deferredDuplicatedMetaChecker {
+        from {
+            background-position-x: 3px;
+        }
+        to {
+            background-position-x: 4px;
+        }
+    }
+
+    html.tabview-normal-player ytd-watch-metadata.ytd-watch-flexy #description-inner:not(:empty) {
+        animation: deferredDuplicatedMetaChecker 1ms linear 0s 1 normal forwards;
+    }
+}
+ 
+
+@supports (color: var(--live-chat-debouncer)){
+    @keyframes tabviewDebouncer {
+        0% {
+            order: 0;
+        }
+        100% {
+            order: 6;
+        }
+    }
+    tabview-debouncer {
+        display: block;
+        position: fixed;
+        width: 1px;
+        height: 1px;
+        left: -10px;
+        top: -10px;
+        contain: strict;
+        visibility: collapse;
+        pointer-events: none !important;
+        user-select: none !important;
+        touch-action: none !important;
+        margin:0;
+        padding:0;
+        z-index: -1;
+        box-sizing: border-box;
+
+        animation:250ms steps(2) 0ms infinite alternate forwards running tabviewDebouncer;
+    }
+}
+
+
+@media all {
+
+    
+
+    @supports (color: var(--anti-youtube-layout-bug-)){
+
+
+        ytd-watch-flexy[flexy][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander{
+
+            display: flex;
+            width: var(--ytd-watch-flexy-sidebar-width);
+            min-width: var(--ytd-watch-flexy-sidebar-min-width);
+
+        }
+
+        tabview-view-secondary-xpander{
+
+            visibility: collapse !important;
+            pointer-events: none !important;
+            user-select: none !important;
+            background: none !important;
+            touch-action: none!important;
+            max-width: 100%;
+
+        }
+ 
+    }
+
+
+    @supports (color: var(--tab-header-sticky)){
+
+        
+        #right-tabs>tabview-view-pos-thead {
+            display: none;
+            position: relative;
+            transform: translateY(calc(-1*var(--ytd-watch-flexy-masthead-height)));
+            width: 100%;
+            height: 0px;
+            visibility: collapse;
+            pointer-events: none !important;
+            user-select: none !important;
+            touch-action: none !important;
+            margin:0;
+            padding:0;
+            z-index: 0;
+            box-sizing: border-box;
+        }
+
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs>tabview-view-pos-thead {
+            display: flex;
+        }
+
+
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs {
+            --tyt-stickybar-h2: 0px;
+        }
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
+            --tyt-stickybar-h2: var(--tyt-stickybar-h);
+        }
+
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-view-pos-thead {
+            position: relative;
+            margin-bottom: var(--tyt-stickybar-h2);
+            box-sizing: border-box;
+        }
+
+        
+        
+        /* <<< sticky right-tabs header --- */
+
+        /* keep the single column view css as simple as possible */
+        /* use js coding to make it like sticky */
+        /* tried native sticky but the sticky element is "covered" by tab content (z-index no use) */
+
+        /* apply to all */
+        #right-tabs > header {
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs > header {
+            background-color: var(--yt-spec-general-background-a);
+        }
+
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>header {
+            z-index: 2;
+            position: fixed;
+            top: var(--ytd-watch-flexy-masthead-height);
+        }
+        
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]:not([style*="--tyt-stickybar-r"])>header {
+            width: var(--tyt-stickybar-w, 100%);
+        }
+        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar][style*="--tyt-stickybar-r"]>header {
+            left:var(--tyt-stickybar-l);
+            right:var(--tyt-stickybar-r);
+        }
+
+        /* --- sticky right-tabs header >>> */
+
+    }
+
+
+    
+    @supports(color: var(--tab-content-expander-btn-define)){
+
+
+        body [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander:hover {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
+            z-index: 4;
+            transform: translateY(0);
+        }
+
+        [tyt-tab="#tab-info"] #right-tabs #tab-info tabview-view-tab-expander>div {
+            --tabview-view-tab-expander-mt1: 0px;
+            --tabview-view-tab-expander-mr1: -6px;
+        }
+
+        [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander>div {
+            --tabview-view-tab-expander-mt1: 8px;
+            --tabview-view-tab-expander-mr1: 2px;
+        }
+        
+        [tyt-tab] #right-tabs tabview-view-tab-expander>div {
+            margin-top: calc(var(--tabview-view-tab-expander-mt1, 0px) - 6px);
+            --tabview-view-tab-expander-mr2: calc(var(--tabview-view-tab-expander-mr1) + var(--tyt-tab-panel-scrollbar-margin, 0px));
+            margin-right: calc(var(--tabview-view-tab-expander-mr2, 0px) - 6px);
+        }
+
+        body [tyt-tab="#tab-comments"] #right-tabs #tab-comments tabview-view-tab-expander:hover {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
+            z-index: 4;
+            transform: translateY(0);
+        }
+
+        .tabview-hover-slider-enable tabview-view-tab-expander {
+            --tabview-view-tab-expander-opacity2: 1.0;
+            --tabview-view-tab-expander-opacity1: 1.0;
+        }
+
+        /* .tabview-hover-slider:not(.tabview-hover-slider-enable) tabview-view-tab-expander,*/
+        :fullscreen ytd-watch-flexy[fullscreen] tabview-view-tab-expander,
+        ytd-watch-flexy:not([is-two-columns_]) tabview-view-tab-expander {
+            --tabview-view-tab-expander-opacity2: 0.0;
+            --tabview-view-tab-expander-opacity1: 0.0;
+            display: none;
+        }
+
+        tabview-view-tab-expander {
+
+            --tabview-view-tab-expander-opacity1: 0.8;
+            --tabview-view-tab-expander-opacity2: 0.0;
+
+            transform: translateY(-300px);
+            position: sticky;
+            top: 0;
+            float: right;
+            top: 0;
+            right: 0;
+            color: var(--yt-spec-call-to-action);
+            margin: 0;
+            width: 0px;
+            height: 0px;
+            padding: 0;
+            box-sizing: border-box;
+            z-index: 4;
+            opacity: 0.8;
+        }
+
+        tabview-view-tab-expander:hover {
+            transform: translateY(0);
+            opacity: 1.0;
+            color: var(--yt-spec-call-to-action-hover);
+        }
+
+        tabview-view-tab-expander>div {
+            box-sizing: border-box;
+            position: absolute;
+            padding: 3px;
+            color: inherit;
+            background: var(--yt-spec-badge-chip-background);
+            border-radius: 6px;
+            cursor: pointer;
+            right: 0;
+            top: 0;
+            z-index: 45;
+            margin:0;
+        }
+
+        tabview-view-tab-expander svg.svg-expand {
+            display: block;
+        }
+
+        tabview-view-tab-expander svg.svg-collapse {
+            display: none;
+        }
+
+        .tabview-hover-slider-enable tabview-view-tab-expander svg.svg-expand {
+            display: none;
+        }
+
+        .tabview-hover-slider-enable tabview-view-tab-expander svg.svg-collapse {
+            display: block;
+        }
+
+    }
+
+}

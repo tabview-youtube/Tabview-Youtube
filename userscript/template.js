@@ -179,8 +179,10 @@ SOFTWARE.
 // @description:km        បង្កើតមតិយោបល់និងបញ្ជីទៅជាផ្ទាំងសម្រាប់វីដេអូ YouTube
 
 // @version               {{VERSION}}
-// @resource              contentCSS    https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_content.css
-// @resource              injectionJS1  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/js/injection_script_1.js
+// @resource              contentCSS        https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_content.css
+// @resource              chatCSS           https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_chat.css
+// @resource              controlCSS        https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_event.css
+// @resource              injectionJS1      https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/js/injection_script_1.js
 // @require               https://greasyfork.org/scripts/465421-vanilla-js-dialog/code/Vanilla%20JS%20Dialog.js?version=1188332
 
 // @namespace             http://tampermonkey.net/
@@ -199,6 +201,7 @@ SOFTWARE.
 // @compatible            safari Safari >= 12.1
 
 // @grant                 GM_getResourceText
+// @grant                 GM.getResourceText
 // @grant                 GM_registerMenuCommand
 // @noframes
 // ==/UserScript==
@@ -206,33 +209,56 @@ SOFTWARE.
 /* jshint esversion:8 */
 
 function main(){
-    'use strict';
-    // MIT License
-    // https://github.com/cyfung1031/Tabview-Youtube/raw/main/js/content.js
+  'use strict';
+  // MIT License
+  // https://github.com/cyfung1031/Tabview-Youtube/raw/main/js/content.js
 
 {{CONTENT}}
 
-    // https://github.com/cyfung1031/Tabview-Youtube/raw/main/js/content.js
-
+  // https://github.com/cyfung1031/Tabview-Youtube/raw/main/js/content.js
 }
 
 
-;!(function $$() {
-    'use strict';
+; !(async () => {
+  'use strict';
 
-    if(document.documentElement==null) return window.requestAnimationFrame($$)
+  const o = [{
+    id: 'tabview-css-content',
+    resTag: 'contentCSS',
+  }, {
+    id: 'tabview-css-chat',
+    resTag: 'chatCSS'
+  }, {
+    id: 'tabview-css-control',
+    resTag: 'controlCSS'
+  }];
 
-    const cssTxt = GM_getResourceText("contentCSS");
+  const Promise = (async () => { })().constructor;
 
-    function addStyle (styleText) {
+  const contents = o.map(e => {
+    e = e.resTag;
+    return GM_getResourceText(e) || GM.getResourceText(e) || '';
+  });
+
+  const texts = await Promise.all(contents);
+
+  while (document.documentElement === null) {
+    await new Promise(r => window.requestAnimationFrame(r));
+  }
+
+  const target = document.head || document.documentElement;
+  let i = 0;
+  for (const e of o) {
+    const text = texts[i++];
+    if (text) {
       const styleNode = document.createElement('style');
-      styleNode.textContent = styleText;
-      document.documentElement.appendChild(styleNode);
+      styleNode.id = e.id;
+      styleNode.textContent = text;
+      target.appendChild(styleNode);
       return styleNode;
     }
+  }
 
-    addStyle (cssTxt);
-
-    main();
+  main();
 
 })();

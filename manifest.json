@@ -1,6 +1,5 @@
 {
    "content_scripts": [ {
-      "css": [ "css/style_content.css" ],
       "js": [ "js/content.js" ],
       "matches": [ "https://www.youtube.com/*" ],
       "run_at": "document_start",
@@ -16,9 +15,9 @@
     "host_permissions": [
       "https://www.youtube.com/*"
     ],
-   "version": "4.34.16",
+   "version": "4.40.0",
    "web_accessible_resources": [{
-      "resources": ["images/*.png", "js/injection*.js", "js/content.js"],
+      "resources": ["images/*.png", "js/injection*.js", "js/content.js", "css/*.css"],
       "matches": ["<all_urls>"]
     }]
 }
