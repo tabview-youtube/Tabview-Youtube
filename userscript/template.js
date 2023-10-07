@@ -181,7 +181,7 @@ SOFTWARE.
 // @version               {{VERSION}}
 // @resource              contentCSS        https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_content.css
 // @resource              chatCSS           https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_chat.css
-// @resource              controlCSS        https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_event.css
+// @resource              controlCSS        https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/css/style_control.css
 // @resource              injectionJS1      https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/{{COMMIT_SHA}}/js/injection_script_1.js
 // @require               https://greasyfork.org/scripts/465421-vanilla-js-dialog/code/Vanilla%20JS%20Dialog.js?version=1188332
 
