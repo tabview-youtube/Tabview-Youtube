@@ -261,6 +261,23 @@ function injection_script_1() {
 
   }, true);
 
+  /*
+  document.addEventListener('collapsed-true', (evt) => {
+    const target = (evt || 0).target || 0
+    if (target.is) {
+      const cnt = target.inst || target;
+      if (cnt.collapsed === false) cnt.collapsed = true;
+    }
+  }, true);
+  
+  document.addEventListener('collapsed-false', (evt) => {
+    const target = (evt || 0).target || 0
+    if (target.is) {
+      const cnt = target.inst || target;
+      if (cnt.collapsed === true) cnt.collapsed = false;
+    }
+  }, true)
+  */
 
   // top.tabviewSwitchVideoPage
   // top.tabviewDispatchEvent

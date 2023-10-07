@@ -930,11 +930,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  /*
 
   function fixTheaterChat1() {
     let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
     if (incorrectChat) {
-      incorrectChat.setAttribute('collapsed', '')
+      scriptletDeferred.debounce(()=>{
+        incorrectChat.dispatchEvent(new CustomEvent("collapsed-true"));
+      });
     }
   }
 
@@ -942,7 +945,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function fixTheaterChat2() {
     let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat[collapsed]')
     if (incorrectChat) {
-      incorrectChat.removeAttribute('collapsed')
+      scriptletDeferred.debounce(()=>{
+        incorrectChat.dispatchEvent(new CustomEvent("collapsed-false"));
+      });
+    }
+  }
+  */
+
+  
+  function fixTheaterChat1A() {
+    let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
+    if (incorrectChat) {
+      ytBtnCollapseChat();
+    }
+  }
+
+
+  function fixTheaterChat2A() {
+    let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat[collapsed]')
+    if (incorrectChat) {
+      ytBtnExpandChat();
     }
   }
 
@@ -959,7 +981,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function check1886() {
-    check1885();
 
     let cssContentNode = document.getElementById('tabview-css-content')
     if (!cssContentNode) return;
@@ -2535,6 +2556,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   function fixTabs() {
+    if(document.documentElement.hasAttribute('p355')) return;
 
     if (!scriptEnable) return;
 
@@ -2573,8 +2595,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     /** @type {HTMLElement | null} */
     check1885();
-    
-    if(!chatController.allowChatControl) return;
+    if (!chatController.allowChatControl) return;
+
       let chatroom = null;
       if (chatroom = document.querySelector('ytd-live-chat-frame#chat')) {
 
@@ -2589,9 +2611,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
 
-          if (1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) {
+          // if (1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) {
 
-          } else if (document.querySelector('.YouTubeLiveFilledUpView')) {
+          // } else 
+          if (document.querySelector('.YouTubeLiveFilledUpView')) {
             // no relocation
           } else {
 
@@ -4689,7 +4712,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else {
 
         // this is due to page change
-        fixTheaterChat1();
+        fixTheaterChat1A();
 
       }
 
@@ -6368,6 +6391,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const mtf_attrFlexy = (mutations, observer) => {
     
+    if(document.documentElement.hasAttribute('p355')) return;
+    
 
     //attr mutation checker - $$ytdFlexyElm$$ {ytd-watch-flexy} \single
     //::attr    
@@ -6383,9 +6408,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!cssElm) return;
 
     if (!mutations) return;
-    
+
     check1885();
-    if(!chatController.allowChatControl) return;
+    if (!chatController.allowChatControl) return;
 
     const old_layoutStatus = wls.layoutStatus
     if (old_layoutStatus === 0) return;
@@ -6398,7 +6423,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     for (const mutation of mutations) {
       
 
-      if(1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) continue;
+      // if(1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) continue;
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
       // _console.log(8221, 18, mutation.attributeName)
       if (mutation.attributeName === 'tyt-chat') {
@@ -6475,32 +6500,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-
   const mtf_attrBody = (mutations, observer) => {
+    check1885();
     check1886();
-
-    if (chatController.allowChatControl) {
-
-      mtf_checkFlexy_(wls.layoutStatus);
-      fixTabs();
-      immediateCheck();
-
-      setTimeout(() => {
-        if (chatController.allowChatControl) {
-          fixTheaterChat1();
-        }
-      }, 80);
-    } else {
-
-      mtf_checkFlexy_(wls.layoutStatus);
-
-      setTimeout(() => {
-        if (!chatController.allowChatControl) {
-          fixTheaterChat2();
-        }
-      }, 80);
-    }
-
+    
+    layoutStatusMutex.lockWith(unlock => {
+      if (chatController.allowChatControl) {
+        mtf_checkFlexy_(wls.layoutStatus);
+        fixTabs();
+        fixTheaterChat1A();
+      } else {
+        fixTheaterChat2A();
+      }
+      setTimeout(unlock, 40);
+    });
 
   }
 
@@ -6611,8 +6624,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  const mtf_checkFlexy_ = (ls)=>{
+  const mtf_checkFlexy_ = (ls) => {
 
+    const ls0 = ls;
 
     ls = flexAttr_toLayoutStatus(ls, 'theater')
     ls = flexAttr_toLayoutStatus(ls, 'tyt-chat')
@@ -6624,8 +6638,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     fixLayoutStatus(ls);
 
-    wls.layoutStatus = ls
-
+    if (ls0 !== ls) {
+      wls.layoutStatus = ls
+    }
 
   }
 
