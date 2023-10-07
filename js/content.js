@@ -755,7 +755,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  const rfKey = Symbol();
 
+  const ffReflection = (o, c) => {
+    // see https://github.com/erosman/support/issues/526
+    if (o.constructor !== c) {
+      const a = c[rfKey] || (c[rfKey] = Object.keys(Object.getOwnPropertyDescriptors(c.prototype)));
+      for (const k of a) {
+        o[k] = c.prototype[k];
+      }
+    }
+  }
 
   /* FireMonkey unable to extend MutationObserver correctly */
   class AttributeMutationObserver extends MutationObserver {
@@ -769,6 +779,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       })
       this.flist = flist;
       this.res = {}
+      ffReflection(this, AttributeMutationObserver);
     }
 
     takeRecords() {
@@ -1191,6 +1202,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
        */
       this.observer = null;
       this.bindCount = 0;
+      ffReflection(this, ObserverRegister);
     }
     bindElement(/** @type {HTMLElement} */ elm, ...args) {
       if (elm.hasAttribute(`o3r-${this.uid}`)) return false;
