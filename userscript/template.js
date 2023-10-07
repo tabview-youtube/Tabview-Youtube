@@ -255,7 +255,6 @@ function main(){
       styleNode.id = e.id;
       styleNode.textContent = text;
       target.appendChild(styleNode);
-      return styleNode;
     }
   }
 
