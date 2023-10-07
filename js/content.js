@@ -4712,7 +4712,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else {
 
         // this is due to page change
-        fixTheaterChat1A();
+        layoutStatusMutex.lockWith(unlock => {
+          fixTheaterChat1A();
+          setTimeout(unlock, 17);
+        });
 
       }
 
@@ -6500,19 +6503,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  let delayedChatFixCid = 0;
   const mtf_attrBody = (mutations, observer) => {
     check1885();
     check1886();
-    
+
     layoutStatusMutex.lockWith(unlock => {
       if (chatController.allowChatControl) {
         mtf_checkFlexy_(wls.layoutStatus);
         fixTabs();
-        fixTheaterChat1A();
+        setTimeout(unlock, 7);
       } else {
-        fixTheaterChat2A();
+        unlock();
       }
-      setTimeout(unlock, 40);
+      clearTimeout(delayedChatFixCid);
+      delayedChatFixCid = setTimeout(() => {
+        layoutStatusMutex.lockWith(unlock => {
+          if (wls.layoutStatus & LAYOUT_THEATER) {
+            if (chatController.allowChatControl) {
+              fixTheaterChat1A();
+            } else {
+              fixTheaterChat2A();
+            }
+            setTimeout(unlock, 17);
+          } else {
+            unlock();
+          }
+        });
+      }, 17);
     });
 
   }
