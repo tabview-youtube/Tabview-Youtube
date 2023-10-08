@@ -263,3 +263,9 @@
 
 
 }
+
+@supports (color:var(--fix-livestreamsTheaterMode-with-chat-popup)) {
+	body:not([data-ytlstm-theater-mode]) ytd-watch-flexy.tyt-chat-popup #livestreamsTheaterMode {
+		display: none;
+	}
+}
