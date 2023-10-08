@@ -4594,7 +4594,7 @@ function injection_script_1() {
               }
             },
             "savedComponentState": {},
-            "entryTime": 1
+            "entryTime": window.performance.now()
           };
           xReplaceState(s, u);
           console.debug('[tyt] FIX_UNCERTAIN_HISTORY_STATE for NULL or VideoChanged state')
