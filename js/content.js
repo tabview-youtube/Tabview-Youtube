@@ -981,6 +981,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function check1885() {
+    
+    if (chatController.ytlstmTheaterMode) {
+      if (document.fullscreenElement || document.querySelector('ytd-watch-flexy[fullscreen]')) {
+        chatController.allowChatControl = true;
+        chatController.ytlstmTheaterMode = false;
+        return;
+      }
+    }
     if (chatController.allowChatControl) {
       if (document.body.hasAttribute('data-ytlstm-theater-mode')) {
         chatController.allowChatControl = false;
@@ -1932,7 +1940,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } else if (!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns() && isTheater()) {
 
 
-        if (cisChatPopupedF()) {
+        if (isChatPopupedF()) {
         } else {
 
           ytBtnCancelTheater();
@@ -4344,6 +4352,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let ks = renderIdentifier;
     renderDeferred.debounce(() => {
       if (ks !== renderIdentifier) return
+      if (mvideoState & 32) return;
+      mvideoState |= 32;
       alCheckFn(ks);
 
     });
@@ -4681,6 +4691,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let ks = renderIdentifier;
       renderDeferred.debounce(() => {
         if (ks !== renderIdentifier) return
+        if (document.fullscreenElement) return;
+        if (mvideoState & 1) return;
+        mvideoState |= 1;
         alCheckFn(ks);
 
       });
@@ -5339,6 +5352,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let ks = renderIdentifier;
           renderDeferred.debounce(() => {
             if (ks !== renderIdentifier) return;
+            if (mvideoState & 2) return;
+            mvideoState |= 2;
             checkDuplicatedMetaRecommendation();
           })
 
@@ -5349,6 +5364,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let renderId = renderIdentifier
         renderDeferred.debounce(() => {
           if (renderId !== renderIdentifier) return;
+          if (mvideoState & 4) return;
+          mvideoState |= 4;
           // domInit_teaserInfo() // YouTube obsoleted feature? 
 
           let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string');
@@ -5458,6 +5475,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           setToggleInfo();
           renderDeferred.debounce(() => {
             if (renderId !== renderIdentifier) return
+            if (mvideoState & 8) return;
+            mvideoState |= 8;
             setTimeout(() => {
               //dispatchWindowResize(); //try to omit
               dispatchWindowResize(); //add once for safe
@@ -6583,7 +6602,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       clearTimeout(delayedChatFixCid);
       delayedChatFixCid = setTimeout(() => {
         layoutStatusMutex.lockWith(unlock => {
-          if (wls.layoutStatus & LAYOUT_THEATER) {
+          if (document.fullscreenElement) {
+            unlock();
+          } else if (wls.layoutStatus & LAYOUT_THEATER) {
             if (chatController.allowChatControl) {
               fixTheaterChat1A();
             } else {
@@ -7401,6 +7422,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let dpeChatRefreshCounter = 0;
   // let proceedingChatFrameVideoID = '';
   let newVideoPageCACC = -1;
+  let mvideoState = 0;
 
   function newVideoPage(evt_detail) {
 
@@ -7408,6 +7430,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     console.debug('[tyt] newVideoPage');
     ytlstmStatus = 0;
+    mvideoState = 0;
     // console.debug('[tyt] debug ym-01-0')
 
     const ytdFlexyElm = es.ytdFlexy;
@@ -7730,6 +7753,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let renderId = renderIdentifier
     renderDeferred.debounce(() => {
       if (renderId !== renderIdentifier) return
+      if (mvideoState & 16) return;
+      mvideoState |= 16;
       if (ytEventSequence >= 2) {
         advanceFetch(); // at least one triggering at yt-page-data-fetched
       }

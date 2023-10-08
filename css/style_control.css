@@ -146,7 +146,6 @@
             animation: epDOMAppended 1ms linear 0s 1 normal forwards;
         }
     }
-    
 
     @supports (color: var(--tabview-view-ploader)) {
 
@@ -159,7 +158,7 @@
             }
         }
 
-        html[tabview-loaded] tabview-view-ploader {
+        tabview-view-ploader {
             position: fixed;
             left: 1px;
             top: 50vh;
