@@ -49,6 +49,7 @@ SOFTWARE.
   const nodeParent = fxOperator(Node.prototype, 'parentNode');
   const nodeFirstChild = fxOperator(Node.prototype, 'firstChild');
   const nodeNextSibling = fxOperator(Node.prototype, 'nextSibling');
+  const nodePrevSibling = fxOperator(Node.prototype, 'previousSibling');
 
   // const elementQS = fxAPI(Element.prototype, 'querySelector');
   // const elementQSA = fxAPI(Element.prototype, 'querySelectorAll');
@@ -2705,29 +2706,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!domId || !searchBox) return;
 
-    let positioner = nodeNextSibling(searchBox);
-    if (positioner) {
-      if (positioner.nodeName.toLowerCase() !== "tabview-view-autocomplete-pos") {
-        positioner = autoCompletePosCreate();
-        insertAfterTo(positioner, searchBox);
-      }
-    } else {
+    let positioner = nodePrevSibling(searchBox);
+    if (!positioner || positioner.nodeName.toLowerCase() !== "tabview-view-autocomplete-pos") {
       positioner = autoCompletePosCreate();
-      prependTo(positioner, nodeParent(searchBox));
+      insertBeforeTo(positioner, searchBox);
     }
     prependTo(autoComplete, positioner);
 
     setupSearchBox(searchBox, positioner);
 
-
   }
 
   async function setupSearchBox(searchBox, positioner) {
 
-    let mb = getComputedStyle(searchBox).marginBottom
     let h = searchBox.offsetHeight + 'px'
 
-    positioner.style.setProperty('--tyt-swwv-searchbox-mb', mb)
     positioner.style.setProperty('--tyt-swwv-searchbox-h', h)
 
     mtf_autocomplete_search()
@@ -2741,7 +2734,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const ytdFlexyElm = es.ytdFlexy;
     if (!scriptEnable || !ytdFlexyElm) return;
 
-    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] input#suggestions-search + tabview-view-autocomplete-pos > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
+    const autocomplete = querySelectorFromAnchor.call(ytdFlexyElm, '[placeholder-for-youtube-play-next-queue] #suggestions-search-container tabview-view-autocomplete-pos > .autocomplete-suggestions[data-autocomplete-input-id]:not([position-fixed-by-tabview-youtube])')
 
     if (autocomplete) {
 
@@ -5110,11 +5103,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     handleDOMAppear('SearchWhileWatchAutocomplete', (evt) => { // Youtube - Search While Watching Video
       let elm = evt.target;
-      elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+      if(elm.hasAttribute('tyt-found')) return;
+      elm.setAttribute('tyt-found', '');
+      let container = document.createElement('div');
+      container.id = 'suggestions-search-container';
+      elm.replaceWith(container);
+      container.appendChild(elm);
+      elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false);
       scriptletDeferred.debounce(() => {
         elm.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'));
         elm = null;
-      })
+      });
     })
 
     handleDOMAppear('oldYtIconPinAppeared', (evt) => {

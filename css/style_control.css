@@ -389,28 +389,26 @@
             z-index: 99;
         }
 
+        body .autocomplete-suggestions {
+            display: block;
+        }
+
+        #suggestions-search-container > input#suggestions-search {
+            outline: 1px solid var(--ytd-searchbox-legacy-border-color);
+        }
+
         tabview-view-autocomplete-pos {
             overflow: visible;
             display: block;
-            position: relative;
+            position: absolute;
             height: 0;
             width: 100%;
-            margin-top: calc(-1 * (var(--tyt-swwv-searchbox-mb)));
-            margin-bottom: calc(1 * (var(--tyt-swwv-searchbox-mb)));
+            margin-top: var(--tyt-swwv-searchbox-h);
             z-index: 99;
         }
 
         /* autocomplete | position-fixed-by-tabview-youtube */
 
-        tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube] {
-            position: sticky;
-            top: calc(var(--tyt-swwv-searchbox-h, auto) - var(--tab-content-padding, 0px));
-            z-index: 2;
-        }
-
-        tabview-view-autocomplete-pos[position-fixed-by-tabview-youtube]>.autocomplete-suggestions[position-fixed-by-tabview-youtube] {
-            z-index: 2;
-        }
 
         @keyframes SearchWhileWatchAutocomplete {
             0%{
@@ -421,7 +419,7 @@
             }
         }
 
-        html[tabview-loaded] #suggestions-search[autocomplete="off"]{
+        html[tabview-loaded] #suggestions-search[autocomplete="off"]:not([tyt-found]) {
             animation: SearchWhileWatchAutocomplete 1ms linear 0s 1 normal forwards;
         }
         
@@ -430,19 +428,12 @@
 
     @supports (color: var(--for-youtube-search-while-watching-video)){
             
-        ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search {
+        #suggestions-search-container {
             position: sticky;
-            /*top: -1px;*/
             top:0px;
-            /* visual gap */
             z-index: 2;
         }
-
-        ytd-watch-flexy[is-two-columns_]:not([theater]) [placeholder-for-youtube-play-next-queue]>#suggestions-search + tabview-view-autocomplete-pos{
-            position: sticky;
-            --tyt-offset-adjust: -1px;
-            top: calc(var(--tyt-swwv-searchbox-h) + var(--tyt-offset-adjust));
-        }
+        
 
     }
 
