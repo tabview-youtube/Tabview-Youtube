@@ -3694,7 +3694,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
               if (iframe.contentWindow.location.pathname != 'blank' && iframe.contentDocument.querySelector('html') != null) return;
 
-              let ifr = document.createElement('iframe'); ifr.id = 'chatframe'; ifr.src = URL.createObjectURL(new Blob([], { type: 'text/html' }));
+              let ifr = document.createElement('iframe'); ifr.id = 'chatframe'; ifr.src = URL.createObjectURL(new Blob([
+                '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"></head><body></body></html>'
+              ], { type: 'text/html' }));
               ifr.classList.add('vdeae');
               const handler = () => {
                 ifr.removeEventListener('load', handler, false);
