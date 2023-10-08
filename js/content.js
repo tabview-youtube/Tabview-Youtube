@@ -5923,6 +5923,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // e.g. when restore from mini view to watch page
 
+      // tabview-chat-fix-url-onload-with-empty-body
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
 
     }

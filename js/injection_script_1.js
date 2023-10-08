@@ -1606,16 +1606,16 @@ function injection_script_1() {
 
   }
 
-  function fixSrc(src) {
-    // cause of bug: unknown
-    if (src && src.length > 253) {
-      let m = /(^[^\s\%]+)continuation=([\w\-]{120,})(\%3D|\%253D)+\2(\%3D|\%253D)+(&[^\s\%]*|$)/.exec(src);
-      if (m) {
-        src = `${m[1]}continuation=${m[2]}&${m[5]}`;
-      }
-    }
-    return src;
-  }
+  // function fixSrc(src) {
+  //   // cause of bug: unknown
+  //   if (src && src.length > 253) {
+  //     let m = /(^[^\s\%]+)continuation=([\w\-]{120,})(\%3D|\%253D)+\2(\%3D|\%253D)+(&[^\s\%]*|$)/.exec(src);
+  //     if (m) {
+  //       src = `${m[1]}continuation=${m[2]}&${m[5]}`;
+  //     }
+  //   }
+  //   return src;
+  // }
 
   function ceHackExecution() {
 
@@ -1811,6 +1811,7 @@ function injection_script_1() {
 
       document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
 
+        /*
         const chatElm = (evt || 0).target;
         if (!chatElm || chatElm.id !== 'chat') return;
         const chatCnt = chatElm.inst || chatElm;
@@ -1824,11 +1825,13 @@ function injection_script_1() {
         console.debug('[tyt.chat] fix chat render on changed video');
         chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
 
+        */
 
 
       }, true);
 
 
+      let cfk = 0;
       document.addEventListener('tabview-chat-fix-url-onload-with-empty-body', function (evt) {
 
         const chatElm = (evt || 0).target;
@@ -1837,8 +1840,17 @@ function injection_script_1() {
 
         if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
         if (!chatCnt.player) return;
-        // console.debug('[tyt.chat] fix chat render when onload with empty body');
-        // chat.fixChatframeContentDisplayWithUrlChanged(0);
+
+        console.debug('[tyt.chat] fix chat render when onload with empty body 01');
+        let tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
+        getRAFPromise().then(() => {
+          if (tid !== cfk) return;
+          const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
+          if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
+            console.debug('[tyt.chat] fix chat render when onload with empty body 02');
+            chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
+          }
+        });
 
       }, true);
 
@@ -4499,6 +4511,7 @@ function injection_script_1() {
 
   document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
 
+    /*
     const chatElm = (evt || 0).target;
     if (!chatElm || chatElm.id !== 'chat') return;
     const chatCnt = chatElm.inst || chatElm;
@@ -4508,6 +4521,7 @@ function injection_script_1() {
     console.debug('[tyt.chat] fix chat render on expanded chat');
     chatCnt.fixChatframeContentDisplayWithUrlChanged(1);
 
+    */
   }, true);
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
