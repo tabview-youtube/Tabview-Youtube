@@ -58,6 +58,6 @@ jobs:
           if git diff --exit-code --quiet --cached; then
             echo "No changes to commit"
           else
-          git commit -m "v$version: Userscript Generation" -m "Commit $commit_sha" -m "" -m "$commit_desc"
+          git commit -m "UserJS (v$version) | $commit_sha" -m "$commit_desc"
             git push -f origin generated-files
           fi
