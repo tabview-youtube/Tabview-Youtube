@@ -4537,7 +4537,8 @@ function injection_script_1() {
     document.addEventListener("yt-navigate-start", (evt) => { // primary
 
       const data = evt.detail;
-      const entryTime = evt.timeStamp;
+      // const entryTime = evt.timeStamp;
+      const entryTime = window.performance.now(); // should be mono increasing
 
       Promise.resolve().then(() => {
 
