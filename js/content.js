@@ -3513,6 +3513,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const dpeIframeReady = eventDispatcher('tabview-chatroom-ready');
 
+  let ytlstmStatus = 0;
+
   const FP = {
 
     mtf_attrPlaylist: (attrName, newValue) => {
@@ -3675,7 +3677,41 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         fixLiveChatToggleButtonDispatchEvent();
 
+        if (ytlstmStatus === 0 && newAttrV && newAttrV.includes('chat')) { // --specific-fix-for-ytlstm
 
+          ytlstmStatus = -1;
+
+          tabsDeferred.debounce(() => {
+
+            let iframe;
+            if (document.body.style.getPropertyValue('--ytlstm-overlay-background-opacity')) {
+              ytlstmStatus = 1;
+              iframe = document.querySelector('ytd-live-chat-frame#chat iframe');
+              if (iframe && !HTMLElement.prototype.closest.call(iframe, '[hidden]')) ytlstmStatus = 2;
+            }
+
+            if (ytlstmStatus === 2) {
+
+              if (iframe.contentWindow.location.pathname != 'blank' && iframe.contentDocument.querySelector('html') != null) return;
+
+              let ifr = document.createElement('iframe'); ifr.id = 'chatframe'; ifr.src = URL.createObjectURL(new Blob([], { type: 'text/html' }));
+              ifr.classList.add('vdeae');
+              const handler = () => {
+                ifr.removeEventListener('load', handler, false);
+                setTimeout(() => {
+                  ifr.id = 'vdeae';
+                  ifr.remove();
+                  ifr = null;
+                }, 2 * 200);
+              }
+              ifr.addEventListener('load', handler, false);
+              document.body.insertBefore(ifr, document.body.firstChild);
+
+            }
+
+          })
+
+        }
 
       })
 

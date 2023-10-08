@@ -920,3 +920,25 @@
     }
 
 }
+
+@supports(color:var(--specific-fix-for-ytlstm)) {
+	/*  [data-ytlstm-overlay-text-shadow] ytd-watch-metadata #description #snippet.ytd-text-inline-expander */
+	[data-ytlstm-overlay-text-shadow] ytd-watch-flexy.tabview-info-duplicated #description.style-scope.ytd-watch-metadata > #description-inner.style-scope.ytd-watch-metadata > #info-container.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+		content-visibility: hidden;
+		display: none;
+	}
+
+    iframe.vdeae[class] {
+        position: fixed !important;
+        left: -3333px !important;
+        top: -3333px !important;
+        width: 133px !important;
+        height: 133px !important;
+        opacity: 0 !important;
+        z-index: -1 !important;
+        contain: strict !important;
+        pointer-events: none !important;
+        user-select: none !important;
+    }
+
+}
