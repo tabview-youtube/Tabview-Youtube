@@ -932,4 +932,12 @@
         user-select: none !important;
     }
 
+    [data-ytlstm-overlay-text-shadow] #panels.ytd-watch-flexy > ytd-engagement-panel-section-list-renderer[visibility] {
+        display: none;
+    }
+
+    [data-ytlstm-overlay-text-shadow] #showlyricsbutton, [data-ytlstm-overlay-text-shadow] #lyricscontainer {
+        display: none;
+    }
+
 }

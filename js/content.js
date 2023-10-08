@@ -984,10 +984,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (chatController.allowChatControl) {
       if (document.body.hasAttribute('data-ytlstm-theater-mode')) {
         chatController.allowChatControl = false;
+        chatController.ytlstmTheaterMode = true;
       }
     } else {
       if (!document.body.hasAttribute('data-ytlstm-theater-mode')) {
         chatController.allowChatControl = true;
+        chatController.ytlstmTheaterMode = false;
       }
     }
   }
@@ -1000,13 +1002,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!cssChatNode) return;
 
     if (cssContentNode.disabled === false) {
-      if (document.body.hasAttribute('data-ytlstm-theater-mode')) {
+      if (chatController.ytlstmTheaterMode) {
         cssContentNode.disabled = true;
         cssChatNode.disabled = true;
+        let t = document.querySelector('.youtube-genius-lyrics-found-hide-btn');
+        if (t) t.click();
+        ytBtnCloseEngagementPanels();
         return 1;
       }
     } else if (cssContentNode.disabled === true) {
-      if (!document.body.hasAttribute('data-ytlstm-theater-mode')) {
+      if (!chatController.ytlstmTheaterMode) {
         cssContentNode.disabled = false;
         cssChatNode.disabled = false;
         return 2;
