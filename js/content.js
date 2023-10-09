@@ -5634,15 +5634,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
+  const iframeLoadProcessWS = new WeakSet(); // avoid duplicate calling on the same iframe
   
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
 
-    await scriptletDeferred.d();
+    iframeLoadProcessWS.add(iframe);
 
+    await scriptletDeferred.d();
     await getRAFPromise().then();
-    
+
+    if (!iframeLoadProcessWS.has(iframe)) return;
+    iframeLoadProcessWS.delete(iframe);
+
     if (iframe.isConnected !== true) return;
 
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
