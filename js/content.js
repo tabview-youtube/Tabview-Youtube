@@ -7537,7 +7537,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }).then();
 
-    ytdFlexy = mWeakRef(document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy')); // update global ref
+
+    let tmpElm = es.ytdFlexy;
+    if (tmpElm && tmpElm.isConnected === true && tmpElm.nodeName.toLowerCase() === 'ytd-watch-flexy') {
+      // currently, tmpElm is null; to be reviewed
+    } else {
+      // update global ref
+      ytdFlexy = mWeakRef(document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy'));
+    }
+    tmpElm = null;
 
     if (!es.ytdFlexy) return;
 
