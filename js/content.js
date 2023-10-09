@@ -712,6 +712,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     };
   })();
 
+  const tabsInsertedPromise = new PromiseExternal();
+
   let chatController = {
     allowChatControl: true
   };
@@ -1106,7 +1108,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const tabsDeferred = new Deferred();
   tabsDeferred.resolve();
 
-  const tabsDeferredFn = function(f){
+  const discardableFn = function(f){ // logic to be reviewed; unstable
     if (!scriptEnable && tabsDeferred.resolved) { } // ignore all before first yt-navigate-finished
     else tabsDeferred.debounce(f, psId);
   }
@@ -2947,23 +2949,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
 
-  // css animation check for element relocation
-  function mtf_liveChatBtnF(node) {
-
-    if (!node || node.nodeType !== 1) return;
-
-    /** @type {HTMLElement | null} */
-    const ytdFlexyElm = es.ytdFlexy;
-    if (!scriptEnable || !ytdFlexyElm) return;
-
-    let button = node;
-
-    if (button) {
-      prependTo(button, nodeParent(button));
-    }
-
-
-  }
 
 
   function getWrapper(wrapperId) {
@@ -3423,17 +3408,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
   function onCommentsReady(e) {
     // e => from commentsHeaderAppended
+    let b = false;
     if (e && mtf_forceCheckLiveVideo_disable !== 2 && document.querySelector('ytd-comments#comments:not([hidden])')) {
       // 'YTD-COMMENTS-HEADER-RENDERER', native DOM
       setCommentSection(0);
       checkAndMakeNewCommentFetch();
+      b = true;
     }
+    _onCommentsReady(b);
+  }
+  
+  function _onCommentsReady(b) {
     if (mtf_forceCheckLiveVideo_disable !== 2) {
       if (document.querySelector('ytd-comments#comments').hasAttribute('hidden')) {
         // unavailable but not due to live chat
         _disableComments();
       } else if (Q.comments_section_loaded === 0) {
-        getFinalComments();
+        if (b || (comments_loader & 3) === 3) {
+          getFinalComments();
+        }
       }
     }
   }
@@ -3476,8 +3469,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const ytdFlexyElm = es.ytdFlexy;
     if (!scriptEnable || !ytdFlexyElm) return;
-
-    // _console.log(3901)
 
     if (mtoVisibility_Comments.bindElement(comments)) {
       mtoVisibility_Comments.observer.check(9);
@@ -3706,7 +3697,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       cssElm.setAttribute('tyt-ep-visible', nextValue);
       lstTab.lastPanel = `#engagement-panel-${nextValue}`;
       storeLastPanel = mWeakRef(found)
-      tabsDeferredFn(() => {
+      discardableFn(() => {
         if (es.storeLastPanel !== found) return
         layoutStatusMutex.lockWith(unlock => {
           if (es.storeLastPanel === found && whenEngagemenetPanelVisible()) {
@@ -3944,7 +3935,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function pageCheck() {
     // yt-player-updated
     // yt-page-data-updated
-    // yt-watch-comments-ready - omitted
     // [is-two-columns_] attr changed => layout changed
 
     /** @type {HTMLElement | null} */
@@ -4269,7 +4259,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function getFinalComments() {
 
-    if ((comments_loader & 3) === 3) { } else return;
     comments_loader = 0;
 
     let ei = 0;
@@ -4529,7 +4518,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!ytdFlexyElm) return; //unlikely
 
       const targetDuplicatedInfoPanel = document.querySelector('ytd-text-inline-expander#description-inline-expander:not([hidden])');
-      if (targetDuplicatedInfoPanel && !targetDuplicatedInfoPanel.closest('[hidden]')) { } else {
+      if (targetDuplicatedInfoPanel && !closestDOM.call(targetDuplicatedInfoPanel, '[hidden]')) { } else {
         return; // the layout is not required to have this checking.
       }
 
@@ -4705,6 +4694,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   
   async function deferredDuplicatedMetaCheckerFn() {
 
+    await scriptletDeferred.d();
 
     if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
 
@@ -4844,13 +4834,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     setupVideo(node)
 
-    tabsDeferredFn(()=>{  // might discarded since it runs earlier than tabs insertion
+    discardableFn(()=>{  // might discarded since it runs earlier than tabs insertion
 
       if (!scriptEnable) return
 
       checkAndMakeNewCommentFetch();
-
-      // _console.log(2178, 4)
       pageCheck();
 
       domInit_comments();
@@ -4893,7 +4881,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             elementMapper.set(expander, dmy); // interlink
             elementMapper.set(dmy, expander); // interlink
 
-            const parentRoot = dmy.closest('[hidden]'); // only detect if the traditional block is hidden
+            const parentRoot = closestDOM.call(dmy, '[hidden]'); // only detect if the traditional block is hidden
             if (parentRoot) {
               moInfoContent.observe(parentRoot.parentNode, { subtree: true, childList: true });
             }
@@ -5040,14 +5028,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // $$ html[tyt-deferred] ytd-live-chat-frame#chat $$
 
       let node = evt.target;
-      if (!node) return;
-
-      tabsDeferredFn(() => {
-
-        setupChatFrameDOM(node); // front page
-        node = null;
-
-      });
+      if (node) setupChatFrameDOM(node); // front page
 
     });
 
@@ -5058,7 +5039,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       pageRendered = 2;
       renderDeferred.resolve();
       console.debug('[tyt] pageRendered');
-
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
@@ -5073,8 +5053,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const metaContentSetup = () => {
       setupVideoTitleHover();
-      tabsDeferredFn(() => {
-        infoContentForTab();
+      let ks = +renderIdentifier;
+      scriptletDeferred.debounce(()=>{
+        if(ks === +renderIdentifier) infoContentForTab();
       });
     };
 
@@ -5112,28 +5093,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppear('commentsHeaderAppended1', onCommentsReady);
     handleDOMAppear('commentsHeaderAppended2', onCommentsReady);
 
+    handleDOMAppear('fixPlaylistLocation1', (evt)=>{ // used as a fallback to play safe. overall strategy to be reviewed
+
+      const n = evt.target;
+      if (closestDOM.call(n, '#tab-list')) return;
+
+      mtf_append_playlist(n); // the true playlist is appended to the #tab-list
+      checkPlaylistForInitialization();
+
+    });
+
 
     handleDOMAppear('chatFrameToggleBtnAppended1', (evt) => {
       // $$ html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button $$
       // $$ except html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child $$
 
-      tabsDeferredFn(()=>{
+      const button = evt.target;
 
+      if (!button || button.nodeType !== 1) return;
 
-        mtf_liveChatBtnF(evt.target);
+      /** @type {HTMLElement | null} */
+      const ytdFlexyElm = es.ytdFlexy;
+      if (!scriptEnable || !ytdFlexyElm) return;
 
-      })
-
+      prependTo(button, nodeParent(button));
 
     });
-
-
-    // DEBUG_LOG && handleDOMAppear('chatFrameToggleBtnAppended2', (evt) => {
-
-    //   _console.log(5099, 'chatFrameToggleBtnAppended', evt)
-
-
-    // });
 
 
     handleDOMAppear('epDOMAppended', async (evt) => {
@@ -5189,9 +5174,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!m) return;
       let s = m[0] + "";
       if (!s || s.length <= 10) return;
-      let correctAnchor = items.querySelector(`ytd-playlist-panel-video-renderer a[href*="${s}"]`);
+      let correctAnchor = querySelectorFromAnchor.call(items, `ytd-playlist-panel-video-renderer a[href*="${s}"]`);
       if (!correctAnchor || target.contains(correctAnchor)) return;
-      let correctRow = correctAnchor.closest('ytd-playlist-panel-video-renderer');
+      let correctRow = closestDOM.call(correctAnchor, 'ytd-playlist-panel-video-renderer');
       if (!correctRow) return;
       target.removeAttribute('selected');
       correctRow.setAttribute('selected', '');
@@ -5248,16 +5233,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     })
 
-    const renderStamperFunc = {
-      'YTD-PLAYLIST-PANEL-RENDERER': (node) => {
-        mtf_append_playlist(node); // the true playlist is appended to the #tab-list
-        checkPlaylistForInitialization();
-      },
-      'YTD-COMMENTS-HEADER-RENDERER': (node) => {
-        comments_loader = comments_loader | 4;
-        getFinalComments();
-      }
-    }
 
     globalHook('yt-rendererstamper-finished', (evt) => {
 
@@ -5268,33 +5243,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let node = evt.target;
       const nodeName = node.nodeName.toUpperCase();
-      const func = renderStamperFunc[nodeName];
 
-      if (typeof func !== 'function') {
-        return;
-      }
+      if (nodeName === 'YTD-PLAYLIST-PANEL-RENDERER' || nodeName === 'YTD-COMMENTS-HEADER-RENDERER') {
 
+        discardableFn(() => {
 
-      tabsDeferredFn(() => {
-        
-        func(node);
-        node = null;
+          const n = node;
+          node = null;
 
-      });
+          if (nodeName === 'YTD-PLAYLIST-PANEL-RENDERER') {
+            mtf_append_playlist(n); // the true playlist is appended to the #tab-list
+            checkPlaylistForInitialization();
+          } else if (nodeName === 'YTD-COMMENTS-HEADER-RENDERER') {
+            if ((comments_loader & 3) === 3) getFinalComments();
+          }
+
+        });
+
+      } 
+      
 
 
     });
 
     if (REMOVE_DUPLICATE_INFO) {
 
-      handleDOMAppear('deferredDuplicatedMetaChecker', async (evt) => {
+      handleDOMAppear('deferredDuplicatedMetaChecker', () => {
 
-
-        tabsDeferredFn(() => {
-
-          deferredDuplicatedMetaCheckerFn();
-
-        });
+        deferredDuplicatedMetaCheckerFn();
 
       });
 
@@ -5305,56 +5281,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // if (!scriptEnable && tabsDeferred.resolved) { return }
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
 
-      tabsDeferredFn(() => { // might discard if yt-navigate-finish not yet called
+      discardableFn(() => { // might discard if yt-navigate-finish not yet called
         
-
+        // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
 
         if (!scriptEnable) return;
 
         checkAndMakeNewCommentFetch();
-
-
-        // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
-
-
-
-        // _console.log(2178, 3)
         pageCheck();
         setupChatFrameDOM(null);
-        
-
         checkPlaylistForInitialization();
-
-
-
-        // infoContentSetup();
-        
 
       });
 
     });
 
 
+
+    async function onWatchCommentsReady(b) {
+      await tabsInsertedPromise.then();
+      await scriptletDeferred.d();
+      checkAndMakeNewCommentFetch();
+
+      if (b) {
+        domInit_comments();
+        _onCommentsReady();
+      }
+
+    }
+
     globalHook('yt-watch-comments-ready', (evt) => {
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
 
-      let nodeName = evt.target.nodeName.toUpperCase()
+      const nodeName = evt.target.nodeName.toUpperCase()
 
       comments_loader = comments_loader | 2;
 
-      tabsDeferredFn(() => {  // might discard if yt-navigate-finish not yet called
-        checkAndMakeNewCommentFetch();
+      onWatchCommentsReady(nodeName === 'YTD-WATCH-FLEXY');
 
-        if (nodeName === 'YTD-WATCH-FLEXY') {
-          domInit_comments();
-          onCommentsReady();
-        }
-      });
-
-
-    })
+    });
 
 
     window.addEventListener("message", (evt) => {
@@ -6047,6 +6014,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     document.documentElement.setAttribute('tyt-deferred', '')
     tabsDeferred.resolve();
+    tabsInsertedPromise.resolve();
     FP.mtf_attrEngagementPanel(); // check whether no visible panels
 
 
@@ -7481,52 +7449,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let ytEventSequence = 0
   let formatDates = null
 
-
-  function pageBeingFetched(evt) {
-
-    let nodeName = (((evt || 0).target || 0).nodeName || '').toUpperCase()
-    if (nodeName !== 'YTD-APP') return;
-
-    let pageFetchedDataLocal = evt.detail;
-
-    let d_page = ((pageFetchedDataLocal || 0).pageData || 0).page;
-    if (!d_page) return;
-
-    pageType = d_page;
-
-    if (pageType !== 'watch') return
-
-    let promiseChatDetails = null
-
-    let isFirstLoad = firstLoadStatus & 8;
-
-    if (isFirstLoad) {
-      firstLoadStatus -= 8;
-      document.addEventListener('load', iframeLoadHookA, capturePassive)
-      ytMicroEventsInit();
-    }
-    // ytMicroEventsInit set
-    variableResets();
-
-    if (isFirstLoad) {
-
-      if (ytEventSequence >= 2) {
-        let docElement = document.documentElement
-        if (docElement.hasAttribute('tabview-loaded')) {
-          throw 'Tabview Youtube Duplicated';
-        }
-        docElement.setAttribute('tabview-loaded', '')
-
-        Promise.resolve(docElement).then(docElement => {
-          if (ytEventSequence >= 2) {
-            docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
-            docElement = null
-          }
-        })
-
-      }
-    }
-    // tabview-loaded delay set
+  function setupFormatDates(pageFetchedDataLocal) {
 
     formatDates = {}
     try {
@@ -7559,75 +7482,112 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       formatDates.isLiveNow = pageFetchedDataLocal.pageData.playerResponse.microformat.playerMicroformatRenderer.liveBroadcastDetails.isLiveNow
     } catch (e) { }
 
-    promiseChatDetails = Promise.resolve().then(() => {
+  }
+
+  function pageBeingFetched(evt) {
+
+    let nodeName = (((evt || 0).target || 0).nodeName || '').toUpperCase()
+    if (nodeName !== 'YTD-APP') return;
+
+    const pageFetchedDataLocal = evt.detail;
+
+    let d_page = ((pageFetchedDataLocal || 0).pageData || 0).page;
+    if (!d_page) return;
+
+    pageType = d_page;
+
+    if (pageType !== 'watch') return
+
+    let isFirstLoad = firstLoadStatus & 8;
+
+    if (isFirstLoad) {
+      firstLoadStatus -= 8;
+      document.addEventListener('load', iframeLoadHookA, capturePassive)
+      ytMicroEventsInit();
+    }
+    // ytMicroEventsInit set
+    variableResets();
+
+    if (isFirstLoad && ytEventSequence >= 2) {
+
+      scriptletDeferred.debounce(() => {
+
+        let docElement = document.documentElement
+        if (docElement.hasAttribute('tabview-loaded')) {
+          throw 'Tabview Youtube Duplicated';
+        }
+        docElement.setAttribute('tabview-loaded', '')
+
+        Promise.resolve(docElement).then(docElement => {
+          if (ytEventSequence >= 2) {
+            docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+            docElement = null
+          }
+        });
+
+      });
+
+    }
+    // tabview-loaded delay set
+
+    setupFormatDates(pageFetchedDataLocal);
+    
+    const promiseChatDetails = Promise.resolve(pageFetchedDataLocal).then((pageFetchedDataLocal) => {
       if (ytEventSequence >= 2) {
         let liveChatRenderer = null;
         try {
           liveChatRenderer = pageFetchedDataLocal.pageData.response.contents.twoColumnWatchNextResults.conversationBar.liveChatRenderer
         } catch (e) { }
         chatroomDetails = liveChatRenderer ? extractInfoFromLiveChatRenderer(liveChatRenderer) : null;
-        liveChatRenderer = null; // release memory for GC, just in case
       }
-    });
+    }).then();
 
-    let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+    ytdFlexy = mWeakRef(document.querySelector('ytd-watch-flexy:not([hidden])')); // update global ref
 
-    if (!ytdFlexyElm) return;
-
-
-    ytdFlexy = mWeakRef(ytdFlexyElm);
-
-    ytdFlexyElm = null;
+    if (!es.ytdFlexy) return;
 
     Promise.resolve(0).then(() => {
 
-      if (ytEventSequence >= 2 && pageRendered === 0) {
+      const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
 
-        const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
-        if (ytdFlexyElm) {
+      if (ytEventSequence >= 2 && pageRendered === 0 && ytdFlexyElm) {
 
-          let elmPL = document.createElement('tabview-view-ploader');
-          pageRendered = 1;
-          // ytdFlexyElm.appendChild(elmPL);
-          elementAppend.call(ytdFlexyElm, elmPL);
-          // pageRendered keeps at 1 if the video is continuously playing at the background
-          // pageRendered would not be resolve but will reset for each change of video
-
-        }
+        // trigger renderDeferred.resolve();
+        let elmPL = document.createElement('tabview-view-ploader');
+        pageRendered = 1;
+        // ytdFlexyElm.appendChild(elmPL);
+        elementAppend.call(ytdFlexyElm, elmPL);
+        // pageRendered keeps at 1 if the video is continuously playing at the background
+        // pageRendered would not be resolve but will reset for each change of video
 
       }
 
-    })
+    });
 
-    renderDeferred.debounce(() => {
-      if (mvideoState & 16) return;
-      mvideoState |= 16;
-    }, renderIdentifier);
-
-    Promise.race([promiseChatDetails]).then(() => {
+    let _pageFetchedDataLocal = pageFetchedDataLocal;
+    promiseChatDetails.then(() => {
 
       const ytdFlexyElm = es.ytdFlexy;
       if (ytEventSequence >= 2 && ytdFlexyElm) {
         ytdFlexyElm.classList.toggle('tyt-chat-toggleable', !!chatroomDetails);
       }
 
-    }).then(() => {
-
       if (ytEventSequence >= 2) {
 
-        tabsDeferredFn(() => { // assume tyt-deferred
+        discardableFn(() => { // assume tyt-deferred
 
+          const pageFetchedDataLocal = _pageFetchedDataLocal;
+          _pageFetchedDataLocal = null;
           if (ytEventSequence >= 2 && pageFetchedDataLocal !== null) {
             domInit_comments();
             newVideoPage(pageFetchedDataLocal);
-            pageFetchedDataLocal = null;
           }
 
         });
 
       }
 
-    })
+    });
 
   }
 

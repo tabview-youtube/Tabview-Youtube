@@ -189,7 +189,7 @@
             }
         }
 
-        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
             animation: watchMetaFrameReady1 1ms linear 0s 1 normal forwards;
         }
 
@@ -203,7 +203,7 @@
             }
         }
 
-        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+        html[tyt-deferred][sxmq7="0"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
             animation: watchMetaFrameReady2 1ms linear 0s 1 normal forwards;
         }
         
@@ -220,8 +220,8 @@
             }
         }
 
-        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
-        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
+        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
+        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
             animation: watchMetaContentReady1 1ms linear 0s 1 normal forwards;
         }
 
@@ -265,22 +265,8 @@
             }
         }
 
-        @keyframes chatFrameToggleBtnAppended2 {
-            0% {
-                background-position-x: 3px;
-            }
-            100% {
-                background-position-x: 4px;
-            }
-        }
-
-        html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
+        html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n + 2) {
             animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
-        }
-
-        html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
-            animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
-
         }
 
         @keyframes commentsSectionAppended {
@@ -314,11 +300,11 @@
             }
         }
 
-        html[tabview-loaded][sxmq7="1"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
+        html[tyt-deferred][sxmq7="1"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
         }
 
-        html[tabview-loaded][sxmq7="0"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
+        html[tyt-deferred][sxmq7="0"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
         }
 
@@ -1174,4 +1160,22 @@
 		display: block !important;
         animation: fixInvisibleInfoBug 1ms linear 0s 1 normal forwards;
 	}
+}
+
+@supports (color:var(--fix-playlist-location)) {
+    
+	@keyframes fixPlaylistLocation1 {
+		from {
+			background-position-x: 1px;
+		}
+		to {
+			background-position-x: 2px;
+		}
+	}
+
+	html[tyt-deferred] ytd-watch-flexy:not([hidden]) #columns.ytd-watch-flexy #secondary-inner.style-scope.ytd-watch-flexy > ytd-playlist-panel-renderer#playlist.style-scope.ytd-watch-flexy:not([hidden]),
+    html[tyt-deferred] ytd-watch-flexy:not([hidden]) #columns.ytd-watch-flexy #below.style-scope.ytd-watch-flexy > ytd-playlist-panel-renderer#playlist.style-scope.ytd-watch-flexy:not([hidden]) {
+		animation: fixPlaylistLocation1 1ms linear 0s 1 normal forwards;
+	}
+
 }
