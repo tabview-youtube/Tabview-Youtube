@@ -1157,3 +1157,21 @@
 	}
 
 }
+
+@supports (color:var(--fix-invisible-info-bug)) {
+    /* rare issue */ /* youtube bug */
+
+    @keyframes fixInvisibleInfoBug {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+
+	[pnzgu] #tab-info [tyt-info-expander-content]:only-of-type ytd-structured-description-content-renderer[hidden] {
+		display: block !important;
+        animation: fixInvisibleInfoBug 1ms linear 0s 1 normal forwards;
+	}
+}

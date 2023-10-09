@@ -3790,7 +3790,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   const isContentDuplicationCheckAllow = () => {
-    return document.querySelectorAll('[tyt-info-expander-placeholder]').length === 1 && document.querySelectorAll('[tyt-info-expander-actual]').length === 1;
+    return document.querySelectorAll('[tyt-info-expander-placeholder]').length === 1 && document.querySelectorAll('[tyt-info-expander-content]').length === 1;
   }
 
   let waitForContentReady = new PromiseExternal(); // dummy initial value
@@ -3805,7 +3805,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const expander = elementMapper.get(dmyElm);
       if (!expander) return;
 
-      for (const s of document.querySelectorAll('[tyt-info-expander-actual]')) {
+      for (const s of document.querySelectorAll('[tyt-info-expander-content]')) {
         if (expander !== s) s.remove();
       }
       if (expander.isConnected === false) {
@@ -3818,65 +3818,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-
-  // async function removeOldExpanders() {
-  //   const entries = [...document.querySelectorAll('[tyt-info-expander-actual]')].map(e => ({
-  //     order: +e.getAttribute('tyt-info-expander-actual'),
-  //     element: e
-  //   }));
-  //   if (entries.length >= 2) {
-  //     let m = 0;
-  //     for (const entry of entries) {
-  //       if (entry.order > m) m = entry.order;
-  //     }
-  //     if (m > 0) {
-  //       const removal = entries.filter(e => e.order !== m);
-  //       for (const e of removal) {
-  //         e.element.remove();
-  //       }
-  //     }
-  //   }
-  // }
-
-  // async function removeContentMismatch() {
-  //   const removal = new Set();
-  //   for (const element of document.querySelectorAll('[tyt-du744]')) {
-
-  //     const s1 = "ytd-text-inline-expander#description-inline-expander";
-  //     const s2 = "#tab-info ytd-expander #description";
-
-  //     const m = element.matches(s1) ? 1 : element.matches(s2) ? 2 : 0;
-
-  //     const du744 = element.getAttribute('tyt-du744');
-  //     const du744Elms = document.querySelectorAll(`[tyt-du744="${du744}"]`);
-  //     if (!m) {
-  //       for (const s of du744Elms) {
-  //         removal.add(s);
-  //       }
-  //     } else {
-  //       const len = du744Elms.length;
-  //       if (len === 1) removal.add(element);
-  //     }
-
-  //   }
-  //   await Promise.resolve().then();
-  //   for (let s of removal) {
-  //     if (s.id === 'description') {
-  //       s = closestDOM.call(s, 'ytd-expander') || s;
-  //       s.remove();
-  //     } else {
-  //       s.removeAttribute('tyt-du744');
-  //     }
-  //   }
-  //   removal.clear();
-
-  //   // const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
-  //   // const secondElementSelector = "#tab-info ytd-expander #description";
-
-  //   // const firstElement = document.querySelector(firstElementSelector);
-  //   // const secondElement = document.querySelector(secondElementSelector);
-
-  // }
 
   function getWord(tag) {
     return langWords[pageLang][tag] || langWords['en'][tag] || '';
@@ -4292,7 +4233,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // call regardless pageType
     // run once on / before pageSeq2 (yt-page-data-fetched)
 
-    document.documentElement.setAttribute('sxmq7', document.documentElement.getAttribute('sxmq7') === '1' ? '0' : '1')
+    const rootDom = document.documentElement;
+    rootDom.setAttribute('sxmq7', rootDom.getAttribute('sxmq7') === '1' ? '0' : '1')
+    rootDom.removeAttribute('pnzgu');
 
     infoContentDS = 0;
     renderIdentifier(); // add 1
@@ -4918,51 +4861,54 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   });
 
-  
-  const appendExpander = (target)=>{
+  const appendExpander = () => {
 
-    const nodeName = target.nodeName.toLowerCase();
+    const rid = `${+renderIdentifier}`; // string type integer id
 
-    let dummy = nodeName === 'yt-dummy-532' ? target : null;
-    let expander0 = dummy ? elementMapper.get(dummy) : null;
-    if (expander0 && expander0.closest('#tab-info')) return;
-    const expander = expander0 || (nodeName === 'ytd-expander' ? target : null);
-    if (expander) {
-      
-      // expander.setAttribute('sxmq5', '');
-      // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
-      // append the detailed meta contents to the tab-info
+    const targets = document.querySelectorAll(`[bsptu="${rid}"]`); // ignore all appearance in previous paging
+    
+    if (!targets.length) return;
+    for (const target of targets) {
+      // expect only one node; other measures for more than one node
 
+      const nodeName = target.nodeName.toLowerCase();
 
-      const tabInfo = document.querySelector("#tab-info");
-      if (tabInfo) {
+      let dummy = nodeName === 'yt-dummy-532' ? target : null;
+      let expander0 = dummy ? elementMapper.get(dummy) : null;
+      if (expander0 && closestDOM.call(expander0, '#tab-info')) continue;
+      const expander = expander0 || (nodeName === 'ytd-expander' ? target : null);
+      if (expander) {
 
+        // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
+        // append the detailed meta contents to the tab-info
 
-        expander.setAttribute('tyt-info-expander', '');
-        if (!expander.hasAttribute('tyt-info-expander-actual')) {
-          expander.setAttribute('tyt-info-expander-actual', '');
-          const dmy = document.createElement('yt-dummy-532'); // to detemine the content change by youtube engine
-          dmy.setAttribute('tyt-info-expander-placeholder', '');
-          expander.replaceWith(dmy);
-          elementMapper.set(expander, dmy); // interlink
-          elementMapper.set(dmy, expander); // interlink
+        const tabInfo = document.querySelector("#tab-info");
+        if (tabInfo) {
 
+          if (!expander.hasAttribute('tyt-info-expander-content')) {
+            expander.setAttribute('tyt-info-expander-content', '');
+            const dmy = document.createElement('yt-dummy-532'); // to detemine the content change by youtube engine
+            dmy.setAttribute('tyt-info-expander-placeholder', '');
+            expander.replaceWith(dmy);
+            elementMapper.set(expander, dmy); // interlink
+            elementMapper.set(dmy, expander); // interlink
 
-          const parentRoot = dmy.closest('[hidden]'); // only detect if the traditional block is hidden
-          if (parentRoot) {
-            moInfoContent.observe(parentRoot.parentNode, { subtree: true, childList: true });
+            const parentRoot = dmy.closest('[hidden]'); // only detect if the traditional block is hidden
+            if (parentRoot) {
+              moInfoContent.observe(parentRoot.parentNode, { subtree: true, childList: true });
+            }
+
           }
-
+          elementAppend.call(tabInfo, expander);
         }
-        elementAppend.call(tabInfo, expander);
+
+
+
+
+        removeContentMismatch();
+
+
       }
-
-
-
-
-      removeContentMismatch();
-
-
 
 
     }
@@ -4971,42 +4917,45 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let infoContentDS = 0;
 
 
-  const infoContentForTab = (target) => {
- 
-      if (mvideoState & 2) return;
-      mvideoState |= 2;
+  const infoContentForTab = () => {
 
-      appendExpander(target);
-      if (REMOVE_DUPLICATE_META_RECOMMENDATION)  checkDuplicatedMetaRecommendation();
+    if (mvideoState & 2) return;
+    mvideoState |= 2;
 
-      mtf_fix_details().then(() => {
-        setToggleInfo();
-        renderDeferred.debounce(() => {
-          if (mvideoState & 8) return;
-          mvideoState |= 8;
-          setTimeout(() => {
-            //dispatchWindowResize(); //try to omit
-            dispatchWindowResize(); //add once for safe
-            manualResizeT();
-          }, 420)
-        }, renderIdentifier)
+    document.documentElement.removeAttribute('pnzgu'); // just in case
+    appendExpander();
+    if (REMOVE_DUPLICATE_META_RECOMMENDATION) checkDuplicatedMetaRecommendation();
 
-
-        let secondary = document.querySelector('#columns.ytd-watch-flexy #secondary.ytd-watch-flexy');
-
-        let columns = closestDOMX(secondary, '#columns.ytd-watch-flexy');
-
-        setupHoverSlider(secondary, columns)
-
-        let tabInfo = document.querySelector('#tab-info');
-        addTabExpander(tabInfo);
-
-        let tabComments = document.querySelector('#tab-comments');
-        addTabExpander(tabComments);
+    mtf_fix_details().then(() => {
+      setToggleInfo();
+      renderDeferred.debounce(() => {
+        if (mvideoState & 8) return;
+        mvideoState |= 8;
+        setTimeout(() => {
+          //dispatchWindowResize(); //try to omit
+          dispatchWindowResize(); //add once for safe
+          manualResizeT();
+        }, 420)
+      }, renderIdentifier)
 
 
-      });
- 
+      let secondary = document.querySelector('#columns.ytd-watch-flexy #secondary.ytd-watch-flexy');
+
+      let columns = closestDOMX(secondary, '#columns.ytd-watch-flexy');
+
+      setupHoverSlider(secondary, columns)
+
+      let tabInfo = document.querySelector('#tab-info');
+      addTabExpander(tabInfo);
+
+      let tabComments = document.querySelector('#tab-comments');
+      addTabExpander(tabComments);
+
+
+      document.documentElement.setAttribute('pnzgu', '');
+
+    }).catch(console.warn);
+
 
 
   }
@@ -5121,14 +5070,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     });
 
 
-    let wmTargetWR = null;
 
     const metaContentSetup = () => {
-      const target = kRef(wmTargetWR);
-      wmTargetWR = null;
       setupVideoTitleHover();
       tabsDeferredFn(() => {
-        target && target.isConnected === true && infoContentForTab(target);
+        infoContentForTab();
       });
     };
 
@@ -5148,9 +5094,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const wmId2 = ControllerID();
     const wmHandler2 = (evt) => {
       const target = evt.target;
-      wmTargetWR = mWeakRef(target);
       renderDeferred.debounce(() => {
         infoContentDS |= 2;
+        target.isConnected && target.setAttribute('bsptu', +renderIdentifier);
         if (infoContentDS === 3) {
           infoContentDS |= 4;
           Promise.resolve().then(metaContentSetup);
@@ -5159,6 +5105,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
     handleDOMAppear('watchMetaContentReady1', wmHandler2);
     handleDOMAppear('watchMetaContentReady2', wmHandler2);
+
+    handleDOMAppear('fixInvisibleInfoBug', (evt) => evt.target.removeAttribute('hidden'));
 
 
     handleDOMAppear('commentsHeaderAppended1', onCommentsReady);
