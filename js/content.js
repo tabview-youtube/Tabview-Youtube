@@ -5919,7 +5919,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         return -200;
       }
 
-      const ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy');
 
       if (!ytdFlexyElm) {
         ytdFlexy = null;
@@ -7537,7 +7537,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
     }).then();
 
-    ytdFlexy = mWeakRef(document.querySelector('ytd-watch-flexy:not([hidden])')); // update global ref
+    ytdFlexy = mWeakRef(document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy')); // update global ref
 
     if (!es.ytdFlexy) return;
 
@@ -7545,7 +7545,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       const ytdFlexyElm = es.ytdFlexy; // shall be always non-null
 
-      if (ytEventSequence >= 2 && pageRendered === 0 && ytdFlexyElm) {
+      if (ytEventSequence >= 2 && pageRendered === 0 && ytdFlexyElm && ytdFlexyElm.isConnected === true) {
 
         // trigger renderDeferred.resolve();
         let elmPL = document.createElement('tabview-view-ploader');
@@ -7555,6 +7555,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // pageRendered keeps at 1 if the video is continuously playing at the background
         // pageRendered would not be resolve but will reset for each change of video
 
+      }else{
+        console.warn(511, [ytEventSequence, pageRendered, !!ytdFlexyElm])
       }
 
     });

@@ -66,6 +66,8 @@ function injection_script_1() {
 
   document.documentElement.setAttribute('tabview-unwrapjs', '')
 
+  const getYtdWatchFlexyElement = () => (document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy'));
+
   let byPassPause = false;
 
   HTMLVideoElement.prototype.pause = ((pause) => {
@@ -430,7 +432,7 @@ function injection_script_1() {
       let playerC = this.elmChat ? (this.elmChat.inst || this.elmChat).player : null;
       if (playerC) return playerC;
 
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy') || 0;
+      let ytdFlexyElm = getYtdWatchFlexyElement() || 0;
       let cnt = ytdFlexyElm.inst || ytdFlexyElm;
       return cnt.player || 0;
     }
@@ -476,7 +478,7 @@ function injection_script_1() {
     ytLiveMOHandler() {
       // `this` is not available
 
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+      let ytdFlexyElm = getYtdWatchFlexyElement();
       if (!ytdFlexyElm) {
         console.warn('error F032');
       }
@@ -492,7 +494,7 @@ function injection_script_1() {
       if (this.ytLiveMO) return;
       this.ytLiveMO = new MutationObserver(this.ytLiveMOHandler);
       this.ytLiveMOHandler();
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy');
+      let ytdFlexyElm = getYtdWatchFlexyElement();
       if (ytdFlexyElm) {
         this.ytLiveMO.observe(ytdFlexyElm, {
           attributes: true,
@@ -651,7 +653,7 @@ function injection_script_1() {
       }
 
       if (actions.length > 0) {
-        const ytdWatchFlexy = document.querySelector('ytd-watch-flexy');
+        const ytdWatchFlexy = getYtdWatchFlexyElement();
         const cnt = ytdWatchFlexy.inst || ytdWatchFlexy;
 
         cnt.resolveCommand(
@@ -1955,7 +1957,7 @@ function injection_script_1() {
         try {
 
           dtConversationBar1 = window.ytInitialData.contents.twoColumnWatchNextResults.conversationBar;
-          const ytdWatchFlexyElm = document.querySelector('ytd-watch-flexy');
+          const ytdWatchFlexyElm = getYtdWatchFlexyElement();
           const ytdWatchFlexyCnt = ytdWatchFlexyElm.inst || ytdWatchFlexyElm;
           dtConversationBar2 = ytdWatchFlexyCnt.data.contents.twoColumnWatchNextResults.conversationBar;
 
@@ -2898,7 +2900,7 @@ function injection_script_1() {
   }, false);
 
   document.addEventListener('tabview-fix-info-box-tooltip', (evt) => {
-    const ytdFlexy = document.querySelector('ytd-watch-flexy');
+    const ytdFlexy = getYtdWatchFlexyElement();
     if (!ytdFlexy) return;
 
     let isDuplicated = ytdFlexy.classList.contains('tabview-info-duplicated');
@@ -4062,7 +4064,7 @@ function injection_script_1() {
 
   const dsMgr = {
     onVisibilityChanged() {
-      let ytdFlexyElm = document.querySelector('ytd-watch-flexy')
+      let ytdFlexyElm = getYtdWatchFlexyElement();
       // let updateIcon = false
       if (ytdFlexyElm) {
         const shelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
