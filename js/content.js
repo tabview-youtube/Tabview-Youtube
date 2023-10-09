@@ -5619,50 +5619,70 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return elm;
   }
 
-  const iframeLoadHookA_id = ControllerID();
+  const iframeLoadControllerId = ControllerID();
 
-  const iframeLoadHookA = async function (evt) {
+  const iframeLoadHookHandler = function (evt) {
 
     const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
     const iframe = isIframe ? evt.target : null;
 
-    if (iframe && iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
-    } else {
+    if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
       return;
     }
 
+    Promise.resolve(iframe).then(iframeLoadProcess);
+
+  };
+
+  
+  const iframeLoadProcess = async function (_iframe) {
+
+    const iframe = _iframe;
+
+    await scriptletDeferred.d();
+
+    await getRAFPromise().then();
+    
+    if (iframe.isConnected !== true) return;
 
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
 
     // console.log('chat', chat)
     if (!chat) return;
 
-    if (iframe.isConnected !== true) return;
-
     if (chat.hasAttribute('collapsed')) return;
-    console.debug('[tyt.iframe] loaded 01')
+    console.debug('[tyt.iframe] loaded 01');
 
-    const tid = iframeLoadHookA_id();
+    const tid = iframeLoadControllerId();
 
     const cDoc = await new Promise((resolve) => {
 
-      let timeoutCount = 80;
+      let timeoutCount = 250;
       let cid = 0;
       const tf = () => {
-        if (tid !== +iframeLoadHookA_id || --timeoutCount < 0) {
-          resolve && resolve(null);
-          resolve = null;
-          cid && clearInterval(cid);
-          cid = 0;
+        let exitLoop;
+        if (tid !== +iframeLoadControllerId || --timeoutCount < 0) {
+          exitLoop = true;
+        } else if (chat.isConnected === true && iframe.isConnected === true && !chat.hasAttribute('collapsed')) {
+          exitLoop = false;
+        } else {
+          exitLoop = true;
         }
-        let cDoc = false;
-        try {
-          cDoc = iframe.contentDocument;
-        } catch (e) {
+
+        let cDoc = null;
+        if (!exitLoop) {
+
+          if (HTMLElement.prototype.closest.call(iframe, '[hidden]')) return;
+          if (!HTMLElement.prototype.closest.call(iframe, '#columns.style-scope.ytd-watch-flexy')) return;
+          try {
+            cDoc = iframe.contentDocument;
+          } catch (e) {
+          }
+          if (!cDoc) return;
+          if (cDoc.readyState === 'loading') return;
+          if (!cDoc.body) return;
+
         }
-        if (!cDoc) return;
-        if (cDoc.readyState === 'loading') return;
-        if (!cDoc.body) return;
 
         resolve && resolve(cDoc);
         resolve = null;
@@ -5678,14 +5698,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }).catch(console.warn);
 
-    // console.log('cDoc', cDoc)
-    if (tid !== +iframeLoadHookA_id) return;
-    if (!cDoc) {
+    if (tid !== +iframeLoadControllerId || !cDoc || cDoc.readyState === 'loading') {
       return;
     }
-
-    if (cDoc.readyState === 'loading') return;
-
 
     const contentElement = (cDoc.body || 0).firstElementChild;
 
@@ -5716,7 +5731,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
 
 
-  }
+  };
 
   async function restorePIPforStickyHead() {
     // after a trusted user action, PIP can be cancelled.
@@ -7497,7 +7512,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (isFirstLoad) {
       firstLoadStatus -= 8;
-      document.addEventListener('load', iframeLoadHookA, capturePassive)
+      for (const iframe of document.querySelectorAll('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+        Promise.resolve(iframe).then(iframeLoadProcess);
+      }
+      document.addEventListener('load', iframeLoadHookHandler, capturePassive);
       ytMicroEventsInit();
     }
     // ytMicroEventsInit set
