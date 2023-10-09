@@ -2986,7 +2986,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let w = getWrapper("tabview-playlist-wrapper");
       let docFrag = new DocumentFragment();
       // avoid immediate reflow for append playlist before append to tab_list
-      elementAppend.call(docFrag, w);
+      docFrag.appendChild(w);
       elementAppend.call(w, playlist);
       elementAppend.call(tab_list, docFrag);
       docFrag = null;
