@@ -1170,7 +1170,7 @@
         }
     }
 
-	[pnzgu] #tab-info [tyt-info-expander-content]:only-of-type ytd-structured-description-content-renderer[hidden] {
+	[pnzgu] #tab-info [tyt-info-expander-content]:only-of-type ytd-structured-description-content-renderer[hidden]:only-of-type {
 		display: block !important;
         animation: fixInvisibleInfoBug 1ms linear 0s 1 normal forwards;
 	}
