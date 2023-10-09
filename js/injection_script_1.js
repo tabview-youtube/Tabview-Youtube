@@ -1918,15 +1918,15 @@ function injection_script_1() {
         if (!chatCnt.player) return;
 
         console.debug('[tyt.chat] fix chat render when onload with empty body 01');
-        let tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
-        getRAFPromise().then(() => {
+        const tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
+        setTimeout(() => {
           if (tid !== cfk) return;
           const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
           if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
             console.debug('[tyt.chat] fix chat render when onload with empty body 02');
             chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
           }
-        });
+        }, 270);
 
       }, true);
 
