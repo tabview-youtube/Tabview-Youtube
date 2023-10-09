@@ -1680,6 +1680,82 @@ function injection_script_1() {
     });
 
 
+    customYtElements.whenRegistered('ytd-structured-description-content-renderer', (cProto) => {
+
+      if ('scrollToSection' in cProto && typeof cProto.scrollToSection === 'function' && !cProto.scrollToSection12 && cProto.scrollToSection.length === 1) {
+
+        cProto.scrollToSection12 = cProto.scrollToSection;
+
+        async function scrollToSection(p, nodeInTab) {
+
+          let btn = document.querySelector('[tyt-tab-content="#tab-info"]:not(.active)');
+          if (btn) {
+            btn.click();
+            await new Promise(r => setTimeout(r, 40));
+          } else {
+            await new Promise(r => setTimeout(r, 1));
+          }
+
+          if (p instanceof HTMLElement) {
+            p.scrollIntoView();
+          } else {
+            nodeInTab.scrollToSection12(a);
+          }
+
+        }
+
+        cProto.scrollToSection = function (a) {
+          if (HTMLElement.prototype.closest.call(this, 'ytd-watch-metadata.ytd-watch-flexy')) {
+            let nodeInTab = document.querySelector('#tab-info ytd-structured-description-content-renderer');
+            if (nodeInTab && 'scrollToSection' in nodeInTab && 'scrollToSection12' in nodeInTab) {
+              // let tab = HTMLElement.prototype.closest.call(nodeInTab, '#tab-info');
+              let p = null;
+              try {
+                p = nodeInTab.getSectionElement(a);
+              } catch (e) {
+
+              }
+              scrollToSection(p, nodeInTab);
+              return;
+            }
+          }
+          return this.scrollToSection12(a);
+        }
+
+
+
+      }
+
+    });
+
+    
+
+    /*
+    customYtElements.whenRegistered('ytd-watch-metadata', (cProto) => {
+
+      if ('showPanel' in cProto && typeof cProto.showPanel === 'function' && !cProto.showPanel12 && cProto.showPanel.length === 1) {
+
+        cProto.showPanel12 = cProto.showPanel;
+
+        cProto.showPanel = function (a) {
+          if (HTMLElement.prototype.matches.call(this, 'ytd-watch-metadata.ytd-watch-flexy') && a && a.sectionListEngagementPanelExtras && a.sectionListEngagementPanelExtras.scrollToItemSectionIdentifier === "transcript-item-section") {
+            let nodeInTab = document.querySelector('#tab-info ytd-structured-description-content-renderer');
+            if (nodeInTab && 'scrollToSection' in nodeInTab && 'scrollToSection12' in nodeInTab) {
+              let tab = HTMLElement.prototype.closest.call(nodeInTab, '#tab-info');
+              return nodeInTab.showPanel12(a);
+            }
+          }
+          return this.showPanel12(a);
+        }
+
+
+
+      }
+
+    });
+    */
+
+
     const s6 = Symbol();
 
     // assume initialTranscriptsRenderer is not called before ceHack()

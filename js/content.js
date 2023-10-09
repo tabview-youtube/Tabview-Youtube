@@ -5777,34 +5777,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let fontSizeBtnClick = null;
 
-    materialTab.addEventListener('click', function (evt) {
+    materialTab.addEventListener('click', async function (evt) {
+      
+      const dom = evt.target;
+      if ((dom || 0).nodeType !== 1) return;
 
+      await getRAFPromise().then(); // prevent execution in background
+      await scriptletDeferred.d();
 
+      if (dom.isConnected !== true) return;
 
-      if (!evt.isTrusted) return; // prevent call from background
+      let b = isMiniviewForStickyHeadEnabled || (isStickyHeaderEnabled && typeof IntersectionObserver == 'function');
+      if (b) {
+        setTimeout(delayedClickHandler, 80);
+      }
 
-      scriptletDeferred.debounce(() => {
+      const domInteraction = dom.getAttribute('tyt-di');
+      if (domInteraction === 'q9Kjc') {
+        handlerMaterialTabClick.call(dom, evt);
+      } else if (domInteraction === '8rdLQ') {
+        fontSizeBtnClick && fontSizeBtnClick.call(dom, evt);
+      }
 
-
-        if (isMiniviewForStickyHeadEnabled) {
-          setTimeout(delayedClickHandler, 80);
-        } else if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && typeof IntersectionObserver == 'function') {
-          setTimeout(delayedClickHandler, 80);
-        }
-        let dom = evt.target;
-        if ((dom || 0).nodeType !== 1) return;
-
-        const domInteraction = dom.getAttribute('tyt-di');
-        if (domInteraction === 'q9Kjc') {
-          handlerMaterialTabClick.call(dom, evt)
-        } else if (domInteraction === '8rdLQ') {
-          fontSizeBtnClick.call(dom, evt)
-        }
-
-
-      })
-
-    }, true)
+    }, true);
 
     function updateCSS_fontsize(store) {
 
