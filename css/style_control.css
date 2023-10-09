@@ -177,6 +177,70 @@
         }
     }
 
+
+    @supports (color: var(--watch-meta-frame-ready)) {
+
+        @keyframes watchMetaFrameReady1 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+            animation: watchMetaFrameReady1 1ms linear 0s 1 normal forwards;
+        }
+
+
+        @keyframes watchMetaFrameReady2 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+            animation: watchMetaFrameReady2 1ms linear 0s 1 normal forwards;
+        }
+        
+    }
+
+    @supports (color: var(--watch-meta-content-ready)) {
+
+        @keyframes watchMetaContentReady1 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
+        html[tabview-loaded][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
+            animation: watchMetaContentReady1 1ms linear 0s 1 normal forwards;
+        }
+
+
+        @keyframes watchMetaContentReady2 {
+            0% {
+                background-position-x: 3px;
+            }
+            100% {
+                background-position-x: 4px;
+            }
+        }
+
+        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
+        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
+            animation: watchMetaContentReady2 1ms linear 0s 1 normal forwards;
+        }
+    }
+
     @supports (color: var(--dom-appearance-triggering)) {
 
         @keyframes liveChatFrameDOMAppended {
@@ -188,7 +252,7 @@
             }
         }
 
-        html[tabview-loaded] ytd-live-chat-frame#chat {
+        html[tyt-deferred] ytd-live-chat-frame#chat {
             animation: liveChatFrameDOMAppended 1ms linear 0s 1 normal forwards;
         }
 
@@ -210,11 +274,11 @@
             }
         }
 
-        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
+        html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button {
             animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
         }
 
-        html[tabview-loaded] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
+        html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child {
             animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
 
         }
@@ -250,11 +314,11 @@
             }
         }
 
-        html[tabview-loaded] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer:not(.tyt-ani) {
+        html[tabview-loaded][sxmq7="1"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
         }
 
-        html[tabview-loaded] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer.tyt-ani {
+        html[tabview-loaded][sxmq7="0"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
         }
 
@@ -667,7 +731,7 @@
         }
     }
 
-    html.tabview-normal-player ytd-watch-metadata.ytd-watch-flexy #description-inner:not(:empty) {
+    html[tyt-deferred].tabview-normal-player ytd-watch-metadata.ytd-watch-flexy #description-inner:not(:empty) {
         animation: deferredDuplicatedMetaChecker 1ms linear 0s 1 normal forwards;
     }
 }
@@ -708,7 +772,7 @@
 
     
 
-    @supports (color: var(--anti-youtube-layout-bug-)){
+    @supports (color: var(--anti-youtube-layout-bug-01)){
 
 
         ytd-watch-flexy[flexy][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander{
@@ -1052,5 +1116,44 @@
         --ygl-theater-player-left: '--NULL--';
     }
 
+
+}
+
+@supports (color: var(--fix-traditional-meta)){
+    ytd-watch-flexy:not([hidden]) #meta-contents.style-scope.ytd-watch-flexy[hidden]{
+        display: block !important;
+        position: fixed !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        height: 800px !important;
+        width: 500px !important;
+        contain: strict !important;
+        z-index: -1 !important;
+        user-select: none !important;
+    }
+}
+
+@supports (color:var(--anti-youtube-layout-bug-02)) {
+
+	/*
+	ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ div[class^=" "].style-scope.ytd-watch-flexy:not([id]):not([hidden]){
+	    display: none;
+	}
+	*/
+	ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ div[class^=" "].style-scope.ytd-watch-flexy:not([id]):not([hidden]) {
+		display: block !important;
+		position: fixed !important;
+		left: -9999px !important;
+		top: -9999px !important;
+		opacity: 0 !important;
+		pointer-events: none !important;
+		height: 800px !important;
+		width: 500px !important;
+		contain: strict !important;
+		z-index: -1 !important;
+		user-select: none !important;
+	}
 
 }

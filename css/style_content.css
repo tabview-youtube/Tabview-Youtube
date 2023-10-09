@@ -1556,11 +1556,13 @@ body .ytp-autohide .ytp-unmute,
     }
     
 
-    @supports (color: var(--anti-youtube-layout-bug-)){
+    @supports (color: var(--anti-youtube-layout-bug-00)){
 
+        /*
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ div[class^=" "].style-scope.ytd-watch-flexy:not([id]):not([hidden]){
             display: none;
         }
+        */
 
         ytd-watch-flexy[flexy][is-two-columns_] #columns.ytd-watch-flexy.tyt-column-overflow{
 
