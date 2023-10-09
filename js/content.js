@@ -7563,7 +7563,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         // pageRendered keeps at 1 if the video is continuously playing at the background
         // pageRendered would not be resolve but will reset for each change of video
 
-      }else{
+      } else if (ytEventSequence >= 2 && pageRendered === 1 && ytdFlexyElm && ytdFlexyElm.isConnected === true) {
+        // 511, [3, 1, true]
+      } else {
         console.warn(511, [ytEventSequence, pageRendered, !!ytdFlexyElm])
       }
 
