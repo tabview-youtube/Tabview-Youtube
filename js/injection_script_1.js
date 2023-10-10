@@ -1653,6 +1653,25 @@ function injection_script_1() {
 
     customYtElements.whenRegistered('ytd-expander', (cProto) => {
 
+      const config = (window.yt || 0).config_ || (window.ytcfg || 0).data_;
+      if (config) {
+        const EXPERIMENT_FLAGS = config.EXPERIMENT_FLAGS;
+        const EXPERIMENTS_FORCED_FLAGS = config.EXPERIMENTS_FORCED_FLAGS;
+        let b = false;
+        if (EXPERIMENT_FLAGS && EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data) {
+
+          b = true;
+        } else if (EXPERIMENTS_FORCED_FLAGS && EXPERIMENTS_FORCED_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data) {
+
+          b = true;
+        }
+
+        if (b) {
+          document.documentElement.setAttribute('tabview-no-old-secondary-data', '');
+          document.body.appendChild(document.createElement('tabview-no-old-secondary-data'));
+        }
+      }
+
       let keyDefined = 'recomputeOnResize' in cProto;
       // recomputeOnResize is just value assignment after "_initializeProperties()"
       if (keyDefined) console.warn('recomputeOnResize is defined in ytd-expander.');
