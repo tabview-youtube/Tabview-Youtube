@@ -38,8 +38,9 @@ keyFrameForTabviewTabsHideController(a, x)
     if no-rounded-button {
         html .yt-spec-button-shape-next--size-m,
         html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--segmented-start,
-        html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-button.yt-spec-button-shape-next--segmented-end {
-            border-radius:0;
+        // html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--icon-button.yt-spec-button-shape-next--segmented-end,
+        html .yt-spec-button-shape-next--size-m.yt-spec-button-shape-next--segmented-end {
+            border-radius: 0;
         }
     }
 
