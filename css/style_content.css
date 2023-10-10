@@ -4542,10 +4542,44 @@ body .ytp-autohide .ytp-unmute,
 
 }
 
-@supports (color:var(--fix-tooltip-left-for-into)) {
+@supports (color: var(--fix-tooltip-left-for-into)) {
 
 	.tyt-force-left-0 {
 		left: auto !important;
 	}
     
+}
+
+@supports (color: var(--message-for-tabview-no-old-secondary-data)){
+    tabview-no-old-secondary-data {
+        display: none;
+        position: fixed;
+        top: 50vh;
+        left: 50vw;
+        transform: translate(-50%, -50%);
+        min-width: 600px;
+        min-height: 300px;
+        font-size: 16pt;
+        background: var(--yt-spec-base-background);
+        color: var(--yt-spec-text-primary);
+        padding: 24px;
+        box-sizing: border-box;
+        z-index: 99999;
+        cursor: default;
+        border: 6px solid var(--yt-spec-text-secondary);
+    }
+    tabview-no-old-secondary-data:before,
+    tabview-no-old-secondary-data:lang(en):before {
+        content: "Tabview Youtube requires \"kevlar_watch_metadata_refresh_no_old_secondary_data = false\". You can install \"YouTube EXPERIMENT_FLAGS Tamer\" to make sure it is disabled.";
+    }
+    tabview-no-old-secondary-data:lang(ja):before {
+        content: "Tabview YouTube は \"kevlar_watch_metadata_refresh_no_old_secondary_data = false\" が必要です。それを無効にするために \"YouTube EXPERIMENT_FLAGS Tamer\" をインストールしてください。";
+    }    
+    tabview-no-old-secondary-data:lang(zh-Hant):before, tabview-no-old-secondary-data:lang(zh-Hans):before {
+        content: "Tabview YouTube 需要 \"kevlar_watch_metadata_refresh_no_old_secondary_data = false\"。您可以安裝 \"YouTube EXPERIMENT_FLAGS Tamer\" 以確保它被禁用。";
+    }
+
+    [tabview-no-old-secondary-data] tabview-no-old-secondary-data {
+        display: block;
+    }
 }
