@@ -17,6 +17,7 @@
 @var checkbox   no-tab-btn-text                 "No Tab Button Text"                       0
 @var checkbox   round-tab-container             "Round Tab Container"                      0
 @var checkbox   round-live-chat-frame           "Round Live Chat Frame"                    0
+@var checkbox   split-tabs                      "Split Tabs"                               0
 @var checkbox   hide-tab-info                   "Hide Tab - Info"                          0
 @var checkbox   hide-tab-comments               "Hide Tab - Comments"                      0
 @var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0   
@@ -68,6 +69,20 @@ keyFrameForTabviewTabsHideController(a, x)
     if round-live-chat-frame {
         ytd-live-chat-frame#chat.ytd-watch-flexy{
             border-radius: 12px;
+        }
+    }
+            
+    if split-tabs {
+        html body ytd-watch-flexy #right-tabs {
+            .tab-btn:nth-child(n+2)::before {
+                content: "";
+                background: var(--yt-spec-10-percent-layer);
+                position: absolute;
+                left: 0;
+                top: 8px;
+                height: 30px;
+                width: 1px;
+            }
         }
     }
     
