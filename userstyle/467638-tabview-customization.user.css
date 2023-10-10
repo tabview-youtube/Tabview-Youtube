@@ -17,6 +17,8 @@
 @var checkbox   no-tab-btn-text                 "No Tab Button Text"                       0
 @var checkbox   round-tab-container             "Round Tab Container"                      0
 @var checkbox   round-live-chat-frame           "Round Live Chat Frame"                    0
+@var checkbox   use-custom-rounding             "Use Custom Rounding"                      0
+@var range      custom-rounding-value           "Custom Rounding Value"                    [12, 1, 50, 1, 'px']
 @var checkbox   split-tabs                      "Split Tabs"                               0
 @var checkbox   hide-tab-info                   "Hide Tab - Info"                          0
 @var checkbox   hide-tab-comments               "Hide Tab - Comments"                      0
@@ -54,7 +56,7 @@ keyFrameForTabviewTabsHideController(a, x)
     
     if round-tab-container {
         html body ytd-watch-flexy[class] #right-tabs {
-            border-radius: 12px;
+            border-radius: var(--tyt-rounding-value);
             outline: 1px solid var(--yt-spec-10-percent-layer);
             contain: paint;
             #material-tabs {
@@ -69,7 +71,15 @@ keyFrameForTabviewTabsHideController(a, x)
     
     if round-live-chat-frame {
         ytd-live-chat-frame#chat.ytd-watch-flexy{
-            border-radius: 12px;
+            border-radius: var(--tyt-rounding-value);
+        }
+    }
+
+    :root {
+        if use-custom-rounding {
+            --tyt-rounding-value: custom-rounding-value;
+        } else {
+            --tyt-rounding-value: 12px;
         }
     }
             
