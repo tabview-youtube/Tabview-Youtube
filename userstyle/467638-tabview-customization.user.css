@@ -52,14 +52,22 @@ keyFrameForTabviewTabsHideController(a, x)
     
     if round-tab-container {
         html body ytd-watch-flexy[class] #right-tabs {
-            border-radius: 28px;
+            border-radius: 12px;
+            outline: 1px solid var(--yt-spec-10-percent-layer);
             contain: paint;
+            #material-tabs {
+                border: 0;
+            }
+            .tab-content {
+                border: 0;
+                border-top: 1px solid var(--yt-spec-10-percent-layer);
+            }
         }
     }
     
     if round-live-chat-frame {
         ytd-live-chat-frame#chat.ytd-watch-flexy{
-            border-radius: 16px;
+            border-radius: 12px;
         }
     }
     
