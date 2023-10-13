@@ -7332,7 +7332,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // proceedingChatFrameVideoID = '';
     newVideoPageCACC = chatroomAttrCollapseCount;
     // console.debug('[tyt] debug ym-01-1')
+    
+    const rootDom = document.documentElement;
+    rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
+    
     setTimeout(() => {
+        
+      const rootDom = document.documentElement;
+      rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
       
       // console.debug('[tyt] debug ym-01-2')
       if (fvid !== pageFetchedDataVideoId) return;
