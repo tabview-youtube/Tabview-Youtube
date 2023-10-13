@@ -4606,20 +4606,18 @@ function injection_script_1() {
     fixLiveChatToggleButton();
   })
 
-  document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
+  // document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
 
-    /*
-    const chatElm = (evt || 0).target;
-    if (!chatElm || chatElm.id !== 'chat') return;
-    const chatCnt = chatElm.inst || chatElm;
+  //   const chatElm = (evt || 0).target;
+  //   if (!chatElm || chatElm.id !== 'chat') return;
+  //   const chatCnt = chatElm.inst || chatElm;
 
-    if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
-    if (!chatCnt.player) return;
-    console.debug('[tyt.chat] fix chat render on expanded chat');
-    chatCnt.fixChatframeContentDisplayWithUrlChanged(1);
+  //   if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
+  //   if (!chatCnt.player) return;
+  //   console.debug('[tyt.chat] fix chat render on expanded chat');
+  //   chatCnt.fixChatframeContentDisplayWithUrlChanged(1);
 
-    */
-  }, true);
+  // }, true);
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
