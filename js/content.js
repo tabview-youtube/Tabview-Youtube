@@ -4248,7 +4248,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // run once on / before pageSeq2 (yt-page-data-fetched)
 
     const rootDom = document.documentElement;
-    rootDom.setAttribute('sxmq7', rootDom.getAttribute('sxmq7') === '1' ? '0' : '1')
+    // rootDom.setAttribute('sxmq7', rootDom.getAttribute('sxmq7') === '1' ? '0' : '1');
+    rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
     rootDom.removeAttribute('pnzgu');
 
     infoContentDS = 0;

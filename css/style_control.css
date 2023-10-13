@@ -189,7 +189,7 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+        html[tyt-deferred][sxmq8="1"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
             animation: watchMetaFrameReady1 1ms linear 0s 1 normal forwards;
         }
 
@@ -203,7 +203,7 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="0"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
+        html[tyt-deferred][sxmq8="0"] ytd-watch-flexy:not([hidden]) ytd-watch-metadata.style-scope.ytd-watch-flexy {
             animation: watchMetaFrameReady2 1ms linear 0s 1 normal forwards;
         }
         
@@ -220,8 +220,8 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
-        html[tyt-deferred][sxmq7="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
+        html[tyt-deferred][sxmq8="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
+        html[tyt-deferred][sxmq8="1"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
             animation: watchMetaContentReady1 1ms linear 0s 1 normal forwards;
         }
 
@@ -235,8 +235,8 @@
             }
         }
 
-        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
-        html[tabview-loaded][sxmq7="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
+        html[tabview-loaded][sxmq8="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-expander.ytd-video-secondary-info-renderer,
+        html[tabview-loaded][sxmq8="0"] ytd-watch-flexy:not([hidden]) #meta-contents.ytd-watch-flexy ytd-video-secondary-info-renderer yt-dummy-532 {
             animation: watchMetaContentReady2 1ms linear 0s 1 normal forwards;
         }
     }
@@ -314,11 +314,11 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="1"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
+        html[tyt-deferred][sxmq8="1"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended1 1ms linear 0s 1 normal forwards;
         }
 
-        html[tyt-deferred][sxmq7="0"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
+        html[tyt-deferred][sxmq8="0"] ytd-item-section-renderer#sections.ytd-comments>#header>ytd-comments-header-renderer {
             animation: commentsHeaderAppended2 1ms linear 0s 1 normal forwards;
         }
 
