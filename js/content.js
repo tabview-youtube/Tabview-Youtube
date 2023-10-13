@@ -5119,8 +5119,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     });
 
-
-    handleDOMAppear('chatFrameToggleBtnAppended1', (evt) => {
+    const onChatFrameToggleBtnAppended = (evt) => {
       // $$ html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button $$
       // $$ except html[tyt-deferred] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:first-child $$
 
@@ -5134,7 +5133,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       prependTo(button, nodeParent(button));
 
-    });
+    };
+
+    handleDOMAppear('chatFrameToggleBtnAppended1', onChatFrameToggleBtnAppended);
+    handleDOMAppear('chatFrameToggleBtnAppended2', onChatFrameToggleBtnAppended);
 
 
     handleDOMAppear('epDOMAppended', async (evt) => {
