@@ -265,7 +265,7 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="1"] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n + 2) {
+        html[tyt-deferred][sxmq8="1"] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n + 2) {
             animation: chatFrameToggleBtnAppended1 1ms linear 0s 1 normal forwards;
         }
 
@@ -279,7 +279,7 @@
             }
         }
 
-        html[tyt-deferred][sxmq7="0"] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n + 2) {
+        html[tyt-deferred][sxmq8="0"] ytd-live-chat-frame#chat>.ytd-live-chat-frame#show-hide-button:nth-child(n + 2) {
             animation: chatFrameToggleBtnAppended2 1ms linear 0s 1 normal forwards;
         }
 

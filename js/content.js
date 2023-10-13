@@ -3962,6 +3962,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const ytdFlexyElm = es.ytdFlexy;
     if (!scriptEnable || !ytdFlexyElm) return;
 
+    const rootDom = document.documentElement;
+    rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
+
     let comments = querySelectorFromAnchor.call(ytdFlexyElm, '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
       let tabComments = document.querySelector('#tab-comments');
