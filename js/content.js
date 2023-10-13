@@ -2153,6 +2153,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           });
         }
 
+        
+        const iframe = document.querySelector('body iframe.style-scope.ytd-live-chat-frame#chatframe');
+        // console.log("iframe.xx",501,iframe)
+        if (iframe) Promise.resolve(iframe).then(iframeLoadProcess);
+
         pageCheck();
         if (global_columns_end_ito !== null) {
           //to trigger observation at the time layout being changed
@@ -3649,7 +3654,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
           // console.log("iframe.xx",501,iframe)
-          if (iframe) iframeLoadProcess(iframe); // fix empty
+          if (iframe) Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
 
 
           /*
