@@ -3644,7 +3644,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (isCollapsed) {
           ++chatroomAttrCollapseCount;
-          chatBlock.removeAttribute('tyt-iframe-loaded');
+          // chatBlock.removeAttribute('tyt-iframe-loaded');
+          chatBlock.classList.remove('tyt-chat-frame-ready');
           // console.log(922,1)
           // buggy; this section might not be correctly executed.
           // guess no collapse change but still iframe will distory and reload.
@@ -5761,7 +5762,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let chatFrame = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
         if (chatFrame) {
           console.debug('[tyt.iframe] loaded 02')
-          chatFrame.setAttribute('tyt-iframe-loaded', '');
+          // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
         }
       }
