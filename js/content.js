@@ -5671,6 +5671,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     iframeLoadProcessWS.add(iframe);
 
     await scriptletDeferred.d();
+    await tabsInsertedPromise.then();
     await getRAFPromise().then();
 
     if (!iframeLoadProcessWS.has(iframe)) return;
