@@ -3424,6 +3424,15 @@ function injection_script_1() {
         const playerState = typeof player.getPlayerState === 'function' ? player.getPlayerState() : null;
         if (playerState === 2 || playerState === -1) {
           chatCnt.playerProgressHandler();
+        } else if (playerState === 1) {
+        }
+        if (playerState > 0) {
+          // fix VOD bug with playerOffsetMs
+          const seekElm = HTMLElement.prototype.querySelector.call(liveChatRendererElm, 'yt-player-seek-continuation');
+          if (seekElm) {
+            const seekCnt = seekElm.inst || seekElm;
+            seekCnt.fireSeekContinuationAtCurrentProgress();
+          }
         }
       }
 
