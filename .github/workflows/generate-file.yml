@@ -11,12 +11,12 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 2 # Fetch only the last 2 commits to check for changes in version.ini
 
       - name: Cache files
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ./version.ini
