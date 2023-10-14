@@ -5673,6 +5673,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     await scriptletDeferred.d();
     await tabsInsertedPromise.then();
     await getRAFPromise().then();
+    await renderDeferred.d();
 
     if (!iframeLoadProcessWS.has(iframe)) return;
     iframeLoadProcessWS.delete(iframe);
@@ -5747,17 +5748,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     console.debug('[tyt.iframe] loaded 12');
 
-    if (cDoc && cDoc.readyState === 'loading') {
+    if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
+      return;
+    }
+
+    if (cDoc && (cDoc.readyState === 'loading' || !(cDoc.body || 0).firstElementChild)) {
       await new Promise(r => setTimeout(r, 50));
     }
-    
+
+    if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
+      return;
+    }
+
     console.debug('[tyt.iframe] loaded 13');
 
     // console.log("iframe.xx",1238, chat)
 
     const contentElement = (cDoc.body || 0).firstElementChild;
 
-    if (contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+    if (contentElement) {
       
       console.debug('[tyt.iframe] loaded 20');
 
@@ -5778,13 +5787,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-    } else if (!contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+    } else if (!contentElement) {
       
       console.debug('[tyt.iframe] loaded 30');
 
       // e.g. when restore from mini view to watch page
 
       // tabview-chat-fix-url-onload-with-empty-body
+      
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
 
     }
