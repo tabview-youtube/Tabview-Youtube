@@ -13,13 +13,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags.
+          fetch-depth: 2 # Fetch only the last 2 commits to check for changes in version.ini
 
-      - name: Cache version
+      - name: Cache files
         uses: actions/cache@v2
         with:
-          path: ./version.ini
-          key: version-${{ hashFiles('**/version.ini') }}
+          path: |
+            ./version.ini
+            ./js/content.js
+            ./userscript/template.js
+          key: files-key-${{ hashFiles('./version.ini', './js/content.js', './userscript/template.js') }}
 
       - name: Read version
         id: read-version
@@ -42,22 +45,14 @@ jobs:
           content_r=$(perl -0777 -pe 's|\s*\/\*[^\*]*(?:(?!\*\/)\*[^\*]*)*\*\/\s*||' js/content.js)
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout generated-files || git checkout -b generated-files
-          git reset --hard origin/main
+          git checkout -B generated-files origin/main
           echo "$content_r" > temp_content.js
           cp userscript/template.js temp_template.js
-          sed -i "s/{{VERSION}}/$version/g" temp_template.js
-          sed -i "s/{{COMMIT_SHA}}/$commit_sha/g" temp_template.js
-          sed -i "s/{{COMMIT_SHA}}/$commit_sha/g" temp_template.js
-          sed -i '/{{CONTENT}}/r temp_content.js' temp_template.js
-          sed -i '/{{CONTENT}}/d' temp_template.js
-          rm temp_content.js # remove the temporary file
-          rm -f generated/Tabview-Youtube.user.js # use -f to ignore error if the file does not exist
-          mv temp_template.js generated/Tabview-Youtube.user.js
+          sed -i "s/{{VERSION}}/$version/g; s/{{COMMIT_SHA}}/$commit_sha/g; /{{CONTENT}}/r temp_content.js; /{{CONTENT}}/d" temp_template.js
+          rm temp_content.js
+          mv -f temp_template.js generated/Tabview-Youtube.user.js
           git add generated/Tabview-Youtube.user.js
-          if git diff --exit-code --quiet --cached; then
-            echo "No changes to commit"
-          else
-          git commit -m "UserJS (v$version) | $commit_sha" -m "$commit_desc"
+          if ! git diff --exit-code --quiet --cached; then
+            git commit -m "UserJS (v$version) | $commit_sha" -m "$commit_desc"
             git push -f origin generated-files
           fi

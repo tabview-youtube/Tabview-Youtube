@@ -5796,6 +5796,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // tabview-chat-fix-url-onload-with-empty-body
       
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
+      await getRAFPromise().then(); // execute in next tick
+      Promise.resolve(iframe).then(iframeLoadProcess); // in order to set ready
 
     }
 
