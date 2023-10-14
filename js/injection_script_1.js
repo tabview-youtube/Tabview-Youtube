@@ -2123,6 +2123,7 @@ function injection_script_1() {
           iframeSrcReplacement(iframe, nSrc);
           cnt.url = nSrc.replace(/&playerOffsetMs=\d+/, '').replace(/&\d+$/, '')
           console.debug('[tyt] replaced chat url');
+          iframe.dispatchEvent(new CustomEvent("iframe-src-replaced"));
         }
 
 

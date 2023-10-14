@@ -5662,6 +5662,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // };
 
+  const onIframeSrcReplaced = function (evt) {
+    const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
+    const iframe = isIframe ? evt.target : null;
+    if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+      return;
+    }
+    Promise.resolve(iframe).then(iframeLoadProcess); // in order to set ready
+  };
+
   const iframeLoadProcessWS = new WeakSet(); // avoid duplicate calling on the same iframe
   
   const iframeLoadProcess = async function (_iframe) {
@@ -5795,9 +5804,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // tabview-chat-fix-url-onload-with-empty-body
       
+      iframe.removeEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
+      iframe.addEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
-      await getRAFPromise().then(); // execute in next tick
-      Promise.resolve(iframe).then(iframeLoadProcess); // in order to set ready
 
     }
 
