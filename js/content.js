@@ -5649,18 +5649,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const iframeLoadControllerId = ControllerID();
 
-  // const iframeLoadHookHandler = function (evt) {
+  const iframeLoadHookHandler = function (evt) {
 
-  //   const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
-  //   const iframe = isIframe ? evt.target : null;
+    const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
+    const iframe = isIframe ? evt.target : null;
 
-  //   if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
-  //     return;
-  //   }
+    if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+      return;
+    }
 
-  //   Promise.resolve(iframe).then(iframeLoadProcess);
+    Promise.resolve(iframe).then(iframeLoadProcess);
 
-  // };
+  };
 
   const onIframeSrcReplaced = function (evt) {
     const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
@@ -7609,7 +7609,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       for (const iframe of document.querySelectorAll('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
         Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
       }
-      // document.addEventListener('load', iframeLoadHookHandler, capturePassive);
+      document.addEventListener('load', iframeLoadHookHandler, capturePassive);
       ytMicroEventsInit();
     }
     // ytMicroEventsInit set
