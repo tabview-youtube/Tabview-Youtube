@@ -1648,10 +1648,7 @@ function injection_script_1() {
     const insObserver = getInsObserver();
 
 
-
-
-
-    customYtElements.whenRegistered('ytd-expander', (cProto) => {
+    function checkNoOldSecondaryData() {
 
       const config = (window.yt || 0).config_ || (window.ytcfg || 0).data_;
       if (config) {
@@ -1668,9 +1665,16 @@ function injection_script_1() {
 
         if (b) {
           document.documentElement.setAttribute('tabview-no-old-secondary-data', '');
-          document.body.appendChild(document.createElement('tabview-no-old-secondary-data'));
+          const p = document.querySelector('body ytd-watch-flexy.style-scope:not([hidden])');
+          if (p) p.appendChild(document.createElement('tabview-no-old-secondary-data'));
         }
       }
+    }
+
+
+    customYtElements.whenRegistered('ytd-expander', (cProto) => {
+
+      Promise.resolve().then(checkNoOldSecondaryData);
 
       let keyDefined = 'recomputeOnResize' in cProto;
       // recomputeOnResize is just value assignment after "_initializeProperties()"
