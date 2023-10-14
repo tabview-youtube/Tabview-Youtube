@@ -5689,7 +5689,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // console.log("iframe.xx",1236, chat)
 
     if (chat.hasAttribute('collapsed')) return;
-    console.debug('[tyt.iframe] loaded 01');
+    console.debug('[tyt.iframe] loaded 10');
 
     const tid = iframeLoadControllerId();
     
@@ -5738,20 +5738,28 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     }).catch(console.warn);
+
+    console.debug('[tyt.iframe] loaded 11');
     
     if (tid !== +iframeLoadControllerId || !cDoc) {
       return;
     }
 
+    console.debug('[tyt.iframe] loaded 12');
+
     if (cDoc && cDoc.readyState === 'loading') {
       await new Promise(r => setTimeout(r, 50));
     }
+    
+    console.debug('[tyt.iframe] loaded 13');
 
     // console.log("iframe.xx",1238, chat)
 
     const contentElement = (cDoc.body || 0).firstElementChild;
 
     if (contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+      
+      console.debug('[tyt.iframe] loaded 20');
 
       if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
       if (!(iframe instanceof HTMLIFrameElement) || iframe.isConnected !== true) return; //prevent iframe is detached from the page
@@ -5759,16 +5767,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       try {
         isCorrectDoc = iframe.contentDocument === cDoc;
       } catch (e) { }
+      
+      console.debug('[tyt.iframe] loaded 21');
       if (isCorrectDoc) {
         let chatFrame = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
         if (chatFrame) {
-          console.debug('[tyt.iframe] loaded 02')
+          console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
         }
       }
 
     } else if (!contentElement && !chat.hasAttribute('collapsed') && iframe.isConnected === true) {
+      
+      console.debug('[tyt.iframe] loaded 30');
 
       // e.g. when restore from mini view to watch page
 
