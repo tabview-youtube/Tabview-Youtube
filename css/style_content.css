@@ -752,7 +752,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata {
         contain: var(--tyt-action-menu-contain); /* follow flex layouting instead of content. content can have larger size */
         /* the height will depends on #owner; the width will fill up for flex layout of #top-row */
-        min-width: initial !important;
+        min-width: var(--menu-min-width, initial) !important;
     }
     
     ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner {
