@@ -617,7 +617,8 @@ Same for #secondary
     }
 
     #info-container.ytd-watch-info-text,
-    #view-count.ytd-watch-info-text {
+    #view-count.ytd-watch-info-text,
+    #date-text.ytd-watch-info-text {
         align-items: center;
     }
 
