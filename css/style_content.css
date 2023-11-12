@@ -4584,3 +4584,12 @@ body .ytp-autohide .ytp-unmute,
         display: block;
     }
 }
+
+@supports (color: var(--channel-page-css)){
+    tp-yt-paper-dialog > ytd-engagement-panel-section-list-renderer:only-child {
+        /* override tp-yt-paper-dialog > *:last-child */
+        /* override tp-yt-paper-dialog > *:first-child */
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+}
