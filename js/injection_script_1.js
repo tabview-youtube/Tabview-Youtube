@@ -59,6 +59,17 @@ function injection_script_1() {
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
+  const insp = o => o ? (o.polymerController || o.inst || o || 0) : (o || 0);
+  const indr = o => insp(o).$ || o.$ || 0;
+  const cppr = (o, p) => {
+    let cnt = insp(o);
+    return cnt && (p in cnt) ? cnt : o;
+  };
+  const cAlignHost = (o) => {
+    let cnt = insp(o);
+    return cnt && (('horizontalAlign' in cnt) || ('verticalAlign' in cnt)) ? cnt : o;
+  };
+
   if (document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')) {
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
     return;
@@ -220,7 +231,7 @@ function injection_script_1() {
     if (s.endpoint) {
       try {
         const ytdAppElm = document.querySelector('ytd-app');
-        const ytdAppCnt = ytdAppElm.inst || ytdAppElm;
+        const ytdAppCnt = insp(ytdAppElm);
         ytdAppCnt.replaceState(s.endpoint, '', u)
       } catch (e) {
       }
@@ -252,7 +263,7 @@ function injection_script_1() {
     if (!evt || !evt.target) return;
     const expanderElm = evt.target;
 
-    const expanderCnt = expanderElm.inst || expanderElm;
+    const expanderCnt = insp(expanderElm);
 
     expanderCnt.canToggleJobId = 1;
     expanderCnt.alwaysToggleable = false;
@@ -262,24 +273,6 @@ function injection_script_1() {
     expanderCnt.collapsedHeight = 999999;
 
   }, true);
-
-  /*
-  document.addEventListener('collapsed-true', (evt) => {
-    const target = (evt || 0).target || 0
-    if (target.is) {
-      const cnt = target.inst || target;
-      if (cnt.collapsed === false) cnt.collapsed = true;
-    }
-  }, true);
-  
-  document.addEventListener('collapsed-false', (evt) => {
-    const target = (evt || 0).target || 0
-    if (target.is) {
-      const cnt = target.inst || target;
-      if (cnt.collapsed === true) cnt.collapsed = false;
-    }
-  }, true)
-  */
 
   // top.tabviewSwitchVideoPage
   // top.tabviewDispatchEvent
@@ -360,7 +353,7 @@ function injection_script_1() {
         // this.elmChat.removeAttribute('tyt-iframe-loaded')
       }
       if (chatElm === null) {
-        const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
+        const elmChatCnt = insp(this.elmChat);
         if (elmChatCnt && elmChatCnt.disconnectedCallback && elmChatCnt.isAttached === true) {
 
           // disable this...
@@ -383,7 +376,7 @@ function injection_script_1() {
 
 
         this.elmChat = chatElm;
-        const elmChatCnt = (this.elmChat || 0).inst || this.elmChat;
+        const elmChatCnt = insp(this.elmChat);
         if (elmChatCnt && elmChatCnt.connectedCallback && elmChatCnt.isAttached === false) {
           // by experience, this triggers in live playback only; livestream might implemented the correct mechanism to handle this.
 
@@ -429,11 +422,11 @@ function injection_script_1() {
     }
 
     getPlayerFC() {
-      let playerC = this.elmChat ? (this.elmChat.inst || this.elmChat).player : null;
+      let playerC = this.elmChat ? insp(this.elmChat).player : null;
       if (playerC) return playerC;
 
       let ytdFlexyElm = getYtdWatchFlexyElement() || 0;
-      let cnt = ytdFlexyElm.inst || ytdFlexyElm;
+      let cnt = insp(ytdFlexyElm);
       return cnt.player || 0;
     }
 
@@ -557,7 +550,7 @@ function injection_script_1() {
         click: () => {
 
           const ytReloadContElm = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu');
-          const ytReloadContCnt = ytReloadContElm.inst || ytReloadContElm;
+          const ytReloadContCnt = insp(ytReloadContElm);
 
           let getContinuationUrl = null;
 
@@ -586,7 +579,7 @@ function injection_script_1() {
         // usually not used
         // chat element found; cr found.
         // bug - no load event;
-        const chatCnt = this.elmChat.inst || this.elmChat;
+        const chatCnt = insp(this.elmChat);
         const iframe = (chatCnt.$ || chatCnt).chatframe;
         if (iframe) {
           this.elmChatFrame = null; // required
@@ -654,7 +647,7 @@ function injection_script_1() {
 
       if (actions.length > 0) {
         const ytdWatchFlexy = getYtdWatchFlexyElement();
-        const cnt = ytdWatchFlexy.inst || ytdWatchFlexy;
+        const cnt = insp(ytdWatchFlexy);
 
         cnt.resolveCommand(
           {
@@ -1109,7 +1102,7 @@ function injection_script_1() {
 
   function ytChipCloudRendererMouseEnter() {
     getRAFPromise().then(() => {
-      const cnt = this.inst || this;
+      const cnt = insp(this);
       if (cnt.atStart === true) cnt.reset();
     });
   }
@@ -1127,7 +1120,7 @@ function injection_script_1() {
       async function callReset(targetElm, value) {
         // target = yt-chip-cloud-renderer
 
-        const cnt = targetElm.inst || targetElm;
+        const cnt = insp(targetElm);
 
         if (wm.get(targetElm) !== value) {
           wm.set(targetElm, value);
@@ -1155,7 +1148,7 @@ function injection_script_1() {
           if (h > 10 && entry.isIntersecting) {
             // possible to get height even it is not intersecting
             const target = entry.target;
-            const cnt = target ? (target.inst || target) : 0;
+            const cnt = insp(target);
             if (cnt && cnt.reset) {
               let area = Math.round(entry.boundingClientRect.width * entry.boundingClientRect.height);
               if (area > 10) {
@@ -1192,7 +1185,7 @@ function injection_script_1() {
       async function callReset(targetElm, value) {
         // target = yt-chip-cloud-renderer
 
-        const cnt = targetElm.inst || targetElm;
+        const cnt = insp(targetElm);
         if (wm.get(targetElm) !== value) {
           wm.set(targetElm, value)
           cnt.reset();
@@ -1228,7 +1221,7 @@ function injection_script_1() {
         for (const mutation of mutationList) {
           let target = mutation.target;
           target = target ? (closestFromAnchor.call(target, 'yt-chip-cloud-renderer') || 0) : 0;
-          const cnt = target.inst || target;
+          const cnt = insp(target);
           if (cnt && cnt.reset) {
             mSet(target);
           }
@@ -1274,7 +1267,7 @@ function injection_script_1() {
       });
 
       let ds = document.querySelector('ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)')
-      if (ds && (ds.inst || ds).isAttached === true) {
+      if (ds && insp(ds).isAttached === true) {
       } else {
         dsMgr._lastDSVideo = null; // for next video page
       }
@@ -1305,31 +1298,32 @@ function injection_script_1() {
   // https://greasyfork.org/en/scripts/465819-api-for-customelements-in-youtube/
 
   // =========================
-
+  // ==UserScript==
   // @name         API for CustomElements in YouTube
   // @namespace    http://tampermonkey.net/
-  // @version      1.4.1
+  // @version      1.5.0
   // @description  A JavaScript tool to modify CustomElements in YouTube
   // @author       CY Fung
   // @grant        none
   // @license      MIT
+  // ==/UserScript==
 
   /*
-  
+
   MIT License
-  
+
   Copyright (c) 2023 cyfung1031
-  
+
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
   in the Software without restriction, including without limitation the rights
   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
   copies of the Software, and to permit persons to whom the Software is
   furnished to do so, subject to the following conditions:
-  
+
   The above copyright notice and this permission notice shall be included in all
   copies or substantial portions of the Software.
-  
+
   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -1337,10 +1331,10 @@ function injection_script_1() {
   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   SOFTWARE.
-  
+
   */
 
-  const customYtElements = (function () {
+  var customYtElements = (function () {
     'use strict';
 
     const injectorCreationForRegistered = ((fnHandler) => {
@@ -1353,9 +1347,11 @@ function injection_script_1() {
 
         const isControllerExtraction = typeof this.forwardMethods === 'function' && typeof this._registered === 'undefined';
         const isComponentRegister = typeof this._registered === 'function' && typeof this.forwardMethods === 'undefined';
+        const isSinkWrapper = typeof this.createElement === 'function' && typeof this._registered === 'undefined' && typeof this.forwardMethods === 'undefined';
         let warning = '';
-        if (isControllerExtraction) {
-          if (typeof this.inst !== 'object') {
+        let polymerController = this.polymerController || this.inst || false;
+        if (isControllerExtraction || isSinkWrapper) {
+          if (typeof polymerController !== 'object') {
             warning += '[ytI] Controller Extraction is enabled but the corresponding instance is not found.\n';
           }
         } else if (isComponentRegister) {
@@ -1369,6 +1365,9 @@ function injection_script_1() {
         }
         if (isComponentRegister && fnTag !== '_registered') {
           warning += "[ytI] Unknown Error in injectorCreationForRegistered. (0x3F02)\n";
+        }
+        if (isSinkWrapper && fnTag !== 'createElement') {
+          warning += "[ytI] Unknown Error in injectorCreationForRegistered. (0x3F03)\n";
         }
         const map = mMapOfFuncs;
         // CE prototype has not yet been "Object.defineProperties()"
@@ -1388,7 +1387,7 @@ function injection_script_1() {
           if (typeof funcs.length !== 'number') throw '[ytI] This injection function call is invalid.';
           console.debug(`[ytI] ${constructor.prototype.is}'s ${fnTag} has been called.`);
           map.set(constructor, null); // invalidate
-          const proto = isControllerExtraction ? this.inst.constructor.prototype : constructor.prototype;
+          const proto = polymerController ? polymerController.constructor.prototype : constructor.prototype;
           for (const func of funcs) {
             func(proto); // developers might implement Promise, setTimeout, or requestAnimation inside the `func`.
           }
@@ -1455,23 +1454,35 @@ function injection_script_1() {
     const postRegistered = (ytElmTag, f) => {
       const ceElmConstrcutor = customElements.get(ytElmTag);
       const proto = ((ceElmConstrcutor || 0).prototype || 0);
+
+      let method = 0;
+
       if (proto && ('forwardMethods' in proto) && !('_registered' in proto)) {
-        // under controller extraction, the register mechanism is different
-        // register is not done in first initialization
-        const createdElement = document.querySelector(ytElmTag);
-        const inst = (createdElement || 0).inst;
-        if (inst) {
-          f(inst.constructor.prototype);
-        } else {
-          injectionPool(proto, 'forwardMethods', f);
-        }
+        method = 'forwardMethods';
       } else if (proto && ('__hasRegisterFinished' in proto)) {
         f(proto);
-      } else if (proto && ('_registered' in proto) && !('forwardMethods' in proto)) {
+      } else if (proto && ('_registered' in proto) && !('forwardMethods' in proto) && !('createElement' in proto)) {
         injectionPool(proto, '_registered', f);
+      } else if (proto && ('createElement' in proto) && !('_registered' in proto) && !('forwardMethods' in proto)) { // polymer_enable_sink_wrapper = true
+        method = 'createElement';
       } else {
+        method = -1;
+      }
+
+      if (typeof method === 'string') {
+        // under controller extraction, the register mechanism is different
+        // register is not done in first initialization
+        const createdElement = document.querySelector(ytElmTag) || 0;
+        const polymerController = createdElement.polymerController || createdElement.inst || false;
+        if (typeof polymerController === 'object') {
+          f(polymerController.constructor.prototype);
+        } else {
+          injectionPool(proto, method, f);
+        }
+      } else if (method < 0) {
         console.warn('[ytI] postRegistered is not supported.');
       }
+
     }
 
     const EVENT_KEY_ON_REGISTRY_READY = "ytI-ce-registry-created";
@@ -1501,7 +1512,7 @@ function injection_script_1() {
                 if (typeof nv == 'object') {
                   delete this.__CE_registry;
                   this.__CE_registry = nv;
-                  dispatchCustomEvent(this, EVENT_KEY_ON_REGISTRY_READY);
+                  this.dispatchEvent(new CustomEvent(EVENT_KEY_ON_REGISTRY_READY));
                 }
                 return true;
               },
@@ -1530,7 +1541,6 @@ function injection_script_1() {
     return customYtElements;
 
   })();
-
   // ========================
 
   let __debouncerResolve__ = null;
@@ -1576,7 +1586,7 @@ function injection_script_1() {
 
     const chatElm = document.querySelector('ytd-live-chat-frame');
     if (!chatElm) return;
-    const chatCnt = chatElm.inst || chatElm;
+    const chatCnt = insp(chatElm);
     let initialDisplayState = null;
     try {
       initialDisplayState = chatCnt.data.liveChatRenderer.initialDisplayState
@@ -1584,7 +1594,7 @@ function injection_script_1() {
     if (typeof initialDisplayState !== 'string') return null;
 
     const btnElm = HTMLElement.prototype.querySelector.call(chatElm, 'ytd-toggle-button-renderer');
-    const btnCnt = (btnElm || 0).inst || btnElm || 0;
+    const btnCnt = insp(btnElm);
     const btnData = (btnCnt || 0).data;
     if (!btnData) return null;
     let isToggled = btnData.isToggled === true;
@@ -1911,24 +1921,7 @@ function injection_script_1() {
       }
 
       document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
-
-        /*
-        const chatElm = (evt || 0).target;
-        if (!chatElm || chatElm.id !== 'chat') return;
-        const chatCnt = chatElm.inst || chatElm;
-
-        // console.debug('[tyt] debug ym-02-1')
-        if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
-        // console.debug('[tyt] debug ym-02-2')
-        if (!chatCnt.player) return;
-        
-        // console.debug('[tyt] debug ym-02-3')
-        console.debug('[tyt.chat] fix chat render on changed video');
-        chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
-
-        */
-
-
+        // TODO
       }, true);
 
 
@@ -1937,7 +1930,7 @@ function injection_script_1() {
 
         const chatElm = (evt || 0).target;
         if (!chatElm || chatElm.id !== 'chat') return;
-        const chatCnt = chatElm.inst || chatElm;
+        const chatCnt = insp(chatElm);
 
         if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
         if (!chatCnt.player) return;
@@ -1964,7 +1957,7 @@ function injection_script_1() {
         if (this.collapsed === true) return;
 
         let hostElement = this.hostElement || this;
-        let cnt = this.inst || this;
+        let cnt = insp(this);
 
 
         let isReplay = null;
@@ -1981,7 +1974,7 @@ function injection_script_1() {
 
           dtConversationBar1 = window.ytInitialData.contents.twoColumnWatchNextResults.conversationBar;
           const ytdWatchFlexyElm = getYtdWatchFlexyElement();
-          const ytdWatchFlexyCnt = ytdWatchFlexyElm.inst || ytdWatchFlexyElm;
+          const ytdWatchFlexyCnt = insp(ytdWatchFlexyElm);
           dtConversationBar2 = ytdWatchFlexyCnt.data.contents.twoColumnWatchNextResults.conversationBar;
 
         } catch (e) { }
@@ -2179,7 +2172,7 @@ function injection_script_1() {
     document.addEventListener('tyt-resize-chip-cloud', (evt) => {
       const target = ((evt || 0).target || 0);
       if (target.nodeType !== 1) return;
-      const cnt = target.inst || target;
+      const cnt = insp(target);
       // console.log(target)
       cnt.onResize && cnt.onResize();
     }, true)
@@ -2189,8 +2182,7 @@ function injection_script_1() {
     const getProto = (element) => {
       let proto = null;
       if (element) {
-        if (element.inst) proto = element.inst.constructor.prototype;
-        else proto = element.constructor.prototype;
+        proto = insp(element).constructor.prototype;
       }
       return proto || null;
     };
@@ -2217,7 +2209,7 @@ function injection_script_1() {
             if (n > ctNum && hostElement.isConnected === true && cnt.isAttached === true) {
 
               const headerElm = querySelectorFromAnchor.call(hostElement, 'ytd-comments-header-renderer');
-              const headerCnt = headerElm.inst || headerElm;
+              const headerCnt = insp(headerElm);
 
               if (headerCnt.data === data.header[0].commentsHeaderRenderer) {
                 let runs = [{ text: data.contents.length.toLocaleString(document.documentElement.lang) }, countText.runs[1]];
@@ -2327,7 +2319,7 @@ function injection_script_1() {
       cProto.refit = function () {
         const cnt = this;
         // const hostElement = this.hostElement || this;
-        const alignHost = (this.inst && (typeof this.inst.horizontalAlign || typeof this.inst.verticalAlign)) ? this.inst : this;
+        const alignHost = cAlignHost(this);
         if (alignHost.horizontalAlign || alignHost.verticalAlign) {
           let node = cnt.__restoreFocusNode
           if (node instanceof HTMLElement) {
@@ -2497,7 +2489,7 @@ function injection_script_1() {
 
     const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
     if (!ytdFlexyElm) return null;
-    const ytdFlexyCnt = ytdFlexyElm.inst || ytdFlexyElm;
+    const ytdFlexyCnt = insp(ytdFlexyElm);
 
     /** @type {HTMLElement} */
     const newPanel = ytdFlexyCnt.createComponent_({
@@ -2508,7 +2500,7 @@ function injection_script_1() {
     }, "ytd-engagement-panel-section-list-renderer", true);
     
     const newPanelHostElement = (newPanel || 0).hostElement || newPanel;
-    const newPanelCnt = (newPanelHostElement || 0).inst || newPanelHostElement;
+    const newPanelCnt = insp(newPanelHostElement);
 
 
     newPanelCnt.data = {
@@ -2916,7 +2908,7 @@ function injection_script_1() {
     //console.log('tabview-resize-comments-rows')
     for (const ytdExpanderElm of document.querySelectorAll('#tab-comments #comments .tyt-visible-comment ytd-expander')) {
       Promise.resolve(ytdExpanderElm).then(() => {
-        const ytdExpanderCnt = ytdExpanderElm.inst || ytdExpanderElm;
+        const ytdExpanderCnt = insp(ytdExpanderElm);
         ytdExpanderCnt.calculateCanCollapse(true);
       });
     }
@@ -2933,7 +2925,7 @@ function injection_script_1() {
     let tooltip = document.querySelector('#bottom-row.style-scope.ytd-watch-metadata tp-yt-paper-tooltip.style-scope[role="tooltip"]');
     if (!tooltip) return;
 
-    const tooltipHost = tooltip.inst && ('position' in tooltip.inst) ? tooltip.inst : tooltip;
+    const tooltipHost = cppr(tooltip, 'position');
 
     tooltipHost.position = 'top';
     tooltip.classList.add('tyt-force-left-0');
@@ -3039,7 +3031,7 @@ function injection_script_1() {
       if (!lcrElm) return;
       const participantsElm = HTMLElement.prototype.querySelector.call(lcrElm, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
       if (!participantsElm) return;
-      const participantInst = (participantsElm.inst || participantsElm);
+      const participantInst = insp(participantsElm);
       const participantsCnt = participantInst.constructor.prototype;
       setupParticipantsCnt(participantsCnt);
       participantInst.canShow322 = !participantsElm.matches('iron-pages > :not(slot):not(.iron-selected)')
@@ -3054,7 +3046,7 @@ function injection_script_1() {
 
       let lcrElm = kRef(chatroomRendererElmWR);
       if (!lcrElm) return;
-      const lcrCnt = lcrElm.inst || lcrElm;
+      const lcrCnt = insp(lcrElm);
       let cmElm = lcrCnt.$['chat-messages'];
       if (!cmElm) return;
 
@@ -3083,7 +3075,7 @@ function injection_script_1() {
             } else if (currentHas === false) {
               if (c.indexOf('iron-selected') >= 0) {
                 const lcrElm = kRef(chatroomRendererElmWR);
-                const lcrPopupWindow = lcrElm ? (lcrElm.inst || lcrElm).popoutWindow || lcrElm.popoutWindow : null;
+                const lcrPopupWindow = lcrElm ? insp(lcrElm).popoutWindow || lcrElm.popoutWindow : null;
                 if (lcrPopupWindow) {
                   required = true;
                   popuped = (popupClose.mPopupWindow === null); // no WeakRef was set
@@ -3120,7 +3112,7 @@ function injection_script_1() {
           if (popuped && popupClose) {
             let lcrElm = kRef(chatroomRendererElmWR);
             if (lcrElm) {
-              const lcrPopupWindow = lcrElm ? (lcrElm.inst || lcrElm).popoutWindow || lcrElm.popoutWindow : null;
+              const lcrPopupWindow = lcrElm ? insp(lcrElm).popoutWindow || lcrElm.popoutWindow : null;
               popupClose.mPopupWindow = mWeakRef(lcrPopupWindow);
             }
             lcrElm = null
@@ -3152,7 +3144,7 @@ function injection_script_1() {
       let canAddBtn = false
       let cm = null
 
-      const lcrCnt = lcrElm.inst || lcrElm;
+      const lcrCnt = insp(lcrElm);
 
       if (lcrCnt && typeof lcrCnt.openPopoutWindow === 'function' && lcrCnt.openPopoutWindow.length === 1 && typeof lcrCnt.closePopoutWindow === 'function') {
 
@@ -3185,7 +3177,7 @@ function injection_script_1() {
 
 
       const lcrElm = kRef(chatroomRendererElmWR);
-      const lcrCnt = lcrElm.inst || lcrElm;
+      const lcrCnt = insp(lcrElm);
 
 
       if (lcrElm && typeof lcrCnt.openPopoutWindow === 'function' && lcrCnt.openPopoutWindow.length === 1 && typeof lcrCnt.closePopoutWindow === 'function') {
@@ -3247,7 +3239,7 @@ function injection_script_1() {
       // console.log(334,5, canAddBtn)
 
 
-      const lcrCnt = lcrElm.inst || lcrElm || 0;
+      const lcrCnt = insp(lcrElm);
 
       if (canAddBtn && typeof lcrCnt.closePopoutWindow === 'function') {
 
@@ -3363,7 +3355,7 @@ function injection_script_1() {
     const currentPopupBtn = HTMLElement.prototype.querySelector.call(chatElm, 'tyt-iframe-popup-btn');
     if (currentPopupBtn) currentPopupBtn.classList.remove('tyt-btn-enabled');
 
-    const chatCnt = chatElm.inst || chatElm;
+    const chatCnt = insp(chatElm);
 
     const iframe = (chatCnt.$ || chatCnt).chatframe;
     if (!iframe) return
@@ -3420,7 +3412,7 @@ function injection_script_1() {
       addPopupButton(chatElm);
       ytLivePU.initByChatRenderer(liveChatRendererElm);
 
-      const liveChatRendererCnt = liveChatRendererElm.inst || liveChatRendererElm;
+      const liveChatRendererCnt = insp(liveChatRendererElm);
 
       const isReplay = (liveChatRendererCnt.data || 0).isReplay;
       if (isReplay === true && typeof chatCnt.playerProgressHandler === 'function') {
@@ -3434,7 +3426,7 @@ function injection_script_1() {
           // fix VOD bug with playerOffsetMs
           const seekElm = HTMLElement.prototype.querySelector.call(liveChatRendererElm, 'yt-player-seek-continuation');
           if (seekElm) {
-            const seekCnt = seekElm.inst || seekElm;
+            const seekCnt = insp(seekElm);
             seekCnt.fireSeekContinuationAtCurrentProgress();
           }
         }
@@ -3496,7 +3488,7 @@ function injection_script_1() {
     if (typeof video_id !== 'string') return;
 
     const ytAppElm = document.querySelector('ytd-app');
-    const ytAppCnt = (ytAppElm || 0).inst || ytAppElm || 0;
+    const ytAppCnt = insp(ytAppElm);
 
     if (typeof ytAppCnt.handleNavigate !== 'function') return;
 
@@ -3611,10 +3603,10 @@ function injection_script_1() {
 
     let pNode = ytNode;
     let kNode = ytNode;
-    const ytNodeData = (ytNode.inst || ytNode).data;
+    const ytNodeData = insp(ytNode).data;
     if (!ytNodeData || typeof ytNodeData !== 'object') return;
     while ((pNode = nodeParent(pNode)) instanceof HTMLElement) {
-      const contents = ((pNode.inst || pNode).data || 0).contents; // data
+      const contents = (insp(pNode).data || 0).contents; // data
       if (typeof contents === 'object' && typeof contents.length === 'number') {
 
         // console.log(pNode.data.contents, ytNode.data)
@@ -3655,9 +3647,9 @@ function injection_script_1() {
       let r2 = findLcComment(targetLcId).commentRendererElm;
 
 
-      if (typeof (r1.inst || r1).data.linkedCommentBadge === 'object' && typeof (r2.inst || r2).data.linkedCommentBadge === 'undefined') {
+      if (typeof insp(r1).data.linkedCommentBadge === 'object' && typeof insp(r2).data.linkedCommentBadge === 'undefined') {
 
-        let p = Object.assign({}, (r1.inst || r1).data.linkedCommentBadge)
+        let p = Object.assign({}, insp(r1).data.linkedCommentBadge)
 
         if (((p || 0).metadataBadgeRenderer || 0).trackingParams) {
           delete p.metadataBadgeRenderer.trackingParams;
@@ -3686,7 +3678,7 @@ function injection_script_1() {
 
             done = 1;
           } else {
-            const v2pCnt = v2.parent.inst || v2.parent || 0;
+            const v2pCnt = insp(v2.parent);
             const v2Conents = (v2pCnt.data || 0).contents || 0;
             if (!v2Conents) console.warn('v2Conents is not found');
 
@@ -3719,9 +3711,9 @@ function injection_script_1() {
     try {
 
       let r1 = findLcComment(currentLcId).commentRendererElm;
-      let r1cnt = r1.inst || r1;
+      let r1cnt = insp(r1);
       let r2 = findLcComment(targetLcId).commentRendererElm;
-      let r2cnt = r2.inst || r2;
+      let r2cnt = insp(r2);
 
       const r1d = r1cnt.data;
       let p = Object.assign({}, _p)
@@ -3844,7 +3836,7 @@ function injection_script_1() {
 
         if (pageType === null) {
           const ytdAppElm = document.querySelector('ytd-page-manager#page-manager.style-scope.ytd-app');
-          const ytdAppCnt = (ytdAppElm || 0).inst || ytdAppElm || 0;
+          const ytdAppCnt = insp(ytdAppElm);
           pageType = ytdAppCnt ? (ytdAppCnt.data || 0).page : null;
         }
         if (pageType !== "watch") endpoint = null;
@@ -3866,7 +3858,7 @@ function injection_script_1() {
       // console.log('tabview-script-handleNavigate')
 
       const ytdAppElm = document.querySelector('ytd-app');
-      const ytdAppCnt = (ytdAppElm || 0).inst || ytdAppElm || 0;
+      const ytdAppCnt = insp(ytdAppElm);
 
       let object = null;
       try {
@@ -3975,7 +3967,7 @@ function injection_script_1() {
     miniview_enabled = true;
 
     const ytdAppElm = document.querySelector('ytd-app');
-    const ytdAppCnt = ytdAppElm.inst || ytdAppElm;
+    const ytdAppCnt = insp(ytdAppElm);
 
 
     if (!ytdAppCnt) return;
@@ -4101,7 +4093,7 @@ function injection_script_1() {
       // let updateIcon = false
       if (ytdFlexyElm) {
         const shelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy')
-        const shelfCnt = shelfElm.inst || shelfElm;
+        const shelfCnt = insp(shelfElm);
 
         let currentVisibile = shelfElm && shelfCnt && shelfCnt.isAttached === true && !shelfElm.classList.contains('tyt-hidden') && !shelfElm.hasAttribute('hidden')
         let tytAttr = ytdFlexyElm.hasAttribute('tyt-donation-shelf')
@@ -4127,7 +4119,7 @@ function injection_script_1() {
 
       const shelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy');
       if (!shelfElm || shelfElm.hasAttribute('hidden') || !brElm) return;
-      const brCnt = (brElm || 0).inst || brElm || 0;
+      const brCnt = insp(brElm);
       if (!brCnt.data || typeof brCnt.notifyPath !== 'function') {
         console.warn('unknown error found in dsMgr.toggleVisibility()');
         return;
@@ -4139,14 +4131,14 @@ function injection_script_1() {
         shelfElm.classList.remove('tyt-hidden');
         brCnt.data.style = 'STYLE_BLUE_TEXT';
       }
-      const brHost = (brElm.inst && ('overrides' in brElm.inst)) ? brElm.inst : brElm;
+      const brHost = cppr(brElm, 'overrides');
       if (!brHost.overrides || brHost.overrides.style) brHost.overrides = {};
       brCnt.notifyPath('data.style');
       if (!brHost.overrides || brHost.overrides.style) brHost.overrides = {};
     },
     onButtonAppended(brElm) {
       if (!brElm) return;
-      const brHost = (brElm.inst && ('overrides' in brElm.inst)) ? brElm.inst : brElm;
+      const brHost = cppr(brElm, 'overrides');
       if (!brHost.overrides || brHost.overrides.style) brHost.overrides = {};
       brElm.id = 'tyt-donation-shelf-toggle-btn';
       brElm.removeEventListener('click', dsMgr.shelfBtnClickHanlder, false);
@@ -4202,7 +4194,7 @@ function injection_script_1() {
       let donationShelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelfElm) return;
 
-      const donationShelfCnt = donationShelfElm.inst || donationShelfElm;
+      const donationShelfCnt = insp(donationShelfElm);
 
       if ((donationShelfCnt.detacheds || 0).swVq2 !== 1) {
         detachedFunc(donationShelfCnt, (s) => {
@@ -4221,7 +4213,7 @@ function injection_script_1() {
       /** @type {object[]} */
       const mastheadElm = document.querySelector('ytd-masthead#masthead');
       if (!mastheadElm) return;
-      const mastheadCnt = mastheadElm.inst || mastheadElm;
+      const mastheadCnt = insp(mastheadElm);
 
       const mastheadData = mastheadCnt.data
       if (!mastheadData) return;
@@ -4303,8 +4295,8 @@ function injection_script_1() {
       } else {
         const brElm = document.querySelector('#tyt-donation-shelf-toggle-btn');
         if (brElm) {
-          const brCnt = brElm.inst || brElm;
-          const brHost = (brElm.inst && ('overrides' in brElm.inst)) ? brElm.inst : brElm;
+          const brCnt = insp(brElm);
+          const brHost = cppr(brElm, 'overrides');
           if (!brHost.overrides || brHost.overrides.style) brHost.overrides = {};
           const data = brElm.data;
           data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
@@ -4324,7 +4316,7 @@ function injection_script_1() {
     removeToggleBtn(evt) {
 
       let donationShelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
-      if (donationShelfElm && (donationShelfElm.inst || donationShelfElm).isAttached === true) return;
+      if (donationShelfElm && insp(donationShelfElm).isAttached === true) return;
 
 
       // console.log(4455)
@@ -4333,7 +4325,7 @@ function injection_script_1() {
       /** @type {object[]} */
       const mastheadElm = document.querySelector('ytd-masthead#masthead');
       if (!mastheadElm) return;
-      const mastheadCnt = mastheadElm.inst || mastheadElm;
+      const mastheadCnt = insp(mastheadElm);
 
       const mastheadData = mastheadCnt.data
       if (!mastheadData) return;
@@ -4375,7 +4367,7 @@ function injection_script_1() {
 
       let donationShelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelfElm) return;
-      const donationShelfCnt = donationShelfElm.inst || donationShelfElm;
+      const donationShelfCnt = insp(donationShelfElm);
 
       if ((donationShelfCnt.detacheds || 0).swVq2 !== 1) {
         return;
@@ -4385,7 +4377,7 @@ function injection_script_1() {
       /** @type {object[]} */
       const mastheadElm = document.querySelector('ytd-masthead#masthead');
       if (!mastheadElm) return;
-      const mastheadCnt = mastheadElm.inst || mastheadElm;
+      const mastheadCnt = insp(mastheadElm);
 
       const mastheadData = mastheadCnt.data
       if (!mastheadData) return;
@@ -4426,8 +4418,8 @@ function injection_script_1() {
 
       const brElm = document.querySelector('#tyt-donation-shelf-toggle-btn');
       if (brElm) {
-        const brCnt = brElm.inst || brElm;
-        const brHost = (brElm.inst && ('overrides' in brElm.inst)) ? brElm.inst : brElm;
+        const brCnt = insp(brElm);
+        const brHost = cppr(brElm, 'overrides');
         if (!brHost.overrides || brHost.overrides.style) brHost.overrides = {};
         const data = brCnt.data;
         data.style = toggleActive ? "STYLE_BLUE_TEXT" : "STYLE_DEFAULT";
@@ -4493,7 +4485,7 @@ function injection_script_1() {
       // html[tabview-unwrapjs="1"] ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty):not([swVq2="1"])
       const target = (evt || 0).target || 0;
       if (target.nodeType !== 1) return;
-      const cnt = target.inst || target;
+      const cnt = insp(target);
       dsMgr._lastDSVideo = (((cnt || 0).data || 0).videoId || 0); // avoid double calling triggerDOMAppearWhenDataChanged
       HTMLElement.prototype.setAttribute.call(target, 'swVq2', '1')
       dsMgr.onDSAppended(cnt);
@@ -4607,7 +4599,7 @@ function injection_script_1() {
     // Example target: playlist
     const target = (evt || 0).target || 0;
     if (!target.is) return;
-    const cnt = target.inst || target;
+    const cnt = insp(target);
     Promise.resolve().then(() => {
       const data = cnt.data;
       if (data) {
@@ -4619,19 +4611,6 @@ function injection_script_1() {
   document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
     fixLiveChatToggleButton();
   })
-
-  // document.addEventListener('tabview-force-chat-render-on-chat-expanded', (evt) => {
-
-  //   const chatElm = (evt || 0).target;
-  //   if (!chatElm || chatElm.id !== 'chat') return;
-  //   const chatCnt = chatElm.inst || chatElm;
-
-  //   if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
-  //   if (!chatCnt.player) return;
-  //   console.debug('[tyt.chat] fix chat render on expanded chat');
-  //   chatCnt.fixChatframeContentDisplayWithUrlChanged(1);
-
-  // }, true);
 
   globalFunc(function tabviewDispatchEvent(elmTarget, eventName, detail) {
     if (!elmTarget || typeof elmTarget.nodeType !== 'number' || typeof eventName !== 'string') return;
