@@ -763,7 +763,7 @@
         z-index: -1;
         box-sizing: border-box;
 
-        animation:250ms steps(2) 0ms infinite alternate forwards running tabviewDebouncer;
+        animation: 250ms steps(2) 0ms infinite alternate forwards running tabviewDebouncer;
     }
 }
 
