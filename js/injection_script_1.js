@@ -3042,6 +3042,40 @@ function injection_script_1() {
       participantInst.participantsChangeIfPending && participantInst.participantsChangeIfPending();
     }
 
+    // function iframePopupVisibilityChanged() {
+    //   if (!popupClose) return;
+    //   const mPopupWindow = kRef(popupClose.mPopupWindow);
+    //   if (!mPopupWindow) return;
+    //   if (typeof mPopupWindow.closed === 'boolean') {
+    //     setTimeout(() => {
+    //       if (!popupClose) return;
+    //       const mPopupWindow = kRef(popupClose.mPopupWindow);
+    //       if (!mPopupWindow) return;
+    //       if (mPopupWindow.closed === true) {
+    //         popupClose();
+    //       }
+    //     }, 36);
+    //   }
+    // }
+
+    function iframePopupUnloaded() {
+      Promise.resolve().then(() => {
+        if (!popupClose) return;
+        const mPopupWindow = kRef(popupClose.mPopupWindow);
+        if (!mPopupWindow) return;
+        if (typeof mPopupWindow.closed === 'boolean') {
+          setTimeout(() => {
+            if (!popupClose) return;
+            const mPopupWindow = kRef(popupClose.mPopupWindow);
+            if (!mPopupWindow) return;
+            if (mPopupWindow.closed === true) {
+              popupClose();
+            }
+          }, 36);
+        }
+      });
+    }
+
     function setupMTO(btnElm) {
       // when btn clicked
 
@@ -3117,6 +3151,11 @@ function injection_script_1() {
             if (lcrElm) {
               const lcrPopupWindow = lcrElm ? insp(lcrElm).popoutWindow || lcrElm.popoutWindow : null;
               popupClose.mPopupWindow = mWeakRef(lcrPopupWindow);
+
+              // lcrPopupWindow.removeEventListener('visibilitychange', iframePopupVisibilityChanged, false);
+              // lcrPopupWindow.addEventListener('visibilitychange', iframePopupVisibilityChanged, false);
+              lcrPopupWindow.removeEventListener('unload', iframePopupUnloaded, bubblePassive);
+              lcrPopupWindow.addEventListener('unload', iframePopupUnloaded, bubblePassive);
             }
             lcrElm = null
           }
