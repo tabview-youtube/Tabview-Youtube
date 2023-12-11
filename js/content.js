@@ -3037,19 +3037,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       Promise.resolve().then(()=> {
 
-
-        let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer[hidden]')
+        let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer')
         if (strcturedInfo) {
-
-
-          strcturedInfo.removeAttribute('hidden');
-
-
-          setTimeout(() => {
-
-
+          const isHidden = closestDOM.call(strcturedInfo, '[hidden]');
+          if (isHidden) {
+            if (strcturedInfo.hasAttribute('hidden')) strcturedInfo.removeAttribute('hidden');
+            const descriptionElement = closestDOM.call(strcturedInfo, 'ytd-expander.style-scope.ytd-video-secondary-info-renderer #description.style-scope.ytd-video-secondary-info-renderer');
+            if (descriptionElement && descriptionElement.hasAttribute('hidden')) {
+              descriptionElement.removeAttribute('hidden');
+            }
+          }
+          isHidden && setTimeout(() => {
             let e = closestDOM.call(strcturedInfo, 'ytd-watch-flexy #tab-info ytd-expander');
-
             if (!e) return;
             let s = querySelectorAllFromAnchor.call(e, '#tab-info .more-button.style-scope.ytd-video-secondary-info-renderer[role="button"]');
             if (s.length === 1) {
@@ -3058,11 +3057,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 sp.click();
               }
             }
-
-          }, 300)
-
+          }, 300);
         }
-
 
       }),
 
