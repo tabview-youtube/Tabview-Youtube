@@ -4595,3 +4595,19 @@ body .ytp-autohide .ytp-unmute,
         margin-bottom: 0;
     }
 }
+
+@supports (color: var(--meta-styling-Dec-2023)){
+    #tab-info .yt-video-attribute-view-model--image-large .yt-video-attribute-view-model__hero-section {
+        max-width: 128px;
+        max-height: 128px;
+    }
+    #tab-info .yt-video-attribute-view-model--image-large .yt-video-attribute-view-model__hero-section .yt-spec-button-shape-next--size-s.yt-spec-button-shape-next--icon-button{
+        transform: scale(0.7);
+        transform-origin: top right;
+    }
+    #tab-info yt-horizontal-list-renderer.style-scope.ytd-reel-shelf-renderer {
+        /*--ytd-thumbnail-height: 30px;*/
+        --ytd-reel-item-compact-layout-width: 148px;
+        --ytd-reel-item-width: var(--ytd-reel-item-compact-layout-width,210px);
+    }
+}
