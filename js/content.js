@@ -23,6 +23,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
+
+if (typeof AbortSignal !== 'undefined') {
+  function script3277() {
+    const config = (window.yt || 0).config_ || (window.ytcfg || 0).data_;
+    if (config) {
+      const EXPERIMENT_FLAGS = config.EXPERIMENT_FLAGS || 0;
+      const EXPERIMENTS_FORCED_FLAGS = config.EXPERIMENTS_FORCED_FLAGS || 0;
+      if (EXPERIMENT_FLAGS) EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
+      if (EXPERIMENTS_FORCED_FLAGS) EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
+    }
+  }
+  let button = document.createElement('button');
+  button.setAttribute('onclick', `(${script3277})()`);
+  document.addEventListener('data-changed', function () {
+    button.click();
+    button.onclick = null;
+    button = null;
+  }, { capture: true, passive: true, once: true });
+}
+
 -(function (__CONTEXT__) {
   'use strict';
 
