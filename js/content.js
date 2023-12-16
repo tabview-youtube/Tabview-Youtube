@@ -36,7 +36,7 @@ if (typeof AbortSignal !== 'undefined') {
   }
   let button = document.createElement('button');
   button.setAttribute('onclick', `(${script3277})()`);
-  document.addEventListener('data-changed', function () {
+  document.addEventListener('yt-action', function () {
     button.click();
     button.onclick = null;
     button = null;
