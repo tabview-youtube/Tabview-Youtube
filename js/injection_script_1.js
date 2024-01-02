@@ -4740,7 +4740,17 @@ function injection_script_1() {
             "savedComponentState": {},
             "entryTime": window.performance.now()
           };
-          xReplaceState(s, u);
+          if ((location.hash || '').length > 1) {
+            // see https://github.com/cyfung1031/Tabview-Youtube/issues/28
+            let bh = location.href;
+            xReplaceState(s, u);
+            try {
+              history.replaceState(history.state, '', bh);
+            } catch (e) { }
+            // delayed timestamp #t=38s
+          } else {
+            xReplaceState(s, u);
+          }
           console.debug('[tyt] FIX_UNCERTAIN_HISTORY_STATE for NULL or VideoChanged state')
 
         }
