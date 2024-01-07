@@ -263,6 +263,8 @@ if (typeof AbortSignal !== 'undefined') {
 
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
+  const showMessages_IframeLoaded = false;
+
   const nullFunc = function () { };
 
 
@@ -5715,7 +5717,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // console.log("iframe.xx",1236, chat)
 
     if (chat.hasAttribute('collapsed')) return;
-    console.debug('[tyt.iframe] loaded 10');
+    showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 10');
 
     const tid = iframeLoadControllerId();
     
@@ -5765,13 +5767,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }).catch(console.warn);
 
-    console.debug('[tyt.iframe] loaded 11');
+    showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 11');
     
     if (tid !== +iframeLoadControllerId || !cDoc) {
       return;
     }
 
-    console.debug('[tyt.iframe] loaded 12');
+    showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 12');
 
     if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
       return;
@@ -5785,7 +5787,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return;
     }
 
-    console.debug('[tyt.iframe] loaded 13');
+    showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 13');
 
     // console.log("iframe.xx",1238, chat)
 
@@ -5793,7 +5795,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (contentElement) {
       
-      console.debug('[tyt.iframe] loaded 20');
+      showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 20');
 
       if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
       if (!(iframe instanceof HTMLIFrameElement) || iframe.isConnected !== true) return; //prevent iframe is detached from the page
@@ -5802,11 +5804,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         isCorrectDoc = iframe.contentDocument === cDoc;
       } catch (e) { }
       
-      console.debug('[tyt.iframe] loaded 21');
+      showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 21');
       if (isCorrectDoc) {
         let chatFrame = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
         if (chatFrame) {
-          console.debug('[tyt.iframe] loaded 22');
+          showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
         }
@@ -5814,7 +5816,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     } else if (!contentElement) {
       
-      console.debug('[tyt.iframe] loaded 30');
+      showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 30');
 
       // e.g. when restore from mini view to watch page
 
