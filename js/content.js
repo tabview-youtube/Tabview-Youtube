@@ -8306,10 +8306,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       </html>        
       `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
 
-      iframe.src = URL.createObjectURL(new Blob([blankPageCode], {
+      const url = URL.createObjectURL(new Blob([blankPageCode], {
         type: 'text/html'
       }));
-      if (iframe.isConnected === false) document.body.appendChild(iframe);
+
+      try {
+        if (iframe.isConnected === false) {
+          iframe.src = url;
+          document.body.appendChild(iframe);
+        } else {
+          iframe.location.reload(url);
+        }
+      } catch (e) {
+        console.log(e)
+        return;
+      }
 
       console.log('[tyt] tabviewEnergized')
 
