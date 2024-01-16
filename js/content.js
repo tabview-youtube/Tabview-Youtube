@@ -8278,21 +8278,31 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-default-tab-controller';
 
 
+  let _blankPageCode = '';
+  let _blankPageURL = '';
   window.addEventListener('message', (evt) => {
     let data = ((evt || 0).data || 0);
-    
+
     if (data.tabviewEnergized === true) { // interval = 23s
 
       /** @type {HTMLIFrameElement | null} */
       let iframe = document.getElementById('ep5wbmok');
-      if (!iframe) {
-        /** @type {HTMLIFrameElement} */
-        iframe = document.createElement('iframe');
-        iframe.id = 'ep5wbmok';
-        iframe.sandbox = 'allow-same-origin';
+      if (iframe) {
+        const prevURL = _blankPageURL;
+        _blankPageURL = '';
+        if (prevURL && typeof prevURL === 'string') {
+          URL.revokeObjectURL(prevURL);
+        }
+        iframe.remove();
+        iframe = null;
       }
 
-      const blankPageCode = iframe.__blankPageCode__ || (iframe.__blankPageCode__ = `
+      /** @type {HTMLIFrameElement} */
+      iframe = document.createElement('iframe');
+      iframe.id = 'ep5wbmok';
+      iframe.sandbox = 'allow-same-origin';
+
+      const blankPageCode = _blankPageCode || (_blankPageCode = `
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -8310,23 +8320,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         type: 'text/html'
       }));
 
-      const prevURL = iframe.__iframeContentSrc__;
-      iframe.__iframeContentSrc__ = null;
       try {
         if (iframe.isConnected === false) {
           iframe.src = url;
           document.body.appendChild(iframe);
-        } else {
-          iframe.contentWindow.location.reload(url);
         }
-        iframe.__iframeContentSrc__ = url;
+        _blankPageURL = url;
       } catch (e) {
         console.log(e)
         return;
-      }
-
-      if (prevURL && typeof prevURL === 'string') {
-        URL.revokeObjectURL(prevURL);
       }
 
       console.log('[tyt] tabviewEnergized')
