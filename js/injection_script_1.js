@@ -120,6 +120,51 @@ function injection_script_1() {
   // /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
+  let mediaModeLock = 0;
+  const _getMediaElement = (i)=>{
+    if (mediaModeLock === 0) {
+      let e = document.querySelector('.video-stream.html5-main-video') || document.querySelector('#movie_player video, #movie_player audio') || document.querySelector('body video[src], body audio[src]');
+      if (e) {
+        if (e.nodeName === 'VIDEO') mediaModeLock = 1;
+        else if (e.nodeName === 'AUDIO') mediaModeLock = 2;
+      }
+    }
+    if (!mediaModeLock) return null;
+    if (mediaModeLock === 1) {
+      switch (i) {
+        case 1:
+          return ('ytd-player#ytd-player video[src]');
+        case 2:
+          return ('ytd-browse[role="main"] video[src]');
+        case 0:
+        default:
+          return ('#movie_player video[src]');
+      }
+    } else if (mediaModeLock === 2) {
+      switch (i) {
+        case 1:
+          return ('ytd-player#ytd-player audio.video-stream.html5-main-video[src]');
+        case 2:
+          return ('ytd-browse[role="main"] audio.video-stream.html5-main-video[src]');
+        case 0:
+        default:
+          return ('#movie_player audio.video-stream.html5-main-video[src]');
+      }
+    }
+    return null;
+  }
+  const getMediaElement = (i)=>{
+    let s = _getMediaElement(i) || '';
+    if(s) return document.querySelector(s);
+    return null;
+  }
+  
+  const getMediaElements = (i)=>{
+    let s = _getMediaElement(i) || '';
+    if(s) return document.querySelectorAll(s);
+    return [];
+  }
+
   const _getIframeSrc = (src) => {
     let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(src || '')
     let pathname = null;
@@ -2755,7 +2800,7 @@ function injection_script_1() {
 
     }
 
-  })
+  });
 
   if (document.documentElement.hasAttribute('tabview-loaded'))
     ceHack();
@@ -3488,27 +3533,25 @@ function injection_script_1() {
     return video.currentTime > 0 && !video.paused && !video.ended && video.readyState > video.HAVE_CURRENT_DATA;
   }
 
+  async function loadStartFxAsync(newMedia) {
 
-  async function loadStartFxAsync(video) {
+    let media1 = getMediaElement(0); // document.querySelector('#movie_player video[src]');
+    let media2 = getMediaElements(2); // document.querySelectorAll('ytd-browse[role="main"] video[src]');
 
-    let video1 = document.querySelector('#movie_player video[src]');
-    let videos2 = document.querySelectorAll('ytd-browse[role="main"] video[src]');
-
-    if (video1 !== null && videos2.length > 0) {
-      if (video !== video1 && video1.paused === false) {
-        if (isVideoPlaying(video1)) {
-          Promise.resolve(video).then(video => video.paused === false && video.pause());
+    if (media1 !== null && media2.length > 0) {
+      if (newMedia !== media1 && media1.paused === false) {
+        if (isVideoPlaying(media1)) {
+          Promise.resolve(newMedia).then(video => video.paused === false && video.pause());
         }
-      } else if (video1 === video) {
-
-        for (const s of videos2) {
+      } else if (newMedia === media1) {
+        for (const s of media2) {
           if (s.paused === false) {
             Promise.resolve(s).then(s => s.paused === false && s.pause())
             break;
           }
         }
       } else {
-        Promise.resolve(video1).then(video1 => video1.paused === false && video1.pause());
+        Promise.resolve(media1).then(video1 => video1.paused === false && video1.pause());
       }
     }
 
@@ -3517,11 +3560,11 @@ function injection_script_1() {
 
   let loadStartFx = (evt) => {
 
-    let video = (evt || 0).target;
-    if (((video || 0).nodeName || 0) === 'VIDEO') { }
+    let media = (evt || 0).target || 0;
+    if (media.nodeName === 'VIDEO' || media.nodeName === 'AUDIO') { }
     else return;
 
-    loadStartFxAsync(video);
+    loadStartFxAsync(media);
 
   }
 
@@ -3844,8 +3887,8 @@ function injection_script_1() {
 
           if (endpoint.browseEndpoint && endpoint.browseEndpoint.browseId === "FEwhat_to_watch") {
             // valid = false;
-            const playerVideo = document.querySelector('ytd-player#ytd-player video[src]');
-            if (playerVideo && playerVideo.paused === false) valid = true; // home page
+            const playerMedia = getMediaElement(1);
+            if (playerMedia && playerMedia.paused === false) valid = true; // home page
           } else if (endpoint.commandMetadata && endpoint.commandMetadata.webCommandMetadata) {
 
             let meta = endpoint.commandMetadata.webCommandMetadata
@@ -3866,7 +3909,7 @@ function injection_script_1() {
         // attribute appear after playing video for more than 2s
         if (!document.head.dataset.viTime) endpoint = null;
         else {
-          let currentVideo = document.querySelector('#movie_player video[src]')
+          let currentVideo = getMediaElement(0);
           if (currentVideo && currentVideo.readyState > currentVideo.HAVE_CURRENT_DATA && currentVideo.currentTime > 2.2 && currentVideo.duration - 2.2 < currentVideo.currentTime) {
             // disable miniview browsing if the media is near to the end
             endpoint = null

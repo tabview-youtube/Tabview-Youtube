@@ -512,7 +512,7 @@ if (typeof AbortSignal !== 'undefined') {
 
   let isMakeHeaderFloatCalled = false;
 
-  let _viTimeNum = 200;
+  let _viTimeNum = 203;
   let _updateTimeAccum = 0;
 
   /** @type {WeakMap<HTMLElement>} */
@@ -1357,7 +1357,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function enterPIP(video, errorHandler) {
+  function enterPIP(video, errorHandler) { // ignore audio
     return new Promise(resolve => {
       if (video && typeof video.requestPictureInPicture === 'function' && typeof document.exitPictureInPicture === 'function') {
         if (isVideoPlaying(video) && document.pictureInPictureElement === null) {
@@ -1463,7 +1463,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 secondary.classList.add('tabview-hover-slider');
                 secondary.classList.add('tabview-hover-slider-enable');
 
-                let video = document.querySelector('#player video');
+                let video = document.querySelector('#player video'); // ignore audio
                 enterPIP(video);
 
               }
@@ -2716,7 +2716,57 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   async function isDocumentInFullScreenMode() {
     return document.fullscreenElement !== null;
   }
-  async function energizedByVideoTimeUpdate() {
+  // let zatt = Date.now();
+
+  async function tabviewEnergizedFn(){
+    
+    let db;
+    const indexedDB = window.indexedDB;
+    try {
+      let dbReq = indexedDB.open("ep5wbmokDB", 3);
+      db = await new Promise((resolve, reject) => {
+        dbReq.onupgradeneeded = function (event) {
+          /** @type {IDBDatabase} */
+          const db = event.target.result;
+          let objectStore = db.createObjectStore("customers", { keyPath: "ssn" });
+          objectStore.createIndex("name", "name", { unique: false });
+          objectStore.createIndex("email", "email", { unique: true });
+          objectStore = null;
+          db.deleteObjectStore("customers");
+          resolve(db);
+        }
+        dbReq.onsuccess = function (event) {
+          const db = event.target.result;
+          resolve(db);
+        }
+        dbReq.onerror = function () {
+          reject();
+        }
+      });
+    } finally {
+      if (db) db.close();
+    }
+    try {
+      let request = indexedDB.deleteDatabase("ep5wbmokDB");
+      await new Promise((resolve, reject) => {
+        request.onsuccess = function (event) {
+          resolve(1);
+        };
+        request.onerror = function (event) {
+          resolve(-1);
+        };
+        request.onblocked = function (event) {
+          resolve(-2);
+        };
+      });
+    } catch (e) {
+    }
+
+    postMessage({ tabviewEnergized: true }, 'https://www.youtube.com'); // post message to make alive
+
+  }
+
+  async function energizedByMediaTimeUpdate() {
 
     const isFullscreen = await isDocumentInFullScreenMode();
     if (isFullscreen) return;
@@ -2726,15 +2776,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     _updateTimeAccum++;
 
+    if (_updateTimeAccum >= 88000000 && (_updateTimeAccum % 88000000) === 0) _updateTimeAccum = 0;
+
     if ((_updateTimeAccum + _viTimeNum) % 11 === 0) {
       // console.log(document.querySelector('video').currentTime) // 2.55, 2.64, 3.12, ...
       // about 2.66s
 
-      if (_viTimeNum > 211) {
-        // around 30.9s ~ 31.9s
+      if (_viTimeNum > 208) {
         _viTimeNum = 200;
         _updateTimeAccum = (_updateTimeAccum % 8) + 1; // reset to 1 ~ 8
-        postMessage({ tabviewEnergized: true }, 'https://www.youtube.com'); // post message to make alive
+        Promise.resolve().then(tabviewEnergizedFn);
       }
 
       document.head.dataset.viTime = `${_viTimeNum + 1}`;
@@ -4831,18 +4882,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  async function setupVideo(node) {
+  async function setupMedia(node) {
     // this can be fired even in background without tabs rendered
     const attrKey = 'gM7Cp'
-    let video = querySelectorFromAnchor.call(node, `#movie_player video[src]:not([${attrKey}])`);
-    if (video) {
-      video.setAttribute(attrKey, '')
+    let media = querySelectorFromAnchor.call(node, `#movie_player video[src]:not([${attrKey}])`);
+    media = media || querySelectorFromAnchor.call(node, `#movie_player audio.video-stream.html5-main-video[src]:not([${attrKey}])`);
+    if (media) {
+      media.setAttribute(attrKey, '')
 
-      video.addEventListener('timeupdate', (evt) => {
-        energizedByVideoTimeUpdate();
+      media.addEventListener('timeupdate', (evt) => {
+        energizedByMediaTimeUpdate();
       }, bubblePassive);
 
-      video.addEventListener('ended', (evt) => {
+      media.addEventListener('ended', (evt) => {
         // scrollIntoView => auto start next video
         // otherwise it cannot auto paly next
         if (pageType === 'watch') {
@@ -4876,7 +4928,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (nodeName !== 'YTD-PLAYER') return
 
-    setupVideo(node)
+    setupMedia(node)
 
     discardableFn(()=>{  // might discarded since it runs earlier than tabs insertion
 
@@ -6995,7 +7047,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // use async & await to avoid handler took 60ms
 
     if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
-      let video = document.querySelector('#player video');
+      let video = document.querySelector('#player video'); // ignore audio mode
       if (!video) return;
 
       const vRect = video.getBoundingClientRect();
@@ -7797,7 +7849,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             keep_viTime = true
           }
           if (!keep_viTime) {
-            _viTimeNum = 200;
+            _viTimeNum = 203;
             _updateTimeAccum = 0;
             delete document.head.dataset.viTime;
           }
@@ -8225,6 +8277,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-tabs-hide-controller';
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-default-tab-controller';
 
+
+  window.addEventListener('message', (evt) => {
+    let data = ((evt || 0).data || 0);
+    
+    if (data.tabviewEnergized === true) { // interval = 23s
+
+      /** @type {HTMLIFrameElement | null} */
+      let iframe = document.getElementById('ep5wbmok');
+      if (!iframe) {
+        /** @type {HTMLIFrameElement} */
+        iframe = document.createElement('iframe');
+        iframe.id = 'ep5wbmok';
+        iframe.sandbox = 'allow-same-origin';
+      }
+
+      const blankPageCode = iframe.__blankPageCode__ || (iframe.__blankPageCode__ = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="X-UA-Compatible" content="IE=edge">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title></title>
+      </head>
+      <body>
+      </body>
+      </html>        
+      `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
+
+      iframe.src = URL.createObjectURL(new Blob([blankPageCode], {
+        type: 'text/html'
+      }));
+      if (iframe.isConnected === false) document.body.appendChild(iframe);
+
+      console.log('[tyt] tabviewEnergized')
+
+    }
+
+    
+  });
+  
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
   if (document.documentElement.getAttribute('tabview-unwrapjs')) {
     document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))

@@ -1482,24 +1482,6 @@ body .ytp-autohide .ytp-unmute,
     }
     */
 
-    @supports (color: var(--fix-scripting-iframe)){
-        body > iframe[style*="display: none"], body > iframe[style*="display:none"] {
-            position: fixed;
-            left: 20vw;
-            top: 20vh;
-            right: 20vw;
-            bottom: 20vh;
-            display: none !important;
-            padding: 0;
-            margin: 0;
-            pointer-events: none !important;
-            user-select: none !important;
-            touch-action: none !important;
-            z-index: 0 !important;
-            visibility: none;
-        }
-    }
-
     @supports (color: var(--videos-appear)){
 
         /* @keyframes videosDOMAppended  */ 
