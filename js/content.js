@@ -8310,6 +8310,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         type: 'text/html'
       }));
 
+      const prevURL = iframe.__iframeContentSrc__;
+      iframe.__iframeContentSrc__ = null;
       try {
         if (iframe.isConnected === false) {
           iframe.src = url;
@@ -8317,9 +8319,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         } else {
           iframe.location.reload(url);
         }
+        iframe.__iframeContentSrc__ = url;
       } catch (e) {
         console.log(e)
         return;
+      }
+
+      if (prevURL && typeof prevURL === 'string') {
+        URL.revokeObjectURL(prevURL);
       }
 
       console.log('[tyt] tabviewEnergized')
