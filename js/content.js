@@ -8317,7 +8317,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           iframe.src = url;
           document.body.appendChild(iframe);
         } else {
-          iframe.location.reload(url);
+          iframe.contentWindow.location.reload(url);
         }
         iframe.__iframeContentSrc__ = url;
       } catch (e) {
