@@ -121,7 +121,7 @@ function injection_script_1() {
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
   let mediaModeLock = 0;
-  const _getMediaElement = (i)=>{
+  const _getMediaElement = (i) => {
     if (mediaModeLock === 0) {
       let e = document.querySelector('.video-stream.html5-main-video') || document.querySelector('#movie_player video, #movie_player audio') || document.querySelector('body video[src], body audio[src]');
       if (e) {
@@ -153,15 +153,15 @@ function injection_script_1() {
     }
     return null;
   }
-  const getMediaElement = (i)=>{
+  const getMediaElement = (i) => {
     let s = _getMediaElement(i) || '';
-    if(s) return document.querySelector(s);
+    if (s) return document.querySelector(s);
     return null;
   }
-  
-  const getMediaElements = (i)=>{
+
+  const getMediaElements = (i) => {
     let s = _getMediaElement(i) || '';
-    if(s) return document.querySelectorAll(s);
+    if (s) return document.querySelectorAll(s);
     return [];
   }
 
@@ -445,24 +445,52 @@ function injection_script_1() {
       }
     }
 
-
+    lcrSetIsAdPlaying(bool) { // v4.66.0
+      bool = !!bool;
+      if (this.ytLiveChatRendererElm) {
+        const lcrCnt = insp(this.ytLiveChatRendererElm);
+        if (typeof lcrCnt._setIsAdPlaying === 'function' && lcrCnt._setIsAdPlaying.length === 1) {
+          lcrCnt._setIsAdPlaying(bool);
+        } else {
+          console.log('yt-live-chat-renderer._setIsAdPlaying(a) is not found.');
+        }
+      }
+      if (this.elmChat) {
+        this.elmChat.classList.toggle('tyt-chat-ads-playing', bool);
+      }
+    }
 
     /** @param {boolean} b */
-    setAdPlaying(b) {
+    setAdPlaying(b) { // see v4.2.3 & v4.2.4 ~ v4.3.x; v4.20.4 vs v4.30.0
       if (b) {
         this.adsState |= 2; // played once [2]
         if (this.adsState & 1) this.adsState -= 1; // reset pause [1]
         // 2|0 = 2
-        if (this.ytLiveChatRendererElm) {
-          this.ytLiveChatRendererElm._setIsAdPlaying(true);
-        }
-        if (this.elmChat) {
-          this.elmChat.classList.add('tyt-chat-ads-playing')
-        }
+        this.lcrSetIsAdPlaying(true);
       } else {
+        // action by checkAdPlaying
         if (this.adsState & 2) {
           this.adsState |= 1  // 2|1 = 3; played once & paused
         }
+      }
+    }
+
+    checkAdPlaying(o) { // see v4.2.3 & v4.2.4 ~ v4.3.x; v4.20.4 vs v4.30.0
+      if (!o) return
+      const playerStateChange = typeof o['yt-player-state-change'] === 'number';
+      if (playerStateChange) {
+        if ((this.adsState & 3) === 3) {
+          this.adsState = 0;
+          this.lcrSetIsAdPlaying(false);
+          this.init(); // init for adsState = 0
+        }
+      } else {
+        const startID = o['yt-player-ad-start'] // string = 'xxx'
+        const hasStartID = (!!startID);
+        const endBool = o['yt-player-ad-end'] // boolean = true
+        const hasEndBool = (!!endBool);
+        const isAdsStateChange = !!(hasStartID ^ hasEndBool);  // either start or end
+        isAdsStateChange && this.setAdPlaying(hasStartID);
       }
     }
 
@@ -553,16 +581,21 @@ function injection_script_1() {
 
       const ytLivePU = this;
 
-
-      if (this.isChatReplay && !this.ytLiveChatRendererElm._gIxmf) {
-        this.ytLiveChatRendererElm._gIxmf = 1;
-        this.ytLiveChatRendererElm._setPlayerProgressSec26 = this.ytLiveChatRendererElm._setPlayerProgressSec;
-        this.ytLiveChatRendererElm._setPlayerProgressSec = function (x) {
-          if (x < 1e-99) x = 1e-99
-          let t = this._setPlayerProgressSec26.apply(this, arguments)
-          return t
-        };
-
+      if (this.isChatReplay) {
+        const lcrCnt = insp(this.ytLiveChatRendererElm);
+        if (lcrCnt && !lcrCnt._gIxmf) {
+          lcrCnt._gIxmf = 1;
+          if (typeof lcrCnt._setPlayerProgressSec === 'function' && lcrCnt._setPlayerProgressSec.length === 1) {
+            lcrCnt._setPlayerProgressSec26 = lcrCnt._setPlayerProgressSec;
+            lcrCnt._setPlayerProgressSec = function (x) {
+              if (x < 1e-99) x = 1e-99
+              let t = this._setPlayerProgressSec26.apply(this, arguments)
+              return t
+            };
+          } else {
+            console.log('yt-live-chat-renderer._setPlayerProgressSec(a) is not found.');
+          }
+        }
       }
 
 
@@ -614,8 +647,9 @@ function injection_script_1() {
     }
 
     isReplay() {
-      let liveChatRendererData = (this.ytLiveChatRendererElm || 0).data
-      return liveChatRendererData && liveChatRendererData.continuations && liveChatRendererData.isReplay === true
+      const lcrCnt = insp(this.ytLiveChatRendererElm); // nullable
+      const lcrData = lcrCnt.data || 0; // nullable
+      return lcrData.continuations && lcrData.isReplay === true;
     }
 
     init() {
@@ -1597,7 +1631,7 @@ function injection_script_1() {
 
   let __debouncerResolve__ = null;
   let __targetVideoProgress__ = null;
-  const { iframeToLiveChatWM, initDebouncer, createLatestProgressObject } = (() => {
+  const { iframeDocToLiveChat, initDebouncer, createLatestProgressObject } = (() => {
     const iframeToLiveChatWM = new WeakMap();
     const initDebouncer = () => {
       let debouncer = document.querySelector('tabview-debouncer') || document.createElement('tabview-debouncer');
@@ -1625,7 +1659,15 @@ function injection_script_1() {
       });
       return o
     }
-    return { iframeToLiveChatWM, initDebouncer, createLatestProgressObject }
+    const iframeDocToLiveChat = (doc) => {
+      let chatApp = iframeToLiveChatWM.get(doc)
+      if (!chatApp || chatApp.isConnected === false) {
+        chatApp = doc.querySelector('yt-live-chat-app')
+        if (chatApp) iframeToLiveChatWM.set(doc, chatApp);
+      }
+      return chatApp;
+    };
+    return { iframeDocToLiveChat, initDebouncer, createLatestProgressObject }
   })();
 
   /* added in 2023.06.25 */
@@ -1811,7 +1853,7 @@ function injection_script_1() {
 
     });
 
-    
+
 
     /*
     customYtElements.whenRegistered('ytd-watch-metadata', (cProto) => {
@@ -1951,16 +1993,29 @@ function injection_script_1() {
           } catch (e) { }
           if (!doc) return;
 
-          let chatApp = iframeToLiveChatWM.get(doc)
-          if (!chatApp) {
-            chatApp = doc.querySelector('yt-live-chat-app')
-            if (chatApp) iframeToLiveChatWM.set(doc, chatApp);
-          }
+          const chatApp = iframeDocToLiveChat(doc);
           if (!chatApp) return;
 
-          if ('yt-player-video-progress' in o && Object.keys(o).length === 1) {
-            __targetVideoProgress__ = o['yt-player-video-progress'];
-            return this.__postToContentWindowK__.call(this, latestProgressObject);
+          if ('yt-player-video-progress' in o) {
+            let progress = o['yt-player-video-progress'];
+            if (typeof progress !== 'number') {
+              if (+progress > 1e-9) {
+                console.log('incorrect type for yt-player-video-progress (01)', progress);
+                progress = +progress;
+              } else {
+                console.log('incorrect type for yt-player-video-progress (02)', progress);
+                progress = -1;
+              }
+            }
+            if (progress > -1) {
+              __targetVideoProgress__ = progress;
+              return this.__postToContentWindowK__.call(this, latestProgressObject);
+            }
+          } else {
+            // o['yt-player-state-change'] === 'number';
+            // o['yt-player-ad-start'] // string = 'xxx'
+            // o['yt-player-ad-end'] // boolean = true
+            ytLivePU.checkAdPlaying(o);
           }
 
         }
@@ -2546,7 +2601,7 @@ function injection_script_1() {
         "isWatch": true
       }
     }, "ytd-engagement-panel-section-list-renderer", true);
-    
+
     const newPanelHostElement = (newPanel || 0).hostElement || newPanel;
     const newPanelCnt = insp(newPanelHostElement);
 
@@ -2639,7 +2694,7 @@ function injection_script_1() {
           elementAppend.call(epc, lyricsiframe);
           await Promise.resolve(0)
           setTimeout(() => {
-              dispatchCustomEvent(document, 'genius-lyrics-actor', { action: 'reloadCurrentLyrics' });
+            dispatchCustomEvent(document, 'genius-lyrics-actor', { action: 'reloadCurrentLyrics' });
           }, 40)
         }
 
@@ -3461,7 +3516,7 @@ function injection_script_1() {
     chatElm.classList.add('tyt-chat-frame-ready');
 
 
-    const liveChatRendererElm = cDoc.querySelector('yt-live-chat-renderer') || (await new Promise(resolve => {
+    const lcrElm = cDoc.querySelector('yt-live-chat-renderer') || (await new Promise(resolve => {
 
       let cid = 0;
       let mo = new MutationObserver(() => {
@@ -3493,15 +3548,15 @@ function injection_script_1() {
 
     }).catch(console.warn));
 
-    console.debug(`[tyt.iframe] ready 02, lcr = ${liveChatRendererElm ? 'Y' : 'N'}`)
+    console.debug(`[tyt.iframe] ready 02, lcr = ${lcrElm ? 'Y' : 'N'}`)
 
-    if (liveChatRendererElm) {
+    if (lcrElm) {
       addPopupButton(chatElm);
-      ytLivePU.initByChatRenderer(liveChatRendererElm);
+      ytLivePU.initByChatRenderer(lcrElm);
 
-      const liveChatRendererCnt = insp(liveChatRendererElm);
+      const lcrCnt = insp(lcrElm);
 
-      const isReplay = (liveChatRendererCnt.data || 0).isReplay;
+      const isReplay = (lcrCnt.data || 0).isReplay;
       if (isReplay === true && typeof chatCnt.playerProgressHandler === 'function') {
         const player = chatCnt.player || 0;
         const playerState = typeof player.getPlayerState === 'function' ? player.getPlayerState() : null;
@@ -3511,7 +3566,7 @@ function injection_script_1() {
         }
         if (playerState > 0) {
           // fix VOD bug with playerOffsetMs
-          const seekElm = HTMLElement.prototype.querySelector.call(liveChatRendererElm, 'yt-player-seek-continuation');
+          const seekElm = HTMLElement.prototype.querySelector.call(lcrElm, 'yt-player-seek-continuation');
           if (seekElm) {
             const seekCnt = insp(seekElm);
             seekCnt.fireSeekContinuationAtCurrentProgress();
