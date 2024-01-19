@@ -1082,15 +1082,16 @@
         opacity: 0 !important;
         pointer-events: none;
         visibility: collapse;
+        position: absolute;
+        pointer-events: none !important;
         user-select: none !important;
-        position:absolute;
     }
 
     
     iframe#lyricsiframe.tyt-tmp-hide-lyricsiframe{
-        pointer-events: none;
-        visibility: collapse;
+        pointer-events: none !important;
         user-select: none !important;
+        visibility: collapse;
     }
 
     
@@ -1195,7 +1196,7 @@
 }
 
 @supports (color:var(--tabview-energizing)){
-    iframe#ep5wbmok {
+    iframe.ep5wbmok {
         position: fixed;
         left: -300px;
         top: -300px;
@@ -1207,5 +1208,7 @@
         margin: 0;
         outline: 0;
         z-index: 0;
+        pointer-events: none !important;
+        user-select: none !important;
     }
 }

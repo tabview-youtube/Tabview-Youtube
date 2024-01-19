@@ -248,6 +248,15 @@ if (typeof AbortSignal !== 'undefined') {
   */
 
 
+  function generateRandomID() {
+    return Math.floor(Math.random() * 982451653 + 982451653).toString(36);
+  }
+  function generateRandomTimedID() {
+    return `${generateRandomID()}-${Date.now().toString(36)}`;
+  }
+
+
+  const instanceId = generateRandomTimedID();
 
   const LAYOUT_VAILD = 1;
 
@@ -2718,12 +2727,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
   // let zatt = Date.now();
 
+  const dbId = `ep5wbmokDB-${instanceId}`
   async function tabviewEnergizedFn(){
     
     let db;
     const indexedDB = window.indexedDB;
     try {
-      let dbReq = indexedDB.open("ep5wbmokDB", 3);
+      let dbReq = indexedDB.open(dbId, 3);
       db = await new Promise((resolve, reject) => {
         dbReq.onupgradeneeded = function (event) {
           /** @type {IDBDatabase} */
@@ -2747,7 +2757,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (db) db.close();
     }
     try {
-      let request = indexedDB.deleteDatabase("ep5wbmokDB");
+      let request = indexedDB.deleteDatabase(dbId);
       await new Promise((resolve, reject) => {
         request.onsuccess = function (event) {
           resolve(1);
@@ -8280,13 +8290,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let _blankPageCode = '';
   let _blankPageURL = '';
+  const iframeId = `ep5wbmok-${instanceId}`;
   window.addEventListener('message', (evt) => {
     let data = ((evt || 0).data || 0);
 
     if (data.tabviewEnergized === true) { // interval = 23s
 
       /** @type {HTMLIFrameElement | null} */
-      let iframe = document.getElementById('ep5wbmok');
+      let iframe = document.getElementById(iframeId);
       if (iframe) {
         const prevURL = _blankPageURL;
         _blankPageURL = '';
@@ -8299,25 +8310,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       /** @type {HTMLIFrameElement} */
       iframe = document.createElement('iframe');
-      iframe.id = 'ep5wbmok';
+      iframe.classList.add('ep5wbmok');
+      iframe.id = iframeId;
       iframe.sandbox = 'allow-same-origin';
 
       const blankPageCode = _blankPageCode || (_blankPageCode = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-          <meta charset="UTF-8">
-          <meta http-equiv="X-UA-Compatible" content="IE=edge">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title></title>
-      </head>
-      <body>
-      </body>
-      </html>        
-      `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
+      User-agent: *;;
+      Disallow:;;
+      ;;
+      Sitemap: https://www.youtube.com/sitemaps/sitemap.xml;;
+      `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim().replace(/;;/g,'\n'));
 
       const url = URL.createObjectURL(new Blob([blankPageCode], {
-        type: 'text/html'
+        type: 'text/plain'
       }));
 
       try {
