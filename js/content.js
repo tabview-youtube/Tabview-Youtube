@@ -5431,24 +5431,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     });
 
-
-    window.addEventListener("message", (evt) => {
+    function ytPageTypeChangedAsync(detail) {
+      const { newPageType, oldPageType } = detail;
+      if (newPageType && oldPageType) {
+        let bool = false;
+        if (newPageType == 'ytd-watch-flexy') {
+          bool = true;
+          pageType = 'watch';
+        } else if (newPageType == 'ytd-browse') {
+          pageType = 'browse';
+        }
+        document.documentElement.classList.toggle('tabview-normal-player', bool);
+      }
+    }
+    window.addEventListener('message', (evt) => {
       if (!scriptEnable && tabsDeferred.resolved) { return }
-      if (evt.origin === location.origin && evt.data.tabview) {
-        let data = evt.data.tabview;
+      if (evt.origin === location.origin) {
+        const data = evt.data.tabviewData || 0;
         if (data.eventType === "yt-page-type-changed") {
-          let detail = data.eventDetail
-          let { newPageType, oldPageType } = detail;
-          if (newPageType && oldPageType) {
-            let bool = false;
-            if (newPageType == 'ytd-watch-flexy') {
-              bool = true;
-              pageType = 'watch';
-            } else if (newPageType == 'ytd-browse') {
-              pageType = 'browse';
-            }
-            document.documentElement.classList.toggle('tabview-normal-player', bool)
-          }
+          Promise.resolve(data.eventDetail || {}).then(ytPageTypeChangedAsync);
         }
       }
     }, bubblePassive);
@@ -8291,55 +8292,74 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let _blankPageCode = '';
   let _blankPageURL = '';
   const iframeId = `ep5wbmok-${instanceId}`;
+  let tabviewEnergizedLastDT = 0;
+  function tabviewEnergizedAsync(){
+     // interval = 23s
+     const now = Date.now();
+     if (now - tabviewEnergizedLastDT < 500) return;
+     tabviewEnergizedLastDT = now;
+
+     /** @type {HTMLIFrameElement | null} */
+     let iframe = document.getElementById(iframeId);
+     if (iframe) {
+       const prevURL = _blankPageURL;
+       _blankPageURL = '';
+       setTimeout(() => {
+         if (prevURL && typeof prevURL === 'string') {
+           try {
+             URL.revokeObjectURL(prevURL);
+           } catch (e) { }
+         }
+       }, 40);
+       iframe.remove();
+       iframe = null;
+     }
+
+     /** @type {HTMLIFrameElement} */
+     iframe = document.createElement('iframe');
+     iframe.classList.add('ep5wbmok');
+     iframe.id = iframeId;
+     iframe.sandbox = 'allow-same-origin';
+
+     const blankPageCode = _blankPageCode || (_blankPageCode = `
+     <!DOCTYPE html>
+     <html lang="en">
+     <head>
+         <meta charset="UTF-8">
+         <meta http-equiv="X-UA-Compatible" content="IE=edge">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>Blank</title>
+     </head>
+     <body>
+     <span>Blank</span>
+     </body>
+     </html>        
+     `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
+
+     const url = URL.createObjectURL(new Blob([blankPageCode], {
+       type: 'text/plain'
+     }));
+
+     try {
+       if (iframe.isConnected === false) {
+         iframe.src = url;
+         document.body.appendChild(iframe);
+       }
+       _blankPageURL = url;
+     } catch (e) {
+       console.log(e)
+       return;
+     }
+
+     console.log('[tyt] tabviewEnergized')
+
+  }
   window.addEventListener('message', (evt) => {
-    let data = ((evt || 0).data || 0);
+    const data = ((evt || 0).data || 0);
 
-    if (data.tabviewEnergized === true) { // interval = 23s
-
-      /** @type {HTMLIFrameElement | null} */
-      let iframe = document.getElementById(iframeId);
-      if (iframe) {
-        const prevURL = _blankPageURL;
-        _blankPageURL = '';
-        if (prevURL && typeof prevURL === 'string') {
-          URL.revokeObjectURL(prevURL);
-        }
-        iframe.remove();
-        iframe = null;
-      }
-
-      /** @type {HTMLIFrameElement} */
-      iframe = document.createElement('iframe');
-      iframe.classList.add('ep5wbmok');
-      iframe.id = iframeId;
-      iframe.sandbox = 'allow-same-origin';
-
-      const blankPageCode = _blankPageCode || (_blankPageCode = `
-      User-agent: *;;
-      Disallow:;;
-      ;;
-      Sitemap: https://www.youtube.com/sitemaps/sitemap.xml;;
-      `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim().replace(/;;/g,'\n'));
-
-      const url = URL.createObjectURL(new Blob([blankPageCode], {
-        type: 'text/plain'
-      }));
-
-      try {
-        if (iframe.isConnected === false) {
-          iframe.src = url;
-          document.body.appendChild(iframe);
-        }
-        _blankPageURL = url;
-      } catch (e) {
-        console.log(e)
-        return;
-      }
-
-      console.log('[tyt] tabviewEnergized')
-
+    if (data.tabviewEnergized === true) {
+      Promise.resolve().then(tabviewEnergizedAsync);
     }
-
     
   });
   

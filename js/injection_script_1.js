@@ -2839,20 +2839,20 @@ function injection_script_1() {
 
   }
 
-  window.addEventListener('message', (evt) => {
-    let data = ((evt || 0).data || 0);
+  function geniusLyricsMessageAsync(data) {
+    switch (data.type) {
+      case 'pageready':
+        showLyricsWhenReady(data);
+      case 'lyricsDisplayState':
+        onLyricsDisplayStateChanged(data);
+    }
+  }
 
+  window.addEventListener('message', (evt) => {
+    const data = ((evt || 0).data || 0);
 
     if (data.iAm === 'Youtube Genius Lyrics') {
-
-      switch (data.type) {
-        case 'pageready':
-          showLyricsWhenReady(data);
-        case 'lyricsDisplayState':
-          onLyricsDisplayStateChanged(data);
-
-      }
-
+      Promise.resolve(data).then(geniusLyricsMessageAsync)
     }
 
   });
@@ -2974,8 +2974,8 @@ function injection_script_1() {
   document.addEventListener('yt-page-type-changed', (evt) => {
     DEBUG_e32 && console.log(9442, evt.type);
     window.postMessage({
-      tabview: {
-        eventType: evt.type,
+      tabviewData: {
+        eventType: evt.type, // yt-page-type-changed
         eventDetail: evt.detail // in order to get the object detail
       }
     }, location.origin);
