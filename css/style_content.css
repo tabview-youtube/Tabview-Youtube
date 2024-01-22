@@ -3306,7 +3306,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock)) and (selector(:has(style#id))) {
+    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock-20221107)) and (selector(:has(style#id))) {
 
         /* 2022/11/07 - specific fix for YouTubeLiveClock - chrome only */
         html:has(style#ytlctn-style-for-native-control) #columns.ytd-watch-flexy #player::after {
@@ -3345,6 +3345,47 @@ body .ytp-autohide .ytp-unmute,
             --tyt-native-ui-autohide-visibility: '--NULL-';
         }
 
+        html:has(style#ytlctn-style-for-native-control) #columns {
+            overflow: revert;
+        }
+
+    }
+    
+    @supports (color: var(--compatibile-with-chrome-plugin-youtube-live-clock-20240123)) and (selector(:has(style#id))) {
+        
+        /* 2024/01/23 - specific fix for YouTubeLiveClock - chrome only */
+        html:has(style#ytlc-style-for-native-control) #columns.ytd-watch-flexy #player::after {
+            content: "";
+            background-color: transparent;
+            border-color: transparent;
+            color: transparent;
+            box-sizing: border-box;
+            border-style: dotted;
+            display: flex;
+            height: 0px;
+            margin: 0;
+            border: 0;
+            margin-top: 51px;
+            width: calc(100% - 4px);
+            position: relative;
+            pointer-events: none;
+        }
+
+        html:has(style#ytlc-style-for-native-control) #columns.ytd-watch-flexy #below {
+            transform: initial;
+        }
+
+        html:has(style#ytlc-style-for-native-control) ytd-watch-flexy[flexy][is-two-columns_][theater] #columns.ytd-watch-flexy {
+            margin-top: 51px;
+        }
+
+        html:has(style#ytlc-style-for-native-control) ytd-watch-flexy[flexy]{
+            --tyt-native-ui-autohide-visibility: '--NULL-';
+        }
+
+        html:has(style#ytlc-style-for-native-control) #columns {
+            overflow: revert;
+        }
     }
 
     @supports (color: var(--comment-input-panel-emoji)) {
