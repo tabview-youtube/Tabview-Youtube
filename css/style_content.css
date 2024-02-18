@@ -4646,3 +4646,12 @@ body .ytp-autohide .ytp-unmute,
     }
     
 }
+
+@supports (color: var(--meta-title-20240218)){
+    /* example: https://www.youtube.com/watch?v=gt-v_YCkaMY */
+    body #title.ytd-metadata-row-renderer {
+        min-width: 110px;
+        width: auto;
+        max-width: 40%;
+    }
+}

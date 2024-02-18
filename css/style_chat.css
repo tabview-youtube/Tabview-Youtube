@@ -90,6 +90,8 @@
         padding:0 !important;
         border:0 !important;
         visibility: collapse !important;
+        pointer-events: none !important;
+        user-select: none !important;
     }
 
     ytd-watch-flexy.tyt-chat-popup[theater] #secondary-inner,
