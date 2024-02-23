@@ -4796,25 +4796,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   })();
 
-  
+  let udm = 0;
   async function deferredDuplicatedMetaCheckerFn() {
-
+    udm = 0;
     await scriptletDeferred.d();
-
     if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
-
       checkDuplicatedMetaRecommendation();
-
     }
-
-
     waitForContentReady = new PromiseExternal();
-
     isContentDuplicationCheckAllow() ? waitForContentReady.resolve() : (await waitForContentReady.then());
     await removeContentMismatch(); // play safe
-
     removeDuplicateInfoFn();
-
+    udm = 1;
   }
 
 
@@ -5377,14 +5370,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (REMOVE_DUPLICATE_INFO) {
 
       handleDOMAppear('deferredDuplicatedMetaChecker', () => {
-
         deferredDuplicatedMetaCheckerFn();
-
       });
 
     }
 
     globalHook('yt-page-data-updated', (evt) => {
+
+      if (REMOVE_DUPLICATE_INFO && udm) {
+        if (location.pathname === '/watch') deferredDuplicatedMetaCheckerFn();
+      }
 
       // if (!scriptEnable && tabsDeferred.resolved) { return }
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
