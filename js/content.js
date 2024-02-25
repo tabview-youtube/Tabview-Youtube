@@ -4678,7 +4678,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     };
 
-    const removeDuplicateInfoFn = () => {
+    const removeDuplicateInfoFn = (b) => {
 
       checkDuplicateRes = null;
       async function alCheckFn(ks) {
@@ -4785,8 +4785,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       renderDeferred.debounce(() => {
         if (ks !== +renderIdentifier) return
         if (document.fullscreenElement) return;
-        if (mvideoState & 1) return;
-        mvideoState |= 1;
+        if (!b) {
+          if (mvideoState & 1) return;
+          mvideoState |= 1;
+        }
         alCheckFn(ks);
 
       });
@@ -4797,7 +4799,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   })();
 
   let udm = 0;
-  async function deferredDuplicatedMetaCheckerFn() {
+  async function deferredDuplicatedMetaCheckerFn(b) {
     udm = 0;
     await scriptletDeferred.d();
     if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
@@ -4806,7 +4808,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     waitForContentReady = new PromiseExternal();
     isContentDuplicationCheckAllow() ? waitForContentReady.resolve() : (await waitForContentReady.then());
     await removeContentMismatch(); // play safe
-    removeDuplicateInfoFn();
+    removeDuplicateInfoFn(b);
     udm = 1;
   }
 
@@ -5378,7 +5380,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     globalHook('yt-page-data-updated', (evt) => {
 
       if (REMOVE_DUPLICATE_INFO && udm) {
-        if (location.pathname === '/watch') deferredDuplicatedMetaCheckerFn();
+        if (location.pathname === '/watch') deferredDuplicatedMetaCheckerFn(1);
       }
 
       // if (!scriptEnable && tabsDeferred.resolved) { return }
