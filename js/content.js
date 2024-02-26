@@ -5779,6 +5779,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     iframeLoadProcessWS.add(iframe);
 
     await scriptletDeferred.d();
+    // iframe.dispatchEvent(new CustomEvent('yt-live-chat-iframe-fix-polymer'));
     await tabsInsertedPromise.then();
     await getRAFPromise().then();
     await renderDeferred.d();
@@ -7441,7 +7442,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const dpeChatRefreshCounter = ControllerID();
   // let proceedingChatFrameVideoID = '';
-  let newVideoPageCACC = -1;
+  // let newVideoPageCACC = -1;
   let mvideoState = 0;
 
   function newVideoPage(evt_detail) {
@@ -7478,7 +7479,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const fvid = pageFetchedDataVideoId;
     const tyid = dpeChatRefreshCounter();
     // proceedingChatFrameVideoID = '';
-    newVideoPageCACC = chatroomAttrCollapseCount;
+    // newVideoPageCACC = chatroomAttrCollapseCount;
     // console.debug('[tyt] debug ym-01-1')
     
     const rootDom = document.documentElement;

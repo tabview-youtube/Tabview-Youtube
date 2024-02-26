@@ -35,6 +35,12 @@ function injection_script_1() {
     throw 'Please update your browser to use Tabview Youtube.';
   }
 
+  const FIX_liveChatPageUrl = 1; // 0 = no fix; 1 = fix all state; 2 = fix state before first load
+  
+  let liveChatPageUrlCount = null;
+
+  const delayPn = delay => new Promise((fn => setTimeout(fn, delay)));
+
   const fxOperator = (proto, propertyName) => {
     let propertyDescriptorGetter = null;
     try {
@@ -2051,6 +2057,53 @@ function injection_script_1() {
 
       }, true);
 
+      if (FIX_liveChatPageUrl >= 1 && typeof cProto.liveChatPageUrl === 'function' && !cProto.liveChatPageUrl159 && cProto.liveChatPageUrl.length === 4) {
+        // fireSeekContinuationAtCurrentProgressDone817 related
+        cProto.liveChatPageUrl159 = cProto.liveChatPageUrl;
+        let lastUrl = null;
+        liveChatPageUrlCount = 1;
+        if (FIX_liveChatPageUrl === 2) {
+          cProto.liveChatPageUrl = function (a, b, c, d) {
+            let detectTrueURL = false;
+            if (((c || 0).liveChatRenderer || 0).xwv7h) {
+            } else if (!b && c) {
+              detectTrueURL = true;
+            } else if (b && c) {
+              b = false;
+            }
+            let ed = this.liveChatPageUrl159(a, b, c, d);
+            if (detectTrueURL && ed && ed.length > 12 && c && c.liveChatRenderer) { // !b && c && not about:blank
+              c.liveChatRenderer.xwv7h = 1;
+            }
+            if ((!ed || ed.length < 12) && lastUrl && lastUrl.length > 12) {
+              ed = lastUrl;
+            }
+            if (lastUrl !== ed) {
+              lastUrl = ed;
+              liveChatPageUrlCount++;
+              if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
+            }
+            return ed;
+          }
+        } else if (FIX_liveChatPageUrl === 1) {
+          cProto.liveChatPageUrl = function (a, b, c, d) {
+            if (b && c && c.liveChatRenderer) {
+              b = false;
+            }
+            let ed = this.liveChatPageUrl159(a, b, c, d);
+            if ((!ed || ed.length < 12) && lastUrl && lastUrl.length > 12) {
+              ed = lastUrl;
+            }
+            if (lastUrl !== ed) {
+              lastUrl = ed;
+              liveChatPageUrlCount++;
+              if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
+            }
+            return ed;
+          }
+        }
+        console.debug(`[tyt] FIX_liveChatPageUrl = ${FIX_liveChatPageUrl}`);
+      }
 
       cProto.fixChatframeContentDisplay = async function (isChatExpansionChanged) {
 
@@ -2059,7 +2112,7 @@ function injection_script_1() {
         if (!iframe || iframe.isConnected !== true) return;
         if (this.collapsed === true) return;
 
-        let hostElement = this.hostElement || this;
+        // let hostElement = this.hostElement || this;
         let cnt = insp(this);
 
 
@@ -3486,6 +3539,19 @@ function injection_script_1() {
     }
   }
 
+  const performFireSeekContinuationAtCurrentProgress = async (seekElm, delay)=>{
+    if(delay) await delayPn(delay); // avoid baseURL timeoffset issue
+    if (seekElm.isConnected) {
+      if (liveChatPageUrlCount === null || seekElm.fireSeekContinuationAtCurrentProgressDone817 !== liveChatPageUrlCount) { // trigger once only for the same iframe
+        seekElm.fireSeekContinuationAtCurrentProgressDone817 = liveChatPageUrlCount;
+        const seekCnt = insp(seekElm);
+        if (typeof seekCnt.fireSeekContinuationAtCurrentProgress === 'function') {
+          seekCnt.fireSeekContinuationAtCurrentProgress();
+        }
+      }
+    } 
+  }
+
 
   document.addEventListener('tabview-chatroom-ready', async function (evt) {
 
@@ -3568,8 +3634,7 @@ function injection_script_1() {
           // fix VOD bug with playerOffsetMs
           const seekElm = HTMLElement.prototype.querySelector.call(lcrElm, 'yt-player-seek-continuation');
           if (seekElm) {
-            const seekCnt = insp(seekElm);
-            seekCnt.fireSeekContinuationAtCurrentProgress();
+            performFireSeekContinuationAtCurrentProgress(seekElm, 300);
           }
         }
       }
