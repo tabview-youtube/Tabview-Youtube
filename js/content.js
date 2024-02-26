@@ -3110,6 +3110,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return `${pageFetchedDataVideoId || 0}...${elm.textContent}`
   }
 
+  function mtf_fix_collapsible_playlist() {
+
+    // just in case the playlist is collapsed
+    let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
+    if (playlist && playlist.matches('[collapsed], [collapsible]')) {
+
+      const domElement = playlist;
+      playlist = null;
+      // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
+      const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
+
+      if (!tablist || tablist.nodeType !== 1) return; // checking whether it is still on the page
+
+      if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
+      if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
+
+    }
+  }
+
   // content fix - info & playlist
   // fired at begining, and keep for in case any change
   async function mtf_fix_details() {
@@ -3164,30 +3183,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
           }, 300);
         }
-
-      }),
-
-      Promise.resolve().then(() => {
-
-
-        // just in case the playlist is collapsed
-        let playlist = document.querySelector('#tab-list ytd-playlist-panel-renderer#playlist')
-        if (playlist && playlist.matches('[collapsed], [collapsible]')) {
-
-
-
-          const domElement = playlist;
-          playlist = null;
-          // if(!domElement.parentElement || domElement.nodeType!==1) return; // not working in pseudo custom element - parentNode = documentFragment
-          const tablist = closestDOM.call(domElement, 'ytd-watch-flexy #tab-list')
-
-          if (!tablist || tablist.nodeType !== 1) return; // checking whether it is still on the page
-
-          if (domElement.hasAttribute('collapsed')) wAttr(domElement, 'collapsed', false);
-          if (domElement.hasAttribute('collapsible')) wAttr(domElement, 'collapsible', false);
-
-        }
-
 
       }),
 
@@ -4325,6 +4320,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
     })
+
+    Promise.resolve(0).then(() => {
+      mtf_fix_collapsible_playlist();
+    });
 
   }
 
