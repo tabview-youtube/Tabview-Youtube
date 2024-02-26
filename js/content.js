@@ -34,7 +34,7 @@ if (typeof AbortSignal !== 'undefined') {
         if (flags) {
           flags.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
           flags.live_chat_overflow_hide_chat = false;
-          // flags.web_watch_chat_hide_button_killswitch = true;
+          flags.web_watch_chat_hide_button_killswitch = false;
         }
       }
     }
