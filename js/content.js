@@ -1401,7 +1401,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function setToggleBtnTxt() {
 
-    if (chatroomDetails) {
+    if (chatroomDetails && typeof chatroomDetails.txt_expand === 'string' && typeof chatroomDetails.txt_collapse === 'string') { // toggle button (show-hide-button)
       // _console.log(124234, 'c=== ')
 
       let chat = document.querySelector('ytd-live-chat-frame#chat');
@@ -1422,6 +1422,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         }
       }
+    } else if (chatroomDetails && typeof chatroomDetails.txt_expand === 'string') { // show button only
+
+
+      let chat = document.querySelector('ytd-live-chat-frame#chat');
+      if (!chat) return;
+      let txt = querySelectorFromAnchor.call(chat, 'span.yt-core-attributed-string[role="text"]');
+      let c = (txt || 0).textContent;
+
+      if (typeof c === 'string' && c.length > 2) {
+        if (chat.hasAttribute('collapsed')) {
+          // _console.log(124234, 'collapsed show expand ', chatroomDetails.txt_expand)
+          if (c !== chatroomDetails.txt_expand) {
+            txt.textContent = chatroomDetails.txt_expand;
+          }
+        }
+      }
+
     }
   }
 
@@ -7367,14 +7384,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function extractInfoFromLiveChatRenderer(liveChatRenderer) {
 
-    let lcr = liveChatRenderer
+    const lcr = liveChatRenderer
 
-    let data_shb = ((lcr || 0).showHideButton || 0).toggleButtonRenderer
+    const data_shb = ((lcr || 0).showHideButton || 0).toggleButtonRenderer
+
+    const data_sb = !data_shb ? ((lcr || 0).showButton || 0).buttonRenderer : null // only show button
 
     let default_display_state = null, txt_collapse = null, txt_expand = null;
 
+    if (!data_shb && data_sb && data_sb.text && typeof data_sb.text.simpleText === 'string') {
 
-    if (data_shb && data_shb.defaultText && data_shb.toggledText && data_shb.defaultText.runs && data_shb.toggledText.runs) {
+      if (lcr.initialDisplayState == "LIVE_CHAT_DISPLAY_STATE_EXPANDED") {
+        default_display_state = lcr.initialDisplayState
+      } else if (lcr.initialDisplayState == "LIVE_CHAT_DISPLAY_STATE_COLLAPSED") {
+        default_display_state = lcr.initialDisplayState
+      }
+      txt_expand = data_sb.text.simpleText;
+
+    } else if (data_shb && data_shb.defaultText && data_shb.toggledText && data_shb.defaultText.runs && data_shb.toggledText.runs) {
 
       if (data_shb.defaultText.runs.length === 1 && data_shb.toggledText.runs.length === 1) {
 
@@ -7403,6 +7430,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
+    }
+
+    if(lcr && (!default_display_state)){
+      console.log('[tyt] Unable to obtain showHideButton data');
     }
 
     return { default_display_state, txt_collapse, txt_expand }
