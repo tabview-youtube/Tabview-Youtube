@@ -30,8 +30,13 @@ if (typeof AbortSignal !== 'undefined') {
     if (config) {
       const EXPERIMENT_FLAGS = config.EXPERIMENT_FLAGS || 0;
       const EXPERIMENTS_FORCED_FLAGS = config.EXPERIMENTS_FORCED_FLAGS || 0;
-      if (EXPERIMENT_FLAGS) EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
-      if (EXPERIMENTS_FORCED_FLAGS) EXPERIMENT_FLAGS.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
+      for (const flags of [EXPERIMENT_FLAGS, EXPERIMENTS_FORCED_FLAGS]) {
+        if (flags) {
+          flags.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
+          flags.live_chat_overflow_hide_chat = false;
+          // flags.web_watch_chat_hide_button_killswitch = true;
+        }
+      }
     }
   }
   let button = document.createElement('button');
