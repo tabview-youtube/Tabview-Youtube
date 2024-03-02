@@ -58,6 +58,8 @@ if (typeof AbortSignal !== 'undefined') {
     throw 'Please update your browser to use Tabview Youtube.';
   }
 
+  const ENABLE_tabviewEnergized = false;
+
   const fxOperator = (proto, propertyName) => {
     let propertyDescriptorGetter = null;
     try {
@@ -2817,7 +2819,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (_viTimeNum > 208) {
         _viTimeNum = 200;
         _updateTimeAccum = (_updateTimeAccum % 8) + 1; // reset to 1 ~ 8
-        Promise.resolve().then(tabviewEnergizedFn);
+        ENABLE_tabviewEnergized && Promise.resolve().then(tabviewEnergizedFn);
       }
 
       document.head.dataset.viTime = `${_viTimeNum + 1}`;
@@ -8326,35 +8328,36 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   let _blankPageURL = '';
   const iframeId = `ep5wbmok-${instanceId}`;
   let tabviewEnergizedLastDT = 0;
-  function tabviewEnergizedAsync(){
-     // interval = 23s
-     const now = Date.now();
-     if (now - tabviewEnergizedLastDT < 500) return;
-     tabviewEnergizedLastDT = now;
+  if (ENABLE_tabviewEnergized) {
+    function tabviewEnergizedAsync() {
+      // interval = 23s
+      const now = Date.now();
+      if (now - tabviewEnergizedLastDT < 500) return;
+      tabviewEnergizedLastDT = now;
 
-     /** @type {HTMLIFrameElement | null} */
-     let iframe = document.getElementById(iframeId);
-     if (iframe) {
-       const prevURL = _blankPageURL;
-       _blankPageURL = '';
-       setTimeout(() => {
-         if (prevURL && typeof prevURL === 'string') {
-           try {
-             URL.revokeObjectURL(prevURL);
-           } catch (e) { }
-         }
-       }, 40);
-       iframe.remove();
-       iframe = null;
-     }
+      /** @type {HTMLIFrameElement | null} */
+      let iframe = document.getElementById(iframeId);
+      if (iframe) {
+        const prevURL = _blankPageURL;
+        _blankPageURL = '';
+        setTimeout(() => {
+          if (prevURL && typeof prevURL === 'string') {
+            try {
+              URL.revokeObjectURL(prevURL);
+            } catch (e) { }
+          }
+        }, 40);
+        iframe.remove();
+        iframe = null;
+      }
 
-     /** @type {HTMLIFrameElement} */
-     iframe = document.createElement('iframe');
-     iframe.classList.add('ep5wbmok');
-     iframe.id = iframeId;
-     iframe.sandbox = 'allow-same-origin';
+      /** @type {HTMLIFrameElement} */
+      iframe = document.createElement('iframe');
+      iframe.classList.add('ep5wbmok');
+      iframe.id = iframeId;
+      iframe.sandbox = 'allow-same-origin';
 
-     const blankPageCode = _blankPageCode || (_blankPageCode = `
+      const blankPageCode = _blankPageCode || (_blankPageCode = `
      <!DOCTYPE html>
      <html lang="en">
      <head>
@@ -8369,32 +8372,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
      </html>        
      `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
 
-     const url = URL.createObjectURL(new Blob([blankPageCode], {
-       type: 'text/plain'
-     }));
+      const url = URL.createObjectURL(new Blob([blankPageCode], {
+        type: 'text/plain'
+      }));
 
-     try {
-       if (iframe.isConnected === false) {
-         iframe.src = url;
-         document.body.appendChild(iframe);
-       }
-       _blankPageURL = url;
-     } catch (e) {
-       console.log(e)
-       return;
-     }
+      try {
+        if (iframe.isConnected === false) {
+          iframe.src = url;
+          document.body.appendChild(iframe);
+        }
+        _blankPageURL = url;
+      } catch (e) {
+        console.log(e)
+        return;
+      }
 
-     console.log('[tyt] tabviewEnergized')
+      console.log('[tyt] tabviewEnergized')
 
-  }
-  window.addEventListener('message', (evt) => {
-    const data = ((evt || 0).data || 0);
-
-    if (data.tabviewEnergized === true) {
-      Promise.resolve().then(tabviewEnergizedAsync);
     }
-    
-  });
+    window.addEventListener('message', (evt) => {
+      const data = ((evt || 0).data || 0);
+
+      if (data.tabviewEnergized === true) {
+        Promise.resolve().then(tabviewEnergizedAsync);
+      }
+
+    });
+  }
   
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
   if (document.documentElement.getAttribute('tabview-unwrapjs')) {
