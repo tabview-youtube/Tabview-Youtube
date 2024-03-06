@@ -2059,6 +2059,7 @@ function injection_script_1() {
 
       if (FIX_liveChatPageUrl >= 1 && typeof cProto.liveChatPageUrl === 'function' && !cProto.liveChatPageUrl159 && cProto.liveChatPageUrl.length === 4) {
         // fireSeekContinuationAtCurrentProgressDone817 related
+        // urlChanged realted
         cProto.liveChatPageUrl159 = cProto.liveChatPageUrl;
         let lastUrl = null;
         let validUrl = null;
@@ -2074,6 +2075,9 @@ function injection_script_1() {
               b = false;
             }
             let ed = this.liveChatPageUrl159(a, b, c, d);
+            if (ed && ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
+              ed = ed.substring(23);
+            }
             if (detectTrueURL && ed && ed.length > 12 && c && c.liveChatRenderer) { // !b && c && not about:blank
               c.liveChatRenderer.xwv7h = 1;
             }
@@ -2096,6 +2100,9 @@ function injection_script_1() {
               b = false;
             }
             let ed = this.liveChatPageUrl159(a, b, c, d);
+            if (ed && ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
+              ed = ed.substring(23);
+            }
             if ((!ed || ed.length < 12) && lastUrl && lastUrl.length > 12) {
               ed = lastUrl;
             }
@@ -2106,6 +2113,7 @@ function injection_script_1() {
             }
             if (b0 === false && ed && ed.length > 12) validUrl = ed;
             if (b0 === true && ed && ed.length > 12 && ed !== validUrl) ed = 'about:blank';
+            console.log(1929, ed)
             return ed;
           }
         }
