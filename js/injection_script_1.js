@@ -2113,7 +2113,6 @@ function injection_script_1() {
             }
             if (b0 === false && ed && ed.length > 12) validUrl = ed;
             if (b0 === true && ed && ed.length > 12 && ed !== validUrl) ed = 'about:blank';
-            console.log(1929, ed)
             return ed;
           }
         }
