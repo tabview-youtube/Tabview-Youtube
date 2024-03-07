@@ -2170,8 +2170,7 @@ body .ytp-autohide .ytp-unmute,
     }
 
     /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */
-    ytd-watch-flexy[is-two-columns_][tyt-chat] #right-tabs,
-    ytd-watch-flexy[is-two-columns_]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed] ~ #right-tabs{
+    ytd-watch-flexy[is-two-columns_][tyt-chat] #right-tabs{
         /* button size + margin = 42px */
         --tyt-tabs-upspace-chat-unavailable: 42px;
     }
@@ -2723,7 +2722,7 @@ body .ytp-autohide .ytp-unmute,
         #related.ytd-watch-flexy>#player-ads,
         *:not(#tabview-playlist-wrapper)>ytd-playlist-panel-renderer#playlist:not(.ytd-miniplayer)
         /* hide videos list & play list before script loading */
-        /*#primary.ytd-watch-flexy #primary.ytd-watch-flexy #info~#meta #meta-contents ytd-expander*/
+        /*#primary.ytd-watch-flexy #primary.ytd-watch-flexy #info ~ #meta #meta-contents ytd-expander*/
 
         /* meta-contents relocated */
             {
@@ -4238,11 +4237,6 @@ body .ytp-autohide .ytp-unmute,
     /* 2022/11/07 */
     :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs {
         --tyt-tabs-content-height: calc(var(--tyt-x-base-height) - var(--tyt-tabs-upspace, 0px) - var(--ytd-margin-6x) - var(--ytd-margin-2x) - var(--ytd-margin-6x) );
-    }
-
-    /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */
-    :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed]:not([hidden]):not(:empty)~#right-tabs {
-        --tyt-tabs-upspace: 42px;
     }
 
     :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] #right-tabs::after {

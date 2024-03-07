@@ -3699,7 +3699,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       layoutStatusMutex.lockWith(unlock => {
 
-        const chatBlock = document.querySelector('ytd-live-chat-frame#chat')
+        const chatBlock = document.querySelector('ytd-live-chat-frame#chat');
         /** @type {HTMLElement | null} */
         const cssElm = es.ytdFlexy;
 
@@ -4835,6 +4835,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     udm = 1;
   }
 
+  function addVisibilityCheckToChatroom(liveChatFrame) {
+
+    // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
+
+    if (!(liveChatFrame instanceof Element)) return;
+
+    const ytdFlexyElm = es.ytdFlexy;
+    if (scriptEnable && ytdFlexyElm && mtoVisibility_Chatroom.bindElement(liveChatFrame)) {
+      mtoVisibility_Chatroom.observer.check(9)
+    }
+
+  }
 
   // setupChatFrameDOM (v1) - removed in 2023.07.06 since it is buggy for page changing. subject to further review
   function setupChatFrameDOM(node) {
@@ -4842,37 +4854,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // 'tyt-chat' is initialized in setupChatFrameDisplayState1()
 
+    const liveChatFrame = node || document.querySelector('ytd-live-chat-frame#chat');
+    if (!liveChatFrame) return;
+    addVisibilityCheckToChatroom(liveChatFrame);
+
+    // there can be liveChatFrame but without chatroomDetails if Chat is disabled.
+    // eg https://www.youtube.com/watch?v=f8tIZpZ3hG0
+
     if (!chatroomDetails) return;
-    let liveChatFrame = node || document.querySelector('ytd-live-chat-frame#chat')
-    if (liveChatFrame) {
 
-      // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
+    // every per [new] {ytd-live-chat-frame#chat} detection - reset after mini-playview
 
-      let ytdFlexyElm = es.ytdFlexy;
-      if (scriptEnable && ytdFlexyElm) {
-        if (mtoVisibility_Chatroom.bindElement(liveChatFrame)) {
-          mtoVisibility_Chatroom.observer.check(9)
-        }
-      }
-      
+    setToggleBtnTxt(); // immediate update when page changed
 
-      liveChatFrame = null;
-      ytdFlexyElm = null;
+    if (node !== null) {
+      // button might not yet be rendered
+      getRAFPromise().then(setToggleBtnTxt); // bool = true must be front page
+    } else {
 
-      setToggleBtnTxt(); // immediate update when page changed
-
-      if (node !== null) {
-        // button might not yet be rendered
-        getRAFPromise().then(setToggleBtnTxt); // bool = true must be front page
-      } else {
-
-        // this is due to page change
-        layoutStatusMutex.lockWith(unlock => {
-          if (!document.fullscreenElement) fixTheaterChat1A();
-          setTimeout(unlock, 17);
-        });
-
-      }
+      // this is due to page change
+      layoutStatusMutex.lockWith(unlock => {
+        if (!document.fullscreenElement) fixTheaterChat1A();
+        setTimeout(unlock, 17);
+      });
 
     }
 
