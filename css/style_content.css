@@ -4649,3 +4649,17 @@ body .ytp-autohide .ytp-unmute,
         max-width: 40%;
     }
 }
+
+@supports (color: var(--fix-horizontal-card-scroller-in-tab-info)){
+    /* example: https://www.youtube.com/watch?v=f8tIZpZ3hG0 */
+    #tab-info #left-arrow-container.arrow-container.style-scope.ytd-horizontal-card-list-renderer[hidden] + #scroll-container.ytd-horizontal-card-list-renderer {
+        overflow: auto;
+    }
+    #tab-info #left-arrow-container.arrow-container.style-scope.ytd-horizontal-card-list-renderer[hidden] + #scroll-container.ytd-horizontal-card-list-renderer > #items[class]:only-child {
+        display: flex;
+        flex-direction: row;
+    }
+    #tab-info #left-arrow-container.arrow-container.style-scope.ytd-horizontal-card-list-renderer[hidden] ~ #right-arrow-container {
+        display: none !important;
+    }
+}
