@@ -3606,7 +3606,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
   }
 
-  let chatroomAttrCollapseCount = 0;
+  // let chatroomAttrCollapseCount = 0;
 
   // const dpeForceChatRenderOnChatExpanded = eventDispatcher("tabview-force-chat-render-on-chat-expanded");
 
@@ -3748,7 +3748,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
         if (isCollapsed) {
-          ++chatroomAttrCollapseCount;
+          // ++chatroomAttrCollapseCount;
           // chatBlock.removeAttribute('tyt-iframe-loaded');
           chatBlock.classList.remove('tyt-chat-frame-ready');
           // console.log(922,1)

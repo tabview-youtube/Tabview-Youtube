@@ -35,7 +35,7 @@ function injection_script_1() {
     throw 'Please update your browser to use Tabview Youtube.';
   }
 
-  const FIX_liveChatPageUrl = 1; // 0 = no fix; 1 = fix all state; 2 = fix state before first load
+  const FIX_liveChatPageUrl = 1; // 0 = no fix; 1 = fix all state
   
   let liveChatPageUrlCount = null;
 
@@ -2029,9 +2029,9 @@ function injection_script_1() {
         return this.__postToContentWindowK__.apply(this, arguments);
       }
 
-      document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
-        // TODO
-      }, true);
+      // document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
+      //   // TODO
+      // }, true);
 
 
       let cfk = 0;
@@ -2062,59 +2062,29 @@ function injection_script_1() {
         // urlChanged realted
         cProto.liveChatPageUrl159 = cProto.liveChatPageUrl;
         let lastUrl = null;
-        let validUrl = null;
         liveChatPageUrlCount = 1;
-        if (FIX_liveChatPageUrl === 2) {
+        if (FIX_liveChatPageUrl === 1) { // (baseUrl, collapsed, data, forceDarkTheme)
           cProto.liveChatPageUrl = function (a, b, c, d) {
-            const b0 = b;
-            let detectTrueURL = false;
-            if (((c || 0).liveChatRenderer || 0).xwv7h) {
-            } else if (!b && c) {
-              detectTrueURL = true;
-            } else if (b && c) {
-              b = false;
-            }
             let ed = this.liveChatPageUrl159(a, b, c, d);
-            if (ed && ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
-              ed = ed.substring(23);
+            if (!ed || ed.length < 12) {
+              if (b && c && c._uepoxvqe === lastUrl) {
+                ed = lastUrl;
+              } else {
+                lastUrl = null;
+              }
+            } else {
+              if (ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
+                ed = ed.substring(23);
+              }
+              if (lastUrl !== ed && c) {
+                lastUrl = ed;
+                c._uepoxvqe = ed;
+                liveChatPageUrlCount++;
+                if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
+              }
             }
-            if (detectTrueURL && ed && ed.length > 12 && c && c.liveChatRenderer) { // !b && c && not about:blank
-              c.liveChatRenderer.xwv7h = 1;
-            }
-            if ((!ed || ed.length < 12) && lastUrl && lastUrl.length > 12) {
-              ed = lastUrl;
-            }
-            if (lastUrl !== ed) {
-              lastUrl = ed;
-              liveChatPageUrlCount++;
-              if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
-            }
-            if (b0 === false && ed && ed.length > 12) validUrl = ed;
-            if (b0 === true && ed && ed.length > 12 && ed !== validUrl) ed = 'about:blank';
             return ed;
-          }
-        } else if (FIX_liveChatPageUrl === 1) {
-          cProto.liveChatPageUrl = function (a, b, c, d) {
-            const b0 = b;
-            if (b && c && c.liveChatRenderer) {
-              b = false;
-            }
-            let ed = this.liveChatPageUrl159(a, b, c, d);
-            if (ed && ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
-              ed = ed.substring(23);
-            }
-            if ((!ed || ed.length < 12) && lastUrl && lastUrl.length > 12) {
-              ed = lastUrl;
-            }
-            if (lastUrl !== ed) {
-              lastUrl = ed;
-              liveChatPageUrlCount++;
-              if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
-            }
-            if (b0 === false && ed && ed.length > 12) validUrl = ed;
-            if (b0 === true && ed && ed.length > 12 && ed !== validUrl) ed = 'about:blank';
-            return ed;
-          }
+          };
         }
         console.debug(`[tyt] FIX_liveChatPageUrl = ${FIX_liveChatPageUrl}`);
       }
