@@ -35,6 +35,13 @@ if (typeof AbortSignal !== 'undefined') {
           flags.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
           flags.live_chat_overflow_hide_chat = false;
           flags.web_watch_chat_hide_button_killswitch = false;
+          flags.web_watch_theater_chat = false; // for re-openable chat (ytd-watch-flexy's liveChatCollapsed is always undefined)
+          /*         
+            onYtChatCollapsedChanged: function(a) {
+              if ("ytd-watch-grid" === this.is || B("web_watch_theater_chat"))
+                  this.liveChatCollapsed = a.detail
+            },
+          */
         }
       }
     }
