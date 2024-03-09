@@ -2064,13 +2064,24 @@ function injection_script_1() {
         let lastUrl = null;
         liveChatPageUrlCount = 1;
         if (FIX_liveChatPageUrl === 1) { // (baseUrl, collapsed, data, forceDarkTheme)
+          cProto.__IframeResetReady__ = function (ed) {
+            if (this.url !== ed) {
+              /** @type {DOMTokenList | null} */
+              const classList = (this.hostElement || 0).classList;
+              if (classList && classList.contains('tyt-chat-frame-ready')) {
+                classList.remove('tyt-chat-frame-ready');
+              }
+            }
+          };
           cProto.liveChatPageUrl = function (a, b, c, d) {
+            if (!c && lastUrl) return lastUrl; // prevent immediate url change due to data change
             let ed = this.liveChatPageUrl159(a, b, c, d);
-            if (!ed || ed.length < 12) {
-              if (b && c && c._uepoxvqe === lastUrl) {
+            if (!ed || ed.length < 12) { // empty url
+              if (b && c && c._uepoxvqe === lastUrl) { // collapsed, same url
                 ed = lastUrl;
-              } else {
+              } else { // empty url is confirmed, data is provided
                 lastUrl = null;
+                if (this.__IframeResetReady__) this.__IframeResetReady__(ed);
               }
             } else {
               if (ed.length > 33 && location.origin === 'https://www.youtube.com' && ed.startsWith('https://www.youtube.com/live_chat')) {
@@ -2081,6 +2092,7 @@ function injection_script_1() {
                 c._uepoxvqe = ed;
                 liveChatPageUrlCount++;
                 if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
+                if (this.__IframeResetReady__) this.__IframeResetReady__(ed);
               }
             }
             return ed;
