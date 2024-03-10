@@ -95,7 +95,7 @@ if (typeof AbortSignal !== 'undefined') {
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
   const { requestAnimationFrame, cancelAnimationFrame } = __CONTEXT__;
-  
+
   let _rafPromise = null;
 
   const getRAFPromise = () => _rafPromise || (_rafPromise = new Promise(resolve => {
@@ -737,7 +737,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     p.valueOf = () => q;
     return p;
   }
-  
+
 
   const psId = ControllerID();
   psId.auto = false;
@@ -1013,7 +1013,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
   */
 
-  
+
   function fixTheaterChat1A() {
     let incorrectChat = document.querySelector('ytd-watch-flexy[is-two-columns_][theater] ytd-live-chat-frame#chat:not([collapsed])')
     if (incorrectChat) {
@@ -1030,7 +1030,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function check1885() {
-    
+
     if (chatController.ytlstmTheaterMode) {
       if (document.fullscreenElement || document.querySelector('ytd-watch-flexy[fullscreen]')) {
         chatController.allowChatControl = true;
@@ -1153,7 +1153,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const tabsDeferred = new Deferred();
   tabsDeferred.resolve();
 
-  const discardableFn = function(f){ // logic to be reviewed; unstable
+  const discardableFn = function (f) { // logic to be reviewed; unstable
     if (!scriptEnable && tabsDeferred.resolved) { } // ignore all before first yt-navigate-finished
     else tabsDeferred.debounce(f, psId);
   }
@@ -2215,7 +2215,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           });
         }
 
-        
+
         const iframe = document.querySelector('body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
         if (iframe) Promise.resolve(iframe).then(iframeLoadProcess);
@@ -2626,7 +2626,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             if (m4) {
 
-              
+
               const m5 = querySelectorFromAnchor.call(m4, 'ytd-button-renderer.style-scope.ytd-continuation-item-renderer, yt-button-renderer.style-scope.ytd-continuation-item-renderer');
 
               // YouTube coding bug - correct is 'ytd-button-renderer'. If the page is redirected under single column mode, the tag become 'yt-button-renderer'
@@ -2759,8 +2759,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // let zatt = Date.now();
 
   const dbId = `ep5wbmokDB-${instanceId}`
-  async function tabviewEnergizedFn(){
-    
+  async function tabviewEnergizedFn() {
+
     let db;
     const indexedDB = window.indexedDB;
     try {
@@ -3146,7 +3146,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     await scriptletDeferred.d();
     await Promise.all([
-      Promise.resolve().then(()=> {
+      Promise.resolve().then(() => {
 
         let contentToggleBtn = document.querySelector('ytd-watch-flexy #tab-info ytd-expander tp-yt-paper-button#less.ytd-expander:not([hidden]), #tab-info ytd-expander tp-yt-paper-button#more.ytd-expander:not([hidden])');
 
@@ -3168,7 +3168,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }),
 
-      Promise.resolve().then(()=> {
+      Promise.resolve().then(() => {
 
         let strcturedInfo = document.querySelector('ytd-watch-flexy #tab-info ytd-structured-description-content-renderer.style-scope.ytd-video-secondary-info-renderer')
         if (strcturedInfo) {
@@ -3527,7 +3527,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }
     _onCommentsReady(b);
   }
-  
+
   function _onCommentsReady(b) {
     if (mtf_forceCheckLiveVideo_disable !== 2) {
       if (document.querySelector('ytd-comments#comments').hasAttribute('hidden')) {
@@ -4179,8 +4179,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
-  function setupVideoTitleHover(){
-    
+  function setupVideoTitleHover() {
+
     let h1 = document.querySelector('#below h1.ytd-watch-metadata yt-formatted-string');
     if (h1) {
 
@@ -4371,7 +4371,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // insert on first pageBeingInit(), regardless pageType
       firstLoadStatus -= 2;
       script_inject_js1.inject();
-    } else  if (pageRendered === 2) { // (pageRendered = 2 after pageSeq2)
+    } else if (pageRendered === 2) { // (pageRendered = 2 after pageSeq2)
       // reset on 2nd+ pageBeingInit(), regardless pageType
       pageRendered = 0;
       let elmPL = document.querySelector('tabview-view-ploader');
@@ -4479,7 +4479,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       } while (true)
 
     }
-    
+
     let ks = +renderIdentifier;
     renderDeferred.debounce(() => {
       if (ks !== +renderIdentifier) return
@@ -4553,26 +4553,39 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     async function checkDuplicatedInfoAug2023() {
       const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
       const secondElementSelector = "#tab-info ytd-expander #description";
-    
+
       const firstElement = document.querySelector(firstElementSelector);
       const secondElement = document.querySelector(secondElementSelector);
 
       // dont detect the content change of main info box
       // if second info box is checked okay before, skip
       if (firstElement.hasAttribute('tyt-du744') || secondElement.hasAttribute('tyt-du744')) return true; // assume still ok as we checked before
-    
+
       if (!firstElement || !secondElement) return false;
       if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
-    
+
       const asyncGetContent = async (n) => {
         return n.textContent;
       }
-    
+
       const getTextContentArr = async (element) => {
         let contentArray = [];
-    
+
+        for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+
+          const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
+          let node;
+          while (node = walker.nextNode()) {
+            const text = node.nodeValue;
+            if (text && !text.startsWith('\uF204')) {
+              node.nodeValue = `\uF204${text}\uF205`;
+            }
+          }
+
+        }
+
         for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
-    
+
           if (currentNode.nodeType === Node.ELEMENT_NODE) {
             if (currentNode.nodeName === "STYLE") {
               // <style is-scoped>
@@ -4606,29 +4619,40 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 continue;
               }
             }
-    
-    
+
           } else if (currentNode.nodeType === Node.TEXT_NODE) {
           } else {
             continue;
           }
-    
+
+          /** @type {string} */
           let trimmedTextContent = await asyncGetContent(currentNode);
           trimmedTextContent = trimmedTextContent.trim();
           if (trimmedTextContent.length > 0) {
+            if (trimmedTextContent.includes('\uF204')) {
+              trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
+              trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
+            }
             trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
+            let loop = 64;
+            while (loop-- > 0) {
+              const before = trimmedTextContent;
+              trimmedTextContent = trimmedTextContent.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
+              trimmedTextContent = trimmedTextContent.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
+              if (before === trimmedTextContent) loop = 0;
+            }
             // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
             // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
             contentArray.push(trimmedTextContent);
           }
-    
+
         }
-    
+
         return contentArray;
       };
-    
+
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
-    
+
       function isSubset(arr1, arr2) {
         const set = new Set(arr2);
         const r = arr1.every(item => set.has(item));
@@ -4698,7 +4722,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
       console.debug('[tyt] Have any details with duplicated information been found?', (infoDuplicated ? 'Yes' : 'No'));
-      
+
       if (g_check_detail_A !== t) return;
 
       //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
@@ -4969,7 +4993,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     setupMedia(node)
 
-    discardableFn(()=>{  // might discarded since it runs earlier than tabs insertion
+    discardableFn(() => {  // might discarded since it runs earlier than tabs insertion
 
       if (!scriptEnable) return
 
@@ -4989,7 +5013,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const rid = `${+renderIdentifier}`; // string type integer id
 
     const targets = document.querySelectorAll(`[bsptu="${rid}"]`); // ignore all appearance in previous paging
-    
+
     if (!targets.length) return;
     for (const target of targets) {
       // expect only one node; other measures for more than one node
@@ -5142,15 +5166,15 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppearFN.set(fn, func);
   }
 
-  
 
-  
 
-  const moInfoContent = new MutationObserver(()=>{
+
+
+  const moInfoContent = new MutationObserver(() => {
 
     removeContentMismatch();
   });
-  
+
   function ytMicroEventsInit() {
 
     // _console.log(902);
@@ -5189,8 +5213,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const metaContentSetup = () => {
       setupVideoTitleHover();
       let ks = +renderIdentifier;
-      scriptletDeferred.debounce(()=>{
-        if(ks === +renderIdentifier) infoContentForTab();
+      scriptletDeferred.debounce(() => {
+        if (ks === +renderIdentifier) infoContentForTab();
       });
     };
 
@@ -5228,7 +5252,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     handleDOMAppear('commentsHeaderAppended1', onCommentsReady);
     handleDOMAppear('commentsHeaderAppended2', onCommentsReady);
 
-    handleDOMAppear('fixPlaylistLocation1', (evt)=>{ // used as a fallback to play safe. overall strategy to be reviewed
+    handleDOMAppear('fixPlaylistLocation1', (evt) => { // used as a fallback to play safe. overall strategy to be reviewed
 
       const n = evt.target;
       if (closestDOM.call(n, '#tab-list')) return;
@@ -5337,7 +5361,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     handleDOMAppear('SearchWhileWatchAutocomplete', (evt) => { // Youtube - Search While Watching Video
       let elm = evt.target;
-      if(elm.hasAttribute('tyt-found')) return;
+      if (elm.hasAttribute('tyt-found')) return;
       elm.setAttribute('tyt-found', '');
       let container = document.createElement('div');
       container.id = 'suggestions-search-container';
@@ -5397,8 +5421,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         });
 
-      } 
-      
+      }
+
 
 
     });
@@ -5421,7 +5445,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!evt || !evt.target || evt.target.nodeType !== 1) return;
 
       discardableFn(() => { // might discard if yt-navigate-finish not yet called
-        
+
         // if the page is navigated by history back-and-forth, not all engagement panels can be catched in rendering event.
 
         if (!scriptEnable) return;
@@ -5784,7 +5808,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   };
 
   const iframeLoadProcessWS = new WeakSet(); // avoid duplicate calling on the same iframe
-  
+
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
@@ -5808,14 +5832,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     // console.log('chat', chat)
     if (!chat) return;
-    
+
     // console.log("iframe.xx",1236, chat)
 
     if (chat.hasAttribute('collapsed')) return;
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 10');
 
     const tid = iframeLoadControllerId();
-    
+
     // console.log("iframe.xx",1237, chat)
 
 
@@ -5863,7 +5887,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     }).catch(console.warn);
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 11');
-    
+
     if (tid !== +iframeLoadControllerId || !cDoc) {
       return;
     }
@@ -5889,7 +5913,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const contentElement = (cDoc.body || 0).firstElementChild;
 
     if (contentElement) {
-      
+
       showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 20');
 
       if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
@@ -5898,7 +5922,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       try {
         isCorrectDoc = iframe.contentDocument === cDoc;
       } catch (e) { }
-      
+
       showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 21');
       if (isCorrectDoc) {
         let chatFrame = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
@@ -5910,13 +5934,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
     } else if (!contentElement) {
-      
+
       showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 30');
 
       // e.g. when restore from mini view to watch page
 
       // tabview-chat-fix-url-onload-with-empty-body
-      
+
       iframe.removeEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
       iframe.addEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
@@ -5986,7 +6010,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let fontSizeBtnClick = null;
 
     materialTab.addEventListener('click', async function (evt) {
-      
+
       const dom = evt.target;
       if ((dom || 0).nodeType !== 1) return;
 
@@ -6447,12 +6471,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   // let _ctlPromise = null;
-  
+
   // const getCTLPromise = () => {
-    
+
   //   if(!_ctlPromise) _ctlPromise = new PromiseExternal();
 
-    
+
   //   const ytdFlexyElm = es.ytdFlexy;
   //   if (!scriptEnable || !ytdFlexyElm || !wls.layoutStatus) {
   //     _ctlPromise.resolve();
@@ -6461,7 +6485,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //   }
 
   //   return _ctlPromise;
-    
+
   // };
 
 
@@ -6471,9 +6495,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // }
 
   const mtf_attrFlexy = (mutations, observer) => {
-    
+
     // if(document.documentElement.hasAttribute('p355')) return;
-    
+
 
     //attr mutation checker - $$ytdFlexyElm$$ {ytd-watch-flexy} \single
     //::attr    
@@ -6499,9 +6523,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let mss = 0;
     let dcall = 0;
     // let resolveCTL = false;
-    
+
     check1885();
-    if (!chatController.allowChatControl){
+    if (!chatController.allowChatControl) {
 
       // for (const mutation of mutations) {
 
@@ -6512,7 +6536,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // }
       // if(resolveCTL) triggerCTL();
       return;
-    } 
+    }
 
     for (const mutation of mutations) {
 
@@ -6520,7 +6544,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       //   resolveCTL = true;
       //   continue;
       // }
-      
+
 
       // if(1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) continue;
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
@@ -6572,7 +6596,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           updateFloatingSlider();  //required for hover slider // eg video after ads
         }, 1);
       }
- 
+
     }
 
     new_layoutStatus = fixLayoutStatus(new_layoutStatus);
@@ -6615,7 +6639,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           fixTabs();
         }
 
-        
+
         if (document.fullscreenElement) {
           unlock();
         } else if (wls.layoutStatus & LAYOUT_THEATER) {
@@ -7094,7 +7118,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!video) return;
 
       const vRect = video.getBoundingClientRect();
-      if (!( vRect.top < 0 && vRect.height > 100 && vRect.bottom < vRect.height * 0.25)) return; // avoid conflic with YouTube Mobile Mode in YouTube Live Borderless
+      if (!(vRect.top < 0 && vRect.height > 100 && vRect.bottom < vRect.height * 0.25)) return; // avoid conflic with YouTube Mobile Mode in YouTube Live Borderless
 
       await Promise.resolve(0)
       const pageClientWidth = document.documentElement.clientWidth;
@@ -7445,7 +7469,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    if(lcr && (!default_display_state)){
+    if (lcr && (!default_display_state)) {
       console.log('[tyt] Unable to obtain showHideButton data');
     }
 
@@ -7494,32 +7518,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // proceedingChatFrameVideoID = '';
     // newVideoPageCACC = chatroomAttrCollapseCount;
     // console.debug('[tyt] debug ym-01-1')
-    
+
     const rootDom = document.documentElement;
     rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
-    
+
     setTimeout(() => {
-        
+
       const rootDom = document.documentElement;
       rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
-      
+
       // console.debug('[tyt] debug ym-01-2')
       if (fvid !== pageFetchedDataVideoId) return;
-      
-    // console.debug('[tyt] debug ym-01-3')
+
+      // console.debug('[tyt] debug ym-01-3')
       if (tyid !== +dpeChatRefreshCounter) return;
-      
-    // console.debug('[tyt] debug ym-01-4')
+
+      // console.debug('[tyt] debug ym-01-4')
       dpeChatRefreshCounter();
       const chat = document.querySelector('ytd-live-chat-frame#chat');
       if (chat && !chat.hasAttribute('collapsed')) {
         // proceedingChatFrameVideoID = fvid;
-        
+
         // console.debug('[tyt] debug ym-01-5')
-            
-        
+
+
         // dpeNewUrlChat(chat); // force replace url
-        
+
         const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
         if (iframe) iframeLoadProcess(iframe); // fix empty
@@ -7765,7 +7789,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // tabview-loaded delay set
 
     setupFormatDates(pageFetchedDataLocal);
-    
+
     const promiseChatDetails = Promise.resolve(pageFetchedDataLocal).then((pageFetchedDataLocal) => {
       if (ytEventSequence >= 2) {
         let liveChatRenderer = null;
@@ -8410,7 +8434,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     });
   }
-  
+
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
   if (document.documentElement.getAttribute('tabview-unwrapjs')) {
     document.dispatchEvent(new CustomEvent("tabview-plugin-loaded"))
