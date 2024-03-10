@@ -4578,7 +4578,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           while (node = walker.nextNode()) {
             const text = node.nodeValue;
             if (text && !text.startsWith('\uF204')) {
-              node.nodeValue = `\uF204${text}\uF205`;
+              node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
             }
           }
 
@@ -4628,11 +4628,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           /** @type {string} */
           let trimmedTextContent = await asyncGetContent(currentNode);
           trimmedTextContent = trimmedTextContent.trim();
-          if (trimmedTextContent.length > 0) {
-            if (trimmedTextContent.includes('\uF204')) {
-              trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
-              trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
-            }
+          let withText = trimmedTextContent.length > 0;
+          if (withText && trimmedTextContent.includes('\uF204')) {
+            trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
+            trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
+            withText = trimmedTextContent.length > 0;
+          }
+          if (withText) {
             trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
             let loop = 64;
             while (loop-- > 0) {
