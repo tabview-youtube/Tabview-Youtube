@@ -4464,19 +4464,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     async function alCheckFn(ks) {
 
-      let alCheckCount = 9;
       let alCheckInterval = 420;
 
-      do {
+      for (let alCheckCount = 9; --alCheckCount > 0;) {
 
         if (+renderIdentifier !== ks) break;
-        if (alCheckCount === 0) break;
         if (execute() !== true) break;
-        --alCheckCount;
 
         await new Promise(r => setTimeout(r, alCheckInterval));
 
-      } while (true)
+      }
 
     }
 
@@ -4497,38 +4494,33 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const { removeDuplicateInfoFn, setHiddenStateForDesc } = (() => {
 
     let g_check_detail_A = 0;
-    let checkDuplicateRes = null;
     function setHiddenStateForDesc() {
-      let ytdFlexyElm = es.ytdFlexy
-      if (!ytdFlexyElm) return
-      let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false
-      let elm
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #plain-snippet-text')
+      let ytdFlexyElm = es.ytdFlexy;
+      if (!ytdFlexyElm) return;
+      let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false;
+      let elm;
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #plain-snippet-text');
       if (elm) {
-        wAttr(elm, 'hidden', hiddenBool)
+        wAttr(elm, 'hidden', hiddenBool);
       }
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander #formatted-snippet-text')
+      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #formatted-snippet-text');
       if (elm) {
-        wAttr(elm, 'hidden', hiddenBool)
+        wAttr(elm, 'hidden', hiddenBool);
       }
     }
-    function checkDuplicatedInfo_then(isCheck, checkDuplicateRes) {
+    function checkDuplicatedInfo_then() {
 
       const ytdFlexyElm = es.ytdFlexy;
       if (!ytdFlexyElm) return; //unlikely
 
       let cssbool_c1 = false, cssbool_c2 = false;
-      if (isCheck === 5) {
 
-        if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
-          cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
-          cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
-        }
-
-        if (typeof checkDuplicateRes === 'boolean') {
-          setHiddenStateForDesc();
-        }
+      if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
+        cssbool_c1 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
+        cssbool_c2 = !!querySelectorFromAnchor.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
       }
+
+      setHiddenStateForDesc();
 
       ytdFlexyElm.setAttribute('tyt-has', `${cssbool_c1 ? 'A' : 'a'}${cssbool_c2 ? 'B' : 'b'}`);
 
@@ -4550,11 +4542,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    async function checkDuplicatedInfoAug2023() {
-      const firstElementSelector = "ytd-text-inline-expander#description-inline-expander";
+    async function checkDuplicatedInfoAug2023(targetDuplicatedInfoPanel) {
+      // ytd-text-inline-expander#description-inline-expander:not([hidden])
+      const firstElementSelector = "ytd-text-inline-expander#description-inline-expander"; // ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata
       const secondElementSelector = "#tab-info ytd-expander #description";
 
-      const firstElement = document.querySelector(firstElementSelector);
+      const firstElement = targetDuplicatedInfoPanel || document.querySelector(firstElementSelector);
       const secondElement = document.querySelector(secondElementSelector);
 
       // dont detect the content change of main info box
@@ -4563,10 +4556,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (!firstElement || !secondElement) return false;
       if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
-
-      const asyncGetContent = async (n) => {
-        return n.textContent;
-      }
 
       const getTextContentArr = async (element) => {
         let contentArray = [];
@@ -4609,8 +4598,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 if (child.hasAttribute("hidden")) {
                   continue;
                 }
-                let trimmedTextContent = await asyncGetContent(child);
-                trimmedTextContent = trimmedTextContent.trim();
+                let trimmedTextContent = child.textContent.trim();
                 if (trimmedTextContent.length === 0) continue;
                 allHidden = false;
                 break;
@@ -4626,8 +4614,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
 
           /** @type {string} */
-          let trimmedTextContent = await asyncGetContent(currentNode);
-          trimmedTextContent = trimmedTextContent.trim();
+          let trimmedTextContent = currentNode.textContent.trim();
           let withText = trimmedTextContent.length > 0;
           if (withText && trimmedTextContent.includes('\uF204')) {
             trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
@@ -4655,6 +4642,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
 
+      /**
+       @param {any[]} arr1 
+       @param {any[]} arr2 */
       function isSubset(arr1, arr2) {
         const set = new Set(arr2);
         const r = arr1.every(item => set.has(item));
@@ -4678,10 +4668,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const ytdFlexyElm = es.ytdFlexy;
       if (!ytdFlexyElm) return; //unlikely
 
-      const targetDuplicatedInfoPanel = document.querySelector('ytd-text-inline-expander#description-inline-expander:not([hidden])');
-      if (targetDuplicatedInfoPanel && !closestDOM.call(targetDuplicatedInfoPanel, '[hidden]')) { } else {
-        return; // the layout is not required to have this checking.
-      }
+      const targetDuplicatedInfoPanels = [...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander:not([hidden])')].filter((e) => {
+
+        // playlist WL page -> video -> buggy
+        // 0: ytd-text-inline-expander#description-inline-expander.style-scope.ytd-playlist-header-renderer
+        // 1: ytd-text-inline-expander#description-inline-expander.style-scope.ytd-watch-metadata
+
+        return !closestDOM.call(e, '[hidden]');
+      });
+      if (targetDuplicatedInfoPanels.length !== 1) return;
+      const targetDuplicatedInfoPanel = targetDuplicatedInfoPanels[0];
 
       let t = Date.now();
       g_check_detail_A = t;
@@ -4692,12 +4688,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       try {
         await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
 
-
         if (g_check_detail_A !== t) return;
 
-
         let clicked = false;
-        await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #expand[role="button"]:not([hidden])')].map(button => {
+        await Promise.all([...HTMLElement.prototype.querySelectorAll.call(targetDuplicatedInfoPanel, '#expand[role="button"]:not([hidden])')].map(button => {
           return Promise.resolve().then(() => {
             button.click();
             clicked = true;
@@ -4706,11 +4700,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         await Promise.resolve(0);
 
-        infoDuplicated = await checkDuplicatedInfoAug2023();
+        infoDuplicated = await checkDuplicatedInfoAug2023(targetDuplicatedInfoPanel);
 
         if (infoDuplicated === false && clicked) {
 
-          await Promise.all([...document.querySelectorAll('ytd-text-inline-expander#description-inline-expander #collapse[role="button"]:not([hidden])')].map(button => {
+          await Promise.all([...HTMLElement.prototype.querySelectorAll.call(targetDuplicatedInfoPanel, '#collapse[role="button"]:not([hidden])')].map(button => {
             return Promise.resolve().then(() => {
               button.click();
             });
@@ -4727,22 +4721,16 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (g_check_detail_A !== t) return;
 
-      //ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
-      checkDuplicateRes = infoDuplicated;
-
-      return 5; // other than 5, duplicated check = false
+      return { ok: 1, infoDuplicated }; // other than 5, duplicated check = false
 
     };
 
     const removeDuplicateInfoFn = (b) => {
 
-      checkDuplicateRes = null;
       async function alCheckFn(ks) {
 
-        let alCheckCount = 4;
         let alCheckInterval = 270;
 
-        checkDuplicateRes = null;
         let descExpandState = null;
         const descToggleBtnSelector = '#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])';
         const descMetaExpander = closestDOMX(document.querySelector('ytd-watch-metadata ytd-text-inline-expander#description-inline-expander'), 'ytd-watch-metadata');
@@ -4762,41 +4750,37 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         try {
 
-          do {
+          for (let alCheckCount = 4; alCheckCount-- > 0;) {
             // await removeOldExpanders();
             // await removeContentMismatch();
             await getRAFPromise().then();
 
             if (+renderIdentifier !== ks) break;
-            if (alCheckCount === 0) break;
-            if (checkDuplicateRes === true) break;
-            checkDuplicateRes = null;
 
-            let res = await checkDuplicatedInfo(); //async
-            if (res === 5) {
+            const res = await checkDuplicatedInfo(); //async
 
-              const ytdFlexyElm = es.ytdFlexy;
-              if (ytdFlexyElm) {
-                if (checkDuplicateRes === true || (checkDuplicateRes === false && alCheckCount === 1)) {
-                  ytdFlexyElm.classList.toggle('tabview-info-duplicated', checkDuplicateRes)
+            if (res && res.ok) {
+              const infoDuplicated = res.infoDuplicated;
+              const isFinalResult = infoDuplicated || alCheckCount === 0;
+              if (isFinalResult) {
+                const ytdFlexyElm = es.ytdFlexy;
+                if (ytdFlexyElm) {
+                  ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
                   ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
-                  checkDuplicatedInfo_then(res, checkDuplicateRes);
+                  checkDuplicatedInfo_then();
                   scriptletDeferred.debounce(() => {
                     document.dispatchEvent(new CustomEvent('tabview-fix-info-box-tooltip'));
                   }, skIdInfoboxTooltipFix);
                 }
+                break;
               }
-
             }
-            --alCheckCount;
-
-            if (checkDuplicateRes === true) break;
 
             await new Promise(r => setTimeout(r, alCheckInterval));
 
-          } while (true)
+          }
 
-          await Promise.resolve(0)
+          await Promise.resolve(0);
 
           const descToggleBtnB = typeof descExpandState === 'boolean' ? querySelectorFromAnchorX(descMetaLines, descToggleBtnSelector) : null;
           if (descToggleBtnB) {
@@ -4810,9 +4794,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
 
           }
-
-
-
 
         } catch (e) {
 
@@ -4834,8 +4815,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         }
 
-
-
       }
       let ks = +renderIdentifier;
       renderDeferred.debounce(() => {
@@ -4856,6 +4835,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let udm = 0;
   async function deferredDuplicatedMetaCheckerFn(b) {
+
     udm = 0;
     await scriptletDeferred.d();
     if (REMOVE_DUPLICATE_META_RECOMMENDATION) {
@@ -5440,6 +5420,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     globalHook('yt-page-data-updated', (evt) => {
 
       if (REMOVE_DUPLICATE_INFO && udm) {
+
         if (location.pathname === '/watch') deferredDuplicatedMetaCheckerFn(1);
       }
 
