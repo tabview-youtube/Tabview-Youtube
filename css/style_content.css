@@ -4116,6 +4116,13 @@ body .ytp-autohide .ytp-unmute,
         /* square video : https://www.youtube.com/watch?v=rEU4CjSQzNY */
     }
 
+    body ytd-watch-flexy[flexy][is-two-columns_][is-extra-wide-video_]:not([full-bleed-player][full-bleed-no-max-width-columns]):not([fixed-panels]) #primary.ytd-watch-flexy, 
+    body ytd-watch-flexy[flexy][is-two-columns_][is-four-three-to-sixteen-nine-video_]:not([full-bleed-player][full-bleed-no-max-width-columns]):not([fixed-panels]) #primary.ytd-watch-flexy {
+        /* 2024.04.06 */
+        max-width: none;
+        /* square video : https://www.youtube.com/watch?v=VccJi8eo-Vg */
+    }
+
     #tab-info #description.ytd-video-secondary-info-renderer {
         max-width: none;
     }
