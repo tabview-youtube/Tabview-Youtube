@@ -4557,6 +4557,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!firstElement || !secondElement) return false;
       if (firstElement.hasAttribute('hidden') || secondElement.hasAttribute('hidden')) return false;
 
+      const isCryptoRandomUUIDAvailable = typeof crypto === 'object' && typeof crypto.randomUUID === 'function' ? `${crypto.randomUUID()}` : '';
+      const isReplaceAllAvailable = typeof String.prototype.replaceAll === 'function';
+      const doNameReplace = isCryptoRandomUUIDAvailable && isReplaceAllAvailable;
+
+      const nameText = doNameReplace ? (sessionStorage.getItem('js-yt-usernames') || '') : '';
+      const replaceArr = [];
+      let rid;
+      if (nameText) {
+        do {
+          rid = crypto.randomUUID();
+        } while (nameText.includes(rid));
+        let nni = 0;
+        const nameMap = new Map();
+        for (const nameTextS of nameText.split('\n')) {
+          const nameTextA = nameTextS.split('\t');
+          const m = nameTextA[1].replaceAll(' ', '');
+          let t = nameMap.get(m);
+          if (!t) {
+            t = ++nni;
+            nameMap.set(m, t);
+          }
+          replaceArr.push([nameTextA[0], t]);
+          replaceArr.push([m, t]);
+        }
+        nameMap.clear();
+        if (replaceArr.length > 1) replaceArr.sort((a, b) => b[0].length - a[0].length);
+      }
+
+      const fixNameConversion = doNameReplace && rid && replaceArr.length > 0
+        ? (text) => {
+          if (typeof text === 'string') {
+            text = text.replaceAll(' ', '');
+            for (const s of replaceArr) {
+              const w = `[[${rid}::${s[1]}]]`;
+              text = text.replaceAll(s[0], w);
+            }
+          }
+          return text;
+        }
+        : (text) => text;
+
       const getTextContentArr = async (element) => {
         let contentArray = [];
 
@@ -4632,7 +4673,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
             // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
             // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-            contentArray.push(trimmedTextContent);
+            contentArray.push(fixNameConversion(trimmedTextContent));
           }
 
         }
@@ -4652,6 +4693,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         return r;
       }
 
+      // console.log(828, window.dbx1 = firstElementTextArr, window.dbx2 = secondElementTextArr);
+      
+      // document.documentElement.setAttribute('firstElementTextArr', JSON.stringify(firstElementTextArr))
+      // document.documentElement.setAttribute('secondElementTextArr', JSON.stringify(secondElementTextArr))
+      // window.dbx1 = JSON.parse(document.documentElement.getAttribute('firstElementTextArr'))
+      // window.dbx2 = JSON.parse(document.documentElement.getAttribute('secondElementTextArr'))
       const result = isSubset(firstElementTextArr, secondElementTextArr);
 
       if (result) {
@@ -4662,6 +4709,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       return result;
     }
+    // document.addEventListener('dbx', ()=>{
+    //   console.log(window.dbx1)
+    //   console.log(window.dbx2)
+    // }, true);
 
     async function checkDuplicatedInfo() {
 
