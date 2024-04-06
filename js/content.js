@@ -36,6 +36,7 @@ if (typeof AbortSignal !== 'undefined') {
           flags.live_chat_overflow_hide_chat = false;
           flags.web_watch_chat_hide_button_killswitch = false;
           flags.web_watch_theater_chat = false; // for re-openable chat (ytd-watch-flexy's liveChatCollapsed is always undefined)
+          flags.suppress_error_204_logging = true;
           /*         
             onYtChatCollapsedChanged: function(a) {
               if ("ytd-watch-grid" === this.is || B("web_watch_theater_chat"))
