@@ -40,12 +40,12 @@ if (typeof AbortSignal !== 'undefined') {
           flags.suppress_error_204_logging = true;
 
           if (DISABLE_FLAGS_SHADYDOM_FREE) {
-            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_node_methods = false;
-            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_query_methods = false;
-            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_readonly_properties_batch_one = false;
-            EXPERIMENT_FLAGS.enable_shadydom_free_parent_node = false;
-            EXPERIMENT_FLAGS.enable_shadydom_free_children = false;
-            EXPERIMENT_FLAGS.enable_shadydom_free_last_child = false;
+            flags.enable_shadydom_free_scoped_node_methods = false;
+            flags.enable_shadydom_free_scoped_query_methods = false;
+            flags.enable_shadydom_free_scoped_readonly_properties_batch_one = false;
+            flags.enable_shadydom_free_parent_node = false;
+            flags.enable_shadydom_free_children = false;
+            flags.enable_shadydom_free_last_child = false;
           }
           /*         
             onYtChatCollapsedChanged: function(a) {
