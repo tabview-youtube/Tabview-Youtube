@@ -26,6 +26,7 @@ SOFTWARE.
 
 if (typeof AbortSignal !== 'undefined') {
   function script3277() {
+    const DISABLE_FLAGS_SHADYDOM_FREE = true;
     const config = (window.yt || 0).config_ || (window.ytcfg || 0).data_;
     if (config) {
       const EXPERIMENT_FLAGS = config.EXPERIMENT_FLAGS || 0;
@@ -37,6 +38,15 @@ if (typeof AbortSignal !== 'undefined') {
           flags.web_watch_chat_hide_button_killswitch = false;
           flags.web_watch_theater_chat = false; // for re-openable chat (ytd-watch-flexy's liveChatCollapsed is always undefined)
           flags.suppress_error_204_logging = true;
+
+          if (DISABLE_FLAGS_SHADYDOM_FREE) {
+            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_node_methods = false;
+            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_query_methods = false;
+            EXPERIMENT_FLAGS.enable_shadydom_free_scoped_readonly_properties_batch_one = false;
+            EXPERIMENT_FLAGS.enable_shadydom_free_parent_node = false;
+            EXPERIMENT_FLAGS.enable_shadydom_free_children = false;
+            EXPERIMENT_FLAGS.enable_shadydom_free_last_child = false;
+          }
           /*         
             onYtChatCollapsedChanged: function(a) {
               if ("ytd-watch-grid" === this.is || B("web_watch_theater_chat"))
