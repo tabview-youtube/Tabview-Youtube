@@ -38,6 +38,7 @@ if (typeof AbortSignal !== 'undefined') {
           flags.web_watch_chat_hide_button_killswitch = false;
           flags.web_watch_theater_chat = false; // for re-openable chat (ytd-watch-flexy's liveChatCollapsed is always undefined)
           flags.suppress_error_204_logging = true;
+          flags.kevlar_watch_grid = false;  // A/B testing for watch grid
 
           if (DISABLE_FLAGS_SHADYDOM_FREE) {
             flags.enable_shadydom_free_scoped_node_methods = false;
