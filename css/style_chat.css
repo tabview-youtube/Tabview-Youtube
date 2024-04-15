@@ -118,6 +118,9 @@
 
 @media all {
 
+    #chat-container > ytd-live-chat-frame#chat[class] {
+        border-radius: inherit;
+    }
 
     
     ytd-live-chat-frame#chat:not([collapsed])>.ytd-live-chat-frame#show-hide-button:first-child {
