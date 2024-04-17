@@ -24,13 +24,66 @@ SOFTWARE.
 
 */
 
-if (typeof AbortSignal !== 'undefined') {
-  function script3277() {
+if (typeof window === 'object') {
+  function script3278() {
     const DISABLE_FLAGS_SHADYDOM_FREE = true;
-    const config = (window.yt || 0).config_ || (window.ytcfg || 0).data_;
-    if (config) {
-      const EXPERIMENT_FLAGS = config.EXPERIMENT_FLAGS || 0;
-      const EXPERIMENTS_FORCED_FLAGS = config.EXPERIMENTS_FORCED_FLAGS || 0;
+
+    /**
+     * 
+     * Minified Code from https://greasyfork.org/en/scripts/475632-ytconfighacks/code (ytConfigHacks)
+     * Date: 2024.04.17
+     * Minifier: https://www.toptal.com/developers/javascript-minifier
+     * 
+     */
+    (() => {
+      let e = "undefined" != typeof unsafeWindow ? unsafeWindow : this instanceof Window ?
+        this : window; if (!e._ytConfigHacks) {
+          let t = 4; class n extends Set {
+            add(e) {
+              if (t <= 0) return console.warn(
+                "yt.config_ is already applied on the page."); "function" == typeof e && super.add(e)
+            }
+          } let a = (async () => { })()
+            .constructor, i = e._ytConfigHacks = new n, l = () => { let t = e.ytcsi.originalYtcsi; t && (e.ytcsi = t, l = null) },
+            c = null, o = () => {
+              if (t >= 1) {
+                let n = (e.yt || 0).config_ || (e.ytcfg || 0).data_ || 0; if ("string" == typeof n.
+                  INNERTUBE_API_KEY && "object" == typeof n.EXPERIMENT_FLAGS) for (let a of (--t <= 0 && l && l(), c = !0, i)) a(n)
+              }
+            }, f = 1,
+            d = t => {
+              if (t = t || e.ytcsi) return e.ytcsi = new Proxy(t, { get: (e, t, n) => "originalYtcsi" === t ? e : (o(), c && --f <= 0 && l && l(), e[t]) })
+                , !0
+            }; d() || Object.defineProperty(e, "ytcsi", {
+              get() { }, set: t => (t && (delete e.ytcsi, d(t)), !0), enumerable: !1, configurable: !0
+            }); let { addEventListener: s, removeEventListener: y } = Document.prototype; function r(t) {
+              o(),
+              t && e.removeEventListener("DOMContentLoaded", r, !1)
+            } new a(e => {
+              if ("undefined" != typeof AbortSignal) s.call(document,
+                "yt-page-data-fetched", e, { once: !0 }), s.call(document, "yt-navigate-finish", e, { once: !0 }), s.call(document, "spfdone", e,
+                  { once: !0 }); else {
+                    let t = () => {
+                      e(), y.call(document, "yt-page-data-fetched", t, !1), y.call(document, "yt-navigate-finish", t, !1),
+                      y.call(document, "spfdone", t, !1)
+                    }; s.call(document, "yt-page-data-fetched", t, !1), s.call(document, "yt-navigate-finish", t, !1),
+                      s.call(document, "spfdone", t, !1)
+              }
+            }).then(o), new a(e => {
+              if ("undefined" != typeof AbortSignal) s.call(document, "yt-action", e,
+                { once: !0, capture: !0 }); else { let t = () => { e(), y.call(document, "yt-action", t, !0) }; s.call(document, "yt-action", t, !0) }
+            }).then(o),
+              a.resolve().then(() => { "loading" !== document.readyState ? r() : e.addEventListener("DOMContentLoaded", r, !1) })
+        }
+    })();
+
+    let configOnce = false;
+    window._ytConfigHacks.add((config_) => {
+      if (configOnce) return;
+      configOnce = true;
+
+      const EXPERIMENT_FLAGS = config_.EXPERIMENT_FLAGS || 0;
+      const EXPERIMENTS_FORCED_FLAGS = config_.EXPERIMENTS_FORCED_FLAGS || 0;
       for (const flags of [EXPERIMENT_FLAGS, EXPERIMENTS_FORCED_FLAGS]) {
         if (flags) {
           flags.kevlar_watch_metadata_refresh_no_old_secondary_data = false;
@@ -48,23 +101,17 @@ if (typeof AbortSignal !== 'undefined') {
             flags.enable_shadydom_free_children = false;
             flags.enable_shadydom_free_last_child = false;
           }
-          /*         
-            onYtChatCollapsedChanged: function(a) {
-              if ("ytd-watch-grid" === this.is || B("web_watch_theater_chat"))
-                  this.liveChatCollapsed = a.detail
-            },
-          */
         }
       }
-    }
+
+    });
+
   }
-  let button = document.createElement('button');
-  button.setAttribute('onclick', `(${script3277})()`);
-  document.addEventListener('yt-action', function () {
-    button.click();
-    button.onclick = null;
-    button = null;
-  }, { capture: true, passive: true, once: true });
+  let mbutton = document.createElement('button');
+  mbutton.setAttribute('onclick', `(${script3278})()`);
+  mbutton.click();
+
+  
 }
 
 -(function (__CONTEXT__) {
