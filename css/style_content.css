@@ -4365,6 +4365,10 @@ body .ytp-autohide .ytp-unmute,
         row-gap: 2px;
         height: 100%;
         width: 100%;
+    }
+
+    
+    ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer#playlist #items.playlist-items.style-scope.ytd-playlist-panel-renderer {
         contain: strict;
     }
     
