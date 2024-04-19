@@ -106,11 +106,93 @@ if (typeof window === 'object') {
 
     });
 
+    
+    // ---- this.overscrollConfig to be further reviewed in JS Engine Tamer  -----
+
+    // 2024.04.19 - Playlist in Single Column Mode cannot be scrolled correctly.
+
+      /*
+
+        ;function gZb(a, b) {
+            b = void 0 === b ? !0 : b;
+            a.addEventListener("wheel", hZb);
+            a.overscrollConfig = {
+                cooldown: b
+            }
+        }
+        function iZb(a) {
+            a.overscrollConfig = void 0;
+            a.removeEventListener("wheel", hZb)
+        }
+        function hZb(a) {
+            var b = a.deltaY
+              , c = a.target
+              , d = null;
+            if (window.Polymer && window.Polymer.Element) {
+                if (c = a.path || a.composedPath && a.composedPath()) {
+                    c = g(c);
+                    for (var e = c.next(); !e.done && (e = e.value,
+                    !jZb(e, b)); e = c.next())
+                        if (e.overscrollConfig) {
+                            d = e;
+                            break
+                        }
+                }
+            } else
+                for (; c && !jZb(c, b); ) {
+                    if (c.overscrollConfig) {
+                        d = c;
+                        break
+                    }
+                    c = c.parentElement
+                }
+            d && (b = d.overscrollConfig,
+            b.cooldown ? (d = a.deltaY,
+            c = b.lastDeltaY || 0,
+            b.lastDeltaY = d,
+            e = b.lastStopped || 0,
+            c && e && 0 < c == 0 < d ? Math.abs(c) >= Math.abs(d) ? (d = e + 1200,
+            c = !1) : (d = e + 600,
+            c = !0) : (d = Date.now() + 600,
+            c = !0),
+            d > Date.now() && (a.preventDefault(),
+            c && (b.lastStopped = Date.now()))) : a.preventDefault())
+        }
+      */
+
+    const insp = o => o ? (o.polymerController || o.inst || o || 0) : (o || 0);
+    // const indr = o => insp(o).$ || o.$ || 0;
+    
+    EventTarget.prototype.addEventListener83 = EventTarget.prototype.addEventListener
+    EventTarget.prototype.addEventListener = function(type, callback, option = void 0){
+
+      if (type === 'wheel' && !option && typeof callback === 'function' && this.overscrollConfigDisable === void 0) {
+        try {
+          this.overscrollConfigDisable = true;
+          delete this.overscrollConfig;
+          Object.defineProperty(this, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
+          const cnt = insp(this);
+          if (cnt !== this) {
+            delete cnt.overscrollConfig;
+            Object.defineProperty(cnt, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
+          }
+        } catch (e) { }
+      }
+
+      return this.addEventListener83(type, callback, option);
+    }
+    
+    // Object.defineProperty( HTMLElement.prototype, 'overscrollConfig' , {get(){return undefined}, set(nv){return true}, configurable: true, enumerable: false})
+    
+
+
+    // ---- this.overscrollConfig to be further reviewed in JS Engine Tamer  -----
+
+
   }
   let mbutton = document.createElement('button');
   mbutton.setAttribute('onclick', `(${script3278})()`);
   mbutton.click();
-
   
 }
 
