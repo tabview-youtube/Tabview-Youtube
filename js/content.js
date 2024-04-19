@@ -106,8 +106,8 @@ if (typeof window === 'object') {
 
     });
 
-    
-    // ---- this.overscrollConfig to be further reviewed in JS Engine Tamer  -----
+
+    // ---- << this.overscrollConfig HACK >>  -----
 
     // 2024.04.19 - Playlist in Single Column Mode cannot be scrolled correctly.
 
@@ -162,31 +162,40 @@ if (typeof window === 'object') {
 
     const insp = o => o ? (o.polymerController || o.inst || o || 0) : (o || 0);
     // const indr = o => insp(o).$ || o.$ || 0;
-    
-    EventTarget.prototype.addEventListener83 = EventTarget.prototype.addEventListener
-    EventTarget.prototype.addEventListener = function(type, callback, option = void 0){
 
-      if (type === 'wheel' && !option && typeof callback === 'function' && this.overscrollConfigDisable === void 0) {
-        try {
-          this.overscrollConfigDisable = true;
-          delete this.overscrollConfig;
-          Object.defineProperty(this, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
-          const cnt = insp(this);
-          if (cnt !== this) {
-            delete cnt.overscrollConfig;
-            Object.defineProperty(cnt, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
+    // let [YouTube JS Engine Tamer] to hack the addEventListener first
+    new Promise(resolve => {
+      document.addEventListener('yt-action', resolve, { once: true, capture: true });
+    }).then(() => {
+
+      if (typeof EventTarget.prototype.addEventListener52178 !== 'function' && typeof EventTarget.prototype.addEventListener === 'function') {
+
+        EventTarget.prototype.addEventListener52178 = EventTarget.prototype.addEventListener
+        EventTarget.prototype.addEventListener = function (type, callback, option = void 0) {
+          // M-tabview-youtube.52178
+          if (type === 'wheel' && !option && typeof callback === 'function' && this.overscrollConfigDisable === void 0) {
+            try {
+              this.overscrollConfigDisable = true;
+              delete this.overscrollConfig;
+              Object.defineProperty(this, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
+              const cnt = insp(this);
+              if (cnt !== this) {
+                delete cnt.overscrollConfig;
+                Object.defineProperty(cnt, 'overscrollConfig', { get() { return undefined }, set(nv) { return true }, configurable: true, enumerable: false });
+              }
+            } catch (e) { }
           }
-        } catch (e) { }
+          return this.addEventListener52178(type, callback, option);
+        }
+
+        // Object.defineProperty( HTMLElement.prototype, 'overscrollConfig' , {get(){return undefined}, set(nv){return true}, configurable: true, enumerable: false})
+
       }
 
-      return this.addEventListener83(type, callback, option);
-    }
-    
-    // Object.defineProperty( HTMLElement.prototype, 'overscrollConfig' , {get(){return undefined}, set(nv){return true}, configurable: true, enumerable: false})
-    
+    });
 
 
-    // ---- this.overscrollConfig to be further reviewed in JS Engine Tamer  -----
+    // ---- << this.overscrollConfig HACK >>  -----
 
 
   }
