@@ -5007,7 +5007,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
           await Promise.resolve(0)
 
-          const detailsIntersectioner = querySelectorFromAnchor.call(descMetaExpander, '#info-container.style-scope.ytd-watch-metadata');
+          const detailsIntersectioner = querySelectorFromAnchor.call(descMetaExpander, '#info-container.style-scope.ytd-watch-metadata') || querySelectorFromAnchor.call(descMetaExpander, '#ytd-watch-info-text.style-scope.ytd-watch-metadata') || null;
           if (detailsIntersectioner) {
             Promise.resolve(detailsIntersectioner).then(dom => {
               if (dom) mtoObservationDetails.bindElement(dom);
@@ -6510,20 +6510,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   function setToggleInfo() {
-
     scriptletDeferred.d().then(() => {
-
-      let elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child:not([tyt-info-toggler])')
-      if (elem) {
-
+      const elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child') || document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #ytd-watch-info-text.ytd-watch-metadata:first-child') || null;
+      if (elem && !elem.hasAttribute('tyt-info-toggler')) {
         elem.setAttribute('tyt-info-toggler', '')
         elem.dispatchEvent(new CustomEvent('tyt-info-toggler'))
-
       }
-
     });
   }
-
 
   function flexyAttr_toggleFlag(mFlag, b, flag) {
     return b ? (mFlag | flag) : (mFlag & ~flag);

@@ -988,6 +988,12 @@
 		display: none;
 	}
 
+    /* 2024/04/20 */
+    [data-ytlstm-overlay-text-shadow] ytd-watch-flexy.tabview-info-duplicated #description.style-scope.ytd-watch-metadata > #description-inner.style-scope.ytd-watch-metadata > #ytd-watch-info-text.style-scope.ytd-watch-metadata ~ ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+		content-visibility: hidden;
+		display: none;
+	}
+
     iframe.vdeae[class] {
         position: fixed !important;
         left: -3333px !important;

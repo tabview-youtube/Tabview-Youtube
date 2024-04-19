@@ -619,6 +619,7 @@ Same for #secondary
     }
 
     #info-container.ytd-watch-info-text,
+    #ytd-watch-info-text.ytd-watch-info-text,
     #view-count.ytd-watch-info-text,
     #date-text.ytd-watch-info-text {
         align-items: center;
@@ -909,12 +910,11 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy[clickable-description] #description.ytd-watch-metadata #info-container.ytd-watch-metadata[tyt-info-toggler] {
             cursor: pointer;
         }
-
-        /* rollback at 2022/11/30;  buggy for :has(:hover) */
-        /*
-        ytd-watch-metadata[clickable-description] #description.ytd-watch-metadata:has(#info-container[tyt-info-toggler]:hover) {
-            background: var(--yt-spec-button-chip-background-hover);
-        }*/
+        
+        /* 2024/04/20 */
+        ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy[clickable-description] #description.ytd-watch-metadata #ytd-watch-info-text.ytd-watch-metadata[tyt-info-toggler] {
+            cursor: pointer;
+        }
 
     }
     
@@ -961,6 +961,18 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
             display: none;
         }
 
+        /* Apr 2024 - #info-container => #ytd-watch-info-text */
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#ytd-watch-info-text.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata>yt-attributed-string.ytd-text-inline-expander~yt-formatted-string.ytd-text-inline-expander {
+            content-visibility: hidden;
+            display: none
+        }
+
+        ytd-watch-flexy:not([fullscreen]).tabview-info-duplicated #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#ytd-watch-info-text.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            content-visibility: hidden;
+            display: none
+        }
+
     }
 
     @media all and (display-mode: fullscreen) {
@@ -975,8 +987,12 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
         :fullscreen ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata.ytd-watch-flexy ytd-metadata-row-container-renderer.style-scope.ytd-watch-metadata {
             overflow-x: hidden;
         }
-
         
+        /* 2024/04/20 */
+        :fullscreen ytd-watch-flexy[fullscreen]:not([tyt-has*="a"]):not([tyt-has*="b"]) #description.style-scope.ytd-watch-metadata>#description-inner.style-scope.ytd-watch-metadata>#ytd-watch-info-text.style-scope.ytd-watch-metadata~ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata {
+            max-height: calc(100vh - var(--ytd-watch-flexy-masthead-height) - 12em - var(--ytd-margin-6x));
+            overflow: auto;
+        }
 
     }
 
@@ -1495,6 +1511,12 @@ body .ytp-autohide .ytp-unmute,
     }
 
     .tyt-tmp-hide-metainfo #description.item.style-scope.ytd-watch-metadata #info-container.style-scope.ytd-watch-metadata{
+        visibility: collapse;
+        /* display: none !important; */
+    }
+
+    /* 2024/04/20 */
+    .tyt-tmp-hide-metainfo #description.item.style-scope.ytd-watch-metadata #ytd-watch-info-text.style-scope.ytd-watch-metadata{
         visibility: collapse;
         /* display: none !important; */
     }
