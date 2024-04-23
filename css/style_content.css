@@ -776,6 +776,26 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
     
 }
 
+
+@supports(color: var(--compatibile-with-return-youtube-dislike)){
+
+
+    /* 2024.04.23 fix Return YouTube Dislike's visual issue */
+    /* against --fix-youtube-bugs-menu-options-hidden-after-page-updated */
+    
+    .return-youtube-dislike ytd-watch-metadata #owner ~ #actions.item.style-scope.ytd-watch-metadata > #actions-inner {
+        overflow: initial;
+    }
+
+    .return-youtube-dislike #top-row[style]{
+        border-bottom-color: transparent !important;
+        padding-bottom: 6px !important;
+    }
+
+
+}
+
+
 @supports (color: var(--fix-single-column-menu-bar-position)){ /* May 2023 */
     html ytd-watch-metadata[actions-on-separate-line] #actions.ytd-watch-metadata ytd-menu-renderer.ytd-watch-metadata {
         justify-content: flex-end; /* override justify-content: flex-start; */

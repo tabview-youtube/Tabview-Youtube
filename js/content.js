@@ -5557,6 +5557,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       });
     })
 
+    handleDOMAppear('rydTooltipAppear', (evt)=>{
+      document.documentElement.classList.add('return-youtube-dislike');
+    })
+
     handleDOMAppear('oldYtIconPinAppeared', (evt) => {
       /* added in May 2023 - 2023.05.19 */
 

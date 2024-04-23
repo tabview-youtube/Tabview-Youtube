@@ -1126,6 +1126,23 @@
 
 }
 
+@supports (color:var(--compatibile-with-return-youtube-dislike)) {
+
+    @keyframes rydTooltipAppear {
+        from{
+            background-position-x: 1px;
+        }
+        to{
+            background-position-x: 2px;
+        }
+    }
+
+	html[tabview-loaded] .ryd-tooltip {
+        animation: rydTooltipAppear 1ms linear 0s 1 normal forwards;
+	}
+
+}
+
 @supports (color: var(--fix-traditional-meta)){
     ytd-watch-flexy:not([hidden]) #meta-contents.style-scope.ytd-watch-flexy[hidden]{
         display: block !important;
