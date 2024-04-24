@@ -1,6 +1,6 @@
 /* ==UserStyle==
 @name           Tabview Youtube Design Customization
-@version        0.2.3
+@version        0.2.4
 @namespace      github.com/cyfung1031
 @license        MIT
 @description    Change some designs in Tabview Youtube
@@ -142,6 +142,12 @@ keyFrameForTabviewTabsHideController(a, x)
     
     
     if move-tabs-to-top-side-when-chat-expanded {
+
+        ytd-watch-flexy[tyt-chat^="+"] #secondary-inner.style-scope.ytd-watch-flexy {
+            display:flex;
+            flex-direction: column;
+        }
+
         ytd-watch-flexy[tyt-chat^="+"] #chat-container, ytd-watch-flexy[tyt-chat^="+"] ytd-live-chat-frame#chat {
             order: 99;
         }
