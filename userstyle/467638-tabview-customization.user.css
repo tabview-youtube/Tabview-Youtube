@@ -1,6 +1,6 @@
 /* ==UserStyle==
 @name           Tabview Youtube Design Customization
-@version        0.2.2
+@version        0.2.3
 @namespace      github.com/cyfung1031
 @license        MIT
 @description    Change some designs in Tabview Youtube
@@ -24,6 +24,7 @@
 @var checkbox   hide-tab-comments               "Hide Tab - Comments"                      0
 @var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0   
 @var checkbox   no-red-line-for-single-tab      "No Red Line For Single Tab"               0                  
+@var checkbox   move-tabs-to-top-side-when-chat-expanded "Move Tabs To Top Side When Chat Expanded" 0
 ==/UserStyle== */
 
 keyFrameForTabviewTabsHideController(a, x)
@@ -140,6 +141,10 @@ keyFrameForTabviewTabsHideController(a, x)
     }
     
     
-    
+    if move-tabs-to-top-side-when-chat-expanded {
+        ytd-watch-flexy[tyt-chat^="+"] #chat-container, ytd-watch-flexy[tyt-chat^="+"] ytd-live-chat-frame#chat {
+            order: 99;
+        }
+    }
     
 }
