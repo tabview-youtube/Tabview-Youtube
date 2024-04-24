@@ -278,7 +278,11 @@ function injection_script_1() {
   }
 
   const xReplaceState = (s, u) => {
-    history.replaceState(s, '', u);
+    try {
+      history.replaceState(s, '', u);
+    } catch (e) {
+      // in case error occurs if replaceState is replaced by any external script / extension
+    }
     if (s.endpoint) {
       try {
         const ytdAppElm = document.querySelector('ytd-app');
