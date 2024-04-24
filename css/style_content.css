@@ -1853,7 +1853,11 @@ body .ytp-autohide .ytp-unmute,
         ytd-watch-flexy[is-two-columns_][tyt-chat] #right-tabs,
         ytd-watch-flexy[is-two-columns_]:not([tyt-chat]) ytd-live-chat-frame#chat[collapsed]:not([hidden]):not(:empty) + #right-tabs,
         ytd-watch-flexy:not([is-two-columns_]) #right-tabs {
-            margin-top: var(--ytd-margin-2x);
+            --tyt-right-tabs-margin-size: var(--ytd-margin-2x);
+            --tyt-right-tabs-margin-top: var(--tyt-right-tabs-margin-size);
+            --tyt-right-tabs-margin-bottom: 0;
+            margin-top: var(--tyt-right-tabs-margin-top);
+            margin-bottom: var(--tyt-right-tabs-margin-bottom);
         }
 
 
