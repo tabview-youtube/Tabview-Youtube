@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'  # Ignore markdown files changes to trigger this workflow
+      - '**.gitignore'
+      - 'LICENSE'
 
 jobs:
   generate:

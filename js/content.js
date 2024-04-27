@@ -4711,8 +4711,31 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const isReplaceAllAvailable = typeof String.prototype.replaceAll === 'function';
       const doNameReplace = isCryptoRandomUUIDAvailable && isReplaceAllAvailable;
 
-      const nameText = doNameReplace ? (sessionStorage.getItem('js-yt-usernames') || '') : '';
+      let nameText = doNameReplace ? (sessionStorage.getItem('js-yt-usernames') || '') : '';
+
+      {
+        const ownerEndpoints = document.querySelectorAll('#owner a.yt-simple-endpoint[href]');
+        let handle = null;
+        let displayName = null;
+        for (const anchor of ownerEndpoints) {
+          if (displayName === null && anchor.firstElementChild === null && (anchor.textContent || "").length > 0) {
+            displayName = anchor.textContent
+          }
+          let m;
+          if (handle === null && (m = /\/(\@[-_a-zA-Z0-9.]{3,30})(\/|$)/.exec(anchor.getAttribute('href')))) {
+            handle = m[1];
+          }
+        }
+
+        if (handle !== null && displayName !== null) {
+          if (nameText.indexOf(`\n${handle}\t`) < 0 && `${nameText}\n`.indexOf(`\t${displayName}\n`) < 0) {
+            nameText = `\n${handle}\t${displayName}\n${nameText}`.trim();
+          }
+        }
+      }
+
       const replaceArr = [];
+
       let rid;
       if (nameText) {
         do {
@@ -4721,6 +4744,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let nni = 0;
         const nameMap = new Map();
         for (const nameTextS of nameText.split('\n')) {
+          if (nameTextS.length < 4) continue;
           const nameTextA = nameTextS.split('\t');
           const m = nameTextA[1].replaceAll(' ', '');
           let t = nameMap.get(m);
@@ -4751,87 +4775,94 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const getTextContentArr = async (element) => {
         let contentArray = [];
 
-        for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+        try {
 
-          const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
-          let node;
-          while (node = walker.nextNode()) {
-            const text = node.nodeValue;
-            if (text && !text.startsWith('\uF204')) {
-              node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
+          for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+
+            const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
+            let node;
+            while (node = walker.nextNode()) {
+              const text = node.nodeValue;
+              if (text && !text.startsWith('\uF204')) {
+                node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
+              }
             }
+
           }
 
-        }
+          for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
 
-        for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
-
-          if (currentNode.nodeType === Node.ELEMENT_NODE) {
-            if (currentNode.nodeName === "STYLE") {
-              // <style is-scoped>
-              continue;
-            }
-            if (currentNode.getAttribute('role') === 'button') { // .role is not working in Firefox
-              // tp-yt-paper-button#expand-sizer
-              // currentNode.matches('#collapse[role="button"]:not([hidden])')
-              continue;
-            }
-            if (currentNode.hasAttribute("hidden")) {
-              continue;
-            }
-            if (currentNode.id === "snippet") {
-              let allHidden = true;
-              for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
-                if (child.nodeName === "STYLE") {
-                  // <style is-scoped>
-                  continue;
-                }
-                if (child.hasAttribute("hidden")) {
-                  continue;
-                }
-                let trimmedTextContent = child.textContent.trim();
-                if (trimmedTextContent.length === 0) continue;
-                allHidden = false;
-                break;
-              }
-              if (allHidden) {
+            if (currentNode.nodeType === Node.ELEMENT_NODE) {
+              if (currentNode.nodeName === "STYLE") {
+                // <style is-scoped>
                 continue;
               }
+              if (currentNode.getAttribute('role') === 'button') { // .role is not working in Firefox
+                // tp-yt-paper-button#expand-sizer
+                // currentNode.matches('#collapse[role="button"]:not([hidden])')
+                continue;
+              }
+              if (currentNode.hasAttribute("hidden")) {
+                continue;
+              }
+              if (currentNode.id === "snippet") {
+                let allHidden = true;
+                for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
+                  if (child.nodeName === "STYLE") {
+                    // <style is-scoped>
+                    continue;
+                  }
+                  if (child.hasAttribute("hidden")) {
+                    continue;
+                  }
+                  let trimmedTextContent = child.textContent.trim();
+                  if (trimmedTextContent.length === 0) continue;
+                  allHidden = false;
+                  break;
+                }
+                if (allHidden) {
+                  continue;
+                }
+              }
+
+            } else if (currentNode.nodeType === Node.TEXT_NODE) {
+            } else {
+              continue;
             }
 
-          } else if (currentNode.nodeType === Node.TEXT_NODE) {
-          } else {
-            continue;
-          }
-
-          /** @type {string} */
-          let trimmedTextContent = currentNode.textContent.trim();
-          let withText = trimmedTextContent.length > 0;
-          if (withText && trimmedTextContent.includes('\uF204')) {
-            trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
-            trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
-            withText = trimmedTextContent.length > 0;
-          }
-          if (withText) {
-            trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
-            let loop = 64;
-            while (loop-- > 0) {
-              const before = trimmedTextContent;
-              trimmedTextContent = trimmedTextContent.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
-              trimmedTextContent = trimmedTextContent.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
-              if (before === trimmedTextContent) loop = 0;
+            /** @type {string} */
+            let trimmedTextContent = currentNode.textContent.trim();
+            let withText = trimmedTextContent.length > 0;
+            if (withText && trimmedTextContent.includes('\uF204')) {
+              trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
+              trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
+              withText = trimmedTextContent.length > 0;
             }
-            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
-            // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-            contentArray.push(fixNameConversion(trimmedTextContent));
+            if (withText) {
+              trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
+              let loop = 64;
+              while (loop-- > 0) {
+                const before = trimmedTextContent;
+                trimmedTextContent = trimmedTextContent.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
+                trimmedTextContent = trimmedTextContent.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
+                if (before === trimmedTextContent) loop = 0;
+              }
+              // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
+              // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
+              contentArray.push(fixNameConversion(trimmedTextContent));
+            }
+
           }
 
+        } catch (e) {
+          console.log(e)
         }
 
         return contentArray;
       };
 
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
+    
 
       /**
        @param {any[]} arr1 
