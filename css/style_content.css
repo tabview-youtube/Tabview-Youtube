@@ -216,9 +216,22 @@ ytd-watch-flexy {
     --ytd-toolbar-height 
     --ytd-watch-flexy-masthead-height
     */
+
+    --ytd-watch-flexy-panel-max-height--def: 549px; /* use this value as default, if not provided */
+    --ytd-watch-flexy-panel-max-height--rr: var(--ytd-watch-flexy-panel-max-height, var(--ytd-watch-flexy-panel-max-height--def));
+    /* 
+        2024.04.27 YouTube tries to use dynamic value for the following features. so the value might not be defined when the page is just loaded. */
+    /*
+
+        --ytd-watch-flexy-scrollbar-width: 0px; 
+        --ytd-watch-flexy-max-player-width-wide-screen: 1280px; --ytd-watch-flexy-space-below-player: 136px;
+        --ytd-watch-flexy-panel-max-height: 560.25px; --ytd-watch-flexy-chat-max-height: 560.25px; --ytd-watch-flexy-structured-description-max-height: 560.25px; --ytd-watch-flexy-comments-panel-max-height: 560.25px; --ytd-comments-engagement-panel-content-height: 560.25px; 
+        
+    */
+
     --tyt-x-top-bar-height: var(--ytd-masthead-height, var(--ytd-toolbar-height));
-    --tyt-x-below-height: calc(100vh - var(--tyt-x-top-bar-height) - var(--ytd-watch-flexy-panel-max-height));
-    --tyt-x-h1: calc(var(--ytd-watch-flexy-panel-max-height) + var(--tyt-x-below-height));
+    --tyt-x-below-height: calc(100vh - var(--tyt-x-top-bar-height) - var(--ytd-watch-flexy-panel-max-height--rr));
+    --tyt-x-h1: calc(var(--ytd-watch-flexy-panel-max-height--rr) + var(--tyt-x-below-height));
     --tyt-x-h-tab-btn: var(--tabview-youtube-tabbtn-height);
     --tyt-x-h2: calc(var(--tyt-x-h1) - var(--tyt-x-h-tab-btn) - var(--ytd-margin-6x));
     --tyt-x-base-height: calc(var(--tyt-x-h2) - var(--ytd-margin-6x));
