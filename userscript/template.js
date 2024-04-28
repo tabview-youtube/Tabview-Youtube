@@ -192,7 +192,7 @@ SOFTWARE.
 // @run-at                document-start
 // @match                 https://www.youtube.com/*
 // @exclude               /^https?://\S+\.(txt|png|jpg|jpeg|gif|xml|svg|manifest|log|ini)[^\/]*$/
-// @icon                  https://github.com/cyfung1031/Tabview-Youtube/raw/main/images/icon128p.png
+// @icon                  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/main/images/icon128p.png
 
 // @compatible            edge Edge [Blink] >= 79;                      Tampermonkey (Beta) / Violentmonkey
 // @compatible            chrome Chrome >= 54;                          Tampermonkey (Beta) / Violentmonkey
