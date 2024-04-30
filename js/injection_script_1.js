@@ -1514,10 +1514,14 @@ function injection_script_1() {
   });
 
   const retrieveCE = async (nodeName) => {
+    console.log('[tyt] retrieveCE 01')
     isCustomElementsProvided || (await promiseForCustomYtElementsReady);
+    console.log('[tyt] retrieveCE 02')
     await customElements.whenDefined(nodeName);
+    console.log('[tyt] retrieveCE 03')
     const dummy = document.querySelector(nodeName) || document.createElement(nodeName);
     const cProto = insp(dummy).constructor.prototype;
+    console.log('[tyt] retrieveCE 04')
     resolve(cProto);
     console.log('retrieveCE', nodeName);
   }
