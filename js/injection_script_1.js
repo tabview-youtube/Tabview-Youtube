@@ -1514,11 +1514,15 @@ function injection_script_1() {
   });
 
   const retrieveCE = async (nodeName) => {
-    isCustomElementsProvided || (await promiseForCustomYtElementsReady);
-    await customElements.whenDefined(nodeName);
-    const dummy = document.querySelector(nodeName) || document.createElement(nodeName);
-    const cProto = insp(dummy).constructor.prototype;
-    resolve(cProto);
+    try {
+      isCustomElementsProvided || (await promiseForCustomYtElementsReady);
+      await customElements.whenDefined(nodeName);
+      const dummy = document.querySelector(nodeName) || document.createElement(nodeName);
+      const cProto = insp(dummy).constructor.prototype;
+      return cProto;
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   function ceHackExecution() {
@@ -1575,7 +1579,6 @@ function injection_script_1() {
 
     retrieveCE('ytd-expander').then((cProto) => {
 
-
       Promise.resolve().then(checkNoOldSecondaryData);
 
       let keyDefined = 'recomputeOnResize' in cProto;
@@ -1602,7 +1605,6 @@ function injection_script_1() {
         enumerable: false,
         configurable: false // if redefine by YouTube, error comes and change the coding
       });
-
 
     });
 
