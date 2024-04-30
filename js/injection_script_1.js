@@ -2184,71 +2184,105 @@ function injection_script_1() {
 
     retrieveCE('ytd-comments').then((cProto) => {
 
-      let keyDefined = 'headerChanged_' in cProto;
+      if (typeof cProto.attached637 === 'function' || typeof cProto.attached !== 'function' || cProto.attached.length !== 0) {
+        console.warn('define Error: attached in ytd-comments.');
+        return;
+      }
+      cProto.attached637 = cProto.attached;
 
-      // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
-      if (!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
+      cProto.attached = function () {
+        if (typeof this.initProps637 === 'function') {
+          try {
+            this.initProps637();
+          } catch (e) {
+            console.warn(e)
+          }
+        }
+        return this.attached637();
+      }
 
-      // dataChanged_ for cache update & clear cached count
-      // const ytdCommentsP = customElements.get('ytd-comments').prototype;
-      if (typeof cProto.dataChanged_ == 'function' && !('tytDataChanged_' in cProto)) {
-        cProto.tytDataChanged_ = cProto.dataChanged_;
-        cProto.dataChanged_ = function () {
-          const cnt = this;
-          cnt.tytDataChanged_();
+      cProto.initProps637 = function () {
 
-          getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
+        const cProto = ((this.constructor || 0).prototype || 0);
+        if (!cProto) {
+          console.warn('cProto error in ytd-comments.');
+          return;
+        }
 
-            const hostElement = this.hostElement || this;
-            if (!hostElement) return;
-            const data = ((cnt.__data || 0).data || 0);
-            // if (!data) return;
-            const hasData = (data.contents || 0) !== 0;
-            if (hasData) {
-              const sections = ((cnt.$ || 0).sections || 0);
-              if (sections && 'triggerInitialContinuations' in sections) {
-                Promise.resolve(sections).then((sections) => {
-                  sections.triggerInitialContinuations();
-                }).catch(() => { });
-                // console.log('sections.triggerInitialContinuations'); 
-                //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+        cProto.initProps637 = null;
+
+        let keyDefined = 'headerChanged_' in cProto;
+
+        // dataChanged_ are headerChanged_ are properties defined during "_initializeProperties()"
+        if (!keyDefined) console.warn('headerChanged_ is not defined in ytd-comments.');
+
+        // dataChanged_ for cache update & clear cached count
+        // const ytdCommentsP = customElements.get('ytd-comments').prototype;
+        if (typeof cProto.dataChanged_ == 'function' && !('tytDataChanged_' in cProto)) {
+          cProto.tytDataChanged_ = cProto.dataChanged_;
+          cProto.dataChanged_ = function () {
+            const cnt = this;
+            cnt.tytDataChanged_();
+
+            getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
+
+              const hostElement = this.hostElement || this;
+              if (!hostElement) return;
+              const data = ((cnt.__data || 0).data || 0);
+              // if (!data) return;
+              const hasData = (data.contents || 0) !== 0;
+              if (hasData) {
+                const sections = ((cnt.$ || 0).sections || 0);
+                if (sections && 'triggerInitialContinuations' in sections) {
+                  Promise.resolve(sections).then((sections) => {
+                    sections.triggerInitialContinuations();
+                  }).catch(() => { });
+                  // console.log('sections.triggerInitialContinuations'); 
+                  //  a[b].triggerIfNotPreviouslyTriggered() -> this.hasBeenTriggered_ || this.trigger()
+                }
+
+                checkCommentCountCorrectness.call(this, data)
+
+              }
+              dispatchCustomEvent(hostElement, 'ytd-comments-data-changed', { hasData });
+              console.log('[tyt] ytd-comments-data-changed');
+
+            });
+          }
+        }
+
+        // headerChanged_ - new method to fetch comments count
+        if (typeof cProto.headerChanged_ == 'function' && !('tytHeaderChanged_' in cProto)) {
+          cProto.tytHeaderChanged_ = cProto.headerChanged_;
+          cProto.headerChanged_ = function () {
+            // function is called inside flushClients's propertiesChanged          
+            const cnt = this;
+
+            cnt.tytHeaderChanged_();
+
+            getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
+
+              const hostElement = this.hostElement || this;
+              if (!hostElement) return;
+              const data = ((cnt.__data || 0).data || 0);
+              // if (!data) return;
+              if (data) {
+                checkCommentCountCorrectness.call(this, data);
+                // console.log(311, data.contents.length, data.header)
               }
 
-              checkCommentCountCorrectness.call(this, data)
+              dispatchCustomEvent(hostElement, 'ytd-comments-header-changed');
+              console.log('[tyt] ytd-comments-header-changed');
 
-            }
-            dispatchCustomEvent(hostElement, 'ytd-comments-data-changed', { hasData });
+            });
 
-          });
+          }
         }
+
+        console.log('[tyt] ytd-comments props init');
+
       }
 
-      // headerChanged_ - new method to fetch comments count
-      if (typeof cProto.headerChanged_ == 'function' && !('tytHeaderChanged_' in cProto)) {
-        cProto.tytHeaderChanged_ = cProto.headerChanged_;
-        cProto.headerChanged_ = function () {
-          // function is called inside flushClients's propertiesChanged          
-          const cnt = this;
-
-          cnt.tytHeaderChanged_();
-
-          getRAFPromise().then(() => { // delay is required to avoid event sequence issue.
-
-            const hostElement = this.hostElement || this;
-            if (!hostElement) return;
-            const data = ((cnt.__data || 0).data || 0);
-            // if (!data) return;
-            if (data) {
-              checkCommentCountCorrectness.call(this, data);
-              // console.log(311, data.contents.length, data.header)
-            }
-
-            dispatchCustomEvent(hostElement, 'ytd-comments-header-changed');
-
-          });
-
-        }
-      }
 
     });
 
