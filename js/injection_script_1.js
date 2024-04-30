@@ -126,6 +126,31 @@ function injection_script_1() {
   // /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
 
+
+  const PromiseExternal = ((resolve_, reject_) => {
+    const h = (resolve, reject) => { resolve_ = resolve; reject_ = reject };
+    return class PromiseExternal extends Promise {
+      constructor(cb = h) {
+        super(cb);
+        if (cb === h) {
+          /** @type {(value: any) => void} */
+          this.resolve = resolve_;
+          /** @type {(reason?: any) => void} */
+          this.reject = reject_;
+        }
+      }
+    };
+  })();
+
+
+  const ytChatFrameSetup = new PromiseExternal();
+  const ceHackDone = new PromiseExternal();
+  let tabviewFixPopupRefitFn = null;
+
+  let documentEventListen = (key, callback, ...args) => { // set to null afterwards to prevent incorrect coding
+    document.addEventListener(key, callback, ...args);
+  }
+
   let mediaModeLock = 0;
   const _getMediaElement = (i) => {
     if (mediaModeLock === 0) {
@@ -313,7 +338,7 @@ function injection_script_1() {
 
   let chatroomRendererElmWR = null
 
-  document.addEventListener("tabview-expander-config", (evt) => {
+  documentEventListen("tabview-expander-config", (evt) => {
 
     if (!evt || !evt.target) return;
     const expanderElm = evt.target;
@@ -393,29 +418,7 @@ function injection_script_1() {
       // this is triggered when collapsed / expanded / initial state
       // console.log('initByChat')
 
-      if (this.elmChat && this.elmChat !== chatElm && (this.loadStatus & 2) === 0 && (this.loadStatus & 4) === 0) {
-
-        // disable this...
-
-        // this.elmChat.classList.remove('tyt-chat-frame-ready');
-        // console.log('removed tyt-chat-frame-ready')
-        // setTimeout(() => {
-        //   console.log('??')
-        //   this.elmChat.fixChatframeContentDisplay();
-        // }, 1);
-
-
-        // this.elmChat.removeAttribute('tyt-iframe-loaded')
-      }
       if (chatElm === null) {
-        const elmChatCnt = insp(this.elmChat);
-        if (elmChatCnt && elmChatCnt.disconnectedCallback && elmChatCnt.isAttached === true) {
-
-          // disable this...
-          // elmChatCnt.disconnectedCallback();
-
-          // console.log('aa', this.elmChat.isAttached)
-        }
         this.elmChat = null;
         this.elmChatFrame = null;
         if (this.loadStatus & 1) this.loadStatus -= 1;
@@ -425,8 +428,6 @@ function injection_script_1() {
 
       } else {
 
-        // console.log(2242)
-        // console.log('initByChat')
         if ((chatElm || 0).id !== 'chat') return;
 
 
@@ -698,7 +699,7 @@ function injection_script_1() {
 
 
 
-  document.addEventListener('tyt-engagement-panel-visibility-change', (evt) => {
+  documentEventListen('tyt-engagement-panel-visibility-change', (evt) => {
 
     let arr = ((evt || 0).detail || 0)
     if (!arr) return
@@ -2034,46 +2035,6 @@ function injection_script_1() {
         return this.__postToContentWindowK__.apply(this, arguments);
       }
 
-      // document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
-      //   // TODO
-      // }, true);
-
-
-      let cfk = 0;
-      document.addEventListener('tabview-chat-fix-url-onload-with-empty-body', function (evt) {
-
-        const chatElm = (evt || 0).target;
-        if (!chatElm || chatElm.id !== 'chat') return;
-        const chatCnt = insp(chatElm);
-
-        if (typeof chatCnt.fixChatframeContentDisplay !== 'function') return;
-        if (!chatCnt.player) return;
-
-        console.debug('[tyt.chat] fix chat render when onload with empty body 01');
-        const tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
-        setTimeout(() => {
-          if (tid !== cfk) return;
-          const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
-          if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
-            console.debug('[tyt.chat] fix chat render when onload with empty body 02');
-            let changeSrc = '';
-            try {
-              if (!chatframe.src) {
-                const m = chatCnt.liveChatPageUrl();
-                if (typeof m === 'string' && m.length > (9 + 13) && /\/live_chat\w*\?.*continuation=/.test(m)) {
-                  changeSrc = m;
-                }
-              }
-            } catch (e) { }
-            if (changeSrc) {
-              chatframe.src = changeSrc;
-            } else {
-              chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
-            }
-          }
-        }, 270);
-
-      }, true);
 
       if (FIX_liveChatPageUrl >= 1 && typeof cProto.liveChatPageUrl === 'function' && !cProto.liveChatPageUrl159 && cProto.liveChatPageUrl.length === 4) {
         // fireSeekContinuationAtCurrentProgressDone817 related
@@ -2127,12 +2088,15 @@ function injection_script_1() {
         console.debug(`[tyt] FIX_liveChatPageUrl = ${FIX_liveChatPageUrl}`);
       }
 
-      cProto.fixChatframeContentDisplay = async function (isChatExpansionChanged) {
+      cProto.fixChatframeContentDisplayA = async function () {
 
+        // console.debug('[tyt.chat] fixChatframeContentDisplayA 01')
         const iframe = this ? ((this.$ || this).chatframe || 0) : 0;
 
         if (!iframe || iframe.isConnected !== true) return;
         if (this.collapsed === true) return;
+
+        // console.debug('[tyt.chat] fixChatframeContentDisplayA 02')
 
         // let hostElement = this.hostElement || this;
         let cnt = insp(this);
@@ -2159,6 +2123,7 @@ function injection_script_1() {
 
         let forceUpdate = false;
 
+        // console.debug('[tyt.chat] fixChatframeContentDisplayA 03')
         if (dtConversationBar1 && dtConversationBar2 && dtConversationBar1.liveChatRenderer && dtConversationBar2.liveChatRenderer) {
 
           let ct1;
@@ -2170,6 +2135,7 @@ function injection_script_1() {
             ct2 = dtConversationBar2.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
             ct3 = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
           } catch (e) { }
+          console.debug('[tyt.chat] fixChatframeContentDisplayA 04', ct1, ct2, ct3)
           if (typeof ct1 === 'string' && typeof ct2 === 'string' && typeof ct3 === 'string') {
             if (ct1 === ct2 && ct1 !== ct3) {
               const __data = cnt.__data || 0;
@@ -2183,6 +2149,7 @@ function injection_script_1() {
                 __data.url = __data.url.replace(ct3, ct1);
               }
 
+              // console.debug('[tyt.chat] fixChatframeContentDisplayA 05')
               cnt.data = { liveChatRenderer: dtConversationBar2.liveChatRenderer };
               if (__data && __data.data) __data.data = cnt.data;
               try {
@@ -2190,6 +2157,7 @@ function injection_script_1() {
               } catch (e) { }
               console.debug('[tyt.chat] data changed to ', dtConversationBar2.liveChatRenderer);
               forceUpdate = true;
+              // console.debug('[tyt.chat] fixChatframeContentDisplayA 06')
             }
           }
 
@@ -2304,16 +2272,60 @@ function injection_script_1() {
 
       }
 
-      cProto.fixChatframeContentDisplayWithUrlChanged = async function (isChatExpansionChanged) {
+      cProto.fixChatframeContentDisplayB = async function () {
 
         try {
           this.isFrameReady = !this.isChatReplay();
+          await Promise.resolve();
+          await this.fixChatframeContentDisplayA();
         } catch (e) {
           console.warn(e)
         }
-        await Promise.resolve().then(() => this.fixChatframeContentDisplay(isChatExpansionChanged)).catch(console.warn)
 
       }
+
+      
+      let cfk = 0;
+      cProto.__tytChatFixUrlOnloadWithEmptyBody__ = async function () {
+        const chatCnt = this;
+
+        if (typeof chatCnt.fixChatframeContentDisplayB !== 'function') return;
+        if (!chatCnt.player) return;
+
+        const chatframe_ = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
+        console.debug('[tyt.chat] fix chat render when onload with empty body 01');
+        const tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
+        await delayPn(240); // await delayPn(270);
+        if (tid !== cfk) return;
+        const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
+        
+        // console.debug('[tyt.chat] fix chat render when onload with empty body 01b', chatframe.isConnected === true , chatCnt.isAttached === true , chatCnt.collapsed === false )
+        // if(chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false){
+
+        //   console.debug('[tyt.chat] fix chat render when onload with empty body 01c', chatframe.contentWindow.location.pathname === 'blank',  !chatframe.contentDocument.querySelector('body>*'))
+        // }
+
+        if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
+          console.debug('[tyt.chat] fix chat render when onload with empty body 02');
+          let changeSrc = '';
+          try {
+            if (!chatframe.src) {
+              const m = chatCnt.liveChatPageUrl();
+              if (typeof m === 'string' && m.length > (9 + 13) && /\/live_chat\w*\?.*continuation=/.test(m)) {
+                changeSrc = m;
+              }
+            }
+          } catch (e) { }
+          if (changeSrc) {
+            chatframe.src = changeSrc;
+          } else {
+            chatCnt.fixChatframeContentDisplayB();
+          }
+        }
+
+      };
+
+      ytChatFrameSetup.resolve();
 
     });
 
@@ -2346,16 +2358,6 @@ function injection_script_1() {
 
 
     });
-
-    document.addEventListener('tyt-resize-chip-cloud', (evt) => {
-      const target = ((evt || 0).target || 0);
-      if (target.nodeType !== 1) return;
-      const cnt = insp(target);
-      // console.log(target)
-      cnt.onResize && cnt.onResize();
-    }, true)
-
-
 
     const getProto = (element) => {
       let proto = null;
@@ -2479,10 +2481,10 @@ function injection_script_1() {
 
     });
 
-    document.addEventListener('tabview-fix-popup-refit', function () {
+    tabviewFixPopupRefitFn =  () => {
       // this = document
 
-      const cProto = getProto(document.createElement('tp-yt-iron-dropdown'));
+      const cProto = getProto(document.querySelector('tp-yt-iron-dropdown') || document.createElement('tp-yt-iron-dropdown'));
       if (!cProto) return;
 
       if (cProto.__refit) return;
@@ -2514,7 +2516,7 @@ function injection_script_1() {
         if (cnt.__refit) return cnt.__refit();
       };
 
-    }, false);
+    }
 
 
 
@@ -2606,6 +2608,7 @@ function injection_script_1() {
 
     })
 
+    ceHackDone.resolve();
   }
 
   function ceHack(evt) {
@@ -2790,7 +2793,7 @@ function injection_script_1() {
 
   }
 
-  document.addEventListener('getLyricsReady', function getLyricsReady() {
+  documentEventListen('tyt-getLyricsReady-egftq', () => {
 
     const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
@@ -2898,7 +2901,7 @@ function injection_script_1() {
         if (tmp) {
           tmp.remove()
         }
-        dispatchCustomEvent(document, 'getLyricsReady');
+        dispatchCustomEvent(document, 'tyt-getLyricsReady-egftq');
       }
     } else if (data.visibility === 'loaded') {
       let p = document.querySelector('iframe#lyricsiframe')
@@ -2935,12 +2938,12 @@ function injection_script_1() {
   if (document.documentElement.hasAttribute('tabview-loaded'))
     ceHack();
   else
-    document.addEventListener('tabview-ce-hack', ceHack, true);
+    documentEventListen('tabview-ce-hack', ceHack, true);
 
 
 
 
-  document.addEventListener('yt-expander-less-tapped', function (evt) {
+  documentEventListen('yt-expander-less-tapped', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
     // including reply of comments;
@@ -2990,7 +2993,7 @@ function injection_script_1() {
     return sc || null;
   }
 
-  document.addEventListener('tabview-fix-autocomplete', function (evt) {
+  documentEventListen('tabview-fix-autocomplete', function (evt) {
 
     DEBUG_e32 && console.log(9442, evt.type);
     // https://cdnjs.cloudflare.com/ajax/libs/JavaScript-autoComplete/1.0.4/auto-complete.min.js
@@ -3075,12 +3078,12 @@ function injection_script_1() {
   }
 
 
-  document.addEventListener('tyt-info-toggler', (evt) => {
+  documentEventListen('tyt-info-toggler', (evt) => {
     const node = (evt || 0).target;
     node.addEventListener('click', tabviewInfoTogglerOnClick, false)
   }, true);
 
-  document.addEventListener('tabview-resize-comments-rows', (evt) => {
+  documentEventListen('tabview-resize-comments-rows', (evt) => {
     // this = document
     //slightly delayed
     //console.log('tabview-resize-comments-rows')
@@ -3093,7 +3096,7 @@ function injection_script_1() {
 
   }, false);
 
-  document.addEventListener('tabview-fix-info-box-tooltip', (evt) => {
+  documentEventListen('tabview-fix-info-box-tooltip', (evt) => {
     const ytdFlexy = getYtdWatchFlexyElement();
     if (!ytdFlexy) return;
 
@@ -3116,7 +3119,7 @@ function injection_script_1() {
   // popupBtnId
   // mtoIframePopup
 
-  document.addEventListener('tyt-close-popup', (evt) => {
+  documentEventListen('tyt-close-popup', (evt) => {
     let cr = kRef(chatroomRendererElmWR);
 
     if (cr) {
@@ -3512,7 +3515,7 @@ function injection_script_1() {
   // ----------------------------- ytLive / Popup / End -----------------------------
 
 
-  document.addEventListener('tabview-page-rendered', () => {
+  documentEventListen('tabview-page-rendered', () => {
     // reserved
   });
 
@@ -3575,7 +3578,7 @@ function injection_script_1() {
   }
 
 
-  document.addEventListener('tabview-chatroom-ready', async function (evt) {
+  documentEventListen('tabview-chatroom-ready', async function (evt) {
 
     const chatElm = (evt || 0).target;
     if (!chatElm) return;
@@ -4179,7 +4182,7 @@ function injection_script_1() {
 
   };
 
-  document.addEventListener("tabview-miniview-browser-enable", () => {
+  documentEventListen("tabview-miniview-browser-enable", () => {
 
     if (miniview_enabled) return;
 
@@ -4747,7 +4750,7 @@ function injection_script_1() {
   dsMgr._dsToggleButtonRenderer = {};
   handleDOMAppear('swVq1DOMAppended', dsMgr.caHandler1);
   handleDOMAppear('swVq2DOMAppended', dsMgr.caHandler2); // ytd-donation-shelf-renderer.ytd-watch-flexy
-  document.addEventListener('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false);
+  documentEventListen('tabview-donation-shelf-set-visibility', dsMgr.setVisibility, false);
 
   const buttonTooltipPositionProp = {
     get() {
@@ -4818,11 +4821,11 @@ function injection_script_1() {
     fixTooltipsK2(s);
   });
 
-  document.addEventListener('tabview-zoom-updated', () => {
+  documentEventListen('tabview-zoom-updated', () => {
     for (const s of document.querySelectorAll('.tyt-visible-comment ytd-expander')) s.calculateCanCollapse(true);
   }, false);
 
-  document.addEventListener('tabview-yt-data-reassign', (evt) => {
+  documentEventListen('tabview-yt-data-reassign', (evt) => {
     // Example target: playlist
     const target = (evt || 0).target || 0;
     if (!target.is) return;
@@ -4835,7 +4838,7 @@ function injection_script_1() {
     });
   }, true);
 
-  document.addEventListener("tabview-fix-live-chat-toggle-btn", () => {
+  documentEventListen("tabview-fix-live-chat-toggle-btn", () => {
     fixLiveChatToggleButton();
   })
 
@@ -4949,7 +4952,48 @@ function injection_script_1() {
   }
 
 
-  document.addEventListener("tabview-plugin-loaded", () => {
+  // document.addEventListener('tabview-chat-fix-url-on-new-video-page', function (evt) {
+  //   // TODO
+  // }, true);
+
+
+  document.addEventListener('tabview-chat-fix-url-onload-with-empty-body', async (evt) => {
+
+    await ytChatFrameSetup.then();
+
+    const chatElm = (evt || 0).target;
+    if (!chatElm || chatElm.id !== 'chat') return;
+    const chatCnt = insp(chatElm);
+    if (typeof chatCnt.__tytChatFixUrlOnloadWithEmptyBody__ === 'function') {
+      await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
+    }
+
+  }, true);
+
+
+  documentEventListen('tyt-resize-chip-cloud', async (evt) => {
+
+    await ceHackDone.then();
+
+    const target = ((evt || 0).target || 0);
+    if (target.nodeType !== 1) return;
+    const cnt = insp(target);
+    // console.log(target)
+    if (typeof cnt.onResize === 'function') {
+      cnt.onResize();
+    }
+  }, true);
+
+
+  documentEventListen('tabview-fix-popup-refit', async (evt) => {
+    await ceHackDone.then();
+    if (typeof tabviewFixPopupRefitFn === 'function') {
+      tabviewFixPopupRefitFn(evt);
+    }
+  }, false);
+
+
+  documentEventListen("tabview-plugin-loaded", () => {
     if (typeof fixHistoryStatePN === 'function') {
       fixHistoryStatePN();
       document.addEventListener('yt-navigate-finish', fixHistoryStatePN, true);
@@ -4973,6 +5017,8 @@ function injection_script_1() {
     }
     // -----------------------------------------------------------------------------
   }, false);
+
+  documentEventListen = null; // avoid after call
 
   document.documentElement.setAttribute('tabview-unwrapjs', '1')
   if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {

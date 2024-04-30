@@ -5730,6 +5730,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const skIdFixPopupRefit = ControllerID();
 
+    let isTabviewFixPopupRefitCalled = false;
+
     globalHook('data-changed', (evt) => {
 
       if (!scriptEnable && tabsDeferred.resolved) { return }
@@ -5738,9 +5740,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (nodeName !== 'YTD-THUMBNAIL-OVERLAY-TOGGLE-BUTTON-RENDERER') return;
 
-      scriptletDeferred.debounce(() => {
-        document.dispatchEvent(new CustomEvent("tabview-fix-popup-refit"));
-      }, skIdFixPopupRefit);
+      if (!isTabviewFixPopupRefitCalled) {
+        isTabviewFixPopupRefitCalled = true;
+        scriptletDeferred.debounce(() => {
+          document.dispatchEvent(new CustomEvent("tabview-fix-popup-refit"));
+        }, skIdFixPopupRefit);
+      }
+
 
     });
 
