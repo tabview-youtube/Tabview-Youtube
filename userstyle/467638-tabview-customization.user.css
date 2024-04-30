@@ -1,6 +1,6 @@
 /* ==UserStyle==
 @name           Tabview Youtube Design Customization
-@version        0.2.5
+@version        0.2.6
 @namespace      github.com/cyfung1031
 @license        MIT
 @description    Change some designs in Tabview Youtube
@@ -25,6 +25,7 @@
 @var checkbox   hide-tab-videos                 "Hide Tab - Videos"                        0   
 @var checkbox   no-red-line-for-single-tab      "No Red Line For Single Tab"               0                  
 @var checkbox   move-tabs-to-top-side-when-chat-expanded "Move Tabs To Top Side When Chat Expanded" 0
+@var checkbox   hide-disabled-comment-tab       "Hide Disabled Comment Tab"                0
 ==/UserStyle== */
 
 keyFrameForTabviewTabsHideController(a, x)
@@ -157,6 +158,12 @@ keyFrameForTabviewTabsHideController(a, x)
             --tyt-right-tabs-margin-bottom: var(--tyt-right-tabs-margin-size);
         }
 
+    }
+    
+    if hide-disabled-comment-tab {
+        .tab-btn[loaded-comment="message"] {
+            display: none !important;
+        }
     }
     
 }
