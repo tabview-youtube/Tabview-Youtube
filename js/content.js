@@ -58,16 +58,16 @@ if (typeof window === 'object') {
               get() { }, set: t => (t && (delete e.ytcsi, d(t)), !0), enumerable: !1, configurable: !0
             }); let { addEventListener: s, removeEventListener: y } = Document.prototype; function r(t) {
               o(),
-              t && e.removeEventListener("DOMContentLoaded", r, !1)
+                t && e.removeEventListener("DOMContentLoaded", r, !1)
             } new a(e => {
               if ("undefined" != typeof AbortSignal) s.call(document,
                 "yt-page-data-fetched", e, { once: !0 }), s.call(document, "yt-navigate-finish", e, { once: !0 }), s.call(document, "spfdone", e,
                   { once: !0 }); else {
-                    let t = () => {
-                      e(), y.call(document, "yt-page-data-fetched", t, !1), y.call(document, "yt-navigate-finish", t, !1),
-                      y.call(document, "spfdone", t, !1)
-                    }; s.call(document, "yt-page-data-fetched", t, !1), s.call(document, "yt-navigate-finish", t, !1),
-                      s.call(document, "spfdone", t, !1)
+                let t = () => {
+                  e(), y.call(document, "yt-page-data-fetched", t, !1), y.call(document, "yt-navigate-finish", t, !1),
+                    y.call(document, "spfdone", t, !1)
+                }; s.call(document, "yt-page-data-fetched", t, !1), s.call(document, "yt-navigate-finish", t, !1),
+                  s.call(document, "spfdone", t, !1)
               }
             }).then(o), new a(e => {
               if ("undefined" != typeof AbortSignal) s.call(document, "yt-action", e,
@@ -111,54 +111,54 @@ if (typeof window === 'object') {
 
     // 2024.04.19 - Playlist in Single Column Mode cannot be scrolled correctly.
 
-      /*
+    /*
 
-        ;function gZb(a, b) {
-            b = void 0 === b ? !0 : b;
-            a.addEventListener("wheel", hZb);
-            a.overscrollConfig = {
-                cooldown: b
-            }
-        }
-        function iZb(a) {
-            a.overscrollConfig = void 0;
-            a.removeEventListener("wheel", hZb)
-        }
-        function hZb(a) {
-            var b = a.deltaY
-              , c = a.target
-              , d = null;
-            if (window.Polymer && window.Polymer.Element) {
-                if (c = a.path || a.composedPath && a.composedPath()) {
-                    c = g(c);
-                    for (var e = c.next(); !e.done && (e = e.value,
-                    !jZb(e, b)); e = c.next())
-                        if (e.overscrollConfig) {
-                            d = e;
-                            break
-                        }
-                }
-            } else
-                for (; c && !jZb(c, b); ) {
-                    if (c.overscrollConfig) {
-                        d = c;
-                        break
-                    }
-                    c = c.parentElement
-                }
-            d && (b = d.overscrollConfig,
-            b.cooldown ? (d = a.deltaY,
-            c = b.lastDeltaY || 0,
-            b.lastDeltaY = d,
-            e = b.lastStopped || 0,
-            c && e && 0 < c == 0 < d ? Math.abs(c) >= Math.abs(d) ? (d = e + 1200,
-            c = !1) : (d = e + 600,
-            c = !0) : (d = Date.now() + 600,
-            c = !0),
-            d > Date.now() && (a.preventDefault(),
-            c && (b.lastStopped = Date.now()))) : a.preventDefault())
-        }
-      */
+      ;function gZb(a, b) {
+          b = void 0 === b ? !0 : b;
+          a.addEventListener("wheel", hZb);
+          a.overscrollConfig = {
+              cooldown: b
+          }
+      }
+      function iZb(a) {
+          a.overscrollConfig = void 0;
+          a.removeEventListener("wheel", hZb)
+      }
+      function hZb(a) {
+          var b = a.deltaY
+            , c = a.target
+            , d = null;
+          if (window.Polymer && window.Polymer.Element) {
+              if (c = a.path || a.composedPath && a.composedPath()) {
+                  c = g(c);
+                  for (var e = c.next(); !e.done && (e = e.value,
+                  !jZb(e, b)); e = c.next())
+                      if (e.overscrollConfig) {
+                          d = e;
+                          break
+                      }
+              }
+          } else
+              for (; c && !jZb(c, b); ) {
+                  if (c.overscrollConfig) {
+                      d = c;
+                      break
+                  }
+                  c = c.parentElement
+              }
+          d && (b = d.overscrollConfig,
+          b.cooldown ? (d = a.deltaY,
+          c = b.lastDeltaY || 0,
+          b.lastDeltaY = d,
+          e = b.lastStopped || 0,
+          c && e && 0 < c == 0 < d ? Math.abs(c) >= Math.abs(d) ? (d = e + 1200,
+          c = !1) : (d = e + 600,
+          c = !0) : (d = Date.now() + 600,
+          c = !0),
+          d > Date.now() && (a.preventDefault(),
+          c && (b.lastStopped = Date.now()))) : a.preventDefault())
+      }
+    */
 
     const insp = o => o ? (o.polymerController || o.inst || o || 0) : (o || 0);
     // const indr = o => insp(o).$ || o.$ || 0;
@@ -202,7 +202,7 @@ if (typeof window === 'object') {
   let mbutton = document.createElement('button');
   mbutton.setAttribute('onclick', `(${script3278})()`);
   mbutton.click();
-  
+
 }
 
 -(function (__CONTEXT__) {
@@ -4862,7 +4862,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       };
 
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
-    
+
 
       /**
        @param {any[]} arr1 
@@ -4875,7 +4875,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
       // console.log(828, window.dbx1 = firstElementTextArr, window.dbx2 = secondElementTextArr);
-      
+
       // document.documentElement.setAttribute('firstElementTextArr', JSON.stringify(firstElementTextArr))
       // document.documentElement.setAttribute('secondElementTextArr', JSON.stringify(secondElementTextArr))
       // window.dbx1 = JSON.parse(document.documentElement.getAttribute('firstElementTextArr'))
@@ -5588,7 +5588,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       });
     })
 
-    handleDOMAppear('rydTooltipAppear', (evt)=>{
+    handleDOMAppear('rydTooltipAppear', (evt) => {
       document.documentElement.classList.add('return-youtube-dislike');
     })
 
