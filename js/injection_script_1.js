@@ -1348,6 +1348,7 @@ function injection_script_1() {
   }
 
   function onPageFinished(evt) {
+    sessionStorage.setItem('mceu0', Date.now() % 31536000000);
     if ((pageID % 2) === 1) {
       pageID++;
       translateHanlder = null;  // release the memory used for previous page
@@ -2055,7 +2056,20 @@ function injection_script_1() {
           const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
           if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
             console.debug('[tyt.chat] fix chat render when onload with empty body 02');
-            chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
+            let changeSrc = '';
+            try {
+              if (!chatframe.src) {
+                const m = chatCnt.liveChatPageUrl();
+                if (typeof m === 'string' && m.length > (9 + 13) && /\/live_chat\w*\?.*continuation=/.test(m)) {
+                  changeSrc = m;
+                }
+              }
+            } catch (e) { }
+            if (changeSrc) {
+              chatframe.src = changeSrc;
+            } else {
+              chatCnt.fixChatframeContentDisplayWithUrlChanged(0);
+            }
           }
         }, 270);
 
@@ -2080,6 +2094,14 @@ function injection_script_1() {
           cProto.liveChatPageUrl = function (a, b, c, d) {
             if (!c && lastUrl) return lastUrl; // prevent immediate url change due to data change
             let ed = this.liveChatPageUrl159(a, b, c, d);
+            if (ed && ed.includes('/live_chat') && ed.includes('continuation=')) {
+              // force url change
+              const mceu0 = sessionStorage.getItem('mceu0') || 0;
+              ed = ed.replace(/&mceu=\d+/, '');
+              ed = ed.replace(/continuation=[^=&?]+/, (_) => {
+                return `${_}&mceu=${((performance.timeOrigin + window.history.length + mceu0) % 31536000000)}`
+              });
+            }
             if (!ed || ed.length < 12) { // empty url
               if (b && c && c._uepoxvqe === lastUrl) { // collapsed, same url
                 ed = lastUrl;
