@@ -4831,25 +4831,34 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }
 
             /** @type {string} */
-            let trimmedTextContent = currentNode.textContent.trim();
-            let withText = trimmedTextContent.length > 0;
-            if (withText && trimmedTextContent.includes('\uF204')) {
-              trimmedTextContent = trimmedTextContent.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
-              trimmedTextContent = trimmedTextContent.replace(/[\uF204\uF205]/g, '');
-              withText = trimmedTextContent.length > 0;
+            let trText = currentNode.textContent.trim();
+            let withText = trText.length > 0;
+            if (withText && trText.includes('\uF204')) {
+              trText = trText.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
+              trText = trText.replace(/[\uF204\uF205]/g, '');
+              withText = trText.length > 0;
             }
             if (withText) {
-              trimmedTextContent = trimmedTextContent.replace(/\n[\n\x20]+\n/g, '\n\n');
+              trText = trText.replace(/\n[\n\x20]+\n/g, '\n\n');
+              trText = trText.replace(/[\u0020\u00A0\u16A0\u180E\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
+              trText = trText.replace(/[\u200b\uFEFF]/g, '');
               let loop = 64;
               while (loop-- > 0) {
-                const before = trimmedTextContent;
-                trimmedTextContent = trimmedTextContent.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
-                trimmedTextContent = trimmedTextContent.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
-                if (before === trimmedTextContent) loop = 0;
+                const before = trText;
+                trText = trText.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
+                trText = trText.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
+                if (before === trText) loop = 0;
               }
               // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
               // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-              contentArray.push(fixNameConversion(trimmedTextContent));
+              trText = fixNameConversion(trText);
+              trText = trText.replace(/[,，.。、]/g, ' ');
+              trText = trText.replace(/[#＃]/g, '#');
+              trText = trText.replace(/[*＊]/g, '*');
+              trText = trText.replace(/[「」『』”’＜＞"'<>\[\]\{\}]/g, '"');
+              trText = trText.replace(/\s+/g, ' ');
+              // trText = trText.replace(/[1234567890１２３４５６７８９０]/g, '0');
+              contentArray.push(trText);
             }
 
           }
@@ -4863,6 +4872,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
 
+      console.log(711, firstElementTextArr)
+      console.log(712, secondElementTextArr)
 
       /**
        @param {any[]} arr1 
