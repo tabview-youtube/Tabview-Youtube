@@ -4815,15 +4815,15 @@ function injection_script_1() {
       return;
     }
 
-    const t33 = `${chatCnt.__urlChangedChangeCount51__}${chatCnt.url}`;
-    if (r33 !== t33) {
-      r33 = t33;
+    // const t33 = `${chatCnt.__urlChangedChangeCount51__}${chatCnt.url}`;
+    // if (r33 !== t33) {
+      // r33 = t33;
       console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
       _ytIframeReloadDelay_().then(() => {
         chatCnt.urlChanged();
       });
       
-    }
+    // }
     // if (typeof chatCnt.__tytChatFixUrlOnloadWithEmptyBody__ === 'function') {
       // await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
     // }
