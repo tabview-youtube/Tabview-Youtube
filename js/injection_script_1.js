@@ -1828,7 +1828,7 @@ function injection_script_1() {
               // force url change
               const mceu0 = sessionStorage.getItem('mceu0') || 0;
               ed = ed.replace(/&mceu=\d+/, '');
-              ed = ed.replace(/continuation=[^=&?]+/, (_) => {
+              ed = ed.replace(/continuation=[^=&\s?]+/, (_) => {
                 return `${_}&mceu=${((performance.timeOrigin + window.history.length + mceu0) % 31536000000)}`
               });
             }
@@ -2079,16 +2079,25 @@ function injection_script_1() {
           let changeSrc = '';
           try {
             if (!chatframe.src) {
-              const m = chatCnt.liveChatPageUrl();
+              const m = chatCnt.url || chatCnt.liveChatPageUrl(chatCnt.baseUrl, chatCnt.collapsed, chatCnt.data, chatCnt.forceDarkTheme);
               if (typeof m === 'string' && m.length > (9 + 13) && /\/live_chat\w*\?.*continuation=/.test(m)) {
-                changeSrc = m;
+                changeSrc = (m.includes('&mceu=') ? m : (m.replace(/&\d+$/, '') + "&1"));
               }
             }
           } catch (e) { }
+          let done = false;
           if (changeSrc) {
-            chatframe.src = changeSrc;
-          } else {
-            chatCnt.fixChatframeContentDisplayB();
+            try {
+              const frameLocation = chatframe.contentWindow.location;
+              const body = chatframe.contentDocument.body;
+              if (body.firstChild === null && frameLocation.href === 'about:blank') {
+                frameLocation.replace(changeSrc);
+                done = true;
+              }
+            } catch (e) { }
+          }
+          if (!done) {
+            changeSrc ? (chatframe.src = changeSrc) : chatCnt.fixChatframeContentDisplayB();
           }
         }
 
