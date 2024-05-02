@@ -3913,7 +3913,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
           // console.log("iframe.xx",501,iframe)
           // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0B');
-          if (iframe && iframeLoadProcessWR.has(iframe)) Promise.resolve(iframe).then(iframeToVisible); // fix empty
+          if (iframe) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
 
           /*
@@ -6051,12 +6051,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // };
 
   let ix93 = 0;
-  const iframeLoadProcessWR = new WeakSet;
+  const iframeLoadStatusWM = new WeakMap;
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
 
     const t93 = ++ix93;
+    iframeLoadStatusWM.set(iframe, t93*2);
 
     await scriptletDeferred.d();
     // iframe.dispatchEvent(new CustomEvent('yt-live-chat-iframe-fix-polymer'));
@@ -6180,7 +6181,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
-          iframeLoadProcessWR.add(iframe);
+          iframeLoadStatusWM.set(iframe, t93*2+1);
         }
       }
 
@@ -6205,6 +6206,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   const iframeToVisible = async function (_iframe) {
     const iframe = _iframe;
     if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
+    if (((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) return;
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
     if (!chat) return;
     if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
@@ -7816,7 +7818,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
         // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0D');
-        if (iframe && iframeLoadProcessWR.has(iframe)) Promise.resolve(iframe).then(iframeToVisible); // fix empty
+        if (iframe) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
       }
     }, 67);
