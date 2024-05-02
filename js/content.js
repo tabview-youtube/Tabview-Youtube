@@ -436,7 +436,7 @@ if (typeof window === 'object') {
 
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
-  const showMessages_IframeLoaded = false;
+  const showMessages_IframeLoaded = false; // typeof GM === 'undefined';
 
   const nullFunc = function () { };
 
@@ -2366,9 +2366,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
 
-        const iframe = document.querySelector('body iframe.style-scope.ytd-live-chat-frame#chatframe');
+        // const iframe = document.querySelector('body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
-        if (iframe) Promise.resolve(iframe).then(iframeLoadProcess);
+        // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0A');
+        // if (iframe) Promise.resolve(iframe).then(iframeLoadProcess);
 
         pageCheck();
         if (global_columns_end_ito !== null) {
@@ -3908,9 +3909,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (btn) btn.remove();
         } else {
 
-          const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
+          // const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
           // console.log("iframe.xx",501,iframe)
-          if (iframe) Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
+          // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0B');
+          // if (iframe) Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
 
 
           /*
@@ -6023,45 +6025,47 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   }
 
   const iframeLoadControllerId = ControllerID();
-
+  let iframeLoadHookHandlerPromise = new PromiseExternal();
   const iframeLoadHookHandler = function (evt) {
 
-    const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
-    const iframe = isIframe ? evt.target : null;
+    const target = (evt || 0).target;
+    const iframe = target instanceof HTMLIFrameElement ? target : null;
+    if (!iframe || iframe.id !== 'chatframe') return;
 
-    if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
-      return;
-    }
-
-    Promise.resolve(iframe).then(iframeLoadProcess);
+    iframeLoadHookHandlerPromise.then(()=>{
+      iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe') && iframeLoadProcess(iframe);
+    });
 
   };
+  
+  document.addEventListener('load', iframeLoadHookHandler, capturePassive);
 
-  const onIframeSrcReplaced = function (evt) {
-    const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
-    const iframe = isIframe ? evt.target : null;
-    if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
-      return;
-    }
-    Promise.resolve(iframe).then(iframeLoadProcess); // in order to set ready
-  };
+  // const onIframeSrcReplaced = function (evt) {
+  //   const isIframe = (((evt || 0).target || 0).nodeName === 'IFRAME');
+  //   const iframe = isIframe ? evt.target : null;
+  //   if (!iframe || !iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+  //     return;
+  //   }
+  //   Promise.resolve(iframe).then(iframeLoadProcess); // in order to set ready
+  // };
 
-  const iframeLoadProcessWS = new WeakSet(); // avoid duplicate calling on the same iframe
-
+  let ix93 = 0;
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
 
-    iframeLoadProcessWS.add(iframe);
+    const t93 = ++ix93;
 
     await scriptletDeferred.d();
     // iframe.dispatchEvent(new CustomEvent('yt-live-chat-iframe-fix-polymer'));
     await tabsInsertedPromise.then();
+    if (t93 !== ix93) return;
     await getRAFPromise().then();
+    if (t93 !== ix93) return;
     await renderDeferred.d();
 
-    if (!iframeLoadProcessWS.has(iframe)) return;
-    iframeLoadProcessWS.delete(iframe);
+    if (t93 !== ix93) return;
+
 
     if (iframe.isConnected !== true) return;
 
@@ -6124,6 +6128,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     }).catch(console.warn);
+    
+    if (t93 !== ix93) return;
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 11');
 
@@ -6144,6 +6150,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
       return;
     }
+
+    
+    if (t93 !== ix93) return;
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 13');
 
@@ -6180,8 +6189,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // tabview-chat-fix-url-onload-with-empty-body
 
-      iframe.removeEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
-      iframe.addEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
+      // iframe.removeEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
+      // iframe.addEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
       dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
 
     }
@@ -7768,8 +7777,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // console.debug('[tyt] debug ym-01-4')
       dpeChatRefreshCounter();
-      const chat = document.querySelector('ytd-live-chat-frame#chat');
-      if (chat && !chat.hasAttribute('collapsed')) {
+      // const chat = document.querySelector('ytd-live-chat-frame#chat');
+      // if (chat && !chat.hasAttribute('collapsed')) {
         // proceedingChatFrameVideoID = fvid;
 
         // console.debug('[tyt] debug ym-01-5')
@@ -7777,11 +7786,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         // dpeNewUrlChat(chat); // force replace url
 
-        const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
+        // const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
-        if (iframe) iframeLoadProcess(iframe); // fix empty
+        // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0D');
+        // if (iframe) iframeLoadProcess(iframe); // fix empty
 
-      }
+      // }
     }, 67);
 
 
@@ -7971,7 +7981,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     } catch (e) { }
 
   }
-
+  
   function pageBeingFetched(evt) {
 
     let nodeName = (((evt || 0).target || 0).nodeName || '').toUpperCase()
@@ -7990,9 +8000,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (isFirstLoad) {
       firstLoadStatus -= 8;
-      for (const iframe of document.querySelectorAll('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
-        Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
-      }
+      iframeLoadHookHandlerPromise.resolve();
       document.addEventListener('load', iframeLoadHookHandler, capturePassive);
       ytMicroEventsInit();
     }
