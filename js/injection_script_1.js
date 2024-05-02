@@ -1732,7 +1732,7 @@ function injection_script_1() {
       cProto.__urlChangedChangeCount51__ = 0;
 
       cProto.urlChanged = function () {
-        if (!this.player) return;
+        // if (!this.player) return;
         console.log('[tyt] urlChanged()');
         if (this.__urlChangedChangeCount51__ > 1e9) this.__urlChangedChangeCount51__ = 9;
         this.__urlChangedChangeCount51__++;
