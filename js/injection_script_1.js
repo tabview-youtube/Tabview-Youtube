@@ -4803,6 +4803,10 @@ function injection_script_1() {
     return () => (new Promise(pfn)).catch(console.warn).then(() => { pIfr.onload = null; });
   })();
 
+  // documentEventListen('tabview-fix-iframe-ready', async (evt)=>{
+
+  // })
+
   documentEventListen('tabview-chat-fix-url-onload-with-empty-body', async (evt) => {
 
     await ytChatFrameSetup.then();

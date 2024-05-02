@@ -3763,6 +3763,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // const dpeNewUrlChat = eventDispatcher("tabview-chat-fix-url-on-new-video-page");
   const dpeFixUrlChatWhenOnloadWithEmptyBody = eventDispatcher("tabview-chat-fix-url-onload-with-empty-body");
+  // const dpeFixIframeReady = eventDispatcher("tabview-fix-iframe-ready");
 
   const dpeIframeReady = eventDispatcher('tabview-chatroom-ready');
 
@@ -3909,10 +3910,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (btn) btn.remove();
         } else {
 
-          // const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
+          const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
           // console.log("iframe.xx",501,iframe)
           // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0B');
-          // if (iframe) Promise.resolve(iframe).then(iframeLoadProcess); // fix empty
+          if (iframe && iframeLoadProcessWR.has(iframe) ) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
 
           /*
@@ -6050,6 +6051,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   // };
 
   let ix93 = 0;
+  const iframeLoadProcessWR = new WeakSet;
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
@@ -6178,6 +6180,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
+          iframeLoadProcessWR.add(iframe);
         }
       }
 
@@ -6195,6 +6198,30 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
+
+  };
+
+  
+  const iframeToVisible = async function (_iframe) {
+    const iframe = _iframe;
+    if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
+    const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
+    if (!chat) return;
+    if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
+      return;
+    }
+    let cDoc = 0;
+    try{
+      cDoc = iframe.contentDocument;
+    }catch(e){}
+
+    const contentElement = (cDoc.body || 0).firstElementChild;
+
+    if (!contentElement) return;
+
+    if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
+ 
+    dpeIframeReady(chat); 
 
   };
 
@@ -7778,7 +7805,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // console.debug('[tyt] debug ym-01-4')
       dpeChatRefreshCounter();
       // const chat = document.querySelector('ytd-live-chat-frame#chat');
-      // if (chat && !chat.hasAttribute('collapsed')) {
+      if (chat && !chat.hasAttribute('collapsed')) {
         // proceedingChatFrameVideoID = fvid;
 
         // console.debug('[tyt] debug ym-01-5')
@@ -7786,12 +7813,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         // dpeNewUrlChat(chat); // force replace url
 
-        // const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
+        const iframe = querySelectorFromAnchor.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
         // console.log("iframe.xx",501,iframe)
         // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0D');
-        // if (iframe) iframeLoadProcess(iframe); // fix empty
+        if (iframe && iframeLoadProcessWR.has(iframe)) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
-      // }
+      }
     }, 67);
 
 
