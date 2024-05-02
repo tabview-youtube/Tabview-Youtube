@@ -4856,6 +4856,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               trText = trText.replace(/[#＃]/g, '#');
               trText = trText.replace(/[*＊]/g, '*');
               trText = trText.replace(/[「」『』”’＜＞"'<>\[\]\{\}]/g, '"');
+              trText = trText.replace(/[:：]/g, ':');
               trText = trText.replace(/\s+/g, ' ');
               // trText = trText.replace(/[1234567890１２３４５６７８９０]/g, '0');
               contentArray.push(trText);
