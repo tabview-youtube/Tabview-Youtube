@@ -1720,7 +1720,7 @@ function injection_script_1() {
         cProto.urlChanged66 = cProto.urlChanged;
         cProto.urlChanged = function () {
 
-          _ytIframeReloadDelay_().then(() => {
+          _ytIframeReloadDelay_(this.chatframe || this.$.chatframe).then(() => {
             arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
           });
 
@@ -4792,6 +4792,7 @@ function injection_script_1() {
   let r33 = null;
 
 
+
   const _ytIframeReloadDelay_ = window._ytIframeReloadDelay_ = window._ytIframeReloadDelay_ || (function () {
     let pIfr = 0;
     let url1 = null;
@@ -4813,7 +4814,23 @@ function injection_script_1() {
       url2 = c;
       pIfr.contentDocument.location.replace(c);
     };
-    return () => (new Promise(pfn)).catch(console.warn).then(() => { pIfr.onload = null; });
+    return (async (chatframe) => {
+      if (chatframe instanceof HTMLIFrameElement && typeof IntersectionObserver !== 'undefined') {
+        await new Promise(resolve => {
+          let io = new IntersectionObserver(function () {
+            if (io) {
+              io.disconnect();
+              io.takeRecords();
+              io = null;
+              resolve();
+            }
+          });
+          io.observe(chatframe);
+        });
+      }
+      await new Promise(pfn).catch(console.warn);
+      pIfr.onload = null;
+    });
   })();
 
   // documentEventListen('tabview-fix-iframe-ready', async (evt)=>{
@@ -4837,17 +4854,7 @@ function injection_script_1() {
     // r33 = t33;
     console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
     if (typeof chatCnt.urlChanged66 == 'function' && typeof chatCnt.urlChanged === 'function') {
-
-      let io = new IntersectionObserver(function () {
-        if (io) {
-          io.disconnect();
-          io.takeRecords();
-          io = null;
-          chatCnt.urlChanged();
-        }
-      });
-      io.observe(chatCnt.chatframe);
-      
+      chatCnt.urlChanged();
     } else {
       console.log('[tyt] chatCnt.urlChanged66 is not defined', chatCnt.urlChanged66);
     }
