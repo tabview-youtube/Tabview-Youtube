@@ -1716,12 +1716,13 @@ function injection_script_1() {
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
 
-      cProto.__urlChangedChangeCount = 0;
+      cProto.__urlChangedChangeCount51__ = 0;
 
       cProto.urlChanged = function () {
         if (!this.player) return;
         console.log('[tyt] urlChanged()');
-        this.__urlChangedChangeCount++;
+        if (this.__urlChangedChangeCount51__ > 1e9) this.__urlChangedChangeCount51__ = 9;
+        this.__urlChangedChangeCount51__++;
         this.__urlChanged_url82__ = this.url;
         return this.__$$urlChanged$$__();
       }
@@ -4776,19 +4777,31 @@ function injection_script_1() {
   // }, true);
 
   let r33 = null;
-  let pIfr = null;
 
-  let url1 = null;
-  let url2 = null;
 
-  const pfn = resolve => {
+  const _ytIframeReloadDelay_ = window._ytIframeReloadDelay_ = window._ytIframeReloadDelay_ || (function () {
+    let pIfr = 0;
+    let url1 = null;
+    let url2 = null;
+    const pfn = resolve => {
+      if (!pIfr) {
+        pIfr = document.getElementById('d8y9c');
+        if (!pIfr) {
+          pIfr = document.createElement('iframe');
+          pIfr.id = 'd8y9c';
+          pIfr.style.display = 'none';
+          document.body.appendChild(pIfr);
+        }
+      }
       pIfr.onload = resolve;
       if (!url1) url1 = URL.createObjectURL(new Blob([], { type: 'text/html' }));
       const c = url1;
       url1 = url2;
       url2 = c;
       pIfr.contentDocument.location.replace(c);
-  };
+    };
+    return () => (new Promise(pfn)).catch(console.warn).then(() => { pIfr.onload = null; });
+  })();
 
   documentEventListen('tabview-chat-fix-url-onload-with-empty-body', async (evt) => {
 
@@ -4802,26 +4815,11 @@ function injection_script_1() {
       return;
     }
 
-
-    pIfr = pIfr || document.createElement('iframe');
-        
-    // p.style.display='fixed';
-    // p.style.opacity = '0';
-    // p.style.width='1px'
-    // p.style.height='1px'
-    // p.style.left='-9px';
-    // p.style.top='-9px';
-    
-    pIfr.style.display = 'none';
-    document.body.appendChild(pIfr);
-
-    const t33 = `${chatCnt.url}`;
+    const t33 = `${chatCnt.__urlChangedChangeCount51__}${chatCnt.url}`;
     if (r33 !== t33) {
       r33 = t33;
       console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
-      const pr = (new Promise(pfn)).catch(() => { });
-      pr.then(() => {
-        pIfr.onload = null;
+      _ytIframeReloadDelay_().then(() => {
         chatCnt.urlChanged();
       });
       
