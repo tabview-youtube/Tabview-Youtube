@@ -1324,19 +1324,19 @@ function injection_script_1() {
   }
 
 
-  /** @param {Document} cDoc */
-  const cDocReadyStatePromise = (cDoc) => {
-    if (cDoc.readyState !== 'loading') return;
-    return new Promise(resolve => {
-      cDoc.addEventListener('readystatechange', function () {
-        if (cDoc && cDoc.readyState && cDoc.readyState !== 'loading') {
-          cDoc = null;
-          resolve && resolve();
-          resolve = null;
-        }
-      }, false);
-    });
-  }
+  // /-** @param {Document} cDoc *-/
+  // const cDocReadyStatePromise = (cDoc) => {
+  //   if (cDoc.readyState !== 'loading') return;
+  //   return new Promise(resolve => {
+  //     cDoc.addEventListener('readystatechange', function () {
+  //       if (cDoc && cDoc.readyState && cDoc.readyState !== 'loading') {
+  //         cDoc = null;
+  //         resolve && resolve();
+  //         resolve = null;
+  //       }
+  //     }, false);
+  //   });
+  // }
 
 
   let pageID = 0;
@@ -1348,8 +1348,9 @@ function injection_script_1() {
     pageType = ((evt.detail || 0).pageData || 0).page;
   }
 
+  let _mceu0 = 0;
   function onPageFinished(evt) {
-    sessionStorage.setItem('mceu0', Date.now() % 31536000000);
+    _mceu0 = Date.now() % 31536000000;
     if ((pageID % 2) === 1) {
       pageID++;
       translateHanlder = null;  // release the memory used for previous page
@@ -1842,7 +1843,7 @@ function injection_script_1() {
             let ed = this.liveChatPageUrl159(a, b, c, d);
             if (ed && ed.includes('/live_chat') && ed.includes('continuation=')) {
               // force url change
-              const mceu0 = sessionStorage.getItem('mceu0') || 0;
+              const mceu0 = _mceu0;
               ed = ed.replace(/&mceu=\d+/, '');
               ed = ed.replace(/continuation=[^=&\s?]+/, (_) => {
                 return `${_}&mceu=${((performance.timeOrigin + window.history.length + mceu0) % 31536000000)}`
