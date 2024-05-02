@@ -1714,6 +1714,19 @@ function injection_script_1() {
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
 
+
+      if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66) {
+
+        cProto.urlChanged66 = cProto.urlChanged;
+        cProto.urlChanged = function () {
+
+          _ytIframeReloadDelay_().then(() => {
+            arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
+          });
+
+        }
+      }
+
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
 
       cProto.__urlChangedChangeCount51__ = 0;
@@ -4821,15 +4834,17 @@ function injection_script_1() {
 
     // const t33 = `${chatCnt.__urlChangedChangeCount51__}${chatCnt.url}`;
     // if (r33 !== t33) {
-      // r33 = t33;
-      console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
-      _ytIframeReloadDelay_().then(() => {
-        chatCnt.urlChanged();
-      });
-      
+    // r33 = t33;
+    console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
+    if (typeof chatCnt.urlChanged66 == 'function' && typeof chatCnt.urlChanged === 'function') {
+      chatCnt.urlChanged();
+    } else {
+      console.log('[tyt] chatCnt.urlChanged66 is not defined', chatCnt.urlChanged66);
+    }
+
     // }
     // if (typeof chatCnt.__tytChatFixUrlOnloadWithEmptyBody__ === 'function') {
-      // await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
+    // await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
     // }
 
   }, true);

@@ -3913,7 +3913,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           const iframe = querySelectorFromAnchor.call(chatBlock, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
           // console.log("iframe.xx",501,iframe)
           // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0B');
-          if (iframe && iframeLoadProcessWR.has(iframe) ) Promise.resolve(iframe).then(iframeToVisible); // fix empty
+          if (iframe && iframeLoadProcessWR.has(iframe)) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
 
           /*
@@ -6033,12 +6033,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const iframe = target instanceof HTMLIFrameElement ? target : null;
     if (!iframe || iframe.id !== 'chatframe') return;
 
-    iframeLoadHookHandlerPromise.then(()=>{
+    iframeLoadHookHandlerPromise.then(() => {
       iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe') && iframeLoadProcess(iframe);
     });
 
   };
-  
+
   document.addEventListener('load', iframeLoadHookHandler, capturePassive);
 
   // const onIframeSrcReplaced = function (evt) {
@@ -6130,7 +6130,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     }).catch(console.warn);
-    
+
     if (t93 !== ix93) return;
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 11');
@@ -6153,7 +6153,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return;
     }
 
-    
+
     if (t93 !== ix93) return;
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 13');
@@ -6201,7 +6201,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  
+
   const iframeToVisible = async function (_iframe) {
     const iframe = _iframe;
     if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
@@ -6211,17 +6211,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return;
     }
     let cDoc = 0;
-    try{
+    try {
       cDoc = iframe.contentDocument;
-    }catch(e){}
+    } catch (e) { }
 
     const contentElement = (cDoc.body || 0).firstElementChild;
 
     if (!contentElement) return;
 
     if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
- 
-    dpeIframeReady(chat); 
+
+    dpeIframeReady(chat);
 
   };
 
@@ -8008,7 +8008,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     } catch (e) { }
 
   }
-  
+
   function pageBeingFetched(evt) {
 
     let nodeName = (((evt || 0).target || 0).nodeName || '').toUpperCase()
