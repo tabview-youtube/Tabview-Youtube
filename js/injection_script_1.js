@@ -4776,6 +4776,20 @@ function injection_script_1() {
   // }, true);
 
   let r33 = null;
+  let pIfr = null;
+
+  let url1 = null;
+  let url2 = null;
+
+  const pfn = resolve => {
+      pIfr.onload = resolve;
+      if (!url1) url1 = URL.createObjectURL(new Blob([], { type: 'text/html' }));
+      const c = url1;
+      url1 = url2;
+      url2 = c;
+      pIfr.contentDocument.location.replace(c);
+  };
+
   documentEventListen('tabview-chat-fix-url-onload-with-empty-body', async (evt) => {
 
     await ytChatFrameSetup.then();
@@ -4788,11 +4802,29 @@ function injection_script_1() {
       return;
     }
 
+
+    pIfr = pIfr || document.createElement('iframe');
+        
+    // p.style.display='fixed';
+    // p.style.opacity = '0';
+    // p.style.width='1px'
+    // p.style.height='1px'
+    // p.style.left='-9px';
+    // p.style.top='-9px';
+    
+    pIfr.style.display = 'none';
+    document.body.appendChild(pIfr);
+
     const t33 = `${chatCnt.url}`;
     if (r33 !== t33) {
       r33 = t33;
       console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
-      chatCnt.urlChanged();
+      const pr = (new Promise(pfn)).catch(() => { });
+      pr.then(() => {
+        pIfr.onload = null;
+        chatCnt.urlChanged();
+      });
+      
     }
     // if (typeof chatCnt.__tytChatFixUrlOnloadWithEmptyBody__ === 'function') {
       // await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
