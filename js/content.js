@@ -7806,7 +7806,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // console.debug('[tyt] debug ym-01-4')
       dpeChatRefreshCounter();
-      // const chat = document.querySelector('ytd-live-chat-frame#chat');
+      const chat = document.querySelector('ytd-live-chat-frame#chat');
       if (chat && !chat.hasAttribute('collapsed')) {
         // proceedingChatFrameVideoID = fvid;
 
