@@ -4837,7 +4837,17 @@ function injection_script_1() {
     // r33 = t33;
     console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
     if (typeof chatCnt.urlChanged66 == 'function' && typeof chatCnt.urlChanged === 'function') {
-      chatCnt.urlChanged();
+
+      let io = new IntersectionObserver(function () {
+        if (io) {
+          io.disconnect();
+          io.takeRecords();
+          io = null;
+          chatCnt.urlChanged();
+        }
+      });
+      io.observe(chatCnt.chatframe);
+      
     } else {
       console.log('[tyt] chatCnt.urlChanged66 is not defined', chatCnt.urlChanged66);
     }
