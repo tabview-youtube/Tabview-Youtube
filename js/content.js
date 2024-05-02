@@ -4873,8 +4873,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
 
-      console.log(711, firstElementTextArr)
-      console.log(712, secondElementTextArr)
+      if (typeof GM === 'undefined') {
+        console.log(7191, firstElementTextArr)
+        console.log(7192, secondElementTextArr)
+      }
 
       /**
        @param {any[]} arr1 
