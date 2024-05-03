@@ -1724,7 +1724,7 @@ function injection_script_1() {
           if (!chatframe || !this.url) return;
           let loc = '';
           try {
-            loc = chatframe.contentDocument.location
+            loc = chatframe.contentDocument.location.href
           } catch (e) { }
           if (loc === this.url) return;
           const t = `${loc}->${this.url}`;
