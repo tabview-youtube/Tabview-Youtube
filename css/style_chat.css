@@ -189,7 +189,17 @@
         }
 
         ytd-live-chat-frame#chat[collapsed] iframe {
-            display: none;
+            /* display: none; */
+            z-index: -1;
+            visibility: collapse;
+        }
+
+        @supports (-webkit-appearance: none) {
+
+            ytd-live-chat-frame#chat[collapsed] iframe {
+                display: none;
+            }
+            
         }
 
     }
