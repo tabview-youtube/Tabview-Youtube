@@ -193,8 +193,7 @@
             z-index: -1;
             visibility: collapse;
         }
-
-        @supports (not (-moz-user-focus:none)) {
+        @supports (not (-moz-appearance:none)) and ((-webkit-animation: initial)) {
 
             ytd-live-chat-frame#chat[collapsed] iframe {
                 display: none;

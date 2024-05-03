@@ -15,7 +15,7 @@
     "host_permissions": [
       "https://www.youtube.com/*"
     ],
-   "version": "4.70.62",
+   "version": "4.70.63",
    "web_accessible_resources": [{
       "resources": ["images/*.png", "js/injection*.js", "js/content.js", "css/style_*.css"],
       "matches": ["https://www.youtube.com/*"]
