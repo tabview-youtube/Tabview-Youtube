@@ -1715,11 +1715,21 @@ function injection_script_1() {
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
 
-
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66) {
         cProto.urlChanged66 = cProto.urlChanged;
         let rz = 0;
+        let mz = '';
         cProto.urlChanged = function () {
+          const chatframe = this.chatframe || (this.$ || 0).chatframe;
+          if (!chatframe || !this.url) return;
+          let loc = '';
+          try {
+            loc = chatframe.contentDocument.location
+          } catch (e) { }
+          if (loc === this.url) return;
+          const t = `${loc}->${this.url}`;
+          if (t === mz) return;
+          mz = t;
           if (rz > 1e9) rz = 9;
           const tz = ++rz;
           _ytIframeReloadDelay_().then(() => {
@@ -1839,8 +1849,12 @@ function injection_script_1() {
               }
             }
           };
+          // liveChatPageUrl(baseUrl, collapsed, data, forceDarkTheme);
           cProto.liveChatPageUrl = function (a, b, c, d) {
-            if (!c && lastUrl) return lastUrl; // prevent immediate url change due to data change
+
+            const chatframe = this.chatframe || (this.$ || 0).chatframe;
+
+            if (!c && lastUrl && chatframe) return lastUrl; // prevent immediate url change due to data change
             let ed = this.liveChatPageUrl159(a, b, c, d);
             if (ed && ed.includes('/live_chat') && ed.includes('continuation=')) {
               // force url change
@@ -1850,6 +1864,9 @@ function injection_script_1() {
                 return `${_}&mceu=${((performance.timeOrigin + window.history.length + mceu0) % 31536000000)}`
               });
             }
+            
+            if (!chatframe) return ed; // intermediate (not yet ready)
+
             if (!ed || ed.length < 12) { // empty url
               if (b && c && c._uepoxvqe === lastUrl) { // collapsed, same url
                 ed = lastUrl;
