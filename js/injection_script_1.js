@@ -1717,14 +1717,15 @@ function injection_script_1() {
 
 
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66) {
-
         cProto.urlChanged66 = cProto.urlChanged;
+        let rz = 0;
         cProto.urlChanged = function () {
-
+          if (rz > 1e9) rz = 9;
+          const tz = ++rz;
           _ytIframeReloadDelay_(this.chatframe || (this.$ || 0).chatframe).then(() => {
+            if (tz !== rz) return;
             arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
           });
-
         }
       }
 
