@@ -1855,6 +1855,7 @@ function injection_script_1() {
             const chatframe = this.chatframe || (this.$ || 0).chatframe;
 
             if (!c && lastUrl && chatframe) return lastUrl; // prevent immediate url change due to data change
+            if (!chatframe) c = null; // intermediate (not yet ready)
             let ed = this.liveChatPageUrl159(a, b, c, d);
             if (ed && ed.includes('/live_chat') && ed.includes('continuation=')) {
               // force url change
