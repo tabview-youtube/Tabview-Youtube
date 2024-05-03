@@ -6052,10 +6052,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   let ix93 = 0;
   const iframeLoadStatusWM = new WeakMap;
+  // fresh load [determine body empty state]
   const iframeLoadProcess = async function (_iframe) {
 
     const iframe = _iframe;
 
+    if (ix93 > 1e9) ix93 = 9;
     const t93 = ++ix93;
     iframeLoadStatusWM.set(iframe, t93*2);
 
@@ -6202,11 +6204,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-
+  // collapsed -> expanded [already loaded with location.replace]
   const iframeToVisible = async function (_iframe) {
     const iframe = _iframe;
     if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
-    if (((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) return;
+    if (((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) {
+      return iframeLoadProcess(_iframe);
+    }
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
     if (!chat) return;
     if (chat.hasAttribute('collapsed') || iframe.isConnected !== true) {
