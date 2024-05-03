@@ -1722,7 +1722,7 @@ function injection_script_1() {
         cProto.urlChanged = function () {
           if (rz > 1e9) rz = 9;
           const tz = ++rz;
-          _ytIframeReloadDelay_(this.chatframe || (this.$ || 0).chatframe).then(() => {
+          _ytIframeReloadDelay_().then(() => {
             if (tz !== rz) return;
             arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
           });
@@ -4791,7 +4791,7 @@ function injection_script_1() {
   //   // TODO
   // }, true);
 
-  let r33 = null;
+  // let r33 = null;
 
 
 
@@ -4817,22 +4817,12 @@ function injection_script_1() {
       url2 = c;
       pIfr.contentDocument.location.replace(c);
     };
-    return (async (chatframe) => {
-      if (chatframe instanceof HTMLIFrameElement && typeof IntersectionObserver !== 'undefined') {
-        await new Promise(resolve => {
-          let io = new IntersectionObserver(function () {
-            if (io) {
-              io.disconnect();
-              io.takeRecords();
-              io = null;
-              resolve();
-            }
-          });
-          io.observe(chatframe);
-        });
-      }
-      await new Promise(pfn).catch(console.warn);
-      pIfr.onload = null;
+    let aLock = Promise.resolve();
+    return (() => {
+      const p = aLock = aLock.then(() => new Promise(pfn).catch(console.warn)).then(() => {
+        pIfr.onload = null;
+      });
+      return p.then();
     });
   })();
 
