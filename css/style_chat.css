@@ -194,7 +194,7 @@
             visibility: collapse;
         }
 
-        @supports (-webkit-appearance: none) {
+        @supports (not (-moz-user-focus:none)) {
 
             ytd-live-chat-frame#chat[collapsed] iframe {
                 display: none;
