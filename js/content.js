@@ -6209,8 +6209,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const iframe = _iframe;
     if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
     if (((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) {
-      await new Promise(resolve=>setTimeout(resolve, 800));
-      if(((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) return iframeLoadProcess(_iframe);
+      // await new Promise(resolve=>setTimeout(resolve, 800));
+      // if(((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) return iframeLoadProcess(_iframe);
+      // return iframeLoadProcess(_iframe);
+      return;
     }
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
     if (!chat) return;
