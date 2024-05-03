@@ -1721,13 +1721,16 @@ function injection_script_1() {
         let mz = '';
         cProto.urlChanged = function () {
           const chatframe = this.chatframe || (this.$ || 0).chatframe;
-          if (!chatframe || !this.url) return;
+          const url = `${this.url}`;
+          if (!chatframe || !url) return;
           let loc = '';
           try {
             loc = chatframe.contentDocument.location.href
           } catch (e) { }
-          if (loc === this.url) return;
-          const t = `${loc}->${this.url}`;
+          const kloc = loc.replace(/^https?:\/\/[\w\.\-]+\//, '/');
+          const kurl = url.replace(/^https?:\/\/[\w\.\-]+\//, '/');
+          if (kloc === kurl) return;
+          const t = `${kloc}\t${kurl}`;
           if (t === mz) return;
           mz = t;
           if (rz > 1e9) rz = 9;
