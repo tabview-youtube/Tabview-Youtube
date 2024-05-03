@@ -1865,7 +1865,7 @@ function injection_script_1() {
               const mceu0 = _mceu0;
               ed = ed.replace(/&mceu=\d+/, '');
               ed = ed.replace(/continuation=[^=&\s?]+/, (_) => {
-                return `${_}&mceu=${((performance.timeOrigin + window.history.length + mceu0) % 31536000000)}`
+                return `${_}&mceu=${((performance.timeOrigin + mceu0) % 31536000000)}`
               });
             }
             
