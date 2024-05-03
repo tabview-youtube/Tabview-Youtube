@@ -2,6 +2,7 @@
    "content_scripts": [ {
       "js": [ "js/content.js" ],
       "matches": [ "https://www.youtube.com/*" ],
+      "exclude_matches": [ "https://*.youtube.com/live_chat*" ],
       "run_at": "document_start",
       "all_frames": false
    } ],
@@ -15,7 +16,7 @@
     "host_permissions": [
       "https://www.youtube.com/*"
     ],
-   "version": "4.70.67",
+   "version": "4.70.70",
    "web_accessible_resources": [{
       "resources": ["images/*.png", "js/injection*.js", "js/content.js", "css/style_*.css"],
       "matches": ["https://www.youtube.com/*"]
