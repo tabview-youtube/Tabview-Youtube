@@ -251,7 +251,35 @@ ytd-watch-flexy {
     --tyt-tabs-upspace: '[[only avaible inside #right-tabs]]'; /* 42px if there is button-like */
     --tyt-tabs-available-height: '[[only avaible inside #right-tabs]]'; /* much reduced if all tabs are collapsed */
 
+    
 }
+
+/* << --spacing-css-20240504 >> */
+
+ytd-watch-flexy[theater][is-two-columns_] {
+        
+    /* --tyt-secondary-mt: var(--ytd-margin-3x); */
+
+    --tyt-secondary-mt: var(--ytd-margin-2x);
+
+}
+
+ytd-watch-flexy[fullscreen][is-two-columns_] {
+        
+    /* --tyt-secondary-mt: var(--ytd-margin-3x); */
+
+    --tyt-secondary-mt: var(--ytd-margin-2x);
+
+}
+
+ytd-watch-flexy[flexy][is-two-columns_] {
+    --tyt-primary-below-mt: 4px;
+}
+
+
+/* << --spacing-css-20240504 >> */
+
+
 
 /**
  Youtube / Browser CSS issues
@@ -951,6 +979,7 @@ inset-inline-end right	Specifies the offset for the ending edge in the writing d
 
     }
     
+    /* non-fullscreen */
     @media not all and (display-mode: fullscreen) {
 
         /* repeated info hidden */
@@ -2823,10 +2852,6 @@ body .ytp-autohide .ytp-unmute,
             min-width: var(--ytd-watch-flexy-sidebar-min-width);
         }
 
-        ytd-watch-flexy[theater][is-two-columns_] #secondary.ytd-watch-flexy {
-            margin-top: var(--ytd-margin-3x);
-            padding-bottom: 0;
-        }
 
     }
 
@@ -3620,7 +3645,7 @@ body .ytp-autohide .ytp-unmute,
         scrollbar-width: none;
         /* Firefox */
         /* margin-top: 6px; */
-        margin-top: 4px; /* May 2023 */
+        margin-top: var(--tyt-primary-below-mt); /* May 2023 */ /* 20250424 */
     }
 
     #primary-inner.ytd-watch-flexy #player ~ #below.style-scope.ytd-watch-flexy::-webkit-scrollbar {
@@ -3639,6 +3664,7 @@ body .ytp-autohide .ytp-unmute,
 
 }
 
+/* non-fullscreen */
 @media not all and (display-mode: fullscreen) {
 
     @supports (color: var(--compatibile-with-enhancer-youtube-single-col)) and (selector(:has(a#id + b))) {
@@ -4278,19 +4304,92 @@ body .ytp-autohide .ytp-unmute,
             margin-top: var(--tyt-primary-main-title-mt);
     
         }
-    
-        ytd-watch-flexy[is-two-columns_] ytd-watch-metadata.ytd-watch-flexy{
-            --tyt-primary-metadata-mt: 0;
-            --tyt-primary-metadata-mb: 0;
-        }
-        body ytd-watch-flexy[is-two-columns_] ytd-watch-metadata.ytd-watch-flexy{
-            margin-top:var(--tyt-primary-metadata-mt);
-            margin-bottom:var(--tyt-primary-metadata-mb);
-        }
+   
 
     }
 
 }
+
+@supports (color: var(--spacing-css-20240504)){
+
+    /* just for better spacing */
+    
+    ytd-watch-flexy[theater][is-two-columns_] #secondary.ytd-watch-flexy {
+        margin-top: var(--tyt-secondary-mt);
+        padding-bottom: 0;
+    }
+
+    ytd-watch-flexy[fullscreen][is-two-columns_] #secondary.ytd-watch-flexy {
+        margin-top: var(--tyt-secondary-mt);
+        padding-bottom: 0;
+    }
+
+    ytd-watch-flexy[fullscreen][flexy][is-two-columns_] ytd-watch-metadata.ytd-watch-flexy{
+        margin-top: var(--tyt-primary-metadata-mt)
+    }
+
+    ytd-watch-flexy{
+        --tyt-588-sortmenu-display: flex;
+        --tyt-588-sortmenu-flex-direction: row;
+
+        --tyt-588-sortfilter-sub-menu-renderer-mt: 0;
+        --tyt-588-sortfilter-sub-menu-renderer-display: inline-flex;
+        --tyt-588-sortfilter-sub-menu-renderer-flex-direction: row;
+
+        --tyt-588-dropdown-menu-display: inline-flex;
+        --tyt-588-dropdown-menu-flex-direction: row;
+    }
+
+    ytd-watch-flexy #tab-comments span#sort-menu.style-scope.ytd-comments-header-renderer {
+        display: var(--tyt-588-sortmenu-display);
+        flex-direction: var(--tyt-588-sortmenu-flex-direction);
+    }
+
+    ytd-watch-flexy #tab-comments ytd-comments-header-renderer:not([show-comments-panel-button]):not([compact-header]) span#sort-menu.style-scope.ytd-comments-header-renderer yt-sort-filter-sub-menu-renderer.ytd-comments-header-renderer {
+        margin-top: var(--tyt-588-sortfilter-sub-menu-renderer-mt);
+    }
+
+    ytd-watch-flexy #tab-comments span#sort-menu.style-scope.ytd-comments-header-renderer yt-sort-filter-sub-menu-renderer.ytd-comments-header-renderer {
+        margin-top: var(--tyt-588-sortfilter-sub-menu-renderer-mt);
+        display: var(--tyt-588-sortfilter-sub-menu-renderer-display);
+        flex-direction: var(--tyt-588-sortfilter-sub-menu-renderer-flex-direction);
+    }
+
+    ytd-watch-flexy #tab-comments span#sort-menu.style-scope.ytd-comments-header-renderer yt-dropdown-menu {
+        display: var(--tyt-588-dropdown-menu-display);
+        flex-direction: var(--tyt-588-dropdown-menu-flex-direction);
+
+    }
+
+    ytd-watch-flexy[is-two-columns_][fullscreen]{
+        --tyt-primary-metadata-mt: 0;
+        --tyt-primary-metadata-mb: 0;
+    }
+    
+    ytd-watch-flexy[is-two-columns_][theater]{
+        --tyt-primary-metadata-mt: 0;
+        --tyt-primary-metadata-mb: 0;
+    }
+    
+
+
+    ytd-watch-flexy[is-two-columns_][fullscreen] ytd-watch-metadata.ytd-watch-flexy{
+        margin-top:var(--tyt-primary-metadata-mt);
+        margin-bottom:var(--tyt-primary-metadata-mb);
+    }
+    
+    ytd-watch-flexy[is-two-columns_][theater] ytd-watch-metadata.ytd-watch-flexy{
+        margin-top:var(--tyt-primary-metadata-mt);
+        margin-bottom:var(--tyt-primary-metadata-mb);
+    }
+    
+    
+    :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary-inner {
+        padding-top: 0;
+    }
+
+}
+
 
 /* display-mode: fullscreen not working in Opera */
 @supports (color: var(--fullscreen-layout-adjustment)) {
@@ -4319,9 +4418,6 @@ body .ytp-autohide .ytp-unmute,
         width: 0px;
     }
 
-    :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary-inner {
-        padding-top: var(--ytd-margin-6x);
-    }
 
     @supports (color: var(--compatibile-with-iridium-for-youtube)) {
 

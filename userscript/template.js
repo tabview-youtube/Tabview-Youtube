@@ -191,7 +191,7 @@ SOFTWARE.
 // @supportURL            https://github.com/cyfung1031/Tabview-Youtube
 // @run-at                document-start
 // @match                 https://www.youtube.com/*
-// @exclude               /^https?://www\.youtube\.com\/live_chat.*$/
+// @exclude               /^https?://\w+\.youtube\.com\/live_chat.*$/
 // @exclude               /^https?://\S+\.(txt|png|jpg|jpeg|gif|xml|svg|manifest|log|ini)[^\/]*$/
 // @icon                  https://raw.githubusercontent.com/cyfung1031/Tabview-Youtube/main/images/icon128p.png
 
