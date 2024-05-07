@@ -1731,7 +1731,7 @@ function injection_script_1() {
           const kurl = url.replace(/^https?:\/\/[\w\.\-]+\//, '/');
           if (kloc === kurl) return;
           const t = `${kloc}\t${kurl}`;
-          if (t === mz) return;
+          // if (t === mz) return;
           mz = t;
           if (rz > 1e9) rz = 9;
           const tz = ++rz;

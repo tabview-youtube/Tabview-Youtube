@@ -4775,6 +4775,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
         : (text) => text;
 
+      const hiddenTexts = new Map();
       const getTextContentArr = async (element) => {
         let contentArray = [];
 
@@ -4787,6 +4788,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             while (node = walker.nextNode()) {
               const text = node.nodeValue;
               if (text && !text.startsWith('\uF204')) {
+                hiddenTexts.set(node, text);
                 node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
               }
             }
@@ -4874,7 +4876,13 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         return contentArray;
       };
 
+      hiddenTexts.clear();
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
+      hiddenTexts.forEach((t, text) => {
+        // console.log(128, text.nodeValue, `\uF204${t.replace(/[\uF204\uF205]/g, '')}\uF205`)
+        if ((text.nodeValue || '') === `\uF204${t.replace(/[\uF204\uF205]/g, '')}\uF205`) text.nodeValue = t;
+      });
+      hiddenTexts.clear();
 
       if (typeof GM === 'undefined') {
         console.log(7191, firstElementTextArr)
