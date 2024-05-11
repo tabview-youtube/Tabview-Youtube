@@ -1614,6 +1614,8 @@ function injection_script_1() {
 
       if ('scrollToSection' in cProto && typeof cProto.scrollToSection === 'function' && !cProto.scrollToSection12 && cProto.scrollToSection.length === 1) {
 
+        // related to tabviewInfoTogglerOnClick
+        
         cProto.scrollToSection12 = cProto.scrollToSection;
 
         async function scrollToSection(p, nodeInTab) {
@@ -1627,7 +1629,7 @@ function injection_script_1() {
           }
 
           if (p instanceof HTMLElement) {
-            p.scrollIntoView();
+            if (!document.fullscreenElement) p.scrollIntoView();
           } else {
             nodeInTab.scrollToSection12(a);
           }
@@ -1635,22 +1637,25 @@ function injection_script_1() {
         }
 
         cProto.scrollToSection = function (a) {
-          if (HTMLElement.prototype.closest.call(this, 'ytd-watch-metadata.ytd-watch-flexy')) {
-            let nodeInTab = document.querySelector('#tab-info ytd-structured-description-content-renderer');
-            if (nodeInTab && 'scrollToSection' in nodeInTab && 'scrollToSection12' in nodeInTab) {
+          const hostElement = this.hostElement;
+          if ( hostElement instanceof HTMLElement && HTMLElement.prototype.closest.call(hostElement, 'ytd-watch-metadata.ytd-watch-flexy')) {
+            const nodeInTabElm = document.querySelector('#tab-info ytd-structured-description-content-renderer');
+            const nodeInTabCnt = insp(nodeInTabElm);
+            if (nodeInTabCnt && 'scrollToSection' in nodeInTabCnt && 'scrollToSection12' in nodeInTabCnt) {
               // let tab = HTMLElement.prototype.closest.call(nodeInTab, '#tab-info');
               let p = null;
               try {
-                p = nodeInTab.getSectionElement(a);
+                p = nodeInTabCnt.getSectionElement(a);
               } catch (e) {
 
               }
-              scrollToSection(p, nodeInTab);
+              scrollToSection(p, nodeInTabCnt);
               return;
             }
           }
           return this.scrollToSection12(a);
         }
+        
 
 
 
@@ -2916,18 +2921,17 @@ function injection_script_1() {
   }, false);
 
 
+  // related to scrollToSection
   function tabviewInfoTogglerOnClick(evt) {
-    let isTrusted = evt.isTrusted === true;
-    let dom = evt.target;
-    let description = closestFromAnchor.call(dom, '#description')
+    // const isTrusted = evt.isTrusted === true;
+    const dom = evt.target;
+    const description = closestFromAnchor.call(dom, '#description')
     if (!description) return;
     let button = description.querySelector('#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
     if (!button) return;
     setTimeout(() => { //setTimeout / raf required - js event issue
       button.click();
-      if (isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
-      description = null;
-      dom = null;
+      // if (isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
       button = null;
     }, 30);
     evt.preventDefault();
@@ -4276,7 +4280,8 @@ function injection_script_1() {
 
 
     },
-    createToggleBtn(evt) {
+    async createToggleBtn() {
+      
       let donationShelfElm = document.querySelector('ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)');
       if (!donationShelfElm) return;
 
@@ -4297,12 +4302,42 @@ function injection_script_1() {
       }
 
       /** @type {object[]} */
-      const mastheadElm = document.querySelector('ytd-masthead#masthead');
-      if (!mastheadElm) return;
-      const mastheadCnt = insp(mastheadElm);
+      const { res, mastheadCnt, mastheadData } = await (async () => {
 
-      const mastheadData = mastheadCnt.data
-      if (!mastheadData) return;
+        for (let i = 0; i < 3; i++) {
+
+          const mastheadElm = document.querySelector('ytd-masthead#masthead');
+          if (!mastheadElm) return {};
+
+          let mastheadCnt = insp(mastheadElm) || mastheadElm;
+
+          let mastheadData = mastheadCnt.data
+
+          if (mastheadData) {
+            return { res: 1, mastheadElm, mastheadCnt, mastheadData };
+          } else if (i === 0) {
+            await getRAFPromise().then(); // background -> foreground
+            await delayPn(80); // + 80ms
+          } else if (i === 1) {
+            await delayPn(520); // background -> foreground + 80ms+ 520ms
+          }
+          if (typeof IntersectionObserver !== 'undefined') {
+            await new Promise((resolve) => {
+              let io = new IntersectionObserver(() => {
+                if (io) {
+                  io.disconnect();
+                  io = null;
+                  resolve();
+                }
+              });
+              io.observe(mastheadElm);
+            });
+          }
+        }
+        return {};
+
+      })();
+      if (!res) return;
 
       const topbarButtons = mastheadData.topbarButtons
       if (!topbarButtons) return;

@@ -2074,7 +2074,12 @@ body .ytp-autohide .ytp-unmute,
         html {
             --tyt-tab-btn-flex-grow: 1;
             --tyt-tab-btn-flex-basis: 0%;
+            --tyt-tab-bar-color-1-def: #ff4533;
+            --tyt-tab-bar-color-2-def: var(--yt-brand-light-red);
+            --tyt-tab-bar-color-1:var(--main-color, var(--tyt-tab-bar-color-1-def));
+            --tyt-tab-bar-color-2:var(--main-color, var(--tyt-tab-bar-color-2-def));
         }
+        
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content] {
 
             flex-grow: 1;
@@ -2087,7 +2092,8 @@ body .ytp-autohide .ytp-unmute,
             display: inline-block;
             text-decoration: none;
             text-transform: uppercase;
-            color: var(--yt-spec-text-secondary);
+            --tyt-tab-btn-color: var(--yt-spec-text-secondary);
+            color: var(--tyt-tab-btn-color);
             text-align: center;
             padding: 14px 8px 10px;
             border: 0;
@@ -2107,6 +2113,11 @@ body .ytp-autohide .ytp-unmute,
             text-overflow: clip;
 
         }
+
+        a.tab-btn:hover { /* weak selector */
+            color: var(--tyt-tab-btn-color);
+        }
+
 
         /* .tab-btn[tyt-tab-content] */
 
@@ -2139,10 +2150,10 @@ body .ytp-autohide .ytp-unmute,
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content].active {
             font-weight: 500;
             outline: 0;
-            color: var(--yt-spec-text-primary);
+            --tyt-tab-btn-color: var(--yt-spec-text-primary);
             background-color: var(--ytd-searchbox-legacy-button-focus-color);
-            border-bottom: 4px #ff4533 solid;
-            border-bottom-color: var(--yt-brand-light-red);
+            border-bottom: 4px var(--tyt-tab-bar-color-1) solid;
+            border-bottom-color: var(--tyt-tab-bar-color-2);
         }
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content].active svg {
@@ -2151,7 +2162,7 @@ body .ytp-autohide .ytp-unmute,
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content]:not(.active):hover {
             background-color: var(--ytd-searchbox-legacy-button-hover-color);
-            color: var(--yt-spec-text-primary);
+            --tyt-tab-btn-color: var(--yt-spec-text-primary);
         }
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content]:not(.active):hover svg {
@@ -2168,7 +2179,7 @@ body .ytp-autohide .ytp-unmute,
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content="#tab-comments"][loaded-comment="message"],
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content="#tab-comments"][loaded-comment="message"]:hover {
-            color: var(--yt-spec-icon-disabled);
+            --tyt-tab-btn-color: var(--yt-spec-icon-disabled);
         }
 
         ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
@@ -3108,6 +3119,25 @@ body .ytp-autohide .ytp-unmute,
         --ytd-watch-flexy-min-player-width: 0;
     }
 
+    @supports (color: var(--compatibile-with-enhancer-youtube-theme)) {
+        
+        /* against (Enhancer YoTube DeepDark Theme)
+            a:hover {
+                color: var(--main-color) !important;
+                fill: var(--main-color) !important;
+            }
+        */
+
+        a.tab-btn:hover,
+        a.tab-btn:active,
+        a.tab-btn:visited {
+            color: var(--yt-spec-text-secondary) !important;
+        }
+
+
+        var(--main-color)
+
+    }
     
 
     @supports (color: var(--compatibile-with-youtube-search-while-watching-video)){
@@ -4386,6 +4416,12 @@ body .ytp-autohide .ytp-unmute,
     
     :fullscreen ytd-watch-flexy[fullscreen][is-two-columns_] #primary-inner {
         padding-top: 0;
+    }
+
+    /* 20240512 */
+    
+    ytd-watch-flexy[flexy][is-two-columns_]:not([fullscreen]) ytd-watch-metadata.ytd-watch-flexy[class] {
+        margin-bottom: var(--ytd-margin-3x);
     }
 
 }

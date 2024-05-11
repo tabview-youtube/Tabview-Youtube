@@ -270,6 +270,26 @@ if (typeof window === 'object') {
     return;
   }
 
+  const createPipeline = () => {
+    let pipelineMutex = Promise.resolve();
+    const pipelineExecution = fn => {
+      return new Promise((resolve, reject) => {
+        pipelineMutex = pipelineMutex.then(async () => {
+          let res;
+          try {
+            res = await fn();
+          } catch (e) {
+            console.log('error_F1', e);
+            reject(e);
+          }
+          resolve(res);
+        }).catch(console.warn);
+      });
+    };
+    return pipelineExecution;
+  };
+  const iframePipeline = createPipeline();
+
   //if (!$) return;
 
   /**
@@ -1038,7 +1058,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-
     lokStringDateEN() {
       const d = this
 
@@ -1054,7 +1073,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return `${sy}.${sm}.${sd}`
 
     }
-
 
     lokStringDateJP() {
       const d = this
@@ -1085,13 +1103,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let sh = h < 10 ? '0' + h : '' + h
       let sm = m < 10 ? '0' + m : '' + m
 
-
       return `${sh}:${sm}`
 
     }
-
-
-
 
   }
 
@@ -1099,6 +1113,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     { error: "0x87FF", errorMsg: "Your userscript manager is not supported. FireMonkey is not recommended." }
   );
 
+  if(!('browserSupported' in (new KDate()))) return;
 
   let chromeCSSFiles = null;
 
@@ -1954,6 +1969,101 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  // iframe loadprocess interupted when expanded -> collasped
+  async function checkChatIframeOnExpanded() {
+    const iframe = document.getElementById('chatframe');
+    if (!(iframe instanceof HTMLIFrameElement)) return;
+    if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+    await iframePipeline(()=>{});
+    if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+    let iframeLocation;
+    try {
+      iframeLocation = iframe.contentDocument.location;
+    } catch (e) { }
+    if (!iframeLocation) return;
+    if (iframeLocation.href.includes('youtube.com')){
+
+      await iframePipeline(async () => {
+        if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+        await iframeLoadHookHandlerPromise.then();
+        if (iframe.isConnected === true && iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+          await iframeLoadProcess(iframe);
+        }
+      });
+
+    }
+    
+    // console.log(1421, iframeLocation.href);
+  }
+  
+  
+  const canScrollIntoViewWithOptions = (() => {
+
+    const element = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    let i = 0;
+    try {
+      element.scrollIntoView({
+        get behavior() { i++ },
+        get block() { i++ }
+      });
+    } catch (e) {
+
+    }
+    return i === 2;
+
+
+  })();
+  // Chrome >= 61, Edge >= 79, Firefox >= 36, Opera >=48, Safari >=14
+
+  /** @param {Element} elm */
+  const stableScroll = async (elm, options) => {
+
+    const f = (p) => `${p.height}|${p.width}|${p.left}|${p.top}`
+    let i = 0;
+    while (i++ < 4) {
+      const p = elm.getBoundingClientRect();
+      const ps = f(p);
+      const rr = new Promise(resolve => {
+        document.addEventListener('scroll', resolve, {
+          capture: true, passive: true, once: true
+        })
+      });
+      elm.scrollIntoView(options);
+      await rr;
+      await new Promise(resolve => {
+        let io = new IntersectionObserver(() => {
+          resolve();
+          io.disconnect();
+          io = null;
+        });
+        io.observe(elm)
+      });
+      // await new Promise(resolve=>setTimeout(resolve, 400));
+      const q = elm.getBoundingClientRect();
+      const qs = f(q);
+
+      if (ps === qs) break;
+      // await new Promise(resolve=>setTimeout(resolve, 400));
+    }
+
+
+  }
+
+  const fullScreenTabScrollIntoView = canScrollIntoViewWithOptions ? () => {
+    const scrollElement = document.querySelector('ytd-app[scrolling]')
+    const b = scrollElement && isFullScreen() && isWideScreenWithTwoColumns() && (isChatExpand() || isTabExpanded() || isEngagementPanelExpanded() || isDonationShelfExpanded());
+    if (!b) return;
+    // single column view; click button; scroll to tab content area 100%
+    const rightTabs = document.querySelector('#right-tabs');
+    const pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
+    if (rightTabs && pTop > 0) {
+      const secondaryInner = rightTabs.closest('#secondary-inner');
+      if(secondaryInner && secondaryInner.getBoundingClientRect().height < document.documentElement.clientHeight && document.documentElement.clientHeight > 80){
+        stableScroll(secondaryInner,{ behavior: "instant", block: "end", inline: "nearest" });
+      }
+    }
+  } : null;
+
 
   function setToActiveTab(defaultTab) {
     if (isTheater() && isWideScreenWithTwoColumns()) return;
@@ -2108,6 +2218,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       return _isChatPopupedF === null ? (_isChatPopupedF = cssElm.classList.contains('tyt-chat-popup')) : _isChatPopupedF
     }
 
+    if (chat_expanded_changed && new_isExpandedChat) {
+      checkChatIframeOnExpanded();
+    }
+
+    const checkForMoreThanOne = ()=>{
+
+      if (moreThanOneShown && (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
+
+        layoutStatusMutex.lockWith(unlock => {
+          if (new_isTabExpanded && lstTab.lastPanel === null) {
+            if (new_isExpandedChat) ytBtnCollapseChat();
+            if (new_isExpandedEPanel) ytBtnCloseEngagementPanels();
+            if (new_isExpandedDonationShelf) closeDonationShelf();
+          } else if (lstTab.lastPanel) {
+            let lastPanel = lstTab.lastPanel || '';
+            if (typeof lastPanel !== 'string') lastPanel = '';
+            if (new_isExpandedChat && lastPanel !== '#chatroom') ytBtnCollapseChat();
+            if (new_isExpandedEPanel && lastPanel.indexOf('#engagement-panel-') < 0) ytBtnCloseEngagementPanels();
+            if (new_isExpandedDonationShelf && lastPanel !== '#donation-shelf') closeDonationShelf();
+            switchTabActivity(null);
+          }
+          timeline.setTimeout(unlock, 40);
+        });
+      }
+    }
+
     if (new_isFullScreen) {
 
 
@@ -2124,14 +2260,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         //tab_change = LAYOUT_CHATROOM_EXPANDED|LAYOUT_TAB_EXPANDED
 
 
-        timeline.setTimeout(() => {
+        /*
+        triggered by iframe close, not by button click
+        */
+
+        canScrollIntoViewWithOptions && timeline.setTimeout(() => {
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
           let chatFrame = document.querySelector('ytd-live-chat-frame#chat');
           if (chatFrame && isChatExpand()) {
             // _console.log(7290, 1)
-            chatFrame.scrollIntoView(true);
+            fullScreenTabScrollIntoView();
           }
         }, 60)
 
@@ -2175,6 +2315,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           ytBtnCancelTheater();
 
         }
+      }
+
+      if(!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns()){
+        // check more than one shown
+
+        Promise.resolve().then(checkForMoreThanOne);
       }
 
     } else if ((new_layoutStatus & IF_01a) === IF_01b && !column_mode_changed && (tab_change == LAYOUT_CHATROOM_EXPANDED || tab_change == LAYOUT_ENGAGEMENT_PANEL_EXPANDED)) {
@@ -2346,30 +2492,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       Promise.resolve(0).then(() => {
 
-        if (moreThanOneShown && (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
-
-          layoutStatusMutex.lockWith(unlock => {
-            if (new_isTabExpanded && lstTab.lastPanel === null) {
-              if (new_isExpandedChat) ytBtnCollapseChat();
-              if (new_isExpandedEPanel) ytBtnCloseEngagementPanels();
-              if (new_isExpandedDonationShelf) closeDonationShelf();
-            } else if (lstTab.lastPanel) {
-              let lastPanel = lstTab.lastPanel || '';
-              if (typeof lastPanel !== 'string') lastPanel = '';
-              if (new_isExpandedChat && lastPanel !== '#chatroom') ytBtnCollapseChat();
-              if (new_isExpandedEPanel && lastPanel.indexOf('#engagement-panel-') < 0) ytBtnCloseEngagementPanels();
-              if (new_isExpandedDonationShelf && lastPanel !== '#donation-shelf') closeDonationShelf();
-              switchTabActivity(null);
-            }
-            timeline.setTimeout(unlock, 40);
-          });
-        }
-
-
-        // const iframe = document.querySelector('body iframe.style-scope.ytd-live-chat-frame#chatframe');
-        // console.log("iframe.xx",501,iframe)
-        // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0A');
-        // if (iframe) Promise.resolve(iframe).then(iframeLoadProcess);
+        checkForMoreThanOne();
 
         pageCheck();
         if (global_columns_end_ito !== null) {
@@ -2511,6 +2634,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function isFullScreen() {
     const cssElm = es.ytdFlexy;
     return (cssElm && cssElm.hasAttribute('fullscreen'))
+  }
+
+  function isTabExpanded(){
+    const cssElm = es.ytdFlexy;
+    return cssElm && (cssElm.getAttribute('tyt-tab') || '').charAt(0) === '#'
   }
 
   function isChatExpand() {
@@ -4885,8 +5013,35 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       hiddenTexts.clear();
 
       if (typeof GM === 'undefined') {
+
         console.log(7191, firstElementTextArr)
         console.log(7192, secondElementTextArr)
+
+        if(firstElementTextArr.length === secondElementTextArr.length){
+
+          let n = firstElementTextArr.length ;
+          const texts = [];
+          for(let j = 0;j<n;j++){
+            let text1 = firstElementTextArr[j];
+            let text2 = secondElementTextArr[j];
+            let s1 = text1.split(/([\w\-]+)/)
+            let s2 = text2.split(/([\w\-]+)/)
+            let kn = Math.min(s1.length, s2.length);
+            let p = -1;
+            for(let k =0;k<kn;k++){
+              if(s1[k]!==s2[k]) break
+              p=k;
+            }
+            if(p>=0){
+              text1 = s1.slice(p+1).join('');
+              text2 = s2.slice(p+1).join('');
+            }
+            texts.push([text1, text2])
+          }
+          console.log(7194, texts)
+          
+        }
+
       }
 
       /**
@@ -4948,12 +5103,32 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (g_check_detail_A !== t) return;
 
         let clicked = false;
+        let promise = null;
         await Promise.all([...HTMLElement.prototype.querySelectorAll.call(targetDuplicatedInfoPanel, '#expand[role="button"]:not([hidden])')].map(button => {
           return Promise.resolve().then(() => {
+            promise = promise || new Promise(resolve=>{
+              let mo = new MutationObserver(()=>{
+                mo.disconnect();
+                mo= null;
+                resolve();
+              });
+              mo.observe(targetDuplicatedInfoPanel, {subtree:true, childList: true})
+          })
             button.click();
             clicked = true;
           });
         }));
+        if(promise) await promise.then();
+        if(typeof IntersectionObserver !== 'undefined'){
+          await new Promise(resolve=>{
+            let io = new IntersectionObserver(()=>{
+              io.disconnect();
+              io=null;
+              resolve();
+            });
+            io.observe(targetDuplicatedInfoPanel);
+          });
+        }
 
         await Promise.resolve(0);
 
@@ -6041,10 +6216,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const iframe = target instanceof HTMLIFrameElement ? target : null;
     if (!iframe || iframe.id !== 'chatframe') return;
 
-    iframeLoadHookHandlerPromise.then(() => {
-      iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe') && iframeLoadProcess(iframe);
-    });
-
+    iframePipeline(async () => {
+      await iframeLoadHookHandlerPromise.then();
+      if (iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
+        await iframeLoadProcess(iframe);
+      }
+    })
   };
 
   document.addEventListener('load', iframeLoadHookHandler, capturePassive);
@@ -7284,18 +7461,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (isFullScreen()) {
 
-
-      const fullScreenTabScrollIntoView = () => {
-        let scrollElement = document.querySelector('ytd-app[scrolling]')
-        if (!scrollElement) return;
-        // single column view; click button; scroll to tab content area 100%
-        let rightTabs = document.querySelector('#right-tabs');
-        let pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
-        if (rightTabs && pTop > 0 && tabBtn.classList.contains('active')) {
-          rightTabs.scrollIntoView(false);
-        }
-      }
-
       _console.log(8221, 16, 1)
 
       if (isActiveAndVisible) {
@@ -7311,8 +7476,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           closeDonationShelf();
         }
 
-
-        timeline.setTimeout(fullScreenTabScrollIntoView, 60)
+        canScrollIntoViewWithOptions && timeline.setTimeout(fullScreenTabScrollIntoView, 60)
 
         timeline.setTimeout(unlock, 80);
         switchTabActivity(tabBtn)
