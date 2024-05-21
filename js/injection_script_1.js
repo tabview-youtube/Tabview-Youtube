@@ -1741,8 +1741,10 @@ function injection_script_1() {
           if (rz > 1e9) rz = 9;
           const tz = ++rz;
           _ytIframeReloadDelay_().then(() => {
-            if (tz !== rz) return;
-            arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
+            getForegroundPromise().then(() => {
+              if (tz !== rz) return;
+              arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
+            });
           });
         }
       }
