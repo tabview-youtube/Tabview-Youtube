@@ -243,8 +243,17 @@ function main(){
 
   const texts = await Promise.all(contents);
 
-  while (document.documentElement === null) {
-    await new Promise(r => window.requestAnimationFrame(r));
+  if (document.documentElement === null) {
+    await new Promise(resolve => {
+      let mo = new MutationObserver(() => {
+        if (!mo || document.documentElement === null) return;
+        mo.disconnect();
+        mo.takeRecords();
+        mo = null;
+        resolve();
+      });
+      mo.observe(document, { childList: true, subtree: true });
+    });
   }
 
   const target = document.head || document.documentElement;
