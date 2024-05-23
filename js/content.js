@@ -4903,8 +4903,30 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       const hiddenTexts = new Map();
 
+      const hiddenTextReplacement = (element) => {
+
+        for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+
+          const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
+          let node;
+          while (node = walker.nextNode()) {
+            const text = node.nodeValue;
+            if (text && !text.startsWith('\uF204')) {
+              hiddenTexts.set(node, text);
+              node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
+            }
+          }
+
+        }
+
+      }
+
 
       const addContent = (currentNode, contentArray) => {
+
+        if (currentNode instanceof HTMLElement) {
+          hiddenTextReplacement(currentNode);
+        }
 
         /** @type {string} */
         let trText = currentNode.textContent.trim();
@@ -4936,7 +4958,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           trText = trText.replace(/\s+/g, ' ');
           // trText = trText.replace(/[1234567890１２３４５６７８９０]/g, '0');
           trText = trText.trim();
-          contentArray.push(trText);
+          if (trText) contentArray.push(trText);
         }
       }
 
@@ -4962,8 +4984,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             let allHidden = true;
             for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
               if (filterNode(child) === false) continue;
-              let trimmedTextContent = child.textContent.trim();
-              if (trimmedTextContent.length === 0) continue;
+              if (child.textContent.trim().length === 0) continue;
               allHidden = false;
               break;
             }
@@ -4981,37 +5002,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
 
-      const getTextContentArr = async (element, contentArray = [], fixHidden = true) => {
+      const getTextContentArr = async (element, contentArray = []) => {
 
         try {
 
-          if (fixHidden) {
-
-            for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
-
-              const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
-              let node;
-              while (node = walker.nextNode()) {
-                const text = node.nodeValue;
-                if (text && !text.startsWith('\uF204')) {
-                  hiddenTexts.set(node, text);
-                  node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
-                }
-              }
-
-            }
-
-          }
-
           await Promise.resolve();
-
 
           for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
 
             if (filterNode(currentNode) === false) continue;
 
-            if (currentNode instanceof HTMLElement && currentNode.firstElementChild && !currentNode.nodeName.toLowerCase().includes("-")) {
-              await getTextContentArr(currentNode, contentArray, false);
+            if (currentNode instanceof HTMLElement && currentNode.firstElementChild && !currentNode.nodeName.includes("-")) {
+              await getTextContentArr(currentNode, contentArray);
             } else {
               addContent(currentNode, contentArray);
             }
@@ -5030,7 +5032,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       hiddenTexts.clear();
       const [firstElementTextArr, secondElementTextArr] = await Promise.all([getTextContentArr(firstElement), getTextContentArr(secondElement)]);
       hiddenTexts.forEach((t, text) => {
-        // console.log(128, text.nodeValue, `\uF204${t.replace(/[\uF204\uF205]/g, '')}\uF205`)
         if ((text.nodeValue || '') === `\uF204${t.replace(/[\uF204\uF205]/g, '')}\uF205`) text.nodeValue = t;
       });
       hiddenTexts.clear();
