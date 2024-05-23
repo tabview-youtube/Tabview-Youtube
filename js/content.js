@@ -4823,13 +4823,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    async function checkDuplicatedInfoAug2023(targetDuplicatedInfoPanel) {
-      // ytd-text-inline-expander#description-inline-expander:not([hidden])
-      const firstElementSelector = "ytd-text-inline-expander#description-inline-expander"; // ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata
-      const secondElementSelector = "#tab-info ytd-expander #description";
-
-      const firstElement = targetDuplicatedInfoPanel || document.querySelector(firstElementSelector);
-      const secondElement = document.querySelector(secondElementSelector);
+    async function _checkDuplicatedInfoAug2023(_firstElement, _secondElement, spk) {
+      /** @type {HTMLElement} */
+      const firstElement = _firstElement;
+      /** @type {HTMLElement} */
+      const secondElement = _secondElement;
 
       // dont detect the content change of main info box
       // if second info box is checked okay before, skip
@@ -4904,103 +4902,128 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         : (text) => text;
 
       const hiddenTexts = new Map();
-      const getTextContentArr = async (element) => {
-        let contentArray = [];
+
+
+      const addContent = (currentNode, contentArray) => {
+
+        /** @type {string} */
+        let trText = currentNode.textContent.trim();
+        let withText = trText.length > 0;
+        if (withText && trText.includes('\uF204')) {
+          trText = trText.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
+          trText = trText.replace(/[\uF204\uF205]/g, '');
+          withText = trText.length > 0;
+        }
+        if (withText) {
+          trText = trText.replace(/\n[\n\x20]+\n/g, '\n\n');
+          trText = trText.replace(/[\u0020\u00A0\u16A0\u180E\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
+          trText = trText.replace(/[\u200b\uFEFF]/g, '');
+          let loop = 64;
+          while (loop-- > 0) {
+            const before = trText;
+            trText = trText.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
+            trText = trText.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
+            if (before === trText) loop = 0;
+          }
+          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
+          // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
+          trText = fixNameConversion(trText);
+          trText = trText.replace(/[,，.。、]/g, ' ');
+          trText = trText.replace(/[#＃]/g, '#');
+          trText = trText.replace(/[*＊]/g, '*');
+          trText = trText.replace(/[「」『』”’＜＞"'<>\[\]\{\}]/g, '"');
+          trText = trText.replace(/[:：]/g, ':');
+          trText = trText.replace(/\s+/g, ' ');
+          // trText = trText.replace(/[1234567890１２３４５６７８９０]/g, '0');
+          trText = trText.trim();
+          contentArray.push(trText);
+        }
+      }
+
+      const filterNode = (currentNode) => {
+
+
+        if (currentNode.nodeType === Node.ELEMENT_NODE) {
+          if (currentNode.nodeName === "STYLE") {
+            // <style is-scoped>
+            return false;
+          }
+          if (currentNode.getAttribute('role') === 'button') { // .role is not working in Firefox
+            // tp-yt-paper-button#expand-sizer
+            // currentNode.matches('#collapse[role="button"]:not([hidden])')
+
+            return false;
+          }
+          if (currentNode.hasAttribute("hidden")) {
+
+            return false;
+          }
+          if (currentNode.id === "snippet") {
+            let allHidden = true;
+            for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
+              if (filterNode(child) === false) continue;
+              let trimmedTextContent = child.textContent.trim();
+              if (trimmedTextContent.length === 0) continue;
+              allHidden = false;
+              break;
+            }
+            if (allHidden) {
+              return false;
+            }
+          }
+
+        } else if (currentNode.nodeType === Node.TEXT_NODE) {
+        } else {
+          return false;
+        }
+
+        return true;
+      }
+
+
+      const getTextContentArr = async (element, contentArray = [], fixHidden = true) => {
 
         try {
 
-          for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+          if (fixHidden) {
 
-            const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
-            let node;
-            while (node = walker.nextNode()) {
-              const text = node.nodeValue;
-              if (text && !text.startsWith('\uF204')) {
-                hiddenTexts.set(node, text);
-                node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
+            for (const hiddenElement of HTMLElement.prototype.querySelectorAll.call(element, '[hidden]')) {
+
+              const walker = document.createTreeWalker(hiddenElement, NodeFilter.SHOW_TEXT, null, null);
+              let node;
+              while (node = walker.nextNode()) {
+                const text = node.nodeValue;
+                if (text && !text.startsWith('\uF204')) {
+                  hiddenTexts.set(node, text);
+                  node.nodeValue = `\uF204${text.replace(/[\uF204\uF205]/g, '')}\uF205`;
+                }
               }
+
             }
 
           }
 
+          await Promise.resolve();
+
+
           for (let currentNode = nodeFirstChild(element); currentNode; currentNode = nodeNextSibling(currentNode)) {
 
-            if (currentNode.nodeType === Node.ELEMENT_NODE) {
-              if (currentNode.nodeName === "STYLE") {
-                // <style is-scoped>
-                continue;
-              }
-              if (currentNode.getAttribute('role') === 'button') { // .role is not working in Firefox
-                // tp-yt-paper-button#expand-sizer
-                // currentNode.matches('#collapse[role="button"]:not([hidden])')
-                continue;
-              }
-              if (currentNode.hasAttribute("hidden")) {
-                continue;
-              }
-              if (currentNode.id === "snippet") {
-                let allHidden = true;
-                for (let child = nodeFirstChild(currentNode); child; child = nodeNextSibling(child)) {
-                  if (child.nodeName === "STYLE") {
-                    // <style is-scoped>
-                    continue;
-                  }
-                  if (child.hasAttribute("hidden")) {
-                    continue;
-                  }
-                  let trimmedTextContent = child.textContent.trim();
-                  if (trimmedTextContent.length === 0) continue;
-                  allHidden = false;
-                  break;
-                }
-                if (allHidden) {
-                  continue;
-                }
-              }
+            if (filterNode(currentNode) === false) continue;
 
-            } else if (currentNode.nodeType === Node.TEXT_NODE) {
+            if (currentNode instanceof HTMLElement && currentNode.firstElementChild && !currentNode.nodeName.toLowerCase().includes("-")) {
+              await getTextContentArr(currentNode, contentArray, false);
             } else {
-              continue;
+              addContent(currentNode, contentArray);
             }
 
-            /** @type {string} */
-            let trText = currentNode.textContent.trim();
-            let withText = trText.length > 0;
-            if (withText && trText.includes('\uF204')) {
-              trText = trText.replace(/\uF204[^\uF204\uF205]+\uF205/g, '');
-              trText = trText.replace(/[\uF204\uF205]/g, '');
-              withText = trText.length > 0;
-            }
-            if (withText) {
-              trText = trText.replace(/\n[\n\x20]+\n/g, '\n\n');
-              trText = trText.replace(/[\u0020\u00A0\u16A0\u180E\u2000-\u200A\u202F\u205F\u3000]/g, ' ');
-              trText = trText.replace(/[\u200b\uFEFF]/g, '');
-              let loop = 64;
-              while (loop-- > 0) {
-                const before = trText;
-                trText = trText.replace(/([\u1000-\uDF77])\x20([\x21-\x7E])/g, '$1$2'); // 中英文之间加空白 ?
-                trText = trText.replace(/([\x21-\x7E])\x20([\u1000-\uDF77])/g, '$1$2'); // 中英文之间加空白 ?
-                if (before === trText) loop = 0;
-              }
-              // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n\n\n  \n  \n概要"
-              // "白州大根\n    \n      チャンネル登録者数 698人\n    \n  \n\n\n  動画\n  \n  \n概要"
-              trText = fixNameConversion(trText);
-              trText = trText.replace(/[,，.。、]/g, ' ');
-              trText = trText.replace(/[#＃]/g, '#');
-              trText = trText.replace(/[*＊]/g, '*');
-              trText = trText.replace(/[「」『』”’＜＞"'<>\[\]\{\}]/g, '"');
-              trText = trText.replace(/[:：]/g, ':');
-              trText = trText.replace(/\s+/g, ' ');
-              // trText = trText.replace(/[1234567890１２３４５６７８９０]/g, '0');
-              contentArray.push(trText);
-            }
-
+            await Promise.resolve();
           }
 
         } catch (e) {
           console.log(e)
         }
 
+        // if (spk) return [contentArray.join(' ').replace(/\s+/g, ' ').trim()];
         return contentArray;
       };
 
@@ -5069,6 +5092,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
       return result;
+    }
+    async function checkDuplicatedInfoAug2023(targetDuplicatedInfoPanel) {
+      // ytd-text-inline-expander#description-inline-expander:not([hidden])
+      const firstElementSelector = "ytd-text-inline-expander#description-inline-expander"; // ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata
+      const secondElementSelector = "#tab-info ytd-expander #description";
+
+      const firstElement = targetDuplicatedInfoPanel || document.querySelector(firstElementSelector);
+      const secondElement = document.querySelector(secondElementSelector);
+
+      if (!firstElement || !secondElement) return false;
+
+      return await _checkDuplicatedInfoAug2023(firstElement, (secondElement.closest('ytd-expander') || secondElement), false);
     }
     // document.addEventListener('dbx', ()=>{
     //   console.log(window.dbx1)
