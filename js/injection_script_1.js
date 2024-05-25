@@ -1719,6 +1719,31 @@ function injection_script_1() {
       if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
+      if (typeof cProto.attached === 'function' && !cProto.attached66) {
+        cProto.attached66 = cProto.attached;
+        let awh = 0;
+        cProto.attached = function () {
+          const r = this.attached66();
+          if (awh > 1e9) awh = 9;
+          const tid = ++awh;
+          getRAFPromise().then(() => {
+            if (tid !== awh) return;
+            if (this.isAttached === true && this.url) {
+              const chatframe = this.chatframe || (this.$ || 0).chatframe;
+              const url = `${this.url}`;
+              if (!chatframe || !url) return;
+              let loc = '';
+              try {
+                loc = chatframe.contentDocument.location.href
+              } catch (e) { }
+              if (loc === 'about:blank') {
+                this.urlChanged();
+              }
+            }
+          });
+          return r;
+        }
+      }
 
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66) {
         cProto.urlChanged66 = cProto.urlChanged;

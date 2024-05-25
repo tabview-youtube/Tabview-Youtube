@@ -215,8 +215,6 @@ if (typeof window === 'object') {
     throw 'Please update your browser to use Tabview Youtube.';
   }
 
-  const ENABLE_tabviewEnergized = false;
-
   const fxOperator = (proto, propertyName) => {
     let propertyDescriptorGetter = null;
     try {
@@ -240,6 +238,7 @@ if (typeof window === 'object') {
   const elementNextSibling = fxOperator(Element.prototype, 'nextElementSibling');
   // const elementPrevSibling = fxOperator(Element.prototype, 'previousElementSibling');
 
+  const _setAttribute = Element.prototype.setAttribute;
 
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
@@ -289,6 +288,41 @@ if (typeof window === 'object') {
     return pipelineExecution;
   };
   const iframePipeline = createPipeline();
+
+
+  const getDMHelper = () => {
+    let _dm = document.getElementById('d-m');
+    if (!_dm) {
+      _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      _dm.id = 'd-m';
+      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
+    }
+    const dm = _dm;
+    dm._setAttribute = _setAttribute;
+    let j = 0;
+    const attributeName = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`;
+    let qr = null;
+    const mo = new MutationObserver(() => {
+      if (qr !== null) {
+        if (j > 8) j = 0;
+        qr = (qr(), null);
+      }
+    });
+    mo.observe(document, { childList: true, subtree: true, attributes: true });
+    return (resolve) => {
+      if (!qr) dm._setAttribute(attributeName, ++j);
+      return qr = resolve;
+      // return qr = afInterupter = resolve;
+    };
+  };
+  const dmPN = getDMHelper(); 
+
+  let _dmPromise = null;
+  const getDMPromise = () => {
+    return (_dmPromise || (_dmPromise = (new Promise(dmPN)).then(() => {
+      _dmPromise = null;
+    })))
+  };
 
   //if (!$) return;
 
@@ -785,43 +819,6 @@ if (typeof window === 'object') {
 
   /** @type {(wr: Object | null) => Object | null} */
   const kRef = (wr => (wr && wr.deref) ? wr.deref() : wr);
-
-
-  function setTimeout3(f) {
-    Promise.race([getRAFPromise().then(), new Promise(r => setTimeout(r, 300))]).then(f);
-  }
-
-  const timeline = {
-    // after initialized (initObserver)
-    cn1: new Set(),
-    cn2: new Set(),
-    setTimeout( /** @type {TimerHandler} */ f,/** @type {number} */ d) {
-      let cid = setTimeout(f, d);
-      timeline.cn1.add(cid);
-      return cid;
-    },
-    clearTimeout(/** @type {number} */ cid) {
-      cid = +cid;
-      timeline.cn1.remove(cid);
-      return clearTimeout(cid);
-    },
-    setInterval(/** @type {TimerHandler} */ f,/** @type {number} */ d) {
-      let cid = setInterval(f, d);
-      timeline.cn2.add(cid);
-      return cid;
-    },
-    clearInterval(/** @type {number} */ cid) {
-      cid = +cid;
-      timeline.cn2.remove(cid);
-      return clearInterval(cid);
-    },
-    reset() {
-      timeline.cn1.forEach(clearTimeout);
-      timeline.cn2.forEach(clearInterval);
-      timeline.cn1.clear();
-      timeline.cn2.clear();
-    }
-  }
 
 
   // function prettyElm(/** @type {Element} */ elm) {
@@ -1785,9 +1782,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       }
 
-      setTimeout(() => {
+      getDMPromise().then(() => {
         updateFloatingSlider()
-      }, 30);
+      });
 
     }, false);
 
@@ -1885,8 +1882,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   async function updateFloatingSlider_A(secondaryInner) {
 
     // [is-extra-wide-video_]
-
-    await new Promise(r => setTimeout(r, 30)); // time allowed for dom changes and value change of enableHoverSliderDetection    
+    await getDMPromise(); // time allowed for dom changes and value change of enableHoverSliderDetection    
 
     let secondary = nodeParent(secondaryInner);
     if (!secondary) return;
@@ -2038,12 +2034,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         });
         io.observe(elm)
       });
-      // await new Promise(resolve=>setTimeout(resolve, 400));
       const q = elm.getBoundingClientRect();
       const qs = f(q);
 
       if (ps === qs) break;
-      // await new Promise(resolve=>setTimeout(resolve, 400));
     }
 
 
@@ -2127,8 +2121,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (!new_isTabExpanded) setToActiveTab();
 
         }
-
-        timeline.setTimeout(unlock, 40);
+        getDMPromise().then(unlock);
 
       })
     }
@@ -2142,8 +2135,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (new_isExpandedEPanel) ytBtnCloseEngagementPanels();
         if (new_isExpandedDonationShelf) closeDonationShelf();
 
-
-        timeline.setTimeout(unlock, 40);
+        getDMPromise().then(unlock);
 
       })
 
@@ -2239,10 +2231,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (new_isExpandedDonationShelf && lastPanel !== '#donation-shelf') closeDonationShelf();
             switchTabActivity(null);
           }
-          timeline.setTimeout(unlock, 40);
+          getDMPromise().then(unlock);
         });
       }
     }
+
+    let waitingPromise = Promise.resolve();
 
     if (new_isFullScreen) {
 
@@ -2264,7 +2258,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         triggered by iframe close, not by button click
         */
 
-        canScrollIntoViewWithOptions && timeline.setTimeout(() => {
+        
+        canScrollIntoViewWithOptions &&  waitingPromise.then(async () => {
+          await getDMPromise();
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
@@ -2273,13 +2269,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             // _console.log(7290, 1)
             fullScreenTabScrollIntoView();
           }
-        }, 60)
+        })
 
       }
 
       if (!!(tab_change & LAYOUT_ENGAGEMENT_PANEL_EXPANDED) && new_isExpandedEPanel) {
 
-        timeline.setTimeout(() => {
+        waitingPromise.then(async () => {
+          await getDMPromise();
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
@@ -2293,7 +2290,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             }, 17)
             //
           }
-        }, 60)
+        })
 
       }
 
@@ -2333,12 +2330,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (epanel_expanded_changed) {
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCollapseChat();
-          setTimeout(unlock, 13)
+          getDMPromise().then(unlock);
         })
       } else if (chat_collapsed_changed) {
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCloseEngagementPanels();
-          setTimeout(unlock, 13)
+          getDMPromise().then(unlock);
         })
 
       }
@@ -2353,12 +2350,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (ds_expanded_changed) {
         layoutStatusMutex.lockWith(unlock => {
           ytBtnCollapseChat();
-          setTimeout(unlock, 13)
+          getDMPromise().then(unlock);
         })
       } else if (chat_collapsed_changed) {
         layoutStatusMutex.lockWith(unlock => {
           closeDonationShelf();
-          setTimeout(unlock, 13)
+          getDMHelper().then(unlock);
         })
 
       }
@@ -2458,7 +2455,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       layoutStatusMutex.lockWith(unlock => {
         setToActiveTab();
-        timeline.setTimeout(unlock, 40);
+        getDMPromise().then(unlock);
       });
 
     }
@@ -2482,9 +2479,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (fullscreen_mode_changed) {
       detailsTriggerReset = true;
-      setTimeout(() => {
-        setHiddenStateForDesc();
-      }, 80);
+      getDMPromise().then(setHiddenStateForDesc);
     }
 
     // resize => is-two-columns_
@@ -2506,7 +2501,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             global_columns_end_ito.disconnect();
           }
         }
-        setTimeout3(() => {
+        getDMPromise().then(() => {
           singleColumnScrolling(true); //initalize sticky
         });
       })
@@ -2557,7 +2552,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               let new_layoutStatus = target[prop];
               if (old_layoutStatus !== new_layoutStatus) {
                 layoutStatusChanged(old_layoutStatus, new_layoutStatus);
-                timeline.setTimeout(unlock, 40)
+                getDMPromise().then(unlock);
               } else {
                 unlock();
               }
@@ -2891,7 +2886,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let isOtherChipSelected = !!document.querySelector('ytd-watch-next-secondary-results-renderer.style-scope.ytd-watch-flexy yt-chip-cloud-renderer.style-scope.yt-related-chip-cloud-renderer yt-chip-cloud-chip-renderer.style-scope.yt-chip-cloud-renderer[aria-selected="false"] ~ [aria-selected="true"]')
           if (isOtherChipSelected) return;
 
-          setTimeout(resolve, 30); // delay required to allow YouTube generate the continuation elements
+          getDMPromise().then(resolve); // delay required to allow YouTube generate the continuation elements
 
 
         }).then(() => {
@@ -3105,7 +3100,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (_viTimeNum > 208) {
         _viTimeNum = 200;
         _updateTimeAccum = (_updateTimeAccum % 8) + 1; // reset to 1 ~ 8
-        ENABLE_tabviewEnergized && Promise.resolve().then(tabviewEnergizedFn);
       }
 
       document.head.dataset.viTime = `${_viTimeNum + 1}`;
@@ -3265,7 +3259,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             //cancelClickToggle = true;
             if (evt.target !== document.activeElement) return;
-            setTimeout(() => {
+            getDMPromise().then(() => {
               const autocomplete = document.querySelector(`.autocomplete-suggestions[data-autocomplete-input-id="${this.getAttribute('data-autocomplete-results-id')}"]`);
               if (!autocomplete) return;
               const isNotEmpty = isContentNotEmpty(this, autocomplete);
@@ -3273,7 +3267,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                 // dont detect visibility; just set to visible
                 setVisible(autocomplete, true);
               }
-            }, 20);
+            });
 
           }, bubblePassive)
 
@@ -4022,7 +4016,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         if (!isCollapsed && isAnyActiveTab() && isWideScreenWithTwoColumns() && !isTheater()) {
           switchTabActivity(null);
-          timeline.setTimeout(unlock, 40);
+          getDMPromise().then(unlock);
         } else {
           unlock();
         }
@@ -4043,34 +4037,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0B');
           if (iframe) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
-
-          /*
-          console.log("iframe.xx",1243,0)
-          
-
-          if (pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC && newVideoPageCACC >= 0) {
-            
-          console.log("iframe.xx",1243,1)
-
-            console.debug('[tyt] forceChatRenderOnChatExpanded')
-            const _chatBlock = chatBlock;
-            const tyid = dpeChatRefreshCounter();
-            setTimeout(() => {
-              if (pageFetchedDataVideoId && chatroomAttrCollapseCount !== newVideoPageCACC && newVideoPageCACC >= 0) {
-                if (tyid !== +dpeChatRefreshCounter) return;
-                dpeChatRefreshCounter();
-                const chat = document.querySelector('ytd-live-chat-frame#chat');
-                const chatBlock = _chatBlock;
-                if (chat === chatBlock && !chatBlock.hasAttribute('collapsed')) {
-                  // dpeForceChatRenderOnChatExpanded(chatBlock);
-                  const iframe = querySelectorFromAnchor.call(chat, 'iframe');
-                  console.log("iframe.xx",1244,iframe)
-                  if (iframe) iframeLoadProcess(iframe);
-                }
-              }
-            }, 67);
-          }
-          */
         }
 
         fixLiveChatToggleButtonDispatchEvent();
@@ -4109,7 +4075,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (es.storeLastPanel !== found) return
         layoutStatusMutex.lockWith(unlock => {
           if (es.storeLastPanel === found && whenEngagemenetPanelVisible()) {
-            timeline.setTimeout(unlock, 40);
+            getDMPromise().then(unlock);
           } else {
             unlock();
           }
@@ -5134,7 +5100,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let infoDuplicated = false;
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1)); // mcrcr might be not yet initalized
+        await getDMPromise(); // mcrcr might be not yet initalized
 
         if (g_check_detail_A !== t) return;
 
@@ -5218,7 +5184,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         try {
 
-          for (let alCheckCount = 4; alCheckCount-- > 0;) {
+          for (let alCheckCount = 2; alCheckCount-- > 0;) {
             // await removeOldExpanders();
             // await removeContentMismatch();
             await getRAFPromise().then();
@@ -5356,7 +5322,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       // this is due to page change
       layoutStatusMutex.lockWith(unlock => {
         if (!document.fullscreenElement) fixTheaterChat1A();
-        setTimeout(unlock, 17);
+        getDMPromise().then(unlock);
       });
 
     }
@@ -5651,9 +5617,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
-        setTimeout(() => {
+        getDMPromise().then(()=>{
           document.dispatchEvent(new CustomEvent("yt-watch-comments-ready")); // immediately render comments when tab is switched from background
-        }, 80);
+        });
       }, skIdPageRenderedEventDispatch);
 
     });
@@ -6430,9 +6396,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const iframe = _iframe;
     if (iframe.isConnected !== true || !(iframe instanceof HTMLIFrameElement)) return;
     if (((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) {
-      // await new Promise(resolve=>setTimeout(resolve, 800));
-      // if(((iframeLoadStatusWM.get(iframe) || 0) % 2) !== 1) return iframeLoadProcess(_iframe);
-      // return iframeLoadProcess(_iframe);
       return;
     }
     const chat = closestDOM.call(iframe, 'ytd-live-chat-frame#chat');
@@ -6526,7 +6489,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let b = isMiniviewForStickyHeadEnabled || (isStickyHeaderEnabled && typeof IntersectionObserver == 'function');
       if (b) {
-        setTimeout(delayedClickHandler, 80);
+        getDMPromise().then(delayedClickHandler);
       }
 
       const domInteraction = dom.getAttribute('tyt-di');
@@ -6935,7 +6898,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           }
         }
 
-        await new Promise(r => setTimeout(r, 20));
+        await getDMPromise();
 
         let pInner, nw = null;
         try {
@@ -7112,9 +7075,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         else mss = -1;
 
       } else if (mutation.attributeName === 'is-extra-wide-video_') {
-        setTimeout(() => {
-          updateFloatingSlider();  //required for hover slider // eg video after ads
-        }, 1);
+        getDMPromise().then(updateFloatingSlider); //required for hover slider // eg video after ads
       }
 
     }
@@ -7137,17 +7098,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       wls.layoutStatus = new_layoutStatus
 
     }
+    
+      
+    (async () => {
+      await getDMPromise();
+      layoutStatusMutex.lockWith(unlock => {
+        immediateCheck();
+        unlock();
+      });
+    })();
 
-    let timeout240 = new Promise(r => timeline.setTimeout(r, 240));
-    timeout240.then(immediateCheck);
-
-    // if(resolveCTL) triggerCTL();
 
   }
 
   const mtf_attrBody = (mutations, observer) => {
 
-    setTimeout(() => {
+    getDMPromise().then(() => {
 
       layoutStatusMutex.lockWith(unlock => {
 
@@ -7168,14 +7134,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           } else {
             fixTheaterChat2A();
           }
-          setTimeout(unlock, 17);
+          getDMPromise().then(unlock);
         } else {
           unlock();
         }
 
       });
 
-    }, 40);
+    });
 
 
   }
@@ -7521,7 +7487,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       _console.log(8221, 16, 1)
 
       if (isActiveAndVisible) {
-        timeline.setTimeout(unlock, 80);
+        getDMPromise().then(unlock);
         switchTabActivity(null);
       } else {
 
@@ -7533,27 +7499,25 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           closeDonationShelf();
         }
 
-        canScrollIntoViewWithOptions && timeline.setTimeout(fullScreenTabScrollIntoView, 60)
-
-        timeline.setTimeout(unlock, 80);
+        !!(async () => {
+          if (canScrollIntoViewWithOptions) {
+            await getDMPromise();
+            fullScreenTabScrollIntoView();
+          }
+          await getDMPromise();
+          unlock();
+        })();
         switchTabActivity(tabBtn)
       }
 
     } else if (isWideScreenWithTwoColumns() && !isTheater() && isActiveAndVisible) {
-
-      _console.log(8221, 16, 2)
-      //optional
-      timeline.setTimeout(unlock, 80);
       switchTabActivity(null);
       ytBtnSetTheater();
+      getDMPromise().then(unlock);
     } else if (isActiveAndVisible) {
-
-      _console.log(8221, 16, 3)
-      timeline.setTimeout(unlock, 80);
       switchTabActivity(null);
+      getDMPromise().then(unlock);
     } else {
-
-      _console.log(8221, 16, 4)
 
       if (isChatExpand() && isWideScreenWithTwoColumns()) {
         ytBtnCollapseChat();
@@ -7565,7 +7529,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         ytBtnCancelTheater(); //ytd-watch-flexy attr [theater]
       }
 
-      timeline.setTimeout(() => {
+      switchTabActivity(tabBtn)
+      
+      
+      !!(async () => {
+        await getDMPromise();
         // single column view; click button; scroll to tab content area 100%
         let rightTabs = document.querySelector('#right-tabs');
         if (!isWideScreenWithTwoColumns() && rightTabs && rightTabs.offsetTop > 0 && tabBtn.classList.contains('active') && rightTabs.hasAttribute('tyt-stickybar')) {
@@ -7573,11 +7541,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let tabButtonBarHeight = tabButtonBar ? tabButtonBar.offsetHeight : 0;
           window.scrollTo(0, rightTabs.offsetTop - tabButtonBarHeight); // scrollIntoView
         }
-      }, 60)
-      // _console.log(8519)
-
-      timeline.setTimeout(unlock, 80)
-      switchTabActivity(tabBtn)
+        await getDMPromise();
+        unlock();
+      })();
 
     }
 
@@ -7711,7 +7677,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       isStickyHeaderEnabled = true;
 
       if (!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function') {
-        setTimeout(enablePIPforStickyHead, 0);
+        getDMPromise().then(enablePIPforStickyHead);
       }
 
     } else if (bool === false) {
@@ -8001,7 +7967,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const ytdFlexyElm = es.ytdFlexy;
     if (!ytdFlexyElm) return;
 
-    timeline.reset();
     layoutStatusMutex = new Mutex();
 
     let liveChatRenderer = null;
@@ -8512,9 +8477,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     } else if ((wls.layoutStatus & LAYOUT_TWO_COLUMNS) === 0) {
       // single col
 
-      setTimeout3(() => {
+      getDMPromise().then(() => {
         singleColumnScrolling(true)
-      })
+      });
 
     } else {
       // two cols
@@ -8604,14 +8569,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     if (isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation && videoInsected) {
-      setTimeout(delayedClickHandler, 80);
+      getDMPromise().then(delayedClickHandler);
     }
 
-    // if(isMiniviewForStickyHeadEnabled && !isStickyHeaderEnabled && userActivation){
-    //   setTimeout(restorePIPforStickyHead, 80);
-    // }else if(!isMiniviewForStickyHeadEnabled && isStickyHeaderEnabled && userActivation && typeof IntersectionObserver == 'function'){
-    //   setTimeout(enablePIPforStickyHead, 80);
-    // }
   });
 
   // new comment count fetch way
@@ -8865,83 +8825,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   handleDOMAppear('#tabview-controller', () => { }); // dummy
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-tabs-hide-controller';
   document.documentElement.appendChild(document.createElement('tabview-controller')).id = 'tabview-default-tab-controller';
-
-
-  let _blankPageCode = '';
-  let _blankPageURL = '';
-  const iframeId = `ep5wbmok-${instanceId}`;
-  let tabviewEnergizedLastDT = 0;
-  if (ENABLE_tabviewEnergized) {
-    function tabviewEnergizedAsync() {
-      // interval = 23s
-      const now = Date.now();
-      if (now - tabviewEnergizedLastDT < 500) return;
-      tabviewEnergizedLastDT = now;
-
-      /** @type {HTMLIFrameElement | null} */
-      let iframe = document.getElementById(iframeId);
-      if (iframe) {
-        const prevURL = _blankPageURL;
-        _blankPageURL = '';
-        setTimeout(() => {
-          if (prevURL && typeof prevURL === 'string') {
-            try {
-              URL.revokeObjectURL(prevURL);
-            } catch (e) { }
-          }
-        }, 40);
-        iframe.remove();
-        iframe = null;
-      }
-
-      /** @type {HTMLIFrameElement} */
-      iframe = document.createElement('iframe');
-      iframe.classList.add('ep5wbmok');
-      iframe.id = iframeId;
-      iframe.sandbox = 'allow-same-origin';
-
-      const blankPageCode = _blankPageCode || (_blankPageCode = `
-     <!DOCTYPE html>
-     <html lang="en">
-     <head>
-         <meta charset="UTF-8">
-         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <title>Blank</title>
-     </head>
-     <body>
-     <span>Blank</span>
-     </body>
-     </html>        
-     `.replace(/\s*[\r\n]+\s*|[^\x20-\x7E]/g, '').trim());
-
-      const url = URL.createObjectURL(new Blob([blankPageCode], {
-        type: 'text/plain'
-      }));
-
-      try {
-        if (iframe.isConnected === false) {
-          iframe.src = url;
-          document.body.appendChild(iframe);
-        }
-        _blankPageURL = url;
-      } catch (e) {
-        console.log(e)
-        return;
-      }
-
-      console.log('[tyt] tabviewEnergized')
-
-    }
-    window.addEventListener('message', (evt) => {
-      const data = ((evt || 0).data || 0);
-
-      if (data.tabviewEnergized === true) {
-        Promise.resolve().then(tabviewEnergizedAsync);
-      }
-
-    });
-  }
 
   document.documentElement.setAttribute('plugin-tabview-youtube', `${scriptVersionForExternal}`)
   if (document.documentElement.getAttribute('tabview-unwrapjs')) {
