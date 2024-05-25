@@ -1728,7 +1728,7 @@ function injection_script_1() {
           const tid = ++awh;
           getRAFPromise().then(() => {
             if (tid !== awh) return;
-            if (this.isAttached === true && this.url) {
+            if (this.isAttached === true && this.url && this.collapsed === false) {
               const chatframe = this.chatframe || (this.$ || 0).chatframe;
               const url = `${this.url}`;
               if (!chatframe || !url) return;
