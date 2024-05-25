@@ -6993,6 +6993,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //   _ctlPromise = null
   // }
 
+  let updateFlexyStatusPromise = null;
   const mtf_attrFlexy = (mutations, observer) => {
 
     // if(document.documentElement.hasAttribute('p355')) return;
@@ -7005,6 +7006,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // ~ 'hidden', 'is-extra-wide-video_'
 
     //console.log(15330, scriptEnable, es.ytdFlexy, mutations)
+
+    if (mutations && mutations.length >= 1) {
+      let b = 0;
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'hidden') {
+          b = 1;
+          break;
+        }
+      }
+      if (b) {
+        updateFlexyStatusPromise = new PromiseExternal();
+        updateFlexyStatusPromise.then(() => {
+          updateFlexyStatusPromise = null;
+          layoutStatusMutex.lockWith(unlock => {
+            mtf_checkFlexy_();
+            unlock();
+          });
+        });
+      }
+    }
 
     if (!scriptEnable) return;
 
@@ -8343,6 +8364,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
     });
+
+    updateFlexyStatusPromise && updateFlexyStatusPromise.resolve();
 
   }
 
