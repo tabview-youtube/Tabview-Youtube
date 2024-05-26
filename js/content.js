@@ -767,15 +767,15 @@ if (typeof window === 'object') {
   const { elementAppend, _setAttribute, _insertBefore } = (() => {
     let elementAppend = HTMLElement.prototype.appendChild;
     try {
-      elementAppend = ShadyDOM.nativeMethods.appendChild;
+      elementAppend = ShadyDOM.nativeMethods.appendChild || elementAppend;
     } catch (e) { }
     let _setAttribute = Element.prototype.setAttribute;
     try {
-      _setAttribute = ShadyDOM.nativeMethods.setAttribute;
+      _setAttribute = ShadyDOM.nativeMethods.setAttribute || _setAttribute;
     } catch (e) { }
     let _insertBefore = Node.prototype.insertBefore;
     try {
-        _insertBefore = ShadyDOM.nativeMethods.insertBefore;
+        _insertBefore = ShadyDOM.nativeMethods.insertBefore || _insertBefore;
     } catch (e) { }
     return { elementAppend, _setAttribute, _insertBefore };
   })();
