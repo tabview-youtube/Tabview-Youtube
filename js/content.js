@@ -3023,8 +3023,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           } else {
 
             let rightTabs = document.querySelector('#right-tabs');
-            if (rightTabs) {
+            if (rightTabs && rightTabs.firstElementChild !== container) {
               insertBeforeTo(container, rightTabs);
+              const _chatroom = chatroom;
+              _chatroom && scriptletDeferred.debounce(()=>{
+                _chatroom.dispatchEvent(new CustomEvent("tabview-chat-call-urlchange"));
+              })
             }
 
           }
