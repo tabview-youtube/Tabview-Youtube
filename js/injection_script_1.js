@@ -1772,6 +1772,16 @@ function injection_script_1() {
       if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
+      if (typeof cProto.attached === 'function' && !cProto.attached66) {
+
+        cProto.attached66 = cProto.attached;
+        cProto.attached = function () {
+          Promise.resolve().then(() => this.urlChanged()); // Tabview Youtube only
+          return this.attached66();
+        }
+
+      }
+
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12) {
 
           cProto.urlChanged66 = cProto.urlChanged;
@@ -1790,6 +1800,17 @@ function injection_script_1() {
               this.urlChangedAsync12();
           }
       
+          /*
+
+            await new Promise(resolve => {
+              io = new IntersectionObserver(resolve, { root: null, threshold: [0.05, 0.95], rootMargin: '0px' });
+              io.observe(chatframe);
+            });
+            io.disconnect();
+            io.takeRecords();
+            io = null;
+          */
+
       }
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
