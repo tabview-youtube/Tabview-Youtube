@@ -764,7 +764,7 @@ if (typeof window === 'object') {
   }
 
   
-  const { elementAppend, _setAttribute } = (() => {
+  const { elementAppend, _setAttribute, _insertBefore } = (() => {
     let elementAppend = HTMLElement.prototype.appendChild;
     try {
       elementAppend = ShadyDOM.nativeMethods.appendChild;
@@ -773,7 +773,11 @@ if (typeof window === 'object') {
     try {
       _setAttribute = ShadyDOM.nativeMethods.setAttribute;
     } catch (e) { }
-    return { elementAppend, _setAttribute };
+    let _insertBefore = Node.prototype.insertBefore;
+    try {
+        _insertBefore = ShadyDOM.nativeMethods.insertBefore;
+    } catch (e) { }
+    return { elementAppend, _setAttribute, _insertBefore };
   })();
 
   
@@ -782,7 +786,7 @@ if (typeof window === 'object') {
     if (!_dm) {
       _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       _dm.id = 'd-m';
-      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
+      _insertBefore.call(document.documentElement, _dm, document.documentElement.firstChild);
     }
     const dm = _dm;
     dm._setAttribute = _setAttribute;

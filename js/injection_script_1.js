@@ -100,7 +100,7 @@ function injection_script_1() {
   const querySelectorAllFromAnchor = HTMLElement.prototype.__shady_native_querySelectorAll || HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
 
-  const { elementAppend, _setAttribute } = (() => {
+  const { elementAppend, _setAttribute, _insertBefore } = (() => {
     let elementAppend = HTMLElement.prototype.appendChild;
     try {
       elementAppend = ShadyDOM.nativeMethods.appendChild;
@@ -109,7 +109,11 @@ function injection_script_1() {
     try {
       _setAttribute = ShadyDOM.nativeMethods.setAttribute;
     } catch (e) { }
-    return { elementAppend, _setAttribute };
+    let _insertBefore = Node.prototype.insertBefore;
+    try {
+        _insertBefore = ShadyDOM.nativeMethods.insertBefore;
+    } catch (e) { }
+    return { elementAppend, _setAttribute, _insertBefore };
   })();
 
   /** @type {globalThis.requestAnimationFrame} */
@@ -159,7 +163,7 @@ function injection_script_1() {
     if (!_dm) {
       _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
       _dm.id = 'd-m';
-      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
+      _insertBefore.call(document.documentElement, _dm, document.documentElement.firstChild);
     }
     const dm = _dm;
     dm._setAttribute = _setAttribute;
@@ -1768,62 +1772,24 @@ function injection_script_1() {
       if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
-      if (typeof cProto.attached === 'function' && !cProto.attached66) {
-        cProto.attached66 = cProto.attached;
-        let awh = 0;
-        cProto.attached = function () {
-          const r = this.attached66();
-          if (awh > 1e9) awh = 9;
-          const tid = ++awh;
-          getRAFPromise().then(() => {
-            if (tid !== awh) return;
-            getDMPromise().then(()=>{
-              if (tid !== awh) return;
-              if (this.isAttached === true && this.url && this.url.includes('live_') && this.collapsed === false) {
-                const chatframe = this.chatframe || (this.$ || 0).chatframe;
-                const url = `${this.url}`;
-                if (!chatframe || !url) return;
-                let hostname = '';
-                try {
-                  hostname = chatframe.contentDocument.location.hostname || ''
-                } catch (e) { }
-                if (!hostname.endsWith('youtube.com')) {
-                  this.urlChanged();
-                }
-              }
-            });
-          });
-          return r;
-        }
-      }
+      if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12) {
 
-      if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66) {
-        cProto.urlChanged66 = cProto.urlChanged;
-        let rz = 0;
-        let mz = '';
-        cProto.urlChanged = function () {
-          const chatframe = this.chatframe || (this.$ || 0).chatframe;
-          const url = `${this.url}`;
-          if (!chatframe || !url) return;
-          let loc = '';
-          try {
-            loc = chatframe.contentDocument.location.href
-          } catch (e) { }
-          const kloc = loc.replace(/^https?:\/\/[\w\.\-]+\//, '/');
-          const kurl = url.replace(/^https?:\/\/[\w\.\-]+\//, '/');
-          if (kloc === kurl) return;
-          const t = `${kloc}\t${kurl}`;
-          // if (t === mz) return;
-          mz = t;
-          if (rz > 1e9) rz = 9;
-          const tz = ++rz;
-          _ytIframeReloadDelay_().then(() => {
-            getForegroundPromise().then(() => {
-              if (tz !== rz) return;
-              arguments.length === 0 ? this.urlChanged66() : this.urlChanged66(...arguments);
-            });
-          });
-        }
+          cProto.urlChanged66 = cProto.urlChanged;
+          let ath = 0;
+          cProto.urlChangedAsync12 = async function () {
+              if (ath > 1e9) ath = 9;
+              const t = ++ath;
+              const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
+              if (chatframe.contentDocument === null) await Promise.resolve();
+              if (t !== ath) return;
+              await getDMPromise();
+              if (t !== ath) return;
+              this.urlChanged66();
+          }
+          cProto.urlChanged = function () {
+              this.urlChangedAsync12();
+          }
+      
       }
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
@@ -4930,6 +4896,7 @@ function injection_script_1() {
 
 
 
+  /*
   const _ytIframeReloadDelay_ = window._ytIframeReloadDelay_ = window._ytIframeReloadDelay_ || (function () {
     let pIfr = 0;
     let url1 = null;
@@ -4960,6 +4927,7 @@ function injection_script_1() {
       return p.then();
     });
   })();
+  */
 
   // documentEventListen('tabview-fix-iframe-ready', async (evt)=>{
 
