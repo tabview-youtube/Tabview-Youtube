@@ -6406,7 +6406,23 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       // iframe.removeEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
       // iframe.addEventListener('iframe-src-replaced', onIframeSrcReplaced, false);
-      dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
+
+      setTimeout(() => {
+        if (t93 !== ix93) return;
+        try {
+          if (chat.isConnected && !chat.hasAttribute('collapsed') && chat.contains(iframe)) {
+            const cDoc = iframe.contentDocument;
+            if (cDoc) {
+              const cBody = cDoc.body;
+              if (cBody && cBody.firstElementChild === null) {
+                dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
+              }
+            }
+          }
+        } catch (e) {
+          console.warn(e);
+        }
+      }, 230);
 
     }
 
