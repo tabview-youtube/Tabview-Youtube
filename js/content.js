@@ -238,8 +238,6 @@ if (typeof window === 'object') {
   const elementNextSibling = fxOperator(Element.prototype, 'nextElementSibling');
   // const elementPrevSibling = fxOperator(Element.prototype, 'previousElementSibling');
 
-  const _setAttribute = Element.prototype.setAttribute;
-
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
@@ -300,7 +298,11 @@ if (typeof window === 'object') {
     const dm = _dm;
     dm._setAttribute = _setAttribute;
     let j = 0;
-    const attributeName = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`;
+    let attributeName_;
+    while (dm.hasAttribute(attributeName_ = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`)) {
+      // none
+    }
+    const attributeName = attributeName_;
     let qr = null;
     const mo = new MutationObserver(() => {
       if (qr !== null) {
@@ -783,14 +785,13 @@ if (typeof window === 'object') {
 
 
   /** @type { (str: string) => (HTMLElement | null) } */
-  const querySelectorFromAnchor = HTMLElement.prototype.querySelector; // nodeType==1 // since 2022/07/12
+  const querySelectorFromAnchor = HTMLElement.prototype.__shady_native_querySelector || HTMLElement.prototype.querySelector; // nodeType==1 // since 2022/07/12
 
   /** @type { (str: string) => (NodeList) } */
-  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
+  const querySelectorAllFromAnchor = HTMLElement.prototype.__shady_native_querySelectorAll || HTMLElement.prototype.querySelectorAll; // nodeType==1 // since 2022/07/12
   const closestDOM = HTMLElement.prototype.closest;
   //const elementRemove = HTMLElement.prototype.remove;
   //const elementContains = HTMLElement.prototype.contains; // since 2022/07/12
-  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements; due to Waterfox classic and https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/174437
 
   const querySelectorFromAnchorX = function (parent, childSelector) {
     if (!(parent instanceof HTMLElement)) return null;
@@ -800,6 +801,19 @@ if (typeof window === 'object') {
     if (!(child instanceof HTMLElement)) return null;
     return closestDOM.call(child, parentSelector) || null;
   }
+
+  
+  const { elementAppend, _setAttribute } = (() => {
+    let elementAppend = HTMLElement.prototype.appendChild;
+    try {
+      elementAppend = ShadyDOM.nativeMethods.appendChild;
+    } catch (e) { }
+    let _setAttribute = Element.prototype.setAttribute;
+    try {
+      _setAttribute = ShadyDOM.nativeMethods.setAttribute;
+    } catch (e) { }
+    return { elementAppend, _setAttribute };
+  })();
 
   /**
    * 

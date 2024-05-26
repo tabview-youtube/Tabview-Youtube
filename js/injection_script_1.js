@@ -96,10 +96,21 @@ function injection_script_1() {
   })(HTMLVideoElement.prototype.pause);
 
 
-  const querySelectorFromAnchor = HTMLElement.prototype.querySelector;
-  const querySelectorAllFromAnchor = HTMLElement.prototype.querySelectorAll;
+  const querySelectorFromAnchor = HTMLElement.prototype.__shady_native_querySelector || HTMLElement.prototype.querySelector;
+  const querySelectorAllFromAnchor = HTMLElement.prototype.__shady_native_querySelectorAll || HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
-  const elementAppend = HTMLElement.prototype.appendChild; // necessary for yt custom elements; due to Waterfox classic and https://greasyfork.org/en/scripts/428651-tabview-youtube/discussions/174437
+
+  const { elementAppend, _setAttribute } = (() => {
+    let elementAppend = HTMLElement.prototype.appendChild;
+    try {
+      elementAppend = ShadyDOM.nativeMethods.appendChild;
+    } catch (e) { }
+    let _setAttribute = Element.prototype.setAttribute;
+    try {
+      _setAttribute = ShadyDOM.nativeMethods.setAttribute;
+    } catch (e) { }
+    return { elementAppend, _setAttribute };
+  })();
 
   /** @type {globalThis.requestAnimationFrame} */
   const $requestAnimationFrame = (window.webkitRequestAnimationFrame || window.requestAnimationFrame).bind(window);
@@ -141,6 +152,46 @@ function injection_script_1() {
       }
     };
   })();
+
+
+  const getDMHelper = () => {
+    let _dm = document.getElementById('d-m');
+    if (!_dm) {
+      _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      _dm.id = 'd-m';
+      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
+    }
+    const dm = _dm;
+    dm._setAttribute = _setAttribute;
+    let j = 0;
+    let attributeName_;
+    while (dm.hasAttribute(attributeName_ = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`)) {
+      // none
+    }
+    const attributeName = attributeName_;
+    let qr = null;
+    const mo = new MutationObserver(() => {
+      if (qr !== null) {
+        if (j > 8) j = 0;
+        qr = (qr(), null);
+      }
+    });
+    mo.observe(document, { childList: true, subtree: true, attributes: true });
+    return (resolve) => {
+      if (!qr) dm._setAttribute(attributeName, ++j);
+      return qr = resolve;
+      // return qr = afInterupter = resolve;
+    };
+  };
+  const dmPN = getDMHelper(); 
+
+  
+  let _dmPromise = null;
+  const getDMPromise = () => {
+    return (_dmPromise || (_dmPromise = (new Promise(dmPN)).then(() => {
+      _dmPromise = null;
+    })))
+  };
 
 
   const ytChatFrameSetup = new PromiseExternal();
@@ -1623,10 +1674,8 @@ function injection_script_1() {
           let btn = document.querySelector('[tyt-tab-content="#tab-info"]:not(.active)');
           if (btn) {
             btn.click();
-            await new Promise(r => setTimeout(r, 40));
-          } else {
-            await new Promise(r => setTimeout(r, 1));
           }
+          await getDMPromise();
 
           if (p instanceof HTMLElement) {
             if (!document.fullscreenElement) p.scrollIntoView();
@@ -1728,18 +1777,21 @@ function injection_script_1() {
           const tid = ++awh;
           getRAFPromise().then(() => {
             if (tid !== awh) return;
-            if (this.isAttached === true && this.url && this.collapsed === false) {
-              const chatframe = this.chatframe || (this.$ || 0).chatframe;
-              const url = `${this.url}`;
-              if (!chatframe || !url) return;
-              let loc = '';
-              try {
-                loc = chatframe.contentDocument.location.href
-              } catch (e) { }
-              if (loc === 'about:blank') {
-                this.urlChanged();
+            getDMPromise().then(()=>{
+              if (tid !== awh) return;
+              if (this.isAttached === true && this.url && this.url.includes('live_') && this.collapsed === false) {
+                const chatframe = this.chatframe || (this.$ || 0).chatframe;
+                const url = `${this.url}`;
+                if (!chatframe || !url) return;
+                let hostname = '';
+                try {
+                  hostname = chatframe.contentDocument.location.hostname || ''
+                } catch (e) { }
+                if (!hostname.endsWith('youtube.com')) {
+                  this.urlChanged();
+                }
               }
-            }
+            });
           });
           return r;
         }
@@ -2956,11 +3008,11 @@ function injection_script_1() {
     if (!description) return;
     let button = description.querySelector('#collapse[role="button"]:not([hidden]), #expand[role="button"]:not([hidden])');
     if (!button) return;
-    setTimeout(() => { //setTimeout / raf required - js event issue
+    getDMPromise().then(() => { //setTimeout / raf required - js event issue
       button.click();
       // if (isTrusted && document.fullscreenElement !== null) description.scrollIntoView(true);
       button = null;
-    }, 30);
+    });
     evt.preventDefault();
   }
 
