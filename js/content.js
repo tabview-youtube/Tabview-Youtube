@@ -287,45 +287,6 @@ if (typeof window === 'object') {
   };
   const iframePipeline = createPipeline();
 
-
-  const getDMHelper = () => {
-    let _dm = document.getElementById('d-m');
-    if (!_dm) {
-      _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-      _dm.id = 'd-m';
-      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
-    }
-    const dm = _dm;
-    dm._setAttribute = _setAttribute;
-    let j = 0;
-    let attributeName_;
-    while (dm.hasAttribute(attributeName_ = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`)) {
-      // none
-    }
-    const attributeName = attributeName_;
-    let qr = null;
-    const mo = new MutationObserver(() => {
-      if (qr !== null) {
-        if (j > 8) j = 0;
-        qr = (qr(), null);
-      }
-    });
-    mo.observe(document, { childList: true, subtree: true, attributes: true });
-    return (resolve) => {
-      if (!qr) dm._setAttribute(attributeName, ++j);
-      return qr = resolve;
-      // return qr = afInterupter = resolve;
-    };
-  };
-  const dmPN = getDMHelper(); 
-
-  let _dmPromise = null;
-  const getDMPromise = () => {
-    return (_dmPromise || (_dmPromise = (new Promise(dmPN)).then(() => {
-      _dmPromise = null;
-    })))
-  };
-
   //if (!$) return;
 
   /**
@@ -814,6 +775,45 @@ if (typeof window === 'object') {
     } catch (e) { }
     return { elementAppend, _setAttribute };
   })();
+
+  
+  const getDMHelper = () => {
+    let _dm = document.getElementById('d-m');
+    if (!_dm) {
+      _dm = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      _dm.id = 'd-m';
+      document.documentElement.insertBefore(_dm, document.documentElement.firstChild);
+    }
+    const dm = _dm;
+    dm._setAttribute = _setAttribute;
+    let j = 0;
+    let attributeName_;
+    while (dm.hasAttribute(attributeName_ = `dm-${Math.floor(Math.random() * 314159265359 + 314159265359).toString(36)}`)) {
+      // none
+    }
+    const attributeName = attributeName_;
+    let qr = null;
+    const mo = new MutationObserver(() => {
+      if (qr !== null) {
+        if (j > 8) j = 0;
+        qr = (qr(), null);
+      }
+    });
+    mo.observe(document, { childList: true, subtree: true, attributes: true });
+    return (resolve) => {
+      if (!qr) dm._setAttribute(attributeName, ++j);
+      return qr = resolve;
+      // return qr = afInterupter = resolve;
+    };
+  };
+  const dmPN = getDMHelper(); 
+
+  let _dmPromise = null;
+  const getDMPromise = () => {
+    return (_dmPromise || (_dmPromise = (new Promise(dmPN)).then(() => {
+      _dmPromise = null;
+    })))
+  };
 
   /**
    * 
