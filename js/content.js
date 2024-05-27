@@ -451,6 +451,7 @@ if (typeof window === 'object') {
   const LAYOUT_CHATROOM_EXPANDED = 256;
   const LAYOUT_DONATION_SHELF_EXPANDED = 512;
 
+ 
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
   const showMessages_IframeLoaded = false; // typeof GM === 'undefined';
@@ -2112,7 +2113,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     let new_isFullScreen = !!(new_layoutStatus & LAYOUT_FULLSCREEN);
     let new_isExpandedEPanel = !!(new_layoutStatus & LAYOUT_ENGAGEMENT_PANEL_EXPANDED);
     let new_isExpandedDonationShelf = !!(new_layoutStatus & LAYOUT_DONATION_SHELF_EXPANDED);
-
 
     function showTabOrChat() {
 
@@ -7008,6 +7008,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     //console.log(15330, scriptEnable, es.ytdFlexy, mutations)
 
+
     if (mutations && mutations.length >= 1) {
       let b = 0;
       for (const mutation of mutations) {
@@ -7021,7 +7022,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         updateFlexyStatusPromise.then(() => {
           updateFlexyStatusPromise = null;
           layoutStatusMutex.lockWith(unlock => {
-            mtf_checkFlexy_();
+            es.ytdFlexy && mtf_checkFlexy_(LAYOUT_VAILD);
             unlock();
           });
         });
@@ -7065,7 +7066,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       //   resolveCTL = true;
       //   continue;
       // }
-
 
       // if(1885 && document.body.hasAttribute('data-ytlstm-theater-mode')) continue;
       new_layoutStatus = flexAttr_toLayoutStatus(new_layoutStatus, mutation.attributeName);
@@ -7318,7 +7318,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable || !ytdFlexyElm) return true;
 
 
-    wls.layoutStatus = 0;
+    if(typeof wls.layoutStatus === 'undefined' || !(wls.layoutStatus & LAYOUT_VAILD)) {
+      wls.layoutStatus = 0;
+    }
 
     let isFlexyHidden = (ytdFlexyElm.hasAttribute('hidden'));
 
