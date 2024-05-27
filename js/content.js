@@ -451,7 +451,7 @@ if (typeof window === 'object') {
   const LAYOUT_CHATROOM_EXPANDED = 256;
   const LAYOUT_DONATION_SHELF_EXPANDED = 512;
 
- 
+
   const nonCryptoRandStr_base = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 
   const showMessages_IframeLoaded = false; // typeof GM === 'undefined';
@@ -764,7 +764,7 @@ if (typeof window === 'object') {
     return closestDOM.call(child, parentSelector) || null;
   }
 
-  
+
   const { elementAppend, _setAttribute, _insertBefore } = (() => {
     let elementAppend = HTMLElement.prototype.appendChild;
     try {
@@ -776,12 +776,12 @@ if (typeof window === 'object') {
     } catch (e) { }
     let _insertBefore = Node.prototype.insertBefore;
     try {
-        _insertBefore = ShadyDOM.nativeMethods.insertBefore || _insertBefore;
+      _insertBefore = ShadyDOM.nativeMethods.insertBefore || _insertBefore;
     } catch (e) { }
     return { elementAppend, _setAttribute, _insertBefore };
   })();
 
-  
+
   const getDMHelper = () => {
     let _dm = document.getElementById('d-m');
     if (!_dm) {
@@ -811,7 +811,7 @@ if (typeof window === 'object') {
       // return qr = afInterupter = resolve;
     };
   };
-  const dmPN = getDMHelper(); 
+  const dmPN = getDMHelper();
 
   let _dmPromise = null;
   const getDMPromise = () => {
@@ -1129,7 +1129,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     { error: "0x87FF", errorMsg: "Your userscript manager is not supported. FireMonkey is not recommended." }
   );
 
-  if(!('browserSupported' in (new KDate()))) return;
+  if (!('browserSupported' in (new KDate()))) return;
 
   let chromeCSSFiles = null;
 
@@ -1988,18 +1988,18 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   async function checkChatIframeOnExpanded() {
     const iframe = document.getElementById('chatframe');
     if (!(iframe instanceof HTMLIFrameElement)) return;
-    if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
-    await iframePipeline(()=>{});
-    if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+    if (((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+    await iframePipeline(() => { });
+    if (((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
     let iframeLocation;
     try {
       iframeLocation = iframe.contentDocument.location;
     } catch (e) { }
     if (!iframeLocation) return;
-    if (iframeLocation.href.includes('youtube.com')){
+    if (iframeLocation.href.includes('youtube.com')) {
 
       await iframePipeline(async () => {
-        if(((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
+        if (((iframeLoadStatusWM.get(iframe) || 0) % 2) === 1) return;
         await iframeLoadHookHandlerPromise.then();
         if (iframe.isConnected === true && iframe.matches('body iframe.style-scope.ytd-live-chat-frame#chatframe')) {
           await iframeLoadProcess(iframe);
@@ -2007,11 +2007,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       });
 
     }
-    
+
     // console.log(1421, iframeLocation.href);
   }
-  
-  
+
+
   const canScrollIntoViewWithOptions = (() => {
 
     const element = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
@@ -2071,8 +2071,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const pTop = rightTabs.getBoundingClientRect().top - scrollElement.getBoundingClientRect().top
     if (rightTabs && pTop > 0) {
       const secondaryInner = rightTabs.closest('#secondary-inner');
-      if(secondaryInner && secondaryInner.getBoundingClientRect().height < document.documentElement.clientHeight && document.documentElement.clientHeight > 80){
-        stableScroll(secondaryInner,{ behavior: "instant", block: "end", inline: "nearest" });
+      if (secondaryInner && secondaryInner.getBoundingClientRect().height < document.documentElement.clientHeight && document.documentElement.clientHeight > 80) {
+        stableScroll(secondaryInner, { behavior: "instant", block: "end", inline: "nearest" });
       }
     }
   } : null;
@@ -2232,7 +2232,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       checkChatIframeOnExpanded();
     }
 
-    const checkForMoreThanOne = ()=>{
+    const checkForMoreThanOne = () => {
 
       if (moreThanOneShown && (new_layoutStatus & LAYOUT_TWO_COLUMNS) === LAYOUT_TWO_COLUMNS) {
 
@@ -2276,8 +2276,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         triggered by iframe close, not by button click
         */
 
-        
-        canScrollIntoViewWithOptions &&  waitingPromise.then(async () => {
+
+        canScrollIntoViewWithOptions && waitingPromise.then(async () => {
           await getDMPromise();
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
@@ -2332,7 +2332,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
 
-      if(!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns()){
+      if (!new_isFullScreen && statusCollapsedFalse && isWideScreenWithTwoColumns()) {
         // check more than one shown
 
         Promise.resolve().then(checkForMoreThanOne);
@@ -2649,7 +2649,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return (cssElm && cssElm.hasAttribute('fullscreen'))
   }
 
-  function isTabExpanded(){
+  function isTabExpanded() {
     const cssElm = es.ytdFlexy;
     return cssElm && (cssElm.getAttribute('tyt-tab') || '').charAt(0) === '#'
   }
@@ -3026,7 +3026,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (rightTabs && rightTabs.firstElementChild !== container) {
               insertBeforeTo(container, rightTabs);
               const _chatroom = chatroom;
-              _chatroom && scriptletDeferred.debounce(()=>{
+              _chatroom && scriptletDeferred.debounce(() => {
                 _chatroom.dispatchEvent(new CustomEvent("tabview-chat-call-urlchange"));
               })
             }
@@ -4005,7 +4005,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         const chatBlock = document.querySelector('ytd-live-chat-frame#chat');
         /** @type {HTMLElement | null} */
         const cssElm = es.ytdFlexy;
-
         if (!chatBlock || !cssElm) {
           unlock();
           return;
@@ -5029,29 +5028,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         console.log(7191, firstElementTextArr)
         console.log(7192, secondElementTextArr)
 
-        if(firstElementTextArr.length === secondElementTextArr.length){
+        if (firstElementTextArr.length === secondElementTextArr.length) {
 
-          let n = firstElementTextArr.length ;
+          let n = firstElementTextArr.length;
           const texts = [];
-          for(let j = 0;j<n;j++){
+          for (let j = 0; j < n; j++) {
             let text1 = firstElementTextArr[j];
             let text2 = secondElementTextArr[j];
             let s1 = text1.split(/([\w\-]+)/)
             let s2 = text2.split(/([\w\-]+)/)
             let kn = Math.min(s1.length, s2.length);
             let p = -1;
-            for(let k =0;k<kn;k++){
-              if(s1[k]!==s2[k]) break
-              p=k;
+            for (let k = 0; k < kn; k++) {
+              if (s1[k] !== s2[k]) break
+              p = k;
             }
-            if(p>=0){
-              text1 = s1.slice(p+1).join('');
-              text2 = s2.slice(p+1).join('');
+            if (p >= 0) {
+              text1 = s1.slice(p + 1).join('');
+              text2 = s2.slice(p + 1).join('');
             }
             texts.push([text1, text2])
           }
           console.log(7194, texts)
-          
+
         }
 
       }
@@ -5130,24 +5129,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let promise = null;
         await Promise.all([...HTMLElement.prototype.querySelectorAll.call(targetDuplicatedInfoPanel, '#expand[role="button"]:not([hidden])')].map(button => {
           return Promise.resolve().then(() => {
-            promise = promise || new Promise(resolve=>{
-              let mo = new MutationObserver(()=>{
+            promise = promise || new Promise(resolve => {
+              let mo = new MutationObserver(() => {
                 mo.disconnect();
-                mo= null;
+                mo = null;
                 resolve();
               });
-              mo.observe(targetDuplicatedInfoPanel, {subtree:true, childList: true})
-          })
+              mo.observe(targetDuplicatedInfoPanel, { subtree: true, childList: true })
+            })
             button.click();
             clicked = true;
           });
         }));
-        if(promise) await promise.then();
-        if(typeof IntersectionObserver !== 'undefined'){
-          await new Promise(resolve=>{
-            let io = new IntersectionObserver(()=>{
+        if (promise) await promise.then();
+        if (typeof IntersectionObserver !== 'undefined') {
+          await new Promise(resolve => {
+            let io = new IntersectionObserver(() => {
               io.disconnect();
-              io=null;
+              io = null;
               resolve();
             });
             io.observe(targetDuplicatedInfoPanel);
@@ -5639,7 +5638,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       scriptletDeferred.debounce(() => {
         document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
-        getDMPromise().then(()=>{
+        getDMPromise().then(() => {
           document.dispatchEvent(new CustomEvent("yt-watch-comments-ready")); // immediately render comments when tab is switched from background
         });
       }, skIdPageRenderedEventDispatch);
@@ -6268,7 +6267,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (ix93 > 1e9) ix93 = 9;
     const t93 = ++ix93;
-    iframeLoadStatusWM.set(iframe, t93*2);
+    iframeLoadStatusWM.set(iframe, t93 * 2);
 
     await scriptletDeferred.d();
     // iframe.dispatchEvent(new CustomEvent('yt-live-chat-iframe-fix-polymer'));
@@ -6392,7 +6391,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
           dpeIframeReady(chatFrame);
-          iframeLoadStatusWM.set(iframe, t93*2+1);
+          iframeLoadStatusWM.set(iframe, t93 * 2 + 1);
         }
       }
 
@@ -6994,7 +6993,19 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   //   _ctlPromise = null
   // }
 
-  let updateFlexyStatusPromise = null;
+  let updateFlexyStateRequired = false;
+  const updateFlexyStateFn = () => {
+    updateFlexyStateRequired = false;
+    es.ytdFlexy && layoutStatusMutex.lockWith(unlock => {
+      const ytdFlexyElm = es.ytdFlexy;
+      if (!ytdFlexyElm) return;
+      const isFlexyHidden = ytdFlexyElm.hasAttribute('hidden');
+      if (isFlexyHidden) return;
+      setChatroomState();
+      mtf_checkFlexy_(LAYOUT_VAILD);
+      unlock();
+    });
+  }
   const mtf_attrFlexy = (mutations, observer) => {
 
     // if(document.documentElement.hasAttribute('p355')) return;
@@ -7018,15 +7029,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
       if (b) {
-        updateFlexyStatusPromise = new PromiseExternal();
-        updateFlexyStatusPromise.then(() => {
-          updateFlexyStatusPromise = null;
-          layoutStatusMutex.lockWith(unlock => {
-            FP.mtf_attrChatroom();
-            es.ytdFlexy && mtf_checkFlexy_(LAYOUT_VAILD);
-            unlock();
-          });
-        });
+        updateFlexyStateRequired = true;
       }
     }
 
@@ -7137,8 +7140,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       wls.layoutStatus = new_layoutStatus
 
     }
-    
-      
+
+
     (async () => {
       await getDMPromise();
       layoutStatusMutex.lockWith(unlock => {
@@ -7312,6 +7315,26 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  const setChatroomState = () => {
+    const ytdFlexyElm = es.ytdFlexy;
+    if (!ytdFlexyElm) return;
+    const rChatExist = setupChatFrameDisplayState2();
+    if (rChatExist) {
+      let { attr_chatblock, attr_chatcollapsed } = rChatExist;
+      if (attr_chatblock === null) {
+        //remove attribute if it is unknown
+        attr_chatblock = false;
+        attr_chatcollapsed = false;
+      }
+      let v = attr_chatblock;
+      if (typeof v === 'string') {
+        if (attr_chatcollapsed === true) v = '-' + v;
+        if (attr_chatcollapsed === false) v = '+' + v;
+      }
+      wAttr(ytdFlexyElm, 'tyt-chat', v)
+    }
+  }
+
   const mtf_checkFlexy = () => {
     // once per $$native-ytd-watch-flexy$$ {ytd-watch-flexy} detection
 
@@ -7319,29 +7342,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!scriptEnable || !ytdFlexyElm) return true;
 
 
-    if(typeof wls.layoutStatus === 'undefined' || !(wls.layoutStatus & LAYOUT_VAILD)) {
+    if (typeof wls.layoutStatus === 'undefined' || !(wls.layoutStatus & LAYOUT_VAILD)) {
       wls.layoutStatus = 0;
     }
 
-    let isFlexyHidden = (ytdFlexyElm.hasAttribute('hidden'));
+    const isFlexyHidden = (ytdFlexyElm.hasAttribute('hidden'));
 
     if (!isFlexyHidden) {
-      let rChatExist = setupChatFrameDisplayState2();
-      if (rChatExist) {
-        let { attr_chatblock, attr_chatcollapsed } = rChatExist;
-        if (attr_chatblock === null) {
-          //remove attribute if it is unknown
-          attr_chatblock = false;
-          attr_chatcollapsed = false;
-        }
-        let v = attr_chatblock;
-        if (typeof v === 'string') {
-          if (attr_chatcollapsed === true) v = '-' + v;
-          if (attr_chatcollapsed === false) v = '+' + v;
-        }
-        wAttr(ytdFlexyElm, 'tyt-chat', v)
-
-      }
+      setChatroomState();
     }
 
     let rTabSelection = [...querySelectorAllFromAnchor.call(ytdFlexyElm, '.tab-btn[tyt-tab-content]')]
@@ -7571,8 +7579,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       }
 
       switchTabActivity(tabBtn)
-      
-      
+
+
       !!(async () => {
         await getDMPromise();
         // single column view; click button; scroll to tab content area 100%
@@ -8371,7 +8379,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     });
 
-    updateFlexyStatusPromise && updateFlexyStatusPromise.resolve();
+    if (updateFlexyStateRequired) updateFlexyStateFn();
 
   }
 
