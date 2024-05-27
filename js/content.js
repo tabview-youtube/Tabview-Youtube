@@ -7617,6 +7617,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     evt.preventDefault();
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
 
     handlerMaterialTabClickInner(tabBtn);
 
