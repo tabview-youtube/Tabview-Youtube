@@ -3365,7 +3365,7 @@ body .ytp-autohide .ytp-unmute,
 
     /* 2022/11/06 - margin bug for new layout */
 
-    ytd-watch-flexy[is-two-columns_][theater] > #columns.ytd-watch-flexy {
+    ytd-watch-flexy[is-two-columns_][theater]:not([fullscreen]) > #columns.ytd-watch-flexy {
         margin: 0;
     }
 
