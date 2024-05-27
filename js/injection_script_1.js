@@ -3022,6 +3022,8 @@ function injection_script_1() {
       button = null;
     });
     evt.preventDefault();
+    evt.stopPropagation();
+    evt.stopImmediatePropagation();
   }
 
 
