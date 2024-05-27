@@ -1792,15 +1792,12 @@ function injection_script_1() {
 
         const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
         if (!chatframe) return;
+        await Promise.resolve();
+        if (t !== atb) return;
 
-        let io = null;
-        await new Promise(resolve => {
-          io = new IntersectionObserver(resolve, { root: null, threshold: [0.05, 0.95], rootMargin: '0px' });
-          io.observe(chatframe);
-        });
-        io.disconnect();
-        io.takeRecords();
-        io = null;
+        await getDMPromise();
+        if (t !== atb) return;
+        await getDMPromise();
         if (t !== atb) return;
         this.urlChanged();
 
@@ -5031,7 +5028,7 @@ function injection_script_1() {
 
 
   documentEventListen('tabview-chat-call-urlchange', async (evt) => {
-    await ceHackDone.then();
+    await ytChatFrameSetup.then();
     const cnt = insp(evt.target);
     if (typeof cnt.urlChangedIO === 'function') {
       cnt.urlChangedIO();
