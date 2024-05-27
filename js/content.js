@@ -7022,6 +7022,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         updateFlexyStatusPromise.then(() => {
           updateFlexyStatusPromise = null;
           layoutStatusMutex.lockWith(unlock => {
+            FP.mtf_attrChatroom();
             es.ytdFlexy && mtf_checkFlexy_(LAYOUT_VAILD);
             unlock();
           });
