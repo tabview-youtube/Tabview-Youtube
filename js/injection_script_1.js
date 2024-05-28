@@ -81,8 +81,6 @@ function injection_script_1() {
     return;
   }
 
-  _setAttribute.call(document.documentElement, 'tabview-unwrapjs', '')
-
   const getYtdWatchFlexyElement = () => (document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy'));
 
   let byPassPause = false;
@@ -197,6 +195,8 @@ function injection_script_1() {
     })))
   };
 
+  
+  _setAttribute.call(document.documentElement, 'tabview-unwrapjs', '');
 
   const ytChatFrameSetup = new PromiseExternal();
   const ceHackDone = new PromiseExternal();
