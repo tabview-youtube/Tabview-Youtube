@@ -81,7 +81,7 @@ function injection_script_1() {
     return;
   }
 
-  document.documentElement.setAttribute('tabview-unwrapjs', '')
+  _setAttribute.call(document.documentElement, 'tabview-unwrapjs', '')
 
   const getYtdWatchFlexyElement = () => (document.querySelector('ytd-watch-flexy:not([hidden])') || document.querySelector('ytd-watch-flexy'));
 
@@ -96,8 +96,8 @@ function injection_script_1() {
   })(HTMLVideoElement.prototype.pause);
 
 
-  const querySelectorFromAnchor = HTMLElement.prototype.__shady_native_querySelector || HTMLElement.prototype.querySelector;
-  const querySelectorAllFromAnchor = HTMLElement.prototype.__shady_native_querySelectorAll || HTMLElement.prototype.querySelectorAll;
+  const _querySelector = HTMLElement.prototype.__shady_native_querySelector || HTMLElement.prototype.querySelector;
+  const _querySelectorAll = HTMLElement.prototype.__shady_native_querySelectorAll || HTMLElement.prototype.querySelectorAll;
   const closestFromAnchor = HTMLElement.prototype.closest;
 
   const { elementAppend, _setAttribute, _insertBefore } = (() => {
@@ -313,24 +313,6 @@ function injection_script_1() {
 
   }
 
-  /** 
-   * @param {HTMLIFrameElement} chatframe 
-   * @param {string | null} nSrc
-   *  */
-  const iframeSrcReplacement = (chatframe, nSrc) => {
-    Promise.resolve().then(() => {
-      if (chatframe.isConnected !== true) return;
-      if (typeof nSrc !== 'string') return;
-      try {
-        // chatframe.contentWindow.history.replaceState(chatframe.contentWindow.history.state, '', nSrc.replace(/&\d+/,'&d'));
-        chatframe.contentWindow.location.replace(nSrc);
-      } catch (e) {
-        console.log(e);
-        chatframe.setAttribute('src', nSrc);
-      }
-    }).catch(console.warn);
-  }
-
   function deepClone(obj) {
     if (obj === null || typeof obj !== 'object') {
       return obj;
@@ -344,18 +326,7 @@ function injection_script_1() {
 
     return clonedObj;
   }
-
-  function deepClean(obj) {
-    if (obj === null || typeof obj !== 'object') {
-      return;
-    }
-
-    for (const [key, value] of Object.entries(obj)) {
-      obj[key] = null;
-      deepClean(value);
-    }
-
-  }
+ 
 
   const xReplaceState = (s, u) => {
     try {
@@ -680,8 +651,8 @@ function injection_script_1() {
     }
 
     queryCR(query, inCR) {
-      let elm = inCR ? this.ytLiveChatRendererElm : this.ytLiveChatAppElm
-      if (elm) return HTMLElement.prototype.querySelector.call(elm, query)
+      let elm = inCR ? this.ytLiveChatRendererElm : this.ytLiveChatAppElm;
+      if (elm) return _querySelector.call(elm, query);
       return null
     }
 
@@ -693,7 +664,7 @@ function injection_script_1() {
         // click: ()=>p.click()
         click: () => {
 
-          const ytReloadContElm = HTMLElement.prototype.querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu');
+          const ytReloadContElm = _querySelector.call(p, 'yt-reload-continuation.style-scope.yt-dropdown-menu');
           const ytReloadContCnt = insp(ytReloadContElm);
 
           let getContinuationUrl = null;
@@ -1271,7 +1242,7 @@ function injection_script_1() {
           wm.set(targetElm, value);
           cnt.reset();
           if (!targetElm.hasAttribute('QNJMC')) {
-            targetElm.setAttribute('QNJMC', '');
+            _setAttribute.call(targetElm, 'QNJMC', '');
             targetElm.addEventListener('mouseenter', ytChipCloudRendererMouseEnter, false);
           }
         }
@@ -1352,7 +1323,7 @@ function injection_script_1() {
 
           if (t !== c) return;
 
-          let chips = querySelectorFromAnchor.call(targetElm, 'iron-selector#chips');
+          let chips = _querySelector.call(targetElm, 'iron-selector#chips');
 
           if (!chips) return;
 
@@ -1496,7 +1467,7 @@ function injection_script_1() {
     } catch (e) { }
     if (typeof initialDisplayState !== 'string') return null;
 
-    const btnElm = HTMLElement.prototype.querySelector.call(chatElm, 'ytd-toggle-button-renderer');
+    const btnElm = _querySelector.call(chatElm, 'ytd-toggle-button-renderer');
     const btnCnt = insp(btnElm);
     const btnData = (btnCnt || 0).data;
     if (!btnData) return null;
@@ -1625,7 +1596,7 @@ function injection_script_1() {
         }
 
         if (b) {
-          document.documentElement.setAttribute('tabview-no-old-secondary-data', '');
+          _setAttribute.call(document.documentElement, 'tabview-no-old-secondary-data', '');
           const p = document.querySelector('body ytd-watch-flexy.style-scope:not([hidden])');
           if (p) p.appendChild(document.createElement('tabview-no-old-secondary-data'));
         }
@@ -1988,251 +1959,6 @@ function injection_script_1() {
         console.debug(`[tyt] FIX_liveChatPageUrl = ${FIX_liveChatPageUrl}`);
       }
 
-      // cProto.fixChatframeContentDisplayA = async function () {
-
-      //   // console.debug('[tyt.chat] fixChatframeContentDisplayA 01')
-      //   const iframe = this ? ((this.$ || this).chatframe || 0) : 0;
-
-      //   if (!iframe || iframe.isConnected !== true) return;
-      //   if (this.collapsed === true) return;
-
-      //   // console.debug('[tyt.chat] fixChatframeContentDisplayA 02')
-
-      //   // let hostElement = this.hostElement || this;
-      //   let cnt = insp(this);
-
-
-      //   let isReplay = null;
-      //   try {
-      //     isReplay = cnt.data.liveChatRenderer.isReplay;
-      //   } catch (e) { }
-
-      //   // fix video data changed
-
-      //   let dtConversationBar1
-      //   let dtConversationBar2;
-
-      //   try {
-
-      //     dtConversationBar1 = window.ytInitialData.contents.twoColumnWatchNextResults.conversationBar;
-      //     const ytdWatchFlexyElm = getYtdWatchFlexyElement();
-      //     const ytdWatchFlexyCnt = insp(ytdWatchFlexyElm);
-      //     dtConversationBar2 = ytdWatchFlexyCnt.data.contents.twoColumnWatchNextResults.conversationBar;
-
-      //   } catch (e) { }
-
-      //   let forceUpdate = false;
-
-      //   // console.debug('[tyt.chat] fixChatframeContentDisplayA 03')
-      //   if (dtConversationBar1 && dtConversationBar2 && dtConversationBar1.liveChatRenderer && dtConversationBar2.liveChatRenderer) {
-
-      //     let ct1;
-      //     let ct2;
-      //     let ct3;
-      //     try {
-
-      //       ct1 = dtConversationBar1.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
-      //       ct2 = dtConversationBar2.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
-      //       ct3 = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation;
-      //     } catch (e) { }
-      //     console.debug('[tyt.chat] fixChatframeContentDisplayA 04', ct1, ct2, ct3)
-      //     if (typeof ct1 === 'string' && typeof ct2 === 'string' && typeof ct3 === 'string') {
-      //       if (ct1 === ct2 && ct1 !== ct3) {
-      //         const __data = cnt.__data || 0;
-      //         if (isReplay === true && __data && __data.baseUrl === "/live_chat") __data.baseUrl = '/live_chat_replay';
-      //         if (isReplay === true && __data && (__data.url || '').startsWith("/live_chat?")) __data.url = __data.url.replace('/live_chat?', '/live_chat_replay?');
-
-      //         if (isReplay === false && __data && __data.baseUrl === "/live_chat_replay") __data.baseUrl = '/live_chat';
-      //         if (isReplay === false && __data && (__data.url || '').startsWith("/live_chat_replay?")) __data.url = __data.url.replace('/live_chat_replay?', '/live_chat?');
-
-      //         if (ct3.length > 120 && ct1.length > 120) {
-      //           __data.url = __data.url.replace(ct3, ct1);
-      //         }
-
-      //         // console.debug('[tyt.chat] fixChatframeContentDisplayA 05')
-      //         cnt.data = { liveChatRenderer: dtConversationBar2.liveChatRenderer };
-      //         if (__data && __data.data) __data.data = cnt.data;
-      //         try {
-      //           cnt.notifyPath("data.liveChatRenderer");
-      //         } catch (e) { }
-      //         console.debug('[tyt.chat] data changed to ', dtConversationBar2.liveChatRenderer);
-      //         forceUpdate = true;
-      //         // console.debug('[tyt.chat] fixChatframeContentDisplayA 06')
-      //       }
-      //     }
-
-      //   }
-
-
-      //   let sf = '';
-      //   try {
-      //     sf = cnt.data.liveChatRenderer.continuations[0].reloadContinuationData.continuation
-      //   } catch (e) {
-
-      //   }
-
-      //   if (!sf) return;
-
-      //   let isc = getIframeSrc(iframe);
-
-      //   if (typeof isc.src === 'string' && isc.src.includes('about:')) {
-
-      //     const __data = cnt.__data || 0;
-      //     if (__data) {
-
-      //       let m = /(live_chat|live_chat_replay)\?continuation=([^&\/\=]+)(&[^&=?]+=[^&=?]+)*([&\/\=]\d+|)$/.exec(__data.url || '')
-      //       if (m) {
-
-      //         isc.src = __data.url;
-
-      //         isc.pathname = m[1];
-      //         isc.continuation = m[2];
-      //         isc.spd = m[4];
-
-      //       }
-
-      //     }
-
-      //   }
-
-      //   let doReplacement = 0;
-
-      //   if (forceUpdate) {
-
-      //     doReplacement = 1;
-      //   } else if (isc.continuation !== sf && isc.continuation) {
-      //     doReplacement = 1;
-      //   } else {
-      //     let cDoc = null;
-      //     try {
-      //       cDoc = iframe.contentDocument;
-      //     } catch (e) { }
-      //     if (!cDoc) {
-      //       doReplacement = 2;
-      //     } else {
-
-      //       if (cDoc.readyState === 'loading') {
-      //         await cDocReadyStatePromise(cDoc);
-      //         if (cDoc !== iframe.contentDocument) doReplacement = 3;
-      //       }
-
-      //       if (doReplacement === 0) {
-      //         const contentElement = ((cDoc || 0).body || 0).firstElementChild || 0;
-      //         if (!contentElement) {
-      //           doReplacement = 4;
-      //         }
-      //       }
-
-      //     }
-      //   }
-
-      //   let src = isc.src || '';
-
-      //   if (!src) {
-      //     src = (cnt.__data || 0).url || '';
-      //     isc = _getIframeSrc(src);
-      //   }
-      //   if (!src || !src.includes('/live_chat')) doReplacement = 0;
-
-      //   if (doReplacement > 0) {
-      //     const src = isc.src;
-      //     let baseSrc = src.replace(/([?&])continuation=[-\w.+$@%]+/, `$1continuation=${sf}`).replace(/\&\d+$/, '');
-      //     if (isReplay && baseSrc.includes('/live_chat_replay?')) {
-      //       let currentTime = 0;
-      //       try {
-      //         currentTime = Math.floor(cnt.player.getCurrentTime() * 1000);
-      //       } catch (e) {
-      //       }
-      //       if (currentTime) {
-      //         baseSrc = baseSrc.replace(/&playerOffsetMs=\d+/, '') + '&' + `playerOffsetMs=${currentTime}`;
-      //       } else {
-      //         baseSrc = baseSrc.replace(/&playerOffsetMs=\d+/, '')
-      //       }
-      //     }
-      //     let nSrc = baseSrc + '&' + Date.now();
-      //     if (isReplay === true && isc.pathname === 'live_chat') {
-      //       // if the video in previous record was live but now it is playback (VOD).
-      //       // then change the live_chat to live_chat_replay
-      //       nSrc = nSrc.replace('/live_chat?', '/live_chat_replay?');
-      //       console.debug('[tyt.chat] live_chat changed to live_chat_replay');
-      //     } else if (isReplay === false && isc.pathname === 'live_chat_replay') {
-      //       nSrc = nSrc.replace('/live_chat_replay?', '/live_chat?');
-      //       console.debug('[tyt.chat] live_chat_replay changed to live_chat');
-      //     }
-      //     console.log({
-      //       src,
-      //       nSrc
-      //     })
-      //     iframeSrcReplacement(iframe, nSrc);
-      //     cnt.url = nSrc.replace(/&playerOffsetMs=\d+/, '').replace(/&\d+$/, '')
-      //     console.debug('[tyt] replaced chat url');
-      //     iframe.dispatchEvent(new CustomEvent("iframe-src-replaced"));
-      //   }
-
-
-      // }
-
-      // cProto.fixChatframeContentDisplayB = async function () {
-
-      //   try {
-      //     this.isFrameReady = !this.isChatReplay();
-      //     await Promise.resolve();
-      //     await this.fixChatframeContentDisplayA();
-      //   } catch (e) {
-      //     console.warn(e)
-      //   }
-
-      // }
-
-
-      // let cfk = 0;
-      // cProto.__tytChatFixUrlOnloadWithEmptyBody__ = async function () {
-      //   const chatCnt = this;
-
-      //   if (typeof chatCnt.fixChatframeContentDisplayB !== 'function') return;
-      //   if (!chatCnt.player) return;
-
-      //   const chatframe_ = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
-      //   console.debug('[tyt.chat] fix chat render when onload with empty body 01');
-      //   const tid = (cfk = (cfk > 1e9 ? 9 : cfk + 1));
-      //   await delayPn(240); // await delayPn(270);
-      //   if (tid !== cfk) return;
-      //   const chatframe = (chatCnt.$ || 0).chatframe || chatCnt.chatframe || 0;
-
-      //   // console.debug('[tyt.chat] fix chat render when onload with empty body 01b', chatframe.isConnected === true , chatCnt.isAttached === true , chatCnt.collapsed === false )
-      //   // if(chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false){
-
-      //   //   console.debug('[tyt.chat] fix chat render when onload with empty body 01c', chatframe.contentWindow.location.pathname === 'blank',  !chatframe.contentDocument.querySelector('body>*'))
-      //   // }
-
-      //   if (chatframe.isConnected === true && chatCnt.isAttached === true && chatCnt.collapsed === false && (chatframe.contentWindow.location.pathname === 'blank' || !chatframe.contentDocument.querySelector('body>*'))) {
-      //     console.debug('[tyt.chat] fix chat render when onload with empty body 02');
-      //     let changeSrc = '';
-      //     try {
-      //       if (!chatframe.src) {
-      //         const m = chatCnt.url || chatCnt.liveChatPageUrl(chatCnt.baseUrl, chatCnt.collapsed, chatCnt.data, chatCnt.forceDarkTheme);
-      //         if (typeof m === 'string' && m.length > (9 + 13) && /\/live_chat\w*\?.*continuation=/.test(m)) {
-      //           changeSrc = (m.includes('&mceu=') ? m : (m.replace(/&\d+$/, '') + "&1"));
-      //         }
-      //       }
-      //     } catch (e) { }
-      //     let done = false;
-      //     if (changeSrc) {
-      //       try {
-      //         const frameLocation = chatframe.contentWindow.location;
-      //         const body = chatframe.contentDocument.body;
-      //         if (body.firstChild === null && frameLocation.href === 'about:blank') {
-      //           frameLocation.replace(changeSrc);
-      //           done = true;
-      //         }
-      //       } catch (e) { }
-      //     }
-      //     if (!done) {
-      //       changeSrc ? (chatframe.src = changeSrc) : chatCnt.fixChatframeContentDisplayB();
-      //     }
-      //   }
-
-      // };
 
       ytChatFrameSetup.resolve();
 
@@ -2298,7 +2024,7 @@ function injection_script_1() {
             const n = data.contents.length;
             if (n > ctNum && hostElement.isConnected === true && cnt.isAttached === true) {
 
-              const headerElm = querySelectorFromAnchor.call(hostElement, 'ytd-comments-header-renderer');
+              const headerElm = _querySelector.call(hostElement, 'ytd-comments-header-renderer');
               const headerCnt = insp(headerElm);
 
               if (headerCnt.data === data.header[0].commentsHeaderRenderer) {
@@ -2605,11 +2331,11 @@ function injection_script_1() {
     // @return HTMLElement
 
     if (!ep) return null;
-    let epc = querySelectorFromAnchor.call(ep, '#content');
+    let epc = _querySelector.call(ep, '#content');
     if (!epc) return null;
 
-    return querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer #content')
-      || querySelectorFromAnchor.call(epc, 'ytd-ads-engagement-panel-content-renderer')
+    return _querySelector.call(epc, 'ytd-ads-engagement-panel-content-renderer #content')
+      || _querySelector.call(epc, 'ytd-ads-engagement-panel-content-renderer')
       || epc;
 
   }
@@ -2684,7 +2410,7 @@ function injection_script_1() {
 
     newPanelHostElement.classList.add('style-scope', 'ytd-watch-flexy');
 
-    elementAppend.call(querySelectorFromAnchor.call(ytdFlexyElm, '#panels'), newPanelHostElement);
+    elementAppend.call(_querySelector.call(ytdFlexyElm, '#panels'), newPanelHostElement);
 
     return newPanelHostElement;
 
@@ -2955,8 +2681,8 @@ function injection_script_1() {
       if (document.querySelector('autocomplete-holder')) return;
 
       let id = Date.now();
-      s.setAttribute('data-autocomplete-results-id', id);
-      sc.setAttribute('data-autocomplete-input-id', id);
+      _setAttribute.call(s, 'data-autocomplete-results-id', id);
+      _setAttribute.call(sc, 'data-autocomplete-input-id', id);
 
       if (typeof WeakRef === 'function') {
         s._sc = new WeakRef(sc);
@@ -3159,7 +2885,7 @@ function injection_script_1() {
     function codeFixForParticipants() {
       const lcrElm = kRef(chatroomRendererElmWR);
       if (!lcrElm) return;
-      const participantsElm = HTMLElement.prototype.querySelector.call(lcrElm, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
+      const participantsElm = _querySelector.call(lcrElm, 'iron-pages > yt-live-chat-participant-list-renderer.yt-live-chat-renderer');
       if (!participantsElm) return;
       const participantInst = insp(participantsElm);
       const participantsCnt = participantInst.constructor.prototype;
@@ -3475,7 +3201,7 @@ function injection_script_1() {
     try {
 
 
-      let showHideBtn = HTMLElement.prototype.querySelector.call(chatElm, 'div#show-hide-button')
+      let showHideBtn = _querySelector.call(chatElm, 'div#show-hide-button')
       if (showHideBtn) {
 
         let btn;
@@ -3499,7 +3225,7 @@ function injection_script_1() {
     try {
 
 
-      let showHideBtn = HTMLElement.prototype.querySelector.call(chatElm, 'div#show-hide-button')
+      let showHideBtn = _querySelector.call(chatElm, 'div#show-hide-button')
       if (showHideBtn) {
 
         let btn;
@@ -3534,7 +3260,7 @@ function injection_script_1() {
 
     console.debug('[tyt.iframe] ready 01')
 
-    const currentPopupBtn = HTMLElement.prototype.querySelector.call(chatElm, 'tyt-iframe-popup-btn');
+    const currentPopupBtn = _querySelector.call(chatElm, 'tyt-iframe-popup-btn');
     if (currentPopupBtn) currentPopupBtn.classList.remove('tyt-btn-enabled');
 
     const chatCnt = insp(chatElm);
@@ -3606,7 +3332,7 @@ function injection_script_1() {
         }
         if (playerState > 0) {
           // fix VOD bug with playerOffsetMs
-          const seekElm = HTMLElement.prototype.querySelector.call(lcrElm, 'yt-player-seek-continuation');
+          const seekElm = _querySelector.call(lcrElm, 'yt-player-seek-continuation');
           if (seekElm) {
             performFireSeekContinuationAtCurrentProgress(seekElm, 300);
           }
@@ -3751,10 +3477,10 @@ function injection_script_1() {
         let commentRendererElm = closestFromAnchor.call(element, 'ytd-comment-renderer');
         if (commentRendererElm) {
 
-          let header = querySelectorFromAnchor.call(commentRendererElm, '#header-author');
+          let header = _querySelector.call(commentRendererElm, '#header-author');
           if (header) {
 
-            let anchor = querySelectorFromAnchor.call(header, 'a[href*="lc="]');
+            let anchor = _querySelector.call(header, 'a[href*="lc="]');
             if (anchor) {
               let href = (anchor.getAttribute('href') || '');
               let m = /[&?]lc=([\w_.-]+)/.exec(href); // dot = sub-comment
@@ -4280,7 +4006,7 @@ function injection_script_1() {
           if (shelfCnt.isCollapsed === true) shelfCnt.isCollapsed = false // for shelf content
         }
         if ((currentVisibile === true) ^ (tytAttr === true)) {
-          if (currentVisibile) ytdFlexyElm.setAttribute('tyt-donation-shelf', '');
+          if (currentVisibile) _setAttribute.call(ytdFlexyElm, 'tyt-donation-shelf', '');
           else ytdFlexyElm.removeAttribute('tyt-donation-shelf');
           // updateIcon = true;
         }
@@ -4697,7 +4423,7 @@ function injection_script_1() {
       if (target.nodeType !== 1) return;
       const cnt = insp(target);
       dsMgr._lastDSVideo = (((cnt || 0).data || 0).videoId || 0); // avoid double calling triggerDOMAppearWhenDataChanged
-      HTMLElement.prototype.setAttribute.call(target, 'swVq2', '1')
+      _setAttribute.call(target, 'swVq2', '1')
       dsMgr.onDSAppended(cnt);
       if (typeof cnt.dataChangedM !== 'function' && typeof cnt.dataChanged === 'function') {
         cnt.dataChangedM = cnt.dataChanged
@@ -4744,10 +4470,10 @@ function injection_script_1() {
   };
 
   function fixTooltipsK1(s) {
-    s.setAttribute('tyt-placed-to-top', '');
+    _setAttribute.call(s, 'tyt-placed-to-top', '');
 
     s.removeAttribute('fit-to-visible-bounds'); // related to the button position only; ignore page layout
-    s.setAttribute('offset', '0'); // offset is for bottom tooltip only
+    _setAttribute.call(s, 'offset', '0'); // offset is for bottom tooltip only
     // s.style.marginTop='-82px'
     let p = s;
     while ((p = nodeParent(p)) instanceof HTMLElement) {
@@ -4767,7 +4493,7 @@ function injection_script_1() {
 
   function fixTooltipsK2(s) {
 
-    s.setAttribute('fit-to-visible-bounds', ''); // fix native tooltip bug due to YouTube Layout change since 2023.05.18
+    _setAttribute.call(s, 'fit-to-visible-bounds', ''); // fix native tooltip bug due to YouTube Layout change since 2023.05.18
 
   }
 
@@ -5066,7 +4792,7 @@ function injection_script_1() {
 
   documentEventListen = null; // avoid after call
 
-  document.documentElement.setAttribute('tabview-unwrapjs', '1')
+  _setAttribute.call(document.documentElement, 'tabview-unwrapjs', '1')
   if (document.documentElement.hasAttribute('plugin-tabview-youtube')) {
     dispatchCustomEvent(document, "tabview-plugin-loaded");
   }
