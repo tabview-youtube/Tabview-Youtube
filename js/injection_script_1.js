@@ -1540,6 +1540,17 @@ function injection_script_1() {
     }
   });
 
+  
+  const _retrieveCE = async (nodeName) => {
+    try {
+      isCustomElementsProvided || (await promiseForCustomYtElementsReady);
+      await customElements.whenDefined(nodeName);
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+
+
   const retrieveCE = async (nodeName) => {
     try {
       isCustomElementsProvided || (await promiseForCustomYtElementsReady);
@@ -2340,79 +2351,123 @@ function injection_script_1() {
 
   }
 
-  function createPanel() {
+  function setYtData(cnt, data){
+    if(typeof cnt._setProperty === 'function'){
+      
+      cnt._setProperty('data', data);
+    }else{
+      cnt.data = data;
+    }
+  }
 
-    const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
-    if (!ytdFlexyElm) return null;
-    const ytdFlexyCnt = insp(ytdFlexyElm);
+  async function createComponent_(ytdFlexyCnt, cz, wz, b, parentElement){
+    
+    const newPanel = ytdFlexyCnt.createComponent_(cz, wz, b);
+    // ytdFlexyCnt.deferRenderStamperBinding_(newPanel, cz, wz);
 
-    /** @type {HTMLElement} */
-    const newPanel = ytdFlexyCnt.createComponent_({
-      "component": "ytd-engagement-panel-section-list-renderer",
-      "params": {
-        "isWatch": true
-      }
-    }, "ytd-engagement-panel-section-list-renderer", true);
+    let newPanelHostElement = (newPanel || 0).hostElement || newPanel;
+    
+    // newPanelHostElement.classList.add('style-scope', 'ytd-watch-flexy');
 
-    const newPanelHostElement = (newPanel || 0).hostElement || newPanel;
-    const newPanelCnt = insp(newPanelHostElement);
+    elementAppend.call(parentElement, newPanelHostElement);
+
+    if(insp(newPanelHostElement).isAttached!==true) await delayPn(1);
+     
+    let nodeNew = newPanelHostElement.cloneNode(false, false);
+    newPanelHostElement.replaceWith(nodeNew);
+    newPanelHostElement = nodeNew ;
+    return newPanelHostElement;
+  }
+
+  let createPanelMZ = 0;
+  async function createPanel() {
+
+    try {
+      if (createPanelMZ > 1e9) createPanelMZ = 9;
+      const tid = ++createPanelMZ;
+      await _retrieveCE("ytd-engagement-panel-section-list-renderer");
+
+      if (tid !== createPanelMZ) return;
+
+      const ytdFlexyElm = document.querySelector('ytd-watch-flexy[tyt-tab]');
+      if (!ytdFlexyElm) return null;
+      const ytdFlexyCnt = insp(ytdFlexyElm);
 
 
-    newPanelCnt.data = {
-      "panelIdentifier": "engagement-panel-genius-transcript",
-      "header": {
-        "engagementPanelTitleHeaderRenderer": {
-          "title": {
-            "runs": [
-              {
-                "text": "Genius Lyrics"
-              }
-            ]
-          },
-          "visibilityButton": {
-            "buttonRenderer": {
-              "style": "STYLE_DEFAULT",
-              "size": "SIZE_DEFAULT",
-              "type": "text", // default is tonal
-              "isDisabled": false,
-              "icon": {
-                "iconType": "CLOSE"
-              },
-              "accessibility": {
-                "label": "Close Genius Lyrics"
-              },
-              "accessibilityData": {
-                "accessibilityData": {
-                  "label": "Close Genius Lyrics"
+      /** @type {HTMLElement} */
+      const newPanelHostElement = await createComponent_(ytdFlexyCnt, {
+        "component": "ytd-engagement-panel-section-list-renderer",
+        "params": {
+          "isWatch": true
+        }
+      }, "ytd-engagement-panel-section-list-renderer", true, _querySelector.call(ytdFlexyElm, '#panels'));
+
+      // await delayPn(1);
+
+      newPanelHostElement.classList.add('style-scope', 'ytd-watch-flexy');
+      const newPanelCnt = insp(newPanelHostElement);
+
+      setYtData(newPanelCnt, {
+        "panelIdentifier": "engagement-panel-genius-transcript",
+        "header": {
+          "engagementPanelTitleHeaderRenderer": {
+            "title": {
+              "runs": [
+                {
+                  "text": "Genius Lyrics"
                 }
-              },
-              "command": {
-                "changeEngagementPanelVisibilityAction": {
-                  "targetId": "engagement-panel-genius-transcript",
-                  "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+              ]
+            },
+            "visibilityButton": {
+              "buttonRenderer": {
+                "style": "STYLE_DEFAULT",
+                "size": "SIZE_DEFAULT",
+                "type": "text", // default is tonal
+                "isDisabled": false,
+                "icon": {
+                  "iconType": "CLOSE"
+                },
+                "accessibility": {
+                  "label": "Close Genius Lyrics"
+                },
+                "accessibilityData": {
+                  "accessibilityData": {
+                    "label": "Close Genius Lyrics"
+                  }
+                },
+                "command": {
+                  "changeEngagementPanelVisibilityAction": {
+                    "targetId": "engagement-panel-genius-transcript",
+                    "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN"
+                  }
                 }
               }
             }
           }
+        },
+        "content": {
+          "adsEngagementPanelContentRenderer": {
+            //"engagementPanelGeniusTranscriptRenderer":{
+
+          }
+        },
+        "targetId": "engagement-panel-genius-transcript",
+        "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
+        "loggingDirectives": {
         }
-      },
-      "content": {
-        "adsEngagementPanelContentRenderer": {
-          //"engagementPanelGeniusTranscriptRenderer":{
+      });
 
-        }
-      },
-      "targetId": "engagement-panel-genius-transcript",
-      "visibility": "ENGAGEMENT_PANEL_VISIBILITY_HIDDEN",
-      "loggingDirectives": {
-      }
-    };
+      // newPanelCnt._flushClients();
 
-    newPanelHostElement.classList.add('style-scope', 'ytd-watch-flexy');
+      // newPanelCnt._invalidateProperties();
 
-    elementAppend.call(_querySelector.call(ytdFlexyElm, '#panels'), newPanelHostElement);
 
-    return newPanelHostElement;
+
+
+      return newPanelHostElement;
+    } catch (e) {
+      console.warn(e)
+    }
 
   }
 
@@ -2467,61 +2522,65 @@ function injection_script_1() {
 
   }
 
-  documentEventListen('tyt-getLyricsReady-egftq', () => {
+  documentEventListen('tyt-getLyricsReady-egftq', async () => {
 
-    const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
+    try {
+      const panel_cssSelector = 'ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-genius-transcript"]'
 
-    if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
-      let newPanel = createPanel();
+      if (!document.querySelector(panel_cssSelector) && document.querySelector('ytd-watch-flexy #panels')) {
+        let newPanel = await createPanel();
 
-      if (newPanel === null) {
-        return
+        if (newPanel === null) {
+          return
+        }
+
+        if (geniusLyricsVisObserver) {
+          geniusLyricsVisObserver.takeRecords();
+          geniusLyricsVisObserver.disconnect();
+        } else {
+          geniusLyricsVisObserver = new MutationObserver(geniusLyricsVisObserveCb)
+        }
+
+        geniusLyricsVisObserver.observe(newPanel, {
+          attributes: true,
+          attributeFilter: ['visibility']
+        })
+
       }
 
-      if (geniusLyricsVisObserver) {
-        geniusLyricsVisObserver.takeRecords();
-        geniusLyricsVisObserver.disconnect();
-      } else {
-        geniusLyricsVisObserver = new MutationObserver(geniusLyricsVisObserveCb)
+
+      let elm = null;
+      if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
+
+        let panel = document.querySelector(panel_cssSelector)
+        if (panel) {
+
+          let epc = getEPC(panel);
+          if (epc) {
+            epc.innerHTML = '';
+            elm.classList.add('tyt-tmp-hide-lyricsiframe');
+            elementAppend.call(epc, elm);
+
+            dispatchCustomEvent(document, 'tyt-engagement-panel-visibility-change', {
+              panelId: "engagement-panel-genius-transcript",
+              toShow: true
+            });
+
+
+            // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
+          }
+
+        }
       }
-
-      geniusLyricsVisObserver.observe(newPanel, {
-        attributes: true,
-        attributeFilter: ['visibility']
-      })
-
-    }
-
-
-    let elm = null;
-    if (elm = document.querySelector('body > #lyricscontainer > #lyricsiframe')) {
 
       let panel = document.querySelector(panel_cssSelector)
       if (panel) {
-
-        let epc = getEPC(panel);
-        if (epc) {
-          epc.innerHTML = '';
-          elm.classList.add('tyt-tmp-hide-lyricsiframe');
-          elementAppend.call(epc, elm);
-
-          dispatchCustomEvent(document, 'tyt-engagement-panel-visibility-change', {
-            panelId: "engagement-panel-genius-transcript",
-            toShow: true
-          });
-
-
-          // panel.setAttribute('visibility', 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED')
-        }
-
+        panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
       }
-    }
 
-    let panel = document.querySelector(panel_cssSelector)
-    if (panel) {
-      panel.classList.toggle('epanel-lyrics-loading', isLyricsLoading);
+    } catch (e) {
+      console.warn(e)
     }
-
   }, false)
 
 
