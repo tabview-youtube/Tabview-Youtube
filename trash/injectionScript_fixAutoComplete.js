@@ -32,7 +32,7 @@
 
                 }
 
-                sc.dispatchEvent(new CustomEvent('autocomplete-sc-exist'));
+                sc.dispatchEvent(new CustomEvent('tyt-autocomplete-sc-exist'));
 
 
             }

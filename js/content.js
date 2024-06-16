@@ -1386,6 +1386,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     'js/injection_script_1.js',
     "injectionJS1");
 
+  let scriptReady = false;
+  scriptletDeferred.debounce(() => {
+    scriptReady = true;
+  });
+  const sendToPageScriptPendings = new Map();
+  async function sendToPageScript(element, id, ...args) {
+    if (!scriptReady) {
+      const tid = (sendToPageScriptPendings.get(id) || 0) + 1
+      sendToPageScriptPendings.set(id, tid);
+      await scriptletDeferred.d();
+      const cid = sendToPageScriptPendings.get(id);
+      if (tid !== cid) return;
+    }
+    element.dispatchEvent(new CustomEvent("tabview-page-script", {
+      detail: {
+        id: id,
+        args: args.length ? args : null
+      }
+    }));
+  }
+
 
   function nonCryptoRandStr(/** @type {number} */ n) {
     const result = new Array(n);
@@ -1545,7 +1566,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     return window.dispatchEvent(new Event('resize'));
   }
 
-  const skIdResizeCommentsRowsEventDispatch = ControllerID();
   async function dispatchCommentRowResize() {
 
     if (pageType !== "watch") return;
@@ -1554,9 +1574,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!ytdFlexyElm) return;
     if (ytdFlexyElm.getAttribute('tyt-tab') !== '#tab-comments') return;
 
-    scriptletDeferred.debounce(() => {
-      document.dispatchEvent(new CustomEvent('tabview-resize-comments-rows'));
-    }, skIdResizeCommentsRowsEventDispatch);
+    sendToPageScript(document, 'tabview-resize-comments-rows');
 
 
   }
@@ -2531,8 +2549,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let currentIsTheaterPopupChat = new_isTwoColumnsTheater && new_isExpandedChat && isChatPopupedF()
       if (!currentIsTheaterPopupChat) {
-        enableLivePopupCheck = false
-        document.dispatchEvent(new CustomEvent("tyt-close-popup"))
+        enableLivePopupCheck = false;
+        sendToPageScript(document, "tyt-close-popup");
       }
 
     }
@@ -3027,7 +3045,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
               insertBeforeTo(container, rightTabs);
               const _chatroom = chatroom;
               _chatroom && scriptletDeferred.debounce(() => {
-                _chatroom.dispatchEvent(new CustomEvent("tabview-chat-call-urlchange"));
+                sendToPageScript(_chatroom, "tabview-chat-call-urlchange");
               })
             }
 
@@ -3148,7 +3166,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     /** @type {HTMLElement} */
     let searchBox, autoComplete;
     searchBox = this;
-    this.removeEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false)
+    this.removeEventListener('tyt-autocomplete-sc-exist', handlerAutoCompleteExist, false)
     let domId = this.getAttribute('data-autocomplete-results-id')
 
     autoComplete = document.querySelector(`[data-autocomplete-input-id="${domId}"]`)
@@ -3457,7 +3475,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           if (expander.style.getPropertyValue('--ytd-expander-collapsed-height')) {
             expander.style.setProperty('--ytd-expander-collapsed-height', '')
           }
-          expander.dispatchEvent(new CustomEvent("tabview-expander-config"));
+          sendToPageScript(expander, "tabview-expander-config");
 
         }
 
@@ -3578,25 +3596,27 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!elm) return;
 
       let span = document.querySelector("span#tyt-cm-count")
-      let r = '0';
-      let txt = elm.textContent
-      if (typeof txt == 'string') {
-        let m = txt.match(/[\d\,\.\s]+/)
-        if (m) {
-          let d = +m[0].replace(/\D+/g, '');
-          let ds = d.toLocaleString(document.documentElement.lang);
-          let rtxt = txt.replace(ds, '')
-          if (rtxt !== txt && !/\d/.test(rtxt)) {
-            r = ds;
-          }
-        }
-      }
+      // let r = '0';
+      // let txt = elm.textContent
+      // if (typeof txt == 'string') {
+      //   let m = txt.match(/[\d\,\.\s]+/)
+      //   if (m) {
+      //     let d = +m[0].replace(/\D+/g, '');
+      //     let ds = d.toLocaleString(document.documentElement.lang);
+      //     let rtxt = txt.replace(ds, '')
+      //     if (rtxt !== txt && !/\d/.test(rtxt)) {
+      //       r = ds;
+      //     }
+      //   }
+      // }
 
       if (span) {
         let tab_btn = closestDOM.call(span, '.tab-btn[tyt-tab-content="#tab-comments"]')
-        if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal')
-        span.textContent = r;
+        if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal');
+        sendToPageScript(document, 'tyt-update-cm-count');
+        // span.textContent = r;
       }
+
 
       setCommentSection(1);
       m_last_count = getCountHText(elm);
@@ -3882,34 +3902,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   };
 
-  const skIdFixChatToggleBtnEventDispatch = ControllerID();
   const fixLiveChatToggleButtonDispatchEvent = () => {
-    scriptletDeferred.debounce(() => {
-      document.dispatchEvent(new CustomEvent("tabview-fix-live-chat-toggle-btn"));
-    }, skIdFixChatToggleBtnEventDispatch);
-  }
-
-
-
-  const eventDispatcher = (evtName) => {
-    const erid = ControllerID();
-    return (evtNode) => {
-      scriptletDeferred.debounce(() => {
-        const b = !(evtNode instanceof HTMLElement) || evtNode.isConnected === true;
-        b && evtNode.dispatchEvent(new CustomEvent(evtName));
-      }, erid);
-    }
+    sendToPageScript(document, "tabview-fix-live-chat-toggle-btn");
   }
 
   // let chatroomAttrCollapseCount = 0;
-
-  // const dpeForceChatRenderOnChatExpanded = eventDispatcher("tabview-force-chat-render-on-chat-expanded");
-
-  // const dpeNewUrlChat = eventDispatcher("tabview-chat-fix-url-on-new-video-page");
-  const dpeFixUrlChatWhenOnloadWithEmptyBody = eventDispatcher("tabview-chat-fix-url-onload-with-empty-body");
-  // const dpeFixIframeReady = eventDispatcher("tabview-fix-iframe-ready");
-
-  const dpeIframeReady = eventDispatcher('tabview-chatroom-ready');
 
   const FP = {
 
@@ -4574,7 +4571,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let m_playlist = kRef(playlist_wr);
         playlist_wr = null;
         if (m_playlist && m_playlist.isConnected === true) {
-          m_playlist.dispatchEvent(new CustomEvent("tabview-yt-data-reassign"));
+          sendToPageScript(m_playlist, "tabview-yt-data-reassign");
         }
         m_playlist = null;
       }, skPlayListDataReassign)
@@ -5223,9 +5220,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
                   ytdFlexyElm.classList.toggle('tabview-info-duplicated', infoDuplicated)
                   ytdFlexyElm.classList.toggle('tabview-info-duplicated-checked', true)
                   checkDuplicatedInfo_then();
-                  scriptletDeferred.debounce(() => {
-                    document.dispatchEvent(new CustomEvent('tabview-fix-info-box-tooltip'));
-                  }, skIdInfoboxTooltipFix);
+                  sendToPageScript(document, 'tabview-fix-info-box-tooltip');
                 }
                 break;
               }
@@ -5637,7 +5632,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       console.debug('[tyt] pageRendered');
 
       scriptletDeferred.debounce(() => {
-        document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
+        // document.dispatchEvent(new CustomEvent('tabview-page-rendered'));
         getDMPromise().then(() => {
           document.dispatchEvent(new CustomEvent("yt-watch-comments-ready")); // immediately render comments when tab is switched from background
         });
@@ -5804,9 +5799,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       container.id = 'suggestions-search-container';
       elm.replaceWith(container);
       container.appendChild(elm);
-      elm.addEventListener('autocomplete-sc-exist', handlerAutoCompleteExist, false);
+      elm.addEventListener('tyt-autocomplete-sc-exist', handlerAutoCompleteExist, false);
       scriptletDeferred.debounce(() => {
-        elm.isConnected && elm.dispatchEvent(new CustomEvent('tabview-fix-autocomplete'));
+        elm.isConnected && sendToPageScript(elm, 'tabview-fix-autocomplete');
         elm = null;
       });
     })
@@ -5965,9 +5960,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (!isTabviewFixPopupRefitCalled) {
         isTabviewFixPopupRefitCalled = true;
-        scriptletDeferred.debounce(() => {
-          document.dispatchEvent(new CustomEvent("tabview-fix-popup-refit"));
-        }, skIdFixPopupRefit);
+        sendToPageScript(document, "tabview-fix-popup-refit");
       }
 
 
@@ -6390,7 +6383,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (chatFrame) {
           showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 22');
           // chatFrame.setAttribute('tyt-iframe-loaded', '');
-          dpeIframeReady(chatFrame);
+          sendToPageScript(chatFrame, 'tabview-chatroom-ready');
           iframeLoadStatusWM.set(iframe, t93 * 2 + 1);
         }
       }
@@ -6414,7 +6407,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (cDoc) {
               const cBody = cDoc.body;
               if (cBody && cBody.firstElementChild === null) {
-                dpeFixUrlChatWhenOnloadWithEmptyBody(chat);
+                sendToPageScript(chat, "tabview-chat-fix-url-onload-with-empty-body");
               }
             }
           }
@@ -6451,7 +6444,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (!scriptEnable || !isChatExpand()) return; // v4.13.19 - scriptEnable = true in background
 
-    dpeIframeReady(chat);
+    sendToPageScript(chat, 'tabview-chatroom-ready');
 
   };
 
@@ -6548,7 +6541,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (store['font-size-#tab-comments']) ytdFlexyElm.style.setProperty('--ut2257-comments', store['font-size-#tab-comments'])
         if (store['font-size-#tab-videos']) ytdFlexyElm.style.setProperty('--ut2257-videos', store['font-size-#tab-videos'])
         if (store['font-size-#tab-list']) ytdFlexyElm.style.setProperty('--ut2257-list', store['font-size-#tab-list'])
-        document.dispatchEvent(new CustomEvent("tabview-zoom-updated"));
+        sendToPageScript(document, "tabview-zoom-updated");
       }
 
     }
@@ -6834,8 +6827,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     scriptletDeferred.d().then(() => {
       const elem = document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #info-container.ytd-watch-metadata:first-child') || document.querySelector('#primary.ytd-watch-flexy #below ytd-watch-metadata #ytd-watch-info-text.ytd-watch-metadata:first-child') || null;
       if (elem && !elem.hasAttribute('tyt-info-toggler')) {
-        elem.setAttribute('tyt-info-toggler', '')
-        elem.dispatchEvent(new CustomEvent('tyt-info-toggler'))
+        elem.setAttribute('tyt-info-toggler', '');
+        sendToPageScript(elem, 'tyt-info-toggler');
       }
     });
   }
@@ -7210,7 +7203,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           //if(!p.isFrameReady)
           //nativeFunc(p, "urlChanged")
           //console.log(12399,1)
-          chatFrame.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
+          // chatFrame.dispatchEvent(new CustomEvent("tabview-chatroom-newpage")); //possible empty iframe is shown
 
         }
       } else {
@@ -7446,7 +7439,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         let t = document.querySelector('#tab-videos yt-chip-cloud-renderer')
         if (t) {
           scriptletDeferred.debounce(() => {
-            t.isConnected && t.dispatchEvent(new CustomEvent('tyt-resize-chip-cloud'));
+            t.isConnected && sendToPageScript(t, 'tyt-resize-chip-cloud');
             t = null;
           })
         }
@@ -8300,7 +8293,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
         Promise.resolve(docElement).then(docElement => {
           if (ytEventSequence >= 2) {
-            docElement.dispatchEvent(new CustomEvent('tabview-ce-hack'))
+            sendToPageScript(docElement, 'tabview-ce-hack')
             docElement = null
           }
         });
@@ -8653,7 +8646,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     scriptletDeferred.resolve();
 
     if (MINIVIEW_BROWSER_ENABLE) {
-      document.dispatchEvent(new CustomEvent("tabview-miniview-browser-enable"));
+      sendToPageScript(document, "tabview-miniview-browser-enable");
     }
 
 
