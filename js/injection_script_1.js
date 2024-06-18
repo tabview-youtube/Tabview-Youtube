@@ -4930,19 +4930,57 @@ function injection_script_1() {
 
   pageScripts.set('tyt-update-cm-count', () => {
 
+    // (()=>{const {commentsCount, countText} =document.querySelector('ytd-comments-header-renderer').polymerController.data; return JSON.stringify({commentsCount, countText})})()
+    // '{"commentsCount":{"runs":[{"text":"2.5K"}]},"countText":{"runs":[{"text":"Comments"},{"text":" 2.5K"}]}}'
+
+    // https://www.youtube.com/watch?v=hu6y1ol9yUg
+    // (()=>{const {commentsCount, countText} =document.querySelector('ytd-comments-header-renderer').polymerController.data; return JSON.stringify({commentsCount, countText})})()
+    // '{"commentsCount":{"runs":[{"text":"2.7K"}]},"countText":{"runs":[{"text":"2,725"},{"text":" Comments"}]}}'
+
+    // https://www.youtube.com/watch?v=whwe0KD_rGw
+    // (()=>{const {commentsCount, countText} =document.querySelector('ytd-comments-header-renderer').polymerController.data; return JSON.stringify({commentsCount, countText})})()
+    // '{"commentsCount":{"runs":[{"text":"120K"}]},"countText":{"runs":[{"text":"120,937"},{"text":" Comments"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"12万"}]},"countText":{"runs":[{"text":"120,937"},{"text":" 件のコメント"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"120.937"}]},"countText":{"runs":[{"text":"120.937"},{"text":" Kommentare"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"120 N"}]},"countText":{"runs":[{"text":"120.937"},{"text":" bình luận"}]}}'
+
+    // https://www.youtube.com/watch?v=kJQP7kiw5Fk
+    // (()=>{const {commentsCount, countText} =document.querySelector('ytd-comments-header-renderer').polymerController.data; return JSON.stringify({commentsCount, countText})})()
+    // '{"commentsCount":{"runs":[{"text":"4.2M"}]},"countText":{"runs":[{"text":"4,257,809"},{"text":" Comments"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"425万"}]},"countText":{"runs":[{"text":"4,257,809"},{"text":" 件のコメント"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"42 લાખ"}]},"countText":{"runs":[{"text":"42,57,809"},{"text":" ટિપ્પણી"}]}}'
+    // '{"commentsCount":{"runs":[{"text":"4,2 Mio."}]},"countText":{"runs":[{"text":"4.257.811"},{"text":" Kommentare"}]}}'
+
+    function stringTest(text) {
+      if (typeof text === 'string' && text.length > 0 && /\d+/.test(text) && !/\d+/.test(text.replace(/\d+([.,]\d+)?/, ''))) {
+        text = text.replace(/[\s\x20\xA0\u1680\u180E\u2000-\u200d\u202f\u205f\u3000\uFEFF]+/g, ' '); // https://www.jkorpela.fi/chars/spaces.html
+        let m;
+        if ( m =/^\s*(\d+([.,]\d+)?)(\s?)([^-.,_\s\d?#$@&^()\[\]:;"'\/\\<>*{}]+\.?)\s*$/.exec(text)){
+          return `${m[1]}${m[3]}${m[4]}`;
+        }
+      m = text.match(/\d+([.,]\d+)?.*?/);
+        if (m) return `${m[0].trim()}`;
+      }
+      return "";
+    }
 
     const rendererElm = document.querySelector('#tab-comments ytd-comments-header-renderer');
+    if(!rendererElm || !rendererElm.is) return;
     const cnt = insp(rendererElm);
 
-    let commentsCount = -1;
+    let commentsCountRes = "";
     const commentsHeaderRenderer = cnt.data;
+    if(!commentsHeaderRenderer) return;
 
-    if (commentsHeaderRenderer && commentsHeaderRenderer.commentsCount) {
+    const {commentsCount, countText } = commentsHeaderRenderer;
+    // let {commentsCount, countText } = JSON.parse('{"commentsCount":{"runs":[{"text":"2.5K"}]},"countText":{"runs":[{"text":"Comments"},{"text":" 2.5K"}]}}');
 
-      if (commentsHeaderRenderer.commentsCount.runs && commentsHeaderRenderer.commentsCount.runs.length === 1 && commentsHeaderRenderer.commentsCount.runs[0].text) {
-        let d = parseInt(commentsHeaderRenderer.commentsCount.runs[0].text, 10);
-        if (d > -1) {
-          commentsCount = d;
+    if (commentsCount) {
+
+      if (commentsCount.runs && commentsCount.runs.length === 1 && commentsCount.runs[0].text) {
+        const text = stringTest(commentsCount.runs[0].text);
+        if( text ){
+          commentsCountRes = text;
         }
       }
 
@@ -4950,27 +4988,28 @@ function injection_script_1() {
 
 
 
-    if (commentsCount < 0 && commentsHeaderRenderer && commentsHeaderRenderer.countText) {
-      const countText = commentsHeaderRenderer.countText;
-      if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string') {
+    if (commentsCountRes < 0 && countText) {
+      if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string' && typeof countText.runs[1].text === 'string') {
 
-        const countTextString = countText.runs[0].text;
-        const ctString = countTextString.replace(/[,.\s]+/g, '');
-        const ctNum = parseInt(ctString, 10);
-        if (ctNum >= 0 && countTextString.trim() === ctNum.toLocaleString(document.documentElement.lang)) {
-
-          commentsCount = d;
+        let text;
+        if( text = stringTest(countText.runs[0].text) ){
+          commentsCountRes = text;
+        }else if( text = stringTest(countText.runs[1].text) ){
+          commentsCountRes = text;
         }
 
       }
     }
 
-    if (commentsCount > -1) {
+    if (commentsCountRes) {
 
       // let tab_btn = closestDOM.call(span, '.tab-btn[tyt-tab-content="#tab-comments"]');
       // if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal');
 
-      document.querySelector('#tyt-cm-count').textContent = commentsCount.toLocaleString(document.documentElement.lang);
+      const countElm = document.querySelector('#tyt-cm-count');
+      if (countElm) {
+        countElm.textContent = commentsCountRes;
+      }
 
     }
 
