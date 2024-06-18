@@ -2625,6 +2625,20 @@ body .ytp-autohide .ytp-unmute,
             */
         }
 
+        /* Comment View Model */
+        
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-view-model yt-attributed-string,
+        ytd-watch-flexy[is-two-columns_] #tab-comments ytd-comments #main.style-scope.ytd-comment-view-model > #header.ytd-comment-view-model span.ytd-comment-view-model
+        {
+            zoom: var(--tyt-x-zoom-comments);
+            /*
+            transform: scale(var(--tyt-x-zoom-comments, 1.0));
+            transform-origin: 0 0;
+            --width: calc(100% * 1.0 / var(--tyt-x-zoom-comments, 1.0));
+            width: var(--width);
+            */
+        }
+
         ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-video-renderer,
         ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-radio-renderer,
         ytd-watch-flexy[is-two-columns_] #tab-videos [placeholder-videos] .metadata.style-scope.ytd-compact-playlist-renderer,
