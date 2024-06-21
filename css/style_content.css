@@ -1755,8 +1755,7 @@ body .ytp-autohide .ytp-unmute,
             color: var(--yt-spec-general-background-a);
         }
 
-        @supports (zoom: 0.5) and (not (-webkit-line-clamp: none)) {
-            /* hide zoom btn for FireFox */
+        @supports (zoom: 0.5) {
 
             .tab-btn .font-size-btn {
                 --tyt-font-size-btn-display: none;
@@ -2609,7 +2608,7 @@ body .ytp-autohide .ytp-unmute,
 
     }
 
-    @supports (color: var(--feature-chrome-only-tab-content-zoom)) and (zoom:1.5) and (not (-webkit-line-clamp: none)) {
+    @supports (color: var(--feature-chrome-only-tab-content-zoom)) and (zoom:1.5) {
 
         /* --- zoom --- */
 
