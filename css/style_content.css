@@ -2119,10 +2119,6 @@ body .ytp-autohide .ytp-unmute,
 
         }
 
-        a.tab-btn:hover { /* weak selector */
-            color: var(--tyt-tab-btn-color);
-        }
-
 
         /* .tab-btn[tyt-tab-content] */
 
@@ -3150,11 +3146,8 @@ body .ytp-autohide .ytp-unmute,
         a.tab-btn:hover,
         a.tab-btn:active,
         a.tab-btn:visited {
-            color: var(--yt-spec-text-secondary) !important;
+            color: var(--tyt-tab-btn-color) !important;
         }
-
-
-        var(--main-color)
 
     }
     
