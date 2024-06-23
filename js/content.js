@@ -3041,12 +3041,53 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           } else {
 
             let rightTabs = document.querySelector('#right-tabs');
-            if (rightTabs && rightTabs.firstElementChild !== container) {
-              insertBeforeTo(container, rightTabs);
-              const _chatroom = chatroom;
-              _chatroom && scriptletDeferred.debounce(() => {
-                sendToPageScript(_chatroom, "tabview-chat-call-urlchange");
-              })
+            // console.log(28784, rightTabs.previousSibling)
+            if (rightTabs && rightTabs.previousSibling !== container) {
+              const parentNode = rightTabs.parentNode;
+              let useDefault = true;
+              let containIframe = false;
+              if (parentNode === container.parentNode && parentNode && typeof document.createDocumentFragment === 'function' /*typeof parentNode.replaceChildren === 'function'*/ && typeof Element.prototype.append === 'function') {
+                // const previousNodes = [];
+                const nextNodes = [];
+                let dv = false;
+                for (let node = parentNode.firstChild; node instanceof Node; node = node.nextSibling) {
+                  if (node === rightTabs) {
+                    dv = true;
+                  } else if (node === container) {
+
+                  } else if (dv) {
+                    if (node instanceof HTMLIFrameElement || node.querySelector('iframe')) {
+                      containIframe = true;
+                      break;
+                    }
+                    nextNodes.push(node);
+                  } else {
+                    // previousNodes.push(node);
+                  }
+                }
+                if (!containIframe && nextNodes.length < 8000) {
+                  const nw = document.createDocumentFragment();
+                  nw.append(rightTabs, ...nextNodes);
+                  parentNode.appendChild(nw);
+                  // parentNode.replaceChildren(...previousNodes, container, rightTabs, ...nextNodes);
+                  useDefault = false;
+                }
+              }
+              if (useDefault) {
+
+                // console.log(28784, [...parentNode.childNodes])
+                insertBeforeTo(container, rightTabs);
+                // const _chatroom = chatroom;
+                // _chatroom && (async ()=>{
+                //   await scriptletDeferred.d();
+                //   if (typeof webkitRequestAnimationFrame === 'function' && typeof mozRequestAnimationFrame === 'undefined') {
+                //     await new Promise(r => setTimeout(r, 650));  // 650ms to avoid Brave Bug
+                //   }
+
+                //   // sendToPageScript(_chatroom, "tabview-chat-call-urlchange");
+
+                // })();
+              }
             }
 
           }

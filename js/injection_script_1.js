@@ -4928,7 +4928,9 @@ function injection_script_1() {
     }
   }, true);
 
-  pageScripts.set('tyt-update-cm-count', () => {
+  const { onTytUpdateCMCount } = (() => {
+
+
 
     // (()=>{const {commentsCount, countText} =document.querySelector('ytd-comments-header-renderer').polymerController.data; return JSON.stringify({commentsCount, countText})})()
     // '{"commentsCount":{"runs":[{"text":"2.5K"}]},"countText":{"runs":[{"text":"Comments"},{"text":" 2.5K"}]}}'
@@ -4955,65 +4957,193 @@ function injection_script_1() {
       if (typeof text === 'string' && text.length > 0 && /\d+/.test(text) && !/\d+/.test(text.replace(/\d+([.,]\d+)?/, ''))) {
         text = text.replace(/[\s\x20\xA0\u1680\u180E\u2000-\u200d\u202f\u205f\u3000\uFEFF]+/g, ' '); // https://www.jkorpela.fi/chars/spaces.html
         let m;
-        if ( m =/^\s*(\d+([.,]\d+)?)(\s?)([^-.,_\s\d?#$@&^()\[\]:;"'\/\\<>*{}]+\.?)\s*$/.exec(text)){
+        if (m = /^\s*(\d+([.,]\d+)?)(\s?)([^-.,_\s\d?#$@&^()\[\]:;"'\/\\<>*{}]+\.?)\s*$/.exec(text)) {
           return `${m[1]}${m[3]}${m[4]}`;
         }
-      m = text.match(/\d+([.,]\d+)?.*?/);
+        m = text.match(/\d+([.,]\d+)?.*?/);
         if (m) return `${m[0].trim()}`;
       }
       return "";
     }
 
-    const rendererElm = document.querySelector('#tab-comments ytd-comments-header-renderer');
-    if(!rendererElm || !rendererElm.is) return;
-    const cnt = insp(rendererElm);
+    function tryReplace(dataText, oldNumText, oldNumInt, newNum) {
 
-    let commentsCountRes = "";
-    const commentsHeaderRenderer = cnt.data;
-    if(!commentsHeaderRenderer) return;
+      if (dataText.includes(`${oldNumInt}`) && !/\d/.test(dataText.replace(`${oldNumInt}`, ""))) {
+        return dataText.replace(`${oldNumInt}`, `${newNum}`);
+      }
+      return "";
+    }
 
-    const {commentsCount, countText } = commentsHeaderRenderer;
-    // let {commentsCount, countText } = JSON.parse('{"commentsCount":{"runs":[{"text":"2.5K"}]},"countText":{"runs":[{"text":"Comments"},{"text":" 2.5K"}]}}');
+    function tryCorrectHeaderCount(headerCnt, commentsCountRes) {
 
-    if (commentsCount) {
+      if (!headerCnt || !commentsCountRes) return commentsCountRes;
 
-      if (commentsCount.runs && commentsCount.runs.length === 1 && commentsCount.runs[0].text) {
-        const text = stringTest(commentsCount.runs[0].text);
-        if( text ){
-          commentsCountRes = text;
+
+      let t = headerCnt.hostElement;
+      if (!(t instanceof HTMLElement)) return commentsCountRes;
+      while ((t = nodeParent(t)) instanceof HTMLElement) {
+        if (t.is) break;
+      }
+      const parentCnt = t instanceof HTMLElement && t.is ? insp(t) : null;
+      if (parentCnt) {
+        const data = (parentCnt.__data || parentCnt).data || parentCnt.data;
+        const dCount1 = (data.header || 0).length;
+        const dCount2 = (data.contents || 0).length;
+        if (dCount1 >= 1 && dCount2 >= 1) {
+
+          const headerData = headerCnt.data;
+          if (headerData && headerData === data.header[0].commentsHeaderRenderer) {
+
+            const n = dCount2;
+            const oldCText = commentsCountRes;
+            const oldCNum = parseInt(commentsCountRes.replace(/\D/g, ''), 10);
+
+            if (n > oldCNum && oldCNum > -1 && `${oldCText}` === `${oldCNum}` && oldCNum < 1000 && n < 1000) {
+              // target: 
+              //    - no format ("400" = "400")
+              //    - count < 1000
+
+
+
+              const changes = [];
+              let newCText = "";
+
+              const { commentsCount, countText } = headerData;
+
+              if (commentsCount) {
+
+                if (commentsCount.runs && commentsCount.runs.length === 1 && commentsCount.runs[0].text) {
+                  if (newCText = tryReplace(commentsCount.runs[0].text, oldCText, oldCNum, n)) {
+                    commentsCount.runs[0].text = newCText;
+                  }
+
+
+                  if (newCText) {
+                    let m = Object.assign({}, data.header[0].commentsHeaderRenderer.commentsCount, { runs: commentsCount.runs });
+                    changes.push({ commentsCount: m });
+                  }
+
+                }
+
+              }
+
+
+
+              if (countText) {
+                if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string' && typeof countText.runs[1].text === 'string') {
+
+                  let text;
+                  if (text = tryReplace(countText.runs[0].text, oldCText, oldCNum, n)) {
+                    newCText = text;
+                    countText.runs[0].text = newCText;
+                  } else if (text = tryReplace(countText.runs[1].text, oldCText, oldCNum, n)) {
+                    newCText = text;
+                    countText.runs[1].text = newCText;
+                  }
+
+                  if (newCText) {
+                    let m = Object.assign({}, data.header[0].commentsHeaderRenderer.countText, { runs: countText.runs });
+
+                    changes.push({ countText: m });
+                  }
+
+                }
+              }
+
+
+
+              if (changes.length > 0) {
+
+                headerCnt.data = Object.assign({}, headerCnt.data, ...changes); // update header text
+                Promise.resolve().then(() => {
+                  headerCnt.headerChanged_();
+                });
+
+                commentsCountRes = `${n}`;
+              }
+
+            }
+
+
+            //           let runs = [{ text: data.contents.length.toLocaleString(document.documentElement.lang) }, countText.runs[1]];
+            //           let m = Object.assign({}, data.header[0].commentsHeaderRenderer.countText, { runs: runs });
+            //           headerCnt.data = Object.assign({}, headerCnt.data, { countText: m }); // update header text
+            //           Promise.resolve().then(() => {
+            //             cnt.headerChanged_(); // ask to update tab count span
+            //           })
+          }
+
+        }
+
+      }
+      return commentsCountRes;
+
+    }
+
+    function onTytUpdateCMCount() {
+
+      const headerElm = document.querySelector('#tab-comments ytd-comments-header-renderer');
+      if (!headerElm || !headerElm.is) return;
+      const headerCnt = insp(headerElm);
+
+      let commentsCountRes = "";
+      const headerCntData = headerCnt.data;
+      if (!headerCntData) return;
+
+      const { commentsCount, countText } = headerCntData;
+      // let {commentsCount, countText } = JSON.parse('{"commentsCount":{"runs":[{"text":"2.5K"}]},"countText":{"runs":[{"text":"Comments"},{"text":" 2.5K"}]}}');
+
+      if (commentsCount) {
+
+        if (commentsCount.runs && commentsCount.runs.length === 1 && commentsCount.runs[0].text) {
+          const text = stringTest(commentsCount.runs[0].text);
+          if (text) {
+            commentsCountRes = text;
+          }
+        }
+
+      }
+
+
+
+      if (commentsCountRes === "" && countText) {
+        if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string' && typeof countText.runs[1].text === 'string') {
+
+          let text;
+          if (text = stringTest(countText.runs[0].text)) {
+            commentsCountRes = text;
+          } else if (text = stringTest(countText.runs[1].text)) {
+            commentsCountRes = text;
+          }
+
         }
       }
 
-    }
+      if (commentsCountRes) {
 
+        commentsCountRes = tryCorrectHeaderCount(headerCnt, commentsCountRes);
 
+        if (commentsCountRes) {
 
-    if (commentsCountRes < 0 && countText) {
-      if (countText.runs && countText.runs.length === 2 && typeof countText.runs[0].text === 'string' && typeof countText.runs[1].text === 'string') {
+          // let tab_btn = closestDOM.call(span, '.tab-btn[tyt-tab-content="#tab-comments"]');
+          // if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal');
 
-        let text;
-        if( text = stringTest(countText.runs[0].text) ){
-          commentsCountRes = text;
-        }else if( text = stringTest(countText.runs[1].text) ){
-          commentsCountRes = text;
+          const countElm = document.querySelector('#tyt-cm-count');
+          if (countElm) {
+            countElm.textContent = commentsCountRes;
+          }
+
         }
 
       }
-    }
-
-    if (commentsCountRes) {
-
-      // let tab_btn = closestDOM.call(span, '.tab-btn[tyt-tab-content="#tab-comments"]');
-      // if (tab_btn) tab_btn.setAttribute('loaded-comment', 'normal');
-
-      const countElm = document.querySelector('#tyt-cm-count');
-      if (countElm) {
-        countElm.textContent = commentsCountRes;
-      }
 
     }
 
-  });
+    return { onTytUpdateCMCount };
+
+  })();
+
+  pageScripts.set('tyt-update-cm-count', onTytUpdateCMCount);
 
 
   documentEventListen("tabview-plugin-loaded", () => {
