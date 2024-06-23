@@ -238,6 +238,10 @@ if (typeof window === 'object') {
   const elementNextSibling = fxOperator(Element.prototype, 'nextElementSibling');
   // const elementPrevSibling = fxOperator(Element.prototype, 'previousElementSibling');
 
+  const docFragmentCreate = Document.prototype.createDocumentFragment;
+  const docFragmentAppend = DocumentFragment.prototype.append;
+  // const docFragmentPrepend = DocumentFragment.prototype.prepend;
+
   /** @type {PromiseConstructor} */
   const Promise = __Promise__; // YouTube hacks Promise in WaterFox Classic and "Promise.resolve(0)" nevers resolve.
 
@@ -3045,30 +3049,38 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             if (rightTabs && rightTabs.previousSibling !== container) {
               const parentNode = rightTabs.parentNode;
               let useDefault = true;
-              let containIframe = false;
-              if (parentNode === container.parentNode && parentNode && typeof document.createDocumentFragment === 'function' /*typeof parentNode.replaceChildren === 'function'*/ && typeof Element.prototype.append === 'function') {
-                // const previousNodes = [];
+              if (parentNode === container.parentNode && parentNode instanceof HTMLElement
+                && typeof docFragmentCreate === 'function'
+                && typeof docFragmentAppend === 'function') {
+                const previousNodes = [];
                 const nextNodes = [];
-                let dv = false;
+                let dv = 0;
                 for (let node = parentNode.firstChild; node instanceof Node; node = node.nextSibling) {
                   if (node === rightTabs) {
-                    dv = true;
+                    dv |= 1;
                   } else if (node === container) {
-
-                  } else if (dv) {
-                    if (node instanceof HTMLIFrameElement || node.querySelector('iframe')) {
-                      containIframe = true;
+                    dv |= 2;
+                  } else {
+                    if (node instanceof HTMLIFrameElement || (node instanceof Element && node.querySelector('iframe'))) {
+                      dv |= 4;
                       break;
                     }
-                    nextNodes.push(node);
-                  } else {
-                    // previousNodes.push(node);
+                    if (dv & 1) {
+                      nextNodes.push(node);
+                    } else {
+                      previousNodes.push(node);
+                    }
                   }
                 }
-                if (!containIframe && nextNodes.length < 8000) {
-                  const nw = document.createDocumentFragment();
-                  nw.append(rightTabs, ...nextNodes);
-                  parentNode.appendChild(nw);
+                if (dv === 3 && (previousNodes.length + nextNodes.length) < 8000) {
+                  if (previousNodes.length > 0) {
+                    const nw1 = docFragmentCreate.call(document);
+                    docFragmentAppend.call(nw1, ...previousNodes);
+                    parentNode.insertBefore(nw1, parentNode.firstChild);
+                  }
+                  const nw2 = docFragmentCreate.call(document);
+                  docFragmentAppend.call(nw2, rightTabs, ...nextNodes);
+                  parentNode.appendChild(nw2);
                   // parentNode.replaceChildren(...previousNodes, container, rightTabs, ...nextNodes);
                   useDefault = false;
                 }

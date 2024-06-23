@@ -1797,25 +1797,25 @@ function injection_script_1() {
       // }
 
 
-      let atb = 0;
-      cProto.urlChangedIO = async function () {
+      // let atb = 0;
+      // cProto.urlChangedIO = async function () {
 
-        console.log('[tyt.chat] urlChangedIO')
-        if (atb > 1e9) atb = 9;
-        const t = ++atb;
+      //   console.log('[tyt.chat] urlChangedIO')
+      //   if (atb > 1e9) atb = 9;
+      //   const t = ++atb;
 
-        const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
-        if (!chatframe) return;
-        await Promise.resolve();
-        if (t !== atb) return;
+      //   const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
+      //   if (!chatframe) return;
+      //   await Promise.resolve();
+      //   if (t !== atb) return;
 
-        await getDMPromise();
-        if (t !== atb) return;
-        await getDMPromise();
-        if (t !== atb) return;
-        this.urlChanged();
+      //   await getDMPromise();
+      //   if (t !== atb) return;
+      //   await getDMPromise();
+      //   if (t !== atb) return;
+      //   this.urlChanged();
 
-      }
+      // }
 
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12) {
 
@@ -1850,13 +1850,9 @@ function injection_script_1() {
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
 
-      cProto.__urlChangedChangeCount51__ = 0;
 
       cProto.urlChanged = function () {
-        // if (!this.player) return;
         console.log('[tyt] urlChanged()');
-        if (this.__urlChangedChangeCount51__ > 1e9) this.__urlChangedChangeCount51__ = 9;
-        this.__urlChangedChangeCount51__++;
         this.__urlChanged_url82__ = this.url;
         return this.__$$urlChanged$$__();
       }
@@ -4858,20 +4854,12 @@ function injection_script_1() {
       return;
     }
 
-    // const t33 = `${chatCnt.__urlChangedChangeCount51__}${chatCnt.url}`;
-    // if (r33 !== t33) {
-    // r33 = t33;
     console.log('[tyt] trigger chatCnt.urlChanged() due to empty body');
     if (typeof chatCnt.urlChanged66 == 'function' && typeof chatCnt.urlChanged === 'function') {
       chatCnt.urlChanged();
     } else {
       console.log('[tyt] chatCnt.urlChanged66 is not defined', chatCnt.urlChanged66);
     }
-
-    // }
-    // if (typeof chatCnt.__tytChatFixUrlOnloadWithEmptyBody__ === 'function') {
-    // await chatCnt.__tytChatFixUrlOnloadWithEmptyBody__();
-    // }
 
   });
 
@@ -4897,13 +4885,13 @@ function injection_script_1() {
   });
 
 
-  pageScripts.set('tabview-chat-call-urlchange', async (target) => {
-    await ytChatFrameSetup.then();
-    const cnt = insp(target);
-    if (typeof cnt.urlChangedIO === 'function') {
-      cnt.urlChangedIO();
-    }
-  });
+  // pageScripts.set('tabview-chat-call-urlchange', async (target) => {
+  //   await ytChatFrameSetup.then();
+  //   const cnt = insp(target);
+  //   if (typeof cnt.urlChangedIO === 'function') {
+  //     cnt.urlChangedIO();
+  //   }
+  // });
 
 
   document.addEventListener('tabview-page-script', function (evt) {
