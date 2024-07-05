@@ -1786,37 +1786,6 @@ function injection_script_1() {
       if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
-      // if (typeof cProto.attached === 'function' && !cProto.attached66) {
-
-      //   cProto.attached66 = cProto.attached;
-      //   cProto.attached = function () {
-      //     const r = this.attached66();
-      //     this.urlChangedIO(); // Tabview Youtube only
-      //     return r;
-      //   }
-      // }
-
-
-      // let atb = 0;
-      // cProto.urlChangedIO = async function () {
-
-      //   console.log('[tyt.chat] urlChangedIO')
-      //   if (atb > 1e9) atb = 9;
-      //   const t = ++atb;
-
-      //   const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
-      //   if (!chatframe) return;
-      //   await Promise.resolve();
-      //   if (t !== atb) return;
-
-      //   await getDMPromise();
-      //   if (t !== atb) return;
-      //   await getDMPromise();
-      //   if (t !== atb) return;
-      //   this.urlChanged();
-
-      // }
-
       if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12) {
 
         cProto.urlChanged66 = cProto.urlChanged;
@@ -1825,26 +1794,19 @@ function injection_script_1() {
           if (ath > 1e9) ath = 9;
           const t = ++ath;
           const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
-          if (chatframe.contentDocument === null) await Promise.resolve();
-          if (t !== ath) return;
-          await getDMPromise();
-          if (t !== ath) return;
+          if (chatframe) {
+            if (chatframe.contentDocument === null) await Promise.resolve();
+            if (t !== ath) return;
+            let win = chatframe.contentWindow;
+            win && await new Promise(r => win.setTimeout(r));
+            win = null;
+            if (t !== ath) return;
+          }
           this.urlChanged66();
         }
         cProto.urlChanged = function () {
           this.urlChangedAsync12();
         }
-
-        /*
-
-          await new Promise(resolve => {
-            io = new IntersectionObserver(resolve, { root: null, threshold: [0.05, 0.95], rootMargin: '0px' });
-            io.observe(chatframe);
-          });
-          io.disconnect();
-          io.takeRecords();
-          io = null;
-        */
 
       }
 
