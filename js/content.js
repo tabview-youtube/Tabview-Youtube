@@ -291,6 +291,39 @@ if (typeof window === 'object') {
   };
   const iframePipeline = createPipeline();
 
+  
+  /*
+  const observablePromise = (proc, timeoutPromise) => {
+    let promise = null;
+    return {
+      obtain() {
+        if (!promise) {
+          promise = new Promise(resolve => {
+            let mo = null;
+            const f = () => {
+              let t = proc();
+              if (t) {
+                mo.disconnect();
+                mo.takeRecords();
+                mo = null;
+                resolve(t);
+              }
+            }
+            mo = new MutationObserver(f);
+            mo.observe(document, { subtree: true, childList: true })
+            f();
+            timeoutPromise && timeoutPromise.then(() => {
+              resolve(null)
+            });
+          });
+        }
+        return promise
+      }
+    }
+  }
+  */
+
+
   //if (!$) return;
 
   /**
@@ -8047,6 +8080,22 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   }
 
+  // added in 2024.07.05
+  // see https://greasyfork.org/scripts/428651/discussions/250256
+  const notWaitingRoom = () => {
+
+    // https://www.youtube.com/watch?v=fDL2UhbysVk
+    // live waiting room: dont hide for chat$live
+
+    if (!formatDates) {
+      return true; // assumption based
+    }
+
+    if (formatDates && formatDates.broadcastBeginAt && !formatDates.broadcastEndAt && formatDates.isLiveNow === false) return false;
+
+    return true;
+  }
+
   const dpeChatRefreshCounter = ControllerID();
   // let proceedingChatFrameVideoID = '';
   // let newVideoPageCACC = -1;
@@ -8159,7 +8208,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       if (chatTypeChanged) {
 
-        if (attr_chatblock == 'chat$live') {
+        if (attr_chatblock == 'chat$live' && notWaitingRoom()) {
 
           _console.log(932, 4)
 
