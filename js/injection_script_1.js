@@ -5135,4 +5135,4 @@ function injection_script_1() {
 
 injection_script_1();
 
-//# sourceURL=tabview-youtube://userscripts/tabview.inject1.js
+//# sourceURL=debug://tabview-youtube/tabview.inject1.js

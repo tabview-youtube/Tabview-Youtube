@@ -9084,4 +9084,4 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
 });
 // console.timeEnd("Tabview Youtube Init Script")
 
-//# sourceURL=tabview-youtube://userscripts/tabview.content.js
+//# sourceURL=debug://tabview-youtube/tabview.content.js

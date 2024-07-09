@@ -271,3 +271,5 @@ function main(){
   main();
 
 })();
+
+//# sourceURL=debug://tabview-youtube/tabview.content.js
