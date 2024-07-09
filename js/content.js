@@ -9083,3 +9083,5 @@ f.detachObserver=function(){this.observer&&this.observer.disconnect()};
   cancelAnimationFrame: (typeof webkitRequestAnimationFrame === 'function' ? webkitRequestAnimationFrame : requestAnimationFrame)
 });
 // console.timeEnd("Tabview Youtube Init Script")
+
+//# sourceURL=tabview-youtube://userscripts/tabview.content.js
