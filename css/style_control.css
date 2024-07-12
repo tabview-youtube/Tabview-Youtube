@@ -1180,6 +1180,10 @@
 		user-select: none !important;
 	}
 
+    ytd-watch-metadata.watch-active-metadata.style-scope.ytd-watch-flexy ~ div[class^=" "].style-scope.ytd-watch-flexy:not([id]):not([hidden]) [hidden] {
+        display: block !important;
+    }
+
 }
 
 @supports (color:var(--fix-invisible-info-bug)) {
