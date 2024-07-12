@@ -5537,11 +5537,14 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   });
 
   const appendExpander = () => {
+    
+    console.log('d950')
 
     const rid = `${renderIdentifier.valueOf()}`; // string type integer id
 
     const targets = document.querySelectorAll(`[bsptu="${rid}"]`); // ignore all appearance in previous paging
 
+    console.log('d951', targets.length)
     if (!targets.length) return;
     for (const target of targets) {
       // expect only one node; other measures for more than one node
@@ -5551,16 +5554,21 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let dummy = nodeName === 'yt-dummy-532' ? target : null;
       let expander0 = dummy ? elementMapper.get(dummy) : null;
       if (expander0 && closestDOM.call(expander0, '#tab-info')) continue;
+      console.log('d952', target)
       const expander = expander0 || (nodeName === 'ytd-expander' ? target : null);
       if (expander) {
+
+        let qt = 0;
 
         // once per $$native-info-description$$ {#meta-contents ytd-expander} detection
         // append the detailed meta contents to the tab-info
 
         const tabInfo = document.querySelector("#tab-info");
         if (tabInfo) {
+          qt = 1;
 
           if (!expander.hasAttribute('tyt-info-expander-content')) {
+            qt = 2;
             expander.setAttribute('tyt-info-expander-content', '');
             const dmy = document.createElement('yt-dummy-532'); // to detemine the content change by youtube engine
             dmy.setAttribute('tyt-info-expander-placeholder', '');
@@ -5570,17 +5578,20 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
             const parentRoot = closestDOM.call(dmy, '[hidden]'); // only detect if the traditional block is hidden
             if (parentRoot) {
+              qt = 3;
               moInfoContent.observe(parentRoot.parentNode, { subtree: true, childList: true });
             }
 
           }
           elementAppend.call(tabInfo, expander);
         }
+        
 
 
 
 
         removeContentMismatch();
+        console.log('d953', qt)
 
 
       }
@@ -5593,10 +5604,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   const infoContentForTab = () => {
+    console.log('d945', infoContentDS)
 
     if (mvideoState & 2) return;
     mvideoState |= 2;
-
+    console.log('d946', infoContentDS)
     document.documentElement.removeAttribute('pnzgu'); // just in case
     appendExpander();
     if (REMOVE_DUPLICATE_META_RECOMMENDATION) checkDuplicatedMetaRecommendation();
@@ -5739,9 +5751,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     const metaContentSetup = () => {
+      console.log('d943', infoContentDS)
       setupVideoTitleHover();
       let ks = renderIdentifier.valueOf();
       scriptletDeferred.debounce(() => {
+        console.log('d944', infoContentDS)
         if (ks === renderIdentifier.valueOf()) infoContentForTab();
       });
     };
@@ -5766,8 +5780,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         infoContentDS |= 2;
         console.log('new bsptu', target);
         target.isConnected && target.setAttribute('bsptu', renderIdentifier.valueOf());
+        console.log('d941', infoContentDS)
         if (infoContentDS === 3) {
           infoContentDS |= 4;
+          console.log('d942', infoContentDS)
           Promise.resolve().then(metaContentSetup);
         }
       }, wmId2);
