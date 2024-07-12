@@ -5764,10 +5764,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const wmHandler1 = (evt) => {
       renderDeferred.debounce(() => {
         infoContentDS |= 1;
-        if (infoContentDS === 3) {
-          infoContentDS |= 4;
-          Promise.resolve().then(metaContentSetup);
-        }
+        setTimeout(() => {
+          if (infoContentDS === 3) {
+            infoContentDS |= 4;
+            Promise.resolve().then(metaContentSetup);
+          }
+        }, 8)
       }, wmId1);
     }
     handleDOMAppear('watchMetaFrameReady1', wmHandler1);
@@ -5775,17 +5777,17 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const wmId2 = ControllerID();
     const wmHandler2 = (evt) => {
+      // sxmq8
       const target = evt.target;
       renderDeferred.debounce(() => {
         infoContentDS |= 2;
-        console.log('new bsptu', target);
         target.isConnected && target.setAttribute('bsptu', renderIdentifier.valueOf());
-        console.log('d941', infoContentDS)
-        if (infoContentDS === 3) {
-          infoContentDS |= 4;
-          console.log('d942', infoContentDS)
-          Promise.resolve().then(metaContentSetup);
-        }
+        setTimeout(() => {
+          if (infoContentDS === 3) {
+            infoContentDS |= 4;
+            Promise.resolve().then(metaContentSetup);
+          }
+        }, 8)
       }, wmId2);
     }
     handleDOMAppear('watchMetaContentReady1', wmHandler2);
@@ -8162,40 +8164,63 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // newVideoPageCACC = chatroomAttrCollapseCount;
     // console.debug('[tyt] debug ym-01-1')
 
+    const getPromise = () => {
+      return new Promise(resolve => {
+        let mo = new MutationObserver(() => {
+          if (resolve && mo) {
+            mo.disconnect();
+            mo.takeRecords();
+            mo = null;
+            resolve();
+            resolve = null;
+          }
+        });
+        mo && mo.observe(document.documentElement, { attributes: true, attributeFilter: ['sxmq8'] });
+      });
+    }
+
+    const promise = getPromise();
+
     const rootDom = document.documentElement;
     rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
     console.log('sxmq8 r3', document.documentElement.getAttribute('sxmq8') );
 
-    setTimeout(() => {
+    promise.then(() => {
 
+      const promise = getPromise();
       const rootDom = document.documentElement;
       rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
       console.log('sxmq8 r4', document.documentElement.getAttribute('sxmq8') );
 
-      // console.debug('[tyt] debug ym-01-2')
-      if (fvid !== pageFetchedDataVideoId) return;
+      promise.then(() => {
 
-      // console.debug('[tyt] debug ym-01-3')
-      if (tyid !== dpeChatRefreshCounter.valueOf()) return;
+        // console.debug('[tyt] debug ym-01-2')
+        if (fvid !== pageFetchedDataVideoId) return;
 
-      // console.debug('[tyt] debug ym-01-4')
-      dpeChatRefreshCounter.inc();
-      const chat = document.querySelector('ytd-live-chat-frame#chat');
-      if (chat && !chat.hasAttribute('collapsed')) {
-        // proceedingChatFrameVideoID = fvid;
+        // console.debug('[tyt] debug ym-01-3')
+        if (tyid !== dpeChatRefreshCounter.valueOf()) return;
 
-        // console.debug('[tyt] debug ym-01-5')
+        // console.debug('[tyt] debug ym-01-4')
+        dpeChatRefreshCounter.inc();
+        const chat = document.querySelector('ytd-live-chat-frame#chat');
+        if (chat && !chat.hasAttribute('collapsed')) {
+          // proceedingChatFrameVideoID = fvid;
+
+          // console.debug('[tyt] debug ym-01-5')
 
 
-        // dpeNewUrlChat(chat); // force replace url
+          // dpeNewUrlChat(chat); // force replace url
 
-        const iframe = _querySelector.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
-        // console.log("iframe.xx",501,iframe)
-        // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0D');
-        if (iframe) Promise.resolve(iframe).then(iframeToVisible); // fix empty
+          const iframe = _querySelector.call(chat, 'body iframe.style-scope.ytd-live-chat-frame#chatframe');
+          // console.log("iframe.xx",501,iframe)
+          // showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 0D');
+          if (iframe) Promise.resolve(iframe).then(iframeToVisible); // fix empty
 
-      }
-    }, 67);
+        }
+
+      });
+
+    });
 
 
     const chatBlockR = liveChatRenderer ? (isReplay ? 3 : 1) : 0
