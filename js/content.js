@@ -950,15 +950,24 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   // _console.log(38489)
 
-  const ControllerID = () => {
-    let q = 0;
-    const p = () => {
-      if (++q > 1e9) q = 9;
-      return q;
+  class ControllerIDInner {
+    constructor() {
+      this.q = 0;
     }
-    p.set = (v) => (q = v);
-    p.valueOf = () => q;
-    return p;
+    set(v) {
+      this.q = v
+    }
+    valueOf() {
+      return this.q;
+    }
+    inc() {
+      if (++this.q > 1e9) this.q = 9;
+      return this.q;
+    }
+  }
+
+  const ControllerID = () => {
+    return new ControllerIDInner();
   }
 
 
@@ -993,8 +1002,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     debounce(f, controllerId) {
       let g = f;
       if (controllerId) {
-        const tid = controllerId.auto === false ? +controllerId : controllerId();
-        g = () => (tid === +controllerId ? f() : 0);
+        const tid = controllerId.auto === false ? controllerId.valueOf() : controllerId.inc();
+        g = () => (tid === controllerId.valueOf() ? f() : 0);
       }
       return this.promise.then().then(g).catch(console.warn); // avoid promise.then.then.then ...
     }
@@ -4421,6 +4430,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const rootDom = document.documentElement;
     rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
+    console.log('sxmq8 r1', document.documentElement.getAttribute('sxmq8') );
 
     let comments = _querySelector.call(ytdFlexyElm, '#primary.ytd-watch-flexy ytd-watch-metadata ~ ytd-comments#comments');
     if (comments) {
@@ -4690,7 +4700,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const _pageBeingInit = function () {
 
-    psId(); // add one
+    psId.inc(); // add one
 
     fetchCounts = {
       base: null,
@@ -4713,8 +4723,10 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
     rootDom.removeAttribute('pnzgu');
 
+    console.log('sxmq8 r2', document.documentElement.getAttribute('sxmq8') );
+
     infoContentDS = 0;
-    renderIdentifier(); // add 1
+    renderIdentifier.inc(); // add 1
     renderDeferred.reset(); // clear quene of pending renderDeferreds
 
 
@@ -4819,7 +4831,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       for (let alCheckCount = 9; --alCheckCount > 0;) {
 
-        if (+renderIdentifier !== ks) break;
+        if (renderIdentifier.valueOf() !== ks) break;
         if (execute() !== true) break;
 
         await new Promise(r => setTimeout(r, alCheckInterval));
@@ -4828,9 +4840,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     }
 
-    let ks = +renderIdentifier;
+    let ks = renderIdentifier.valueOf();
     renderDeferred.debounce(() => {
-      if (ks !== +renderIdentifier) return
+      if (ks !== renderIdentifier.valueOf()) return
       if (mvideoState & 32) return;
       mvideoState |= 32;
       alCheckFn(ks);
@@ -4839,8 +4851,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
   }
-
-  const skIdInfoboxTooltipFix = ControllerID();
 
   const { removeDuplicateInfoFn, setHiddenStateForDesc } = (() => {
 
@@ -5293,7 +5303,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
             // await removeContentMismatch();
             await getRAFPromise().then();
 
-            if (+renderIdentifier !== ks) break;
+            if (renderIdentifier.valueOf() !== ks) break;
 
             const res = await checkDuplicatedInfo(); //async
 
@@ -5352,9 +5362,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
 
       }
-      let ks = +renderIdentifier;
+      let ks = renderIdentifier.valueOf();
       renderDeferred.debounce(() => {
-        if (ks !== +renderIdentifier) return
+        if (ks !== renderIdentifier.valueOf()) return
         if (document.fullscreenElement) return;
         if (!b) {
           if (mvideoState & 1) return;
@@ -5528,7 +5538,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   const appendExpander = () => {
 
-    const rid = `${+renderIdentifier}`; // string type integer id
+    const rid = `${renderIdentifier.valueOf()}`; // string type integer id
 
     const targets = document.querySelectorAll(`[bsptu="${rid}"]`); // ignore all appearance in previous paging
 
@@ -5730,9 +5740,9 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     const metaContentSetup = () => {
       setupVideoTitleHover();
-      let ks = +renderIdentifier;
+      let ks = renderIdentifier.valueOf();
       scriptletDeferred.debounce(() => {
-        if (ks === +renderIdentifier) infoContentForTab();
+        if (ks === renderIdentifier.valueOf()) infoContentForTab();
       });
     };
 
@@ -5754,7 +5764,8 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       const target = evt.target;
       renderDeferred.debounce(() => {
         infoContentDS |= 2;
-        target.isConnected && target.setAttribute('bsptu', +renderIdentifier);
+        console.log('new bsptu', target);
+        target.isConnected && target.setAttribute('bsptu', renderIdentifier.valueOf());
         if (infoContentDS === 3) {
           infoContentDS |= 4;
           Promise.resolve().then(metaContentSetup);
@@ -6031,8 +6042,6 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         }
       }
     }, bubblePassive);
-
-    const skIdFixPopupRefit = ControllerID();
 
     let isTabviewFixPopupRefitCalled = false;
 
@@ -6373,7 +6382,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (chat.hasAttribute('collapsed')) return;
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 10');
 
-    const tid = iframeLoadControllerId();
+    const tid = iframeLoadControllerId.inc();
 
     // console.log("iframe.xx",1237, chat)
 
@@ -6384,7 +6393,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       let cid = 0;
       const tf = () => {
         let exitLoop;
-        if (tid !== +iframeLoadControllerId || --timeoutCount < 0) {
+        if (tid !== iframeLoadControllerId.valueOf() || --timeoutCount < 0) {
           exitLoop = true;
         } else if (chat.isConnected === true && iframe.isConnected === true && !chat.hasAttribute('collapsed')) {
           exitLoop = false;
@@ -6425,7 +6434,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     showMessages_IframeLoaded && console.debug('[tyt.iframe] loaded 11');
 
-    if (tid !== +iframeLoadControllerId || !cDoc) {
+    if (tid !== iframeLoadControllerId.valueOf() || !cDoc) {
       return;
     }
 
@@ -8132,27 +8141,29 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
 
     const fvid = pageFetchedDataVideoId;
-    const tyid = dpeChatRefreshCounter();
+    const tyid = dpeChatRefreshCounter.inc();
     // proceedingChatFrameVideoID = '';
     // newVideoPageCACC = chatroomAttrCollapseCount;
     // console.debug('[tyt] debug ym-01-1')
 
     const rootDom = document.documentElement;
     rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
+    console.log('sxmq8 r3', document.documentElement.getAttribute('sxmq8') );
 
     setTimeout(() => {
 
       const rootDom = document.documentElement;
       rootDom.setAttribute('sxmq8', rootDom.getAttribute('sxmq8') === '1' ? '0' : '1');
+      console.log('sxmq8 r4', document.documentElement.getAttribute('sxmq8') );
 
       // console.debug('[tyt] debug ym-01-2')
       if (fvid !== pageFetchedDataVideoId) return;
 
       // console.debug('[tyt] debug ym-01-3')
-      if (tyid !== +dpeChatRefreshCounter) return;
+      if (tyid !== dpeChatRefreshCounter.valueOf()) return;
 
       // console.debug('[tyt] debug ym-01-4')
-      dpeChatRefreshCounter();
+      dpeChatRefreshCounter.inc();
       const chat = document.querySelector('ytd-live-chat-frame#chat');
       if (chat && !chat.hasAttribute('collapsed')) {
         // proceedingChatFrameVideoID = fvid;
@@ -8642,12 +8653,12 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (evt.isTrusted === true) {
       //console.log(evt)
-      let tcw = resizeCount();
+      let tcw = resizeCount.inc();
       Promise.resolve(0).then(() => {
-        if (tcw !== +resizeCount) return;
+        if (tcw !== resizeCount.valueOf()) return;
         setTimeout(() => {
           // avoid duplicate calling during resizing
-          if (tcw !== +resizeCount) return;
+          if (tcw !== resizeCount.valueOf()) return;
 
           resizeCount.set(0);
           manualResizeT();
