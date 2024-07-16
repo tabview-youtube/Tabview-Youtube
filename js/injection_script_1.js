@@ -1797,9 +1797,11 @@ function injection_script_1() {
           if (chatframe) {
             if (chatframe.contentDocument === null) await Promise.resolve();
             if (t !== ath) return;
-            let win = chatframe.contentWindow;
-            win && await new Promise(r => win.setTimeout(r));
-            win = null;
+            try {
+              let win = chatframe.contentWindow;
+              win && await (new Promise(r => win.setTimeout(r)).catch(console.warn));
+              win = null;
+            } catch (e) { }
             if (t !== ath) return;
           }
           this.urlChanged66();
