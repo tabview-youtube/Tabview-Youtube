@@ -24,6 +24,79 @@ SOFTWARE.
 
 */
 
+!window.TTP && (() => {
+  // credit to Benjamin Philipp
+  // original source: https://greasyfork.org/en/scripts/433051-trusted-types-helper
+
+  // --------------------------------------------------- Trusted Types Helper ---------------------------------------------------
+
+  const overwrite_default = false; // If a default policy already exists, it might be best not to overwrite it, but to try and set a custom policy and use it to manually generate trusted types. Try at your own risk
+  const prefix = `TTP`;
+  var passThroughFunc = function (string, sink) {
+    return string; // Anything passing through this function will be returned without change
+  }
+  var TTPName = "passthrough";
+  var TTP_default, TTP = { createHTML: passThroughFunc, createScript: passThroughFunc, createScriptURL: passThroughFunc }; // We can use TTP.createHTML for all our assignments even if we don't need or even have Trusted Types; this should make fallbacks and polyfills easy
+  var needsTrustedHTML = false;
+  function doit() {
+    try {
+      if (typeof window.isSecureContext !== 'undefined' && window.isSecureContext) {
+        if (window.trustedTypes && window.trustedTypes.createPolicy) {
+          needsTrustedHTML = true;
+          if (trustedTypes.defaultPolicy) {
+            log("TT Default Policy exists");
+            if (overwrite_default)
+              TTP = window.trustedTypes.createPolicy("default", TTP);
+            else
+              TTP = window.trustedTypes.createPolicy(TTPName, TTP); // Is the default policy permissive enough? If it already exists, best not to overwrite it
+            TTP_default = trustedTypes.defaultPolicy;
+
+            log("Created custom passthrough policy, in case the default policy is too restrictive: Use Policy '" + TTPName + "' in var 'TTP':", TTP);
+          }
+          else {
+            TTP_default = TTP = window.trustedTypes.createPolicy("default", TTP);
+          }
+          log("Trusted-Type Policies: TTP:", TTP, "TTP_default:", TTP_default);
+        }
+      }
+    } catch (e) {
+      log(e);
+    }
+  }
+
+  function log(...args) {
+    if ("undefined" != typeof (prefix) && !!prefix)
+      args = [prefix + ":", ...args];
+    if ("undefined" != typeof (debugging) && !!debugging)
+      args = [...args, new Error().stack.replace(/^\s*(Error|Stack trace):?\n/gi, "").replace(/^([^\n]*\n)/, "\n")];
+    console.log(...args);
+  }
+
+  doit();
+
+  // --------------------------------------------------- Trusted Types Helper ---------------------------------------------------
+
+  window.TTP = TTP;
+
+})();
+
+function createHTML(s) {
+  if (typeof TTP !== 'undefined' && typeof TTP.createHTML === 'function') return TTP.createHTML(s);
+  return s;
+}
+
+let trustHTMLErr = null;
+try {
+  document.createElement('div').innerHTML = createHTML('1');
+} catch (e) {
+  trustHTMLErr = e;
+}
+
+if (trustHTMLErr) {
+  console.log(`trustHTMLErr`, trustHTMLErr);
+  trustHTMLErr(); // exit userscript
+}
+
 if (typeof window === 'object') {
   function script3278() {
     const DISABLE_FLAGS_SHADYDOM_FREE = true;
@@ -1883,7 +1956,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     let elm = document.createElement('tabview-view-tab-expander')
     prependTo(elm, tabContent);
-    elm.innerHTML = `<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`
+    elm.innerHTML = createHTML(`<div>${svgElm(16, 16, 12, 12, svgDiag1, 'svg-expand')}${svgElm(16, 16, 12, 12, svgDiag2, 'svg-collapse')}</div>`);
     elm.addEventListener('click', handlerTabExpanderClick, false);
     return true;
 
@@ -3907,7 +3980,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     const tabBtn = document.querySelector('[tyt-tab-content="#tab-comments"]');
     let span = _querySelector.call(tabBtn, 'span#tyt-cm-count');
     tabBtn.removeAttribute('loaded-comment')
-    span.innerHTML = '';
+    span.innerHTML = createHTML('');
 
     if (tabBtn) {
       setTabBtnVisible(tabBtn, true);
@@ -5939,7 +6012,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let svg = evt.target;
       let p = document.createElement('template');
-      p.innerHTML = '<svg viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M8,2V1H3v1h1v3.8L3,7h2v2.5L5.5,10L6,9.5V7h2L7,5.8V2H8z M6,6H5V2h1V6z" class="style-scope yt-icon"></path></g></svg>';
+      p.innerHTML = createHTML('<svg viewBox="0 0 12 12" preserveAspectRatio="xMidYMid meet" focusable="false" class="style-scope yt-icon" style="pointer-events: none; display: block; width: 100%; height: 100%;"><g class="style-scope yt-icon"><path d="M8,2V1H3v1h1v3.8L3,7h2v2.5L5.5,10L6,9.5V7h2L7,5.8V2H8z M6,6H5V2h1V6z" class="style-scope yt-icon"></path></g></svg>');
       svg.replaceWith(p.content.firstChild);
 
 
@@ -6807,7 +6880,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (!document.querySelector("#right-tabs")) {
       getLangForPage();
       let docTmp = document.createElement('template');
-      docTmp.innerHTML = getTabsHTML();
+      docTmp.innerHTML = createHTML(getTabsHTML());
       let newElm = docTmp.content.firstElementChild;
       if (newElm !== null) {
         insertBeforeTo(newElm, related);
