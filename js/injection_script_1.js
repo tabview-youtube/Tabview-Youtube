@@ -1868,13 +1868,20 @@ function injection_script_1() {
           const t = ++ath;
           const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
           if (chatframe) {
-            if (chatframe.contentDocument === null) await Promise.resolve();
+            if (chatframe.contentDocument === null) await Promise.resolve('#').catch(console.warn);
             if (t !== ath) return;
             try {
               let win = chatframe.contentWindow;
-              win && await (new Promise(r => win.setTimeout(r)).catch(console.warn));
+              win && await (new Promise(r => win.setTimeout.call(window, r, '1')).catch(console.warn));
               win = null;
             } catch (e) { }
+            if (t !== ath) return;
+            await new Promise(resolve => {
+              (new IntersectionObserver((_, observer) => {
+                observer.disconnect();
+                resolve('#');
+              })).observe(chatframe);
+            });
             if (t !== ath) return;
           }
           this.urlChanged66();
