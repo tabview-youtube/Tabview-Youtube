@@ -1870,11 +1870,7 @@ function injection_script_1() {
           if (chatframe) {
             if (chatframe.contentDocument === null) await Promise.resolve('#').catch(console.warn);
             if (t !== ath) return;
-            try {
-              let win = chatframe.contentWindow;
-              win && await (new Promise(r => win.setTimeout.call(window, r, '1')).catch(console.warn));
-              win = null;
-            } catch (e) { }
+            await (new Promise(r => window.setTimeout.call(window, r, '1')).catch(console.warn));
             if (t !== ath) return;
             await new Promise(resolve => {
               (new IntersectionObserver((_, observer) => {
