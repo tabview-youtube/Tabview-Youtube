@@ -3709,6 +3709,7 @@ body .ytp-autohide .ytp-unmute,
 /* non-fullscreen */
 @media not all and (display-mode: fullscreen) {
 
+    /*
     @supports (color: var(--compatibile-with-enhancer-youtube-single-col)) and (selector(:has(a#id + b))) {
 
         ytd-watch-flexy:not([is-two-columns_]) #player:has(ytd-player#ytd-player + .efyt-control-bar) {
@@ -3717,6 +3718,7 @@ body .ytp-autohide .ytp-unmute,
 
         }
     }
+    */
 
     /*
     @supports (color: var(--fix-decimal-wh-video-white-border)){
@@ -3976,10 +3978,12 @@ body .ytp-autohide .ytp-unmute,
 
         /* for chrome extension - Enhancer for YouTube™
         https://chrome.google.com/webstore/detail/enhancer-for-youtube/ponfpcnoihfmfllpaingbgckeeldkhle  */
+        /*
         html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns.ytd-watch-flexy #primary.ytd-watch-flexy #player,
         html.efyt-control-bar-position-absolute ytd-watch-flexy:not([theater]) #columns.ytd-watch-flexy #primary.ytd-watch-flexy ytd-player#ytd-player {
             contain: initial !important;
         }
+        */
 
         /* contain 632 */
 
