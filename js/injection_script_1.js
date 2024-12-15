@@ -2329,61 +2329,64 @@ function injection_script_1() {
 
     /* added in 2023.06.09 */
     /* modified in 2023.08.26 */
-    const regRFn = (cProto, keyA, keyB) => {
+    // removed in 2024.12.15
+    // const regRFn = (cProto, keyA, keyB) => {
 
-      if (cProto[keyB] || !cProto[keyA]) return;
+    //   if (cProto[keyB] || !cProto[keyA]) return;
 
-      cProto[keyB] = cProto[keyA];
+    //   cProto[keyB] = cProto[keyA];
 
-      let renderStore = new WeakMap();
+    //   let renderStore = new WeakMap();
 
-      cProto[keyA] = function () {
+    //   cProto[keyA] = function () {
 
-        const cnt = this;
-        const hostElement = this.hostElement || this;
+    //     const cnt = this;
+    //     const hostElement = this.hostElement || this;
 
-        if (renderStore.get(hostElement) >= 1) return;
-        renderStore.set(hostElement, 1);
-        getForegroundPromise().then(() => {
+    //     if (renderStore.get(hostElement) >= 1) return;
+    //     renderStore.set(hostElement, 1);
+    //     getForegroundPromise().then(() => {
 
-          renderStore.set(hostElement, 0);
+    //       renderStore.set(hostElement, 0);
 
-          if (cnt.hidden !== true && cnt.isAttached === true && hostElement.isConnected === true) {
+    //       if (cnt.hidden !== true && cnt.isAttached === true && hostElement.isConnected === true) {
 
-            cnt[keyB]();
-          }
+    //         cnt[keyB]();
+    //       }
 
-        });
+    //     });
 
-      };
-
-
-
-    }
+    //   };
 
 
-    /* added in 2023.06.09 */
 
-    retrieveCE('yt-attributed-string').then((cProto) => {
-
-      // since DFa cannot be hacked
-
-      regRFn(cProto, 'templatingFn', '__templatingFn__');
-      regRFn(cProto, 'doIdomRender', '__doIdomRender__');
-
-    });
+    // }
 
 
     /* added in 2023.06.09 */
+    // removed in 2024.12.15
 
-    retrieveCE('yt-button-shape').then((cProto) => {
+    // retrieveCE('yt-attributed-string').then((cProto) => {
 
-      // since DFa cannot be hacked
+    //   // since DFa cannot be hacked
 
-      regRFn(cProto, 'templatingFn', '__templatingFn__');
-      regRFn(cProto, 'doIdomRender', '__doIdomRender__');
+    //   regRFn(cProto, 'templatingFn', '__templatingFn__');
+    //   regRFn(cProto, 'doIdomRender', '__doIdomRender__');
 
-    });
+    // });
+
+
+    /* added in 2023.06.09 */
+    // removed in 2024.12.15
+
+    // retrieveCE('yt-button-shape').then((cProto) => {
+
+    //   // since DFa cannot be hacked
+
+    //   regRFn(cProto, 'templatingFn', '__templatingFn__');
+    //   regRFn(cProto, 'doIdomRender', '__doIdomRender__');
+
+    // });
 
 
     retrieveCE('ytd-player').then((cProto) => {
