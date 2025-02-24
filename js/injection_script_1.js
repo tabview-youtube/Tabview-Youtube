@@ -78,6 +78,7 @@ function injection_script_1() {
     let cnt = insp(o);
     return cnt && (('horizontalAlign' in cnt) || ('verticalAlign' in cnt)) ? cnt : o;
   };
+  const setTimeout_ = setTimeout.bind(window);
 
   if (document.documentElement && document.documentElement.hasAttribute('tabview-unwrapjs')) {
     console.warn('Multiple instances of Tabview Youtube is attached. [0x7F02]')
@@ -1808,25 +1809,32 @@ function injection_script_1() {
       if (typeof cProto.__$$urlChanged$$__ === 'function') console.warn('__$$urlChanged$$__ is already defined in ytd-live-chat-frame.');
       if (typeof cProto.urlChanged !== 'function' || cProto.urlChanged.length !== 0) console.warn('urlChanged cannot be altered');
 
-      if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12) {
-
+      if (typeof cProto.urlChanged === 'function' && !cProto.urlChanged66 && !cProto.urlChangedAsync12 && cProto.urlChanged.length === 0) {
         cProto.urlChanged66 = cProto.urlChanged;
         let ath = 0;
         cProto.urlChangedAsync12 = async function () {
-          if (ath > 1e9) ath = 9;
-          const t = ++ath;
+          const t = ath = (ath & 1073741823) + 1;
           const chatframe = this.chatframe || (this.$ || 0).chatframe || 0;
-          if (chatframe) {
-            if (chatframe.contentDocument === null) await Promise.resolve('#').catch(console.warn);
-            if (t !== ath) return;
-            await (new Promise(r => window.setTimeout.call(window, r, '1')).catch(console.warn));
-            if (t !== ath) return;
-            await new Promise(resolve => {
-              (new IntersectionObserver((_, observer) => {
-                observer.disconnect();
-                resolve('#');
+          if (chatframe instanceof HTMLIFrameElement) {
+            if (chatframe.contentDocument === null) {
+              await Promise.resolve('#').catch(console.warn);
+              if (t !== ath) return;
+            }
+            const isBlankPage = !this.data || this.collapsed;
+            const p1 = new Promise(resolve => setTimeout_(resolve, 706)).catch(console.warn);
+            const p2 = new Promise(resolve => {
+              (new IntersectionObserver((entries, observer) => {
+                for (const entry of entries) {
+                  const rect = entry.boundingClientRect || 0;
+                  if (isBlankPage || (rect.width > 0 && rect.height > 0)) {
+                    observer.disconnect();
+                    resolve('#');
+                    break;
+                  }
+                }
               })).observe(chatframe);
-            });
+            }).catch(console.warn);
+            await Promise.race([p1, p2]);
             if (t !== ath) return;
           }
           this.urlChanged66();
@@ -1834,7 +1842,6 @@ function injection_script_1() {
         cProto.urlChanged = function () {
           this.urlChangedAsync12();
         }
-
       }
 
       cProto.__$$urlChanged$$__ = cProto.urlChanged;
@@ -1976,8 +1983,7 @@ function injection_script_1() {
               if (lastUrl !== ed && c) {
                 lastUrl = ed;
                 c._uepoxvqe = ed;
-                liveChatPageUrlCount++;
-                if (liveChatPageUrlCount > 1e9) liveChatPageUrlCount = 9;
+                liveChatPageUrlCount = (liveChatPageUrlCount & 1073741823) + 1;
                 if (this.__IframeResetReady__) this.__IframeResetReady__(ed);
               }
             }
@@ -2459,8 +2465,7 @@ function injection_script_1() {
   async function createPanel() {
 
     try {
-      if (createPanelMZ > 1e9) createPanelMZ = 9;
-      const tid = ++createPanelMZ;
+      const tid = createPanelMZ = (createPanelMZ & 1073741823) + 1;
       await _retrieveCE("ytd-engagement-panel-section-list-renderer");
 
       if (tid !== createPanelMZ) return;
