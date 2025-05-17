@@ -1640,8 +1640,8 @@ function injection_script_1() {
       // if (!s) return;
       const content = this.content || this.$.content;
       this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed || this.isToggled)
-        ? this.alwaysToggleable || (content && content.offsetHeight < content.scrollHeight)
-        : this.alwaysToggleable || (content && content.scrollHeight > this.collapsedHeight)
+        ? this.alwaysToggleable || this.isToggled || (content && content.offsetHeight < content.scrollHeight)
+        : this.alwaysToggleable || this.isToggled || (content && content.scrollHeight > this.collapsedHeight)
     };
 
     const insObserver = getInsObserver();
