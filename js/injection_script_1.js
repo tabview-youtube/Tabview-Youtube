@@ -1637,10 +1637,11 @@ function injection_script_1() {
 
 
     const funcCanCollapse = function (s) {
-      if (!s) return;
-      this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed)
-        ? this.alwaysToggleable || this.$.content.offsetHeight < this.$.content.scrollHeight
-        : this.alwaysToggleable || this.$.content.scrollHeight > this.collapsedHeight
+      // if (!s) return;
+      const content = this.content || this.$.content;
+      this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed || this.isToggled)
+        ? this.alwaysToggleable || (content && content.offsetHeight < content.scrollHeight)
+        : this.alwaysToggleable || (content && content.scrollHeight > this.collapsedHeight)
     };
 
     const insObserver = getInsObserver();
