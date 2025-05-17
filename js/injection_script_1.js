@@ -1639,7 +1639,7 @@ function injection_script_1() {
     const funcCanCollapse = function (s) {
       // if (!s) return;
       const content = this.content || this.$.content;
-      this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed || this.isToggled)
+      this.canToggle = this.shouldUseNumberOfLines && (this.alwaysCollapsed || this.collapsed || (this.isToggled === false))
         ? this.alwaysToggleable || this.isToggled || (content && content.offsetHeight < content.scrollHeight)
         : this.alwaysToggleable || this.isToggled || (content && content.scrollHeight > this.collapsedHeight)
     };
