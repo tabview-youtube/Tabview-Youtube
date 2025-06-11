@@ -2348,8 +2348,21 @@ body .ytp-autohide .ytp-unmute,
 
     ytd-watch-flexy[is-two-columns_] .tab-content-cld #tabview-playlist-wrapper {
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld #tabview-playlist-wrapper > ytd-playlist-panel-renderer {
+        height: 100%;
+        flex-grow: 1;
+        flex-shrink: 0;
+    }
+
+    ytd-watch-flexy[is-two-columns_] .tab-content-cld #tabview-playlist-wrapper > ytd-playlist-panel-renderer #container.ytd-playlist-panel-renderer {
+        max-height: none;
+    }
+
+    /*
     ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] {
         height: 100%;
     }
@@ -2357,6 +2370,7 @@ body .ytp-autohide .ytp-unmute,
     ytd-watch-flexy[is-two-columns_] .tab-content-cld ytd-playlist-panel-renderer[js-panel-height] #container.ytd-playlist-panel-renderer {
         max-height: none;
     }
+    */
 
     ytd-watch-flexy:not([theater]):not([is-two-columns_]) #secondary.ytd-watch-flexy,
     ytd-watch-flexy[theater]:not([is-two-columns_]) #secondary.ytd-watch-flexy {
@@ -4576,7 +4590,7 @@ body .ytp-autohide .ytp-unmute,
 
     
     ytd-watch-flexy[is-two-columns_] ytd-playlist-panel-renderer#playlist #items.playlist-items.style-scope.ytd-playlist-panel-renderer {
-        contain: strict;
+        contain: content;
     }
     
 }
