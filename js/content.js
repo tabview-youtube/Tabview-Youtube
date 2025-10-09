@@ -8465,7 +8465,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
         if (docElement.hasAttribute('tabview-loaded')) {
           throw 'Tabview Youtube Duplicated';
         }
-        docElement.setAttribute('tabview-loaded', '')
+        docElement.setAttribute('tabview-loaded', 'o')
 
         Promise.resolve(docElement).then(docElement => {
           if (ytEventSequence >= 2) {
