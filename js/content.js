@@ -2042,7 +2042,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
   function updateFloatingSlider() {
 
-    let secondaryInner = document.querySelector('ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')
+    let secondaryInner = document.querySelector('ytd-watch-flexy[class][is-two-columns_] #secondary-inner.ytd-watch-flexy')
 
     if (!secondaryInner) return;
 
@@ -2059,7 +2059,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let v = document.documentElement.clientWidth; //integer
 
-      if (t === v && secondaryInner.matches('body ytd-watch-flexy[flexy][is-two-columns_] #secondary-inner.ytd-watch-flexy')) {
+      if (t === v && secondaryInner.matches('body ytd-watch-flexy[class][is-two-columns_] #secondary-inner.ytd-watch-flexy')) {
 
         updateFloatingSlider_A(secondaryInner).then(unlock);
       } else {
@@ -2384,7 +2384,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
           let scrollElement = document.querySelector('ytd-app[scrolling]')
           if (!scrollElement) return;
           // single column view; click button; scroll to tab content area 100%
-          let epPanel = document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])');
+          let epPanel = document.querySelector('ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])');
           if (epPanel) {
             // _console.log(7290, 2)
 
@@ -2781,7 +2781,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     // let count = 0;
 
     for (const ePanel of document.querySelectorAll(
-      `ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
+      `ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
     )) {
       let targetId = ePanel.getAttribute('target-id')
       if (typeof targetId !== 'string') continue;
@@ -2884,7 +2884,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
   function ytBtnCloseEngagementPanels() {
     if (isEngagementPanelExpanded()) {
       for (const s of document.querySelectorAll(
-        `ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
+        `ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility]:not([hidden])`
       )) {
         if (s.getAttribute('visibility') == "ENGAGEMENT_PANEL_VISIBILITY_EXPANDED") ytBtnCloseEngagementPanel(s);
       }
@@ -4191,7 +4191,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (mutations === 9) {
         found = observer
       } else {
-        if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+        if (document.querySelector('ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
           // do nothing
         } else {
           mtoVisibility_EngagementPanel.clear(true)
@@ -4882,11 +4882,11 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       if (!ytdFlexyElm) return;
       let hiddenBool = !document.fullscreenElement ? ytdFlexyElm.classList.contains('tabview-info-duplicated') : false;
       let elm;
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #plain-snippet-text');
+      elm = document.querySelector('.tabview-info-duplicated-checked ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #plain-snippet-text');
       if (elm) {
         wAttr(elm, 'hidden', hiddenBool);
       }
-      elm = document.querySelector('.tabview-info-duplicated-checked[flexy] ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #formatted-snippet-text');
+      elm = document.querySelector('.tabview-info-duplicated-checked ytd-text-inline-expander#description-inline-expander.ytd-watch-metadata #formatted-snippet-text');
       if (elm) {
         wAttr(elm, 'hidden', hiddenBool);
       }
@@ -4898,7 +4898,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
       let cssbool_c1 = false, cssbool_c2 = false;
 
-      if (ytdFlexyElm.matches('.tabview-info-duplicated[flexy]')) {
+      if (ytdFlexyElm.matches('.tabview-info-duplicated')) {
         cssbool_c1 = !!_querySelector.call(ytdFlexyElm, '#description.style-scope.ytd-watch-metadata > #description-inner:only-child');
         cssbool_c2 = !!_querySelector.call(ytdFlexyElm, '#tab-info ytd-expander #description.ytd-video-secondary-info-renderer');
       }
@@ -5855,7 +5855,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
       try {
         let node = evt.target;
 
-        let eps = document.querySelectorAll('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')
+        let eps = document.querySelectorAll('ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')
 
         if (eps && eps.length > 0) {
 
@@ -6855,7 +6855,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
 
     if (document.querySelector('ytd-watch-flexy[tyt-chat^="+"]')) {
       switchToDefaultTabNotAllowed = true;
-    } else if (document.querySelector('ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
+    } else if (document.querySelector('ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])')) {
       switchToDefaultTabNotAllowed = true;
     } else if (document.querySelector('ytd-watch-flexy ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden]):not(:empty)')) {
       switchToDefaultTabNotAllowed = true;
@@ -8062,7 +8062,7 @@ yt-update-unseen-notification-count yt-viewport-scanned yt-visibility-refresh
     if (ytdFlexyElm.getAttribute('tyt-tab') === '' && new_isTwoColumns && !new_isTheater && nothingShown && !new_isFullScreen) {
       // e.g. engage panel removed after miniview and change video
       setToActiveTab();
-    } else if (new_isExpandedEPanel && _querySelectorAll.call(ytdFlexyElm, 'ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])').length === 0) {
+    } else if (new_isExpandedEPanel && _querySelectorAll.call(ytdFlexyElm, 'ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden])').length === 0) {
       wls.layoutStatus = new_layoutStatus & (~LAYOUT_ENGAGEMENT_PANEL_EXPANDED)
     } else if (new_isExpandedDonationShelf && _querySelectorAll.call(ytdFlexyElm, 'ytd-donation-shelf-renderer.ytd-watch-flexy:not([hidden])').length === 0) {
       wls.layoutStatus = new_layoutStatus & (~LAYOUT_DONATION_SHELF_EXPANDED)

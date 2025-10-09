@@ -142,7 +142,7 @@
             }
         }
 
-        html[tabview-loaded] ytd-watch-flexy[flexy][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]){
+        html[tabview-loaded] ytd-watch-flexy[class][tyt-tab] #panels.ytd-watch-flexy ytd-engagement-panel-section-list-renderer[target-id][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]:not([hidden]){
             animation: epDOMAppended 1ms linear 0s 1 normal forwards;
         }
     }
@@ -372,7 +372,7 @@
             --tabview-view-videos-endpos-display: flex;
         }
 
-        body ytd-watch-flexy[flexy][is-two-columns_] #tab-videos.tab-content-cld {
+        body ytd-watch-flexy[class][is-two-columns_] #tab-videos.tab-content-cld {
             --tabview-view-videos-endpos-display: none;
         }
 
@@ -605,7 +605,7 @@
 
         }
 
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
 
             /*
             transition: transform 0.13s ease-out, min-width 1ms, background-color 250ms linear, outline 250ms linear;
@@ -640,7 +640,7 @@
         /* 2022/12/25 added for firefox css (rendering) bug fixing */
         @supports (-moz-appearance: none) {
 
-            ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
+            ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider>#secondary-inner {
                 border: 1px solid transparent;
             }
 
@@ -656,8 +656,8 @@
             }
         }
 
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner,
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner {
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover>#secondary-inner,
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable>#secondary-inner {
             /* two layout are different in size and location */
 
             animation: tabviewSiderAnimation 330ms ease-in-out 0s 1 normal forwards;
@@ -680,8 +680,8 @@
             transition-delay: initial;
         }
 
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover> tabview-hover-slider-empty-view,
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> tabview-hover-slider-empty-view {
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover> tabview-hover-slider-empty-view,
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> tabview-hover-slider-empty-view {
 
             width: var(--tyt-slider-width, 0px);
             display:flex;
@@ -689,8 +689,8 @@
 
         }
 
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy,
-        ytd-watch-flexy[flexy][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy {
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider:hover ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy,
+        ytd-watch-flexy[class][is-two-columns_]:not([theater]):not([fullscreen]) #secondary.ytd-watch-flexy.tabview-hover-slider.tabview-hover-slider-enable> ytd-live-chat-frame#chat.style-scope.ytd-watch-flexy {
 
             width: 100%;
 
@@ -775,7 +775,7 @@
     @supports (color: var(--anti-youtube-layout-bug-01)){
 
 
-        ytd-watch-flexy[flexy][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander{
+        ytd-watch-flexy[class][is-two-columns_] #secondary.style-scope.ytd-watch-flexy > tabview-view-secondary-xpander{
 
             display: flex;
             width: var(--ytd-watch-flexy-sidebar-width);
@@ -816,21 +816,21 @@
             box-sizing: border-box;
         }
 
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs>tabview-view-pos-thead {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs>tabview-view-pos-thead {
             display: flex;
         }
 
 
         
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs {
             --tyt-stickybar-h2: 0px;
         }
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs[tyt-stickybar] {
             --tyt-stickybar-h2: var(--tyt-stickybar-h);
         }
 
         
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-view-pos-thead {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>tabview-view-pos-thead {
             position: relative;
             margin-bottom: var(--tyt-stickybar-h2);
             box-sizing: border-box;
@@ -850,20 +850,20 @@
             box-sizing: border-box;
         }
 
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs > header {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs > header {
             background-color: var(--yt-spec-general-background-a);
         }
 
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>header {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs[tyt-stickybar]>header {
             z-index: 2;
             position: fixed;
             top: var(--ytd-watch-flexy-masthead-height);
         }
         
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar]:not([style*="--tyt-stickybar-r"])>header {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs[tyt-stickybar]:not([style*="--tyt-stickybar-r"])>header {
             width: var(--tyt-stickybar-w, 100%);
         }
-        ytd-watch-flexy[flexy]:not([is-two-columns_]) #right-tabs[tyt-stickybar][style*="--tyt-stickybar-r"]>header {
+        ytd-watch-flexy[class]:not([is-two-columns_]) #right-tabs[tyt-stickybar][style*="--tyt-stickybar-r"]>header {
             left:var(--tyt-stickybar-l);
             right:var(--tyt-stickybar-r);
         }
@@ -1116,8 +1116,8 @@
         --ygl-lyricscontainer-padding: '--NULL--';
     }
 
-    html[youtube-genius-lyrics-container="found"] ytd-watch-flexy[flexy][theater],
-    html[youtube-genius-lyrics-container="loading"] ytd-watch-flexy[flexy][theater] {
+    html[youtube-genius-lyrics-container="found"] ytd-watch-flexy[class][theater],
+    html[youtube-genius-lyrics-container="loading"] ytd-watch-flexy[class][theater] {
         --ygl-theater-player-max-width: '--NULL--';
         --ygl-theater-player-float: '--NULL--';
         --ygl-theater-player-left: '--NULL--';
