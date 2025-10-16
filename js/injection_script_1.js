@@ -3888,14 +3888,15 @@ function injection_script_1() {
 
       }
 
-      let btn = null;
-      if (endpoint) {
+      // 2025.10.16 - ignore ytp-miniplayer-button existance
+      // let btn = null;
+      // if (endpoint) {
 
-        btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
+      //   btn = document.querySelector('.tabview-normal-player #movie_player button.ytp-miniplayer-button.ytp-button');
 
-        if (!btn) endpoint = null;
+      //   if (!btn) endpoint = null;
 
-      }
+      // }
 
 
       if (!endpoint) return handleNavigate.apply($this, $arguments);
