@@ -1,10 +1,12 @@
+# Warning: This is no longer maintained. Please switch to https://github.com/tabview-youtube/Tabview-Youtube-Totara
+
 # Tabview-Youtube
 
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 Enhance your YouTube experience with a tabbed interface for better video management.
 
-[Install Script](https://github.com/cyfung1031/Tabview-Youtube/raw/generated-files/generated/Tabview-Youtube.user.js)
+[Install Script](https://github.com/tabview-youtube/Tabview-Youtube/raw/generated-files/generated/Tabview-Youtube.user.js)
 
 ## Features
 
@@ -21,7 +23,7 @@ Enhance your YouTube experience with a tabbed interface for better video managem
 ## Installation
 
 1. Install [Tampermonkey](https://www.tampermonkey.net/) for Firefox or Chrome
-2. Click the [Install Script](https://github.com/cyfung1031/Tabview-Youtube/raw/generated-files/generated/Tabview-Youtube.user.js) link
+2. Click the [Install Script](https://github.com/tabview-youtube/Tabview-Youtube/raw/generated-files/generated/Tabview-Youtube.user.js) link
 3. Refresh YouTube to start using
 
 ## Contributing
