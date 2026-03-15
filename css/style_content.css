@@ -2180,7 +2180,7 @@ body .ytp-autohide .ytp-unmute,
 
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content="#tab-comments"][loaded-comment="message"],
         ytd-watch-flexy #right-tabs .tab-btn[tyt-tab-content="#tab-comments"][loaded-comment="message"]:hover {
-            --tyt-tab-btn-color: var(--yt-spec-icon-disabled);
+            --tyt-tab-btn-color: var(--yt-spec-text-disabled);
         }
 
         ytd-watch-flexy #right-tabs .tab-btn span#tyt-cm-count:empty::after {
